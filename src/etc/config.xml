@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../Magento/Store/etc/config.xsd">
+    <default>
+        <carriers>
+            <shipper>
+                <active>0</active>
+                <title>Shipping Rates</title>
+                <api_key backend_model="adminhtml/system_config_backend_encrypted">ZcmhDy912bavqmBnzMs6PCcUgQfv8ek82ty+zb9EBW4=</api_key>
+                <password backend_model="adminhtml/system_config_backend_encrypted">DTAzdo8+0u4DbuvI5NgP8V711uNH6COXD/e821CQSmY6gfOzH1enxEVmexG2sPbEQQGDbEelSQ4=</password>
+                <url>http://sandbox.shipperhq.com/v1/</url>
+                <live_url>http://api.shipperhq.com/v1/</live_url>
+                <secure_url>https://api.shipperhq.com/v1/</secure_url>
+                <model>shipperhq_shipper/carrier_shipper</model>
+                <sandbox_mode>0</sandbox_mode>
+                <environment_scope>LIVE</environment_scope>
+                <hide_notify>0</hide_notify>
+                <display_transaction>0</display_transaction>
+                <sallowspecific>0</sallowspecific>
+                <showerrors>0</showerrors>
+                <showmethod>1</showmethod>
+                <specificerrmsg>This shipping method is currently unavailable. If you would like to ship using this shipping method, please contact us.</specificerrmsg>
+                <ws_timeout>120</ws_timeout>
+                <use_cache>0</use_cache>
+            </shipper>
+            <shipperadmin>
+                <active>1</active>
+                <title>Custom Shipping Rate</title>
+                <model>shipperhq_shipper/carrier_shipperadmin</model>
+            </shipperadmin>
+        </carriers>
+    </default>
+</config>

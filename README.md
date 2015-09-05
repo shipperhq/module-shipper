@@ -1,1 +1,2 @@
-# m2Shipper
+# m2SHQBase
+ShipperHQ Base Extension

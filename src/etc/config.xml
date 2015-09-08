@@ -11,8 +11,8 @@
             <shipper>
                 <active>0</active>
                 <title>Shipping Rates</title>
-                <api_key backend_model="adminhtml/system_config_backend_encrypted">ZcmhDy912bavqmBnzMs6PCcUgQfv8ek82ty+zb9EBW4=</api_key>
-                <password backend_model="adminhtml/system_config_backend_encrypted">DTAzdo8+0u4DbuvI5NgP8V711uNH6COXD/e821CQSmY6gfOzH1enxEVmexG2sPbEQQGDbEelSQ4=</password>
+                <api_key backend_model="Magento\Config\Model\Config\Backend\Encrypted">ZcmhDy912bavqmBnzMs6PCcUgQfv8ek82ty+zb9EBW4=</api_key>
+                <password backend_model="Magento\Config\Model\Config\Backend\Encrypted">DTAzdo8+0u4DbuvI5NgP8V711uNH6COXD/e821CQSmY6gfOzH1enxEVmexG2sPbEQQGDbEelSQ4=</password>
                 <url>http://sandbox.shipperhq.com/v1/</url>
                 <live_url>http://api.shipperhq.com/v1/</live_url>
                 <secure_url>https://api.shipperhq.com/v1/</secure_url>
@@ -28,11 +28,6 @@
                 <ws_timeout>120</ws_timeout>
                 <use_cache>0</use_cache>
             </shipper>
-            <shipperadmin>
-                <active>1</active>
-                <title>Custom Shipping Rate</title>
-                <model>shipperhq_shipper/carrier_shipperadmin</model>
-            </shipperadmin>
         </carriers>
     </default>
 </config>

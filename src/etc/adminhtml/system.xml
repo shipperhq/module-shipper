@@ -12,19 +12,21 @@
                 <label>ShipperHQ</label>
                 <comment>
                     <![CDATA[
+                    				<div style="padding:10px;background-color:#fff;border:1px solid #ddd;margin-bottom:7px;">
                     This extension connects Magento to ShipperHQ, a powerful, easy-to-use eCommerce shipping management platform. <br />
                     ShipperHQ is a product of <a href="http://www.webshopapps.com" target="_blank">WebShopApps</a>, developers of powerful shipping solutions for Magento. <br /> <br />
                     If you have questions about ShipperHQ or need support, visit <a href="http://www.ShipperHQ.com" target="_blank">http://www.ShipperHQ.com</a>.
-                ]]>
+ 				</div>
+               ]]>
                 </comment>
                 <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Name of the main shipping carrier, also used for carrier title if no rates can be
-                        found. This is updated dynamically from ShipperHQ</label>
-                    <comment></comment>
+               <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                   <label>Main Shipping Carrier Title</label>
+                   <comment>Name of the main shipping carrier, also used for carrier title if no rates can be
+                        found. This is updated dynamically from ShipperHQ</comment>
                 </field>
                 <field id="heading_shipperhq" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1">
                     <label>ShipperHQ Configuration</label>
@@ -39,12 +41,12 @@
                     <label>Secure URL</label>=
                     <comment></comment>
                 </field>
-                <field id="sandbox_mode" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="0">
+                 <field id="sandbox_mode" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Sandbox Mode</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Set to Yes to use ShipperHQ Sandbox URL</comment>
                 </field>
-                <field id="environment_scope" translate="label" type="select" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0">
+               <field id="environment_scope" translate="label" type="select" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Environment Scope</label>
                     <source_model>ShipperHQ\Shipper\Model\Backend\Config\Source\EnvironmentScope</source_model>
                 </field>
@@ -58,83 +60,79 @@
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <comment>Obtain from under Websites in the ShipperHQ Dashboard</comment>
                 </field>
-                <!--<field id="refresh_methods" translate="label" type="select" sortOrder="170" showInDefault="1" showInWebsite="1" showInStore="0">-->
-                    <!--<label>Refresh Shipping Methods</label>-->
-                    <!--<frontend_model>ShipperHQ\Shipper\Block\Backend\Config\Carrier\RefreshCarriers</frontend_model>-->
-                    <!--<button_label>Refresh Now</button_label>-->
-                <!--</field>-->
-                <field id="backup_carrier" translate="label" type="select" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Backup Shipping Carrier/Method</label>
-                    <source_modelmodel>ShipperHQ\Shipper\Model\Backend\Config\Source\Carriers</source_modelmodel>
-                    <comment>In the unlikely event that ShipperHQ is unavailable, configure a backup carrier to
-                        display.
-                        This carrier should be configured but left disabled
-                    </comment>
-                </field>
-                <field id="heading_advanced" translate="label" sortOrder="300" showInDefault="1" showInWebsite="1">
-                    <label>Advanced Settings</label>
-                    <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
-                    <attribute type="shared">1</attribute>
-                </field>
-                <field id="hide_notify" translate="label" type="select" sortOrder="310" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Hide Carrier Notifications at Checkout</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <tooltip>
-                        Carriers may include notifications when their live rates have been modified. Set to yes if you wish to hide these notifications.
-                    </tooltip>
-                </field>
-                <field id="display_transaction" translate="label" type="select" sortOrder="320" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Display Transaction ID</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>
-                        Set to no unless advised by ShipperHQ team, used for debugging purposes
-                    </comment>
-                </field>
-                <field id="use_cache" translate="label" type="select" sortOrder="330" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Enable Caching of ShipperHQ Rates</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <tooltip>
-                        Enable to reduce number of requests to ShipperHQ for duplicate rate requests.
-                    </tooltip>
-                </field>
-                <field id="heading_std_ship" translate="label" sortOrder="400" showInDefault="1" showInWebsite="1">
-                    <label>Standard Shipping</label>
-                    <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
-                    <attribute type="shared">1</attribute>
-                </field>
+                  <field id="backup_carrier" translate="label" type="select" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="0">
+                      <label>Backup Shipping Carrier/Method</label>
+                      <source_modelmodel>ShipperHQ\Shipper\Model\Backend\Config\Source\Carriers</source_modelmodel>
+                      <comment>In the unlikely event that ShipperHQ is unavailable, configure a backup carrier to
+                          display.
+                          This carrier should be configured but left disabled
+                      </comment>
+                  </field>
+                  <field id="heading_advanced" translate="label" sortOrder="300" showInDefault="1" showInWebsite="1">
+                      <label>Advanced Settings</label>
+                      <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
+                      <attribute type="shared">1</attribute>
+                  </field>
+                  <field id="hide_notify" translate="label" type="select" sortOrder="310" showInDefault="1" showInWebsite="1" showInStore="0">
+                      <label>Hide Carrier Notifications at Checkout</label>
+                      <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                      <tooltip>
+                          Carriers may include notifications when their live rates have been modified. Set to yes if you wish to hide these notifications.
+                      </tooltip>
+                  </field>
+                  <field id="display_transaction" translate="label" type="select" sortOrder="320" showInDefault="1" showInWebsite="1" showInStore="0">
+                      <label>Display Transaction ID</label>
+                      <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                      <comment>
+                          Set to no unless advised by ShipperHQ team, used for debugging purposes
+                      </comment>
+                  </field>
+                  <field id="use_cache" translate="label" type="select" sortOrder="330" showInDefault="1" showInWebsite="1" showInStore="0">
+                      <label>Enable Caching of ShipperHQ Rates</label>
+                      <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                      <tooltip>
+                          Enable to reduce number of requests to ShipperHQ for duplicate rate requests.
+                      </tooltip>
+                  </field>
+                  <field id="heading_std_ship" translate="label" sortOrder="400" showInDefault="1" showInWebsite="1">
+                      <label>Standard Shipping</label>
+                      <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
+                      <attribute type="shared">1</attribute>
+                  </field>
 
 
-                <field id="handling_type" translate="label" type="select" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Calculate Handling Fee</label>
-                    <source_model>Magento\Shipping\Model\Source\HandlingType</source_model>
-                </field>
-                <field id="handling_fee" translate="label" type="text" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Handling Fee</label>
-                    <validate>validate-number validate-zero-or-greater</validate>
-                </field>
+                  <field id="handling_type" translate="label" type="select" sortOrder="410" showInDefault="1" showInWebsite="1" showInStore="0">
+                      <label>Calculate Handling Fee</label>
+                      <source_model>Magento\Shipping\Model\Source\HandlingType</source_model>
+                  </field>
 
-                <field id="sallowspecific" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Ship to Applicable Countries</label>
-                    <frontend_class>shipping-applicable-country</frontend_class>
-                    <source_model>Magento\Shipping\Model\Config\Source\Allspecificcountries</source_model>
-                </field>
-                <field id="specificcountry" translate="label" type="multiselect" sortOrder="91" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Ship to Specific Countries</label>
-                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
-                    <can_be_empty>1</can_be_empty>
-                </field>
-                <field id="showmethod" translate="label" type="select" sortOrder="92" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Show Method if Not Applicable</label>
-                    <frontend_class>shipping-skip-hide</frontend_class>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-                <field id="specificerrmsg" translate="label" type="textarea" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Displayed Error Message</label>
-                </field>
+                  <field id="handling_fee" translate="label" type="text" sortOrder="420" showInDefault="1" showInWebsite="1" showInStore="0">
+                      <label>Handling Fee</label>
+                      <validate>validate-number validate-zero-or-greater</validate>
+                  </field>
 
-                <field id="sort_order" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Sort Order</label>
-                </field>
+                  <field id="sallowspecific" translate="label" type="select" sortOrder="430" showInDefault="1" showInWebsite="1" showInStore="0">
+                      <label>Ship to Applicable Countries</label>
+                      <frontend_class>shipping-applicable-country</frontend_class>
+                      <source_model>Magento\Shipping\Model\Config\Source\Allspecificcountries</source_model>
+                  </field>
+                  <field id="specificcountry" translate="label" type="multiselect" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="0">
+                      <label>Ship to Specific Countries</label>
+                      <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                      <can_be_empty>1</can_be_empty>
+                  </field>
+                  <field id="showmethod" translate="label" type="select" sortOrder="510" showInDefault="1" showInWebsite="1" showInStore="0">
+                      <label>Show Method if Not Applicable</label>
+                      <frontend_class>shipping-skip-hide</frontend_class>
+                      <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                  </field>
+                  <field id="specificerrmsg" translate="label" type="textarea" sortOrder="520" showInDefault="1" showInWebsite="1" showInStore="1">
+                      <label>Displayed Error Message</label>
+                  </field>
+
+                  <field id="sort_order" translate="label" type="text" sortOrder="520" showInDefault="1" showInWebsite="1" showInStore="0">
+                      <label>Sort Order</label>
+                  </field>
 
             </group>
         </section>

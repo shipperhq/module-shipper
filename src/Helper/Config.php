@@ -15,7 +15,6 @@ namespace ShipperHQ\Shipper\Helper;
 
 use WebShopApps\Common\Model\ConfigInterface;
 use WebShopApps\Common\Helper\AbstractConfig;
-use Psr\Log\LogLevel;
 
 /**
  * Class Config

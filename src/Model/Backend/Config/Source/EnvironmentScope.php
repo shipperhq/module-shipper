@@ -1,5 +1,5 @@
 <?php
-namespace ShipperHQ\Shipper\Model\Config\Backend\Source;
+namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
 
 /**
  *
@@ -37,7 +37,7 @@ namespace ShipperHQ\Shipper\Model\Config\Backend\Source;
  *
  */
 
-include_once 'ShipperHQ/User/SiteDetails.php';
+use ShipperHQ\WS\Shared\SiteDetails;
 
 class EnvironmentScope {
 
@@ -45,19 +45,19 @@ class EnvironmentScope {
     {
         return array(
             array(
-                'value' =>  \ShipperHQ\User\SiteDetails::LIVE,
+                'value' =>  SiteDetails::LIVE,
                 'label' => __('Live')
             ),
             array(
-                'value' =>  \ShipperHQ\User\SiteDetails::DEV,
+                'value' =>  SiteDetails::DEV,
                 'label' => __('Development')
             ),
             array(
-                'value' =>  \ShipperHQ\User\SiteDetails::TEST,
+                'value' =>  SiteDetails::TEST,
                 'label' => __('Test')
             ),
             array(
-                'value' =>  \ShipperHQ\User\SiteDetails::INTEGRATION,
+                'value' =>  SiteDetails::INTEGRATION,
                 'label' => __('Integration')
             ),
         );

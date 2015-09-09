@@ -39,7 +39,7 @@ class Mapper
                 list($field, $defaultValue) = $sourceField;
                 $target[$targetField] = (isset($source[$field]) ? $source[$field] : $defaultValue);
             } elseif ($sourceField instanceof Closure) {
-                $mapping = $sourceField($source);
+                $mapping = is_object($source) && is_callable($source);
                 $target[$targetField] = $mapping;
             }
         }

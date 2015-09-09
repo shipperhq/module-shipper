@@ -28,24 +28,55 @@
  * @author ShipperHQ Team sales@shipperhq.com
  */
 
-class Shipperhq_Shipper_Model_Observer extends Mage_Core_Model_Abstract
+namespace ShipperHQ\Shipper\Model;
+
+class Observer
 {
+
+    /**
+     * @var \ShipperHQ\Shipper\Helper\Data
+     */
+    protected $shipperDataHelper;
+    /**
+     * @var Carrier\Shipper
+     */
+    private $shipper;
+    /**
+     * @var \Magento\Backend\Model\Session
+     */
+    private $backendSession;
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    private $logger;
+
+    function __construct(\ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+                         \Magento\Backend\Model\Session $backendSession,
+                         \Psr\Log\LoggerInterface $logger,
+                         \ShipperHQ\Shipper\Model\Carrier\Shipper $shipper
+    ) {
+
+        $this->shipperDataHelper = $shipperDataHelper;
+        $this->shipper = $shipper;
+        $this->backendSession = $backendSession;
+        $this->logger = $logger;
+    }
+
+
     /*
      * Refresh carriers in configuration pane
      *
      */
     public function updateTitles()
     {
-        if(Mage::getStoreConfig('carriers/shipper/active')) {
-            $refreshResult = Mage::getModel('shipperhq_shipper/carrier_shipper')->refreshCarriers();
+        if($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
+            $refreshResult = $this->shipper->refreshCarriers();
             if (array_key_exists('error', $refreshResult)) {
-                $session = Mage::getSingleton('Mage_Adminhtml_Model_Session');
                 $message = $refreshResult['error'];
-                $session->addError($message);
+                $this->backendSession->addError($message);
             } else {
-                $session = Mage::getSingleton('Mage_Adminhtml_Model_Session');
-                $message = Mage::helper('shipperhq_shipper')->__('%s shipping methods have been updated from ShipperHQ', count($refreshResult));
-                $session->addSuccess($message);
+                $message = __('%s shipping methods have been updated from ShipperHQ', count($refreshResult));
+                $this->backendSession->addSuccess($message);
             }
         }
     }
@@ -112,7 +143,7 @@ class Shipperhq_Shipper_Model_Observer extends Mage_Core_Model_Abstract
             }
         }
         catch (Exception $e) {
-            Mage::logException($e);
+            $this->logger->error($e);
         }
     }
 
@@ -121,7 +152,7 @@ class Shipperhq_Shipper_Model_Observer extends Mage_Core_Model_Abstract
     public function salesConvertQuoteItemToOrderItem($observer)
     {
         try {
-            if (!Mage::getStoreConfig('carriers/shipper/active')) {
+            if (!$this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
                 return;
             }
             $quoteItem = $observer->getEvent()->getItem();
@@ -131,21 +162,9 @@ class Shipperhq_Shipper_Model_Observer extends Mage_Core_Model_Abstract
             $orderItem->setCarriergroupId($carriergroupId);
             $orderItem->setCarriergroup($quoteItem->getCarriergroup());
         } catch (Exception $e) {
-            Mage::logException($e);
+            $this->logger->error($e);
         }
 
-    }
-
-    protected function _getCheckout()
-    {
-        return Mage::getSingleton('checkout/session');
-    }
-
-    public function setCurrentQuoteObjectInAdmin(Varien_Event_Observer $observer)
-    {
-        Mage::helper('shipperhq_shipper')->setQuote(
-            Mage::getSingleton('adminhtml/sales_order_create')->getQuote()
-        );
     }
 
     public function setCurrentQuoteObjectInAdminFromSaveData(Varien_Event_Observer $observer)
@@ -177,51 +196,10 @@ class Shipperhq_Shipper_Model_Observer extends Mage_Core_Model_Abstract
             $request->setPost('shipping_as_billing', 0);
         }
 
-        Mage::helper('shipperhq_shipper')->setQuote($observer->getOrderCreateModel()->getQuote());
+        $this->shipperDataHelper->setQuote($observer->getOrderCreateModel()->getQuote());
     }
 
-    /**
-     * Loads storage data for quote if it was not loaded
-     *
-     * @param Varien_Event_Observer $observer
-     */
-    public function onQuoteAfterLoad(Varien_Event_Observer $observer)
-    {
-        $quote = $observer->getQuote();
-        Mage::helper('shipperhq_shipper')->getQuoteStorage($quote);
-    }
 
-    /**
-     * Saves storage data if quote is saved
-     *
-     * @param Varien_Event_Observer $observer
-     * @return $this
-     * @throws Exception
-     */
-    public function onQuoteAfterSave(Varien_Event_Observer $observer)
-    {
-        $quote = $observer->getQuote();
-        $storage = Mage::helper('shipperhq_shipper')->storageManager()->findByQuote($quote);
-        $this->_saveStorageInstance($storage);
-        return $this;
-    }
-
-    /**
-     * Saves modified data objects on post dispatch,
-     * if modifications has been done after quote has been saved
-     *
-     *
-     */
-    public function onPostDispatch()
-    {
-        /** @var Shipperhq_Shipper_Model_Storage[] $storageList */
-        $storageList = Mage::helper('shipperhq_shipper')->storageManager()->getStorageObjects();
-        foreach ($storageList as $storage) {
-            if ($storage->hasDataChanges() && $storage->getId()) {
-                $this->_saveStorageInstance($storage);
-            }
-        }
-    }
 
 
 }

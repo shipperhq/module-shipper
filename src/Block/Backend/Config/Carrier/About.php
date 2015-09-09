@@ -34,10 +34,15 @@ class About extends \Magento\Config\Block\System\Config\Form\Field
 {
 
 
+    /**
+     * @var \Magento\Sales\Model\Config\Data
+     */
+    private $dataContainer;
 
-
-    public function __construct(
-    ) {}
+    public function __construct(\Magento\Sales\Model\Config\Data $dataContainer
+    ) {
+        $this->dataContainer = $dataContainer;
+    }
 
 
     /**
@@ -77,6 +82,6 @@ class About extends \Magento\Config\Block\System\Config\Form\Field
     }
 
     protected function getModuleVersion() {
-        return (string) Mage::getConfig()->getNode('modules/Shipperhq_Shipper/extension_version');
+        return (string) $this->dataContainer->get('modules/ShipperHQ_Shipper/extension_version');
     }
 }

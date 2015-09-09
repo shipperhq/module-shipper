@@ -16,14 +16,14 @@
                 <url>http://sandbox.shipperhq.com/v1/</url>
                 <live_url>http://api.shipperhq.com/v1/</live_url>
                 <secure_url>https://api.shipperhq.com/v1/</secure_url>
-                <model>shipperhq_shipper/carrier_shipper</model>
+                <model>ShipperHQ\Shipper\Model\Carrier\Shipper</model>
                 <sandbox_mode>0</sandbox_mode>
                 <environment_scope>LIVE</environment_scope>
                 <hide_notify>0</hide_notify>
                 <display_transaction>0</display_transaction>
                 <sallowspecific>0</sallowspecific>
                 <showerrors>0</showerrors>
-                <showmethod>1</showmethod>
+                <showmethod>0</showmethod>
                 <specificerrmsg>This shipping method is currently unavailable. If you would like to ship using this shipping method, please contact us.</specificerrmsg>
                 <ws_timeout>120</ws_timeout>
                 <use_cache>0</use_cache>

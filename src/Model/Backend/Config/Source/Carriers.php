@@ -30,25 +30,43 @@ namespace ShipperHQ\Shipper\Model\Config\Backend\Source;
  */
 
 class Carriers  {
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
 
-    public function __construct(
-    ) {}
+    /**
+     * @var \Magento\Shipping\Model\Config
+     */
+    private $shippingConfig;
+    /**
+     * @var \ShipperHQ\Shipper\Helper\Data
+     */
+    private $shipperDataHelper;
+
+    public function __construct( \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+                                 \Magento\Backend\Block\Template\Context $context,
+                                 \Magento\Shipping\Model\Config $shippingConfig
+    ) {
+
+        $this->shippingConfig = $shippingConfig;
+        $this->storeManager = $context->getStoreManager();
+        $this->shipperDataHelper = $shipperDataHelper;
+    }
 
 
     public function toOptionArray() {
 
         $arr = array();
 
-        $storeId = Mage::app()->getStore()->getStoreId() ;
-
-        $carriers = Mage::getSingleton('shipping/config')->getAllCarriers($storeId);
+        $carriers = $this->shippingConfig->getAllCarriers($this->storeManager->getStore());
 
         foreach ($carriers as $carrierCode=>$carrierModel) {
-            $carrierTitle = Mage::getStoreConfig('carriers/' . $carrierCode . '/title', $storeId);
+            $carrierTitle = $this->shipperDataHelper->getConfigValue('carriers/' . $carrierCode . '/title');
             if (strpos($carrierCode, 'shipper') === 0 || $carrierTitle == '') {
                 continue;
             }
-            if(Mage::getStoreConfig('carriers/'.$carrierCode.'/model') == 'shipperhq_shipper/carrier_shipper') {
+            if($this->shipperDataHelper->getConfigValue('carriers/'.$carrierCode.'/model') == 'shipperhq_shipper/carrier_shipper') {
                 continue;
             }
             $arr[] = array('value' => $carrierCode, 'label' => $carrierTitle);

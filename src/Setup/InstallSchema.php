@@ -93,21 +93,21 @@ class InstallSchema implements InstallSchemaInterface
 
         $isCheckout = array(
             'type'  => Varien_Db_Ddl_Table::TYPE_SMALLINT,
-            'comment' => 'Shipperhq Shipper',
+            'comment' => 'ShipperHQ Shipper',
             'nullable' => 'false',
             'default'  => '0'
         );
 
         $carrierType = array(
             'type' => $text,
-            'comment' => 'Shipperhq Carrier Type',
+            'comment' => 'ShipperHQ Carrier Type',
             'nullable' => 'true',
         );
 
         $carrierId = array(
             'type' => $text,
             'length'	=> 20,
-            'comment' => 'Shipperhq Carrier ID',
+            'comment' => 'ShipperHQ Carrier ID',
             'nullable' => 'true',
         );
 

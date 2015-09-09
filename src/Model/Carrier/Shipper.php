@@ -37,7 +37,7 @@ namespace ShipperHQ\Shipper\Model\Carrier;
  */
 
 use ShipperHQ\WS\Client;
-use ShipperHQ\WS\Response;
+use ShipperHQ\WS\Rate\Response;
 
 use ShipperHQ\Shipper\Helper\Config;
 
@@ -56,11 +56,6 @@ class Shipper
     protected $shipperDataHelper;
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
-     */
-    protected $scopeConfig;
-
-    /**
      * @var \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory
      */
     protected $rateMethodFactory;
@@ -68,7 +63,21 @@ class Shipper
      * @var \Magento\Shipping\Model\Rate\ResultFactory
      */
     protected $rateFactory;
+    /**
+     * @var \Magento\Framework\ObjectManagerInterface
+     */
+    protected $objectManager;
 
+    /**
+     * Array of quotes
+     *
+     * @var array
+     */
+    protected static $quotesCache = [];
+    /**
+     * @var \Magento\Framework\Registry
+     */
+    private $registry;
 
 
     /**
@@ -78,19 +87,21 @@ class Shipper
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         Config $configHelper,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         Convert\ShipperMapper $shipperMapper,
+        \Magento\Framework\Registry $registry,
+        \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $errorFactory,
         \Magento\Shipping\Model\Rate\ResultFactory $resultFactory,
         \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->configHelper = $configHelper;
-        $this->scopeConfig = $scopeConfig;
         $this->shipperMapper = $shipperMapper;
         $this->rateErrorFactory = $errorFactory;
         $this->rateFactory = $resultFactory;
         $this->rateMethodFactory = $rateMethodFactory;
+        $this->objectManager = $objectManager;
+        $this->registry = $registry;
     }
 
 
@@ -255,11 +266,11 @@ class Shipper
         if (!$className) {
             return false;
         }
-        $obj = Mage::getModel($className);
+        $carrier = $this->objectManager->create($className);
         if ($storeId) {
-            $obj->setStore($storeId);
+            $carrier->setStore($storeId);
         }
-        return $obj;
+        return $carrier;
     }
 
 
@@ -304,21 +315,8 @@ class Shipper
     protected function populateRates($carrierRate, &$carrierGroupDetail, $carrierGroupId)
     {
         $thisCarriersRates = array();
-        $hideNotify = $this->scopeConfig->getValue('carriers/shipper/hide_notify', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $dateOption = $carrierRate->dateOption;
-        $deliveryMessage = isset($carrierRate->deliveryDateMessage) ?
-            __($carrierRate->deliveryDateMessage) : '';
-        if(is_null($deliveryMessage) || $deliveryMessage == '') {
-            $deliveryMessage = $dateOption == $this->shipperDataHelper->TIME_IN_TRANSIT ? 'business day(s)' :
-                __('Delivers :');
-        }
-        $customDescription = isset($carrierRate->customDescription) ?
-            __($carrierRate->customDescription) : false;
-        $freightRate = isset($carrierRate->availableOptions) && !empty($carrierRate->availableOptions);
         $baseRate = 1;
         $baseCurrencyCode = $this->storeManager->getStore()->getBaseCurrency()->getCode();
-        $dateFormat = isset($carrierRate->deliveryDateFormat) ?
-           $this->getCldrDateFormat('en_US', $carrierRate->deliveryDateFormat) : $dateFormat = $this->shipperDataHelper->getZendDateFormat();
         $latestCurrencyCode = '';
         $methodDescription = false;
         foreach($carrierRate->rates as $oneRate) {
@@ -331,8 +329,7 @@ class Shipper
                     $baseRate = $this->shipperDataHelper->getBaseCurrencyRate($oneRate->currency);
                     $latestCurrencyCode = $oneRate->currency;
                     if(!$baseRate) {
-                        $carrierResultWithRates['error'] =  Mage::helper('directory')
-                            ->__('Can\'t convert rate from "%s".',
+                        $carrierResultWithRates['error'] =  __('Can\'t convert rate from "%s".',
                                 $oneRate->currency);
                         $carrierResultWithRates['carriergroup_detail']['carrierGroupId'] = $carrierGroupId;
                         continue;
@@ -341,31 +338,7 @@ class Shipper
                 }
             }
             $this->shipperDataHelper->populateRateLevelDetails((array)$oneRate, $carrierGroupDetail, $baseRate);
-            if($oneRate->deliveryDate && is_numeric($oneRate->deliveryDate)) {
-                $deliveryDate = Mage::app()->getLocale()->date($oneRate->deliveryDate/1000, null, null, true)->toString($dateFormat);
-                if($dateOption == Shipperhq_Shipper_Helper_Data::DELIVERY_DATE_OPTION && isset($oneRate->deliveryDate)) {
-                    $methodDescription = __(' %s %s',$deliveryMessage, $deliveryDate);
-                    if($oneRate->latestDeliveryDate && is_numeric($oneRate->latestDeliveryDate)) {
-                        $latestDeliveryDate = Mage::app()->getLocale()->date($oneRate->latestDeliveryDate/1000, null, null, true)->toString($dateFormat);
-                        $methodDescription.= ' - ' .$latestDeliveryDate;
-                    }
-                }
-                else if($dateOption == Shipperhq_Shipper_Helper_Data::TIME_IN_TRANSIT
-                    && isset($oneRate->dispatchDate)) {
-                    $deliveryMessage = __('business days');
-                    $numDays = floor(abs($oneRate->deliveryDate/1000 - $oneRate->dispatchDate/1000)/60/60/24);
-                    if($oneRate->latestDeliveryDate && is_numeric($oneRate->latestDeliveryDate)) {
-                        $maxNumDays = floor(abs($oneRate->latestDeliveryDate/1000 - $oneRate->dispatchDate/1000)/60/60/24);
-                        $methodDescription = __(' (%s - %s %s)',$numDays, $maxNumDays, $deliveryMessage);
-                    }
-                    else {
-                        $methodDescription = __(' (%s %s)',$numDays, $deliveryMessage);
-                    }
-                }
-            }
-            if($oneRate->dispatchDate && is_numeric($oneRate->dispatchDate)) {
-                $dispatchDate = Mage::app()->getLocale()->date($oneRate->dispatchDate/1000, null, null, true)->toString($dateFormat);
-            }
+
             if($methodDescription) {
                 $title.= ' ' .$methodDescription;
             }
@@ -376,7 +349,6 @@ class Shipper
                 'price'         => (float)$oneRate->totalCharges * $baseRate,
                 'carrier_type'  => $carrierRate->carrierType,
                 'carrier_id'    => $carrierRate->carrierId,
-                'freight_rate'  => $freightRate
             );
 
             if($methodDescription) {
@@ -384,31 +356,9 @@ class Shipper
             }
             $rateToAdd['carriergroup_detail'] = $carrierGroupDetail;
 
-            if(!$hideNotify && isset($carrierRate->notices)) {
-                foreach($carrierRate->notices as $notice) {
-                    if(array_key_exists('carrier_notice', $rateToAdd)) {
-                        $rateToAdd['carrier_notice'] .=  ' ' .(string)$notice ;
-                    } else {
-                        $rateToAdd['carrier_notice'] =  (string)$notice ;
-                    }
-                }
-            }
-
-            if($customDescription) {
-                $rateToAdd['custom_description'] = $customDescription;
-            }
-
             $thisCarriersRates[] = $rateToAdd;
         }
         return $thisCarriersRates;
-    }
-
-    protected function getCldrDateFormat($locale, $code)
-    {
-        $dateFormatArray = $this->configHelper->getCode('cldr_date_format', $locale);
-        $dateFormat = is_array($dateFormatArray) && array_key_exists($code, $dateFormatArray) ? $dateFormatArray[$code]:
-            $this->shipperDataHelper->getZendDateFormat();
-        return $dateFormat;
     }
 
     /**
@@ -425,7 +375,7 @@ class Shipper
             $resultSet = $this->_getShipperInstance()->sendAndReceive($this->shipperRequest,
                 $this->shipperDataHelper->getRateGatewayUrl(), $timeout);
             if(!$resultSet['result']){
-                $backupRates = $this->_getBackupCarrierRates();
+                $backupRates = $this->getBackupCarrierRates();
                 if ($backupRates) {
                     return $backupRates;
                 }
@@ -433,7 +383,6 @@ class Shipper
             $this->_setCachedQuotes($requestString, $resultSet);
 
         }
-
 
         return $this->_parseShipperResponse($resultSet['result']);
 
@@ -525,9 +474,6 @@ class Shipper
                     }
                     $rate->setCost($rateDetails['cost']);
                     $rate->setPrice($rateDetails['price']);
-                    if(array_key_exists('custom_duties', $rateDetails)) {
-                        $rate->setCustomDuties($rateDetails['custom_duties']);
-                    }
 
                     if(array_key_exists('carrier_type', $rateDetails)) {
                         $rate->setCarrierType($rateDetails['carrier_type']);
@@ -535,14 +481,6 @@ class Shipper
 
                     if(array_key_exists('carrier_id', $rateDetails)) {
                         $rate->setCarrierId($rateDetails['carrier_id']);
-                    }
-
-                    if(array_key_exists('dispatch_date', $rateDetails)) {
-                        $rate->setDispatchDate($rateDetails['dispatch_date']);
-                    }
-
-                    if(array_key_exists('delivery_date', $rateDetails)) {
-                        $rate->setDeliveryDate($rateDetails['delivery_date']);
                     }
 
                     if(array_key_exists('carriergroup_detail', $rateDetails)
@@ -555,18 +493,6 @@ class Shipper
                         if(array_key_exists('checkoutDescription', $rateDetails['carriergroup_detail'])) {
                             $rate->setCarriergroup($rateDetails['carriergroup_detail']['checkoutDescription']);
                         }
-                    }
-
-                    if(array_key_exists('carrier_notice', $rateDetails)) {
-                        $rate->setCarrierNotice($rateDetails['carrier_notice']);
-                    }
-
-                    if(array_key_exists('freight_rate', $rateDetails)) {
-                        $rate->setFreightRate($rateDetails['freight_rate']);
-                    }
-
-                    if(array_key_exists('custom_description', $rateDetails)) {
-                        $rate->setCustomDescription($rateDetails['custom_description']);
                     }
 
                     $result->append($rate);
@@ -597,8 +523,8 @@ class Shipper
             $carrierGroupDetail = (array)$carrierGroup->carrierGroupDetail;
             $carriergroupId = array_key_exists('carrierGroupId', $carrierGroupDetail) ? $carrierGroupDetail['carrierGroupId'] : 0;
 
-            Mage::unregister('shipperhq_transaction');
-            Mage::register('shipperhq_transaction', $responseSummary['transactionId']);
+            $this->registry->unregister('shipperhq_transaction');
+            $this->registry->register('shipperhq_transaction', $responseSummary['transactionId']);
             $carrierGroupDetail['transaction'] = $responseSummary['transactionId'];
 
             $this->_setCarriergroupOnItems($carrierGroupDetail, $carrierGroup->products);
@@ -698,14 +624,15 @@ class Shipper
         || (array_key_exists('externalErrorMessage', $errorDetails) && $errorDetails['externalErrorMessage'] != ''))
         {
             $errorMessage = false;
-//            if ($this->logger->isDebugError() && array_key_exists('internalErrorMessage', $errorDetails)
-//                && $errorDetails['internalErrorMessage'] != '') {
-//                $errorMessage = $errorDetails['internalErrorMessage'];
-//            }
-//            else if(array_key_exists('externalErrorMessage', $errorDetails)
-//                && $errorDetails['externalErrorMessage'] != '') {
-//                $errorMessage = $errorDetails['externalErrorMessage'];
-//            }
+
+            if ($this->getConfigData("debug") && array_key_exists('internalErrorMessage', $errorDetails)
+                && $errorDetails['internalErrorMessage'] != '') {
+                $errorMessage = $errorDetails['internalErrorMessage'];
+            }
+            else if(array_key_exists('externalErrorMessage', $errorDetails)
+                && $errorDetails['externalErrorMessage'] != '') {
+                $errorMessage = $errorDetails['externalErrorMessage'];
+            }
             if(array_key_exists('externalErrorMessage', $errorDetails)
                 && $errorDetails['externalErrorMessage'] != '') {
                 $errorMessage = $errorDetails['externalErrorMessage'];
@@ -749,18 +676,18 @@ class Shipper
 
     }
 
-    protected function _getBackupCarrierRates()
+    protected function getBackupCarrierRates()
     {
-        $carrierCode = $this->_getBackupCarrierDetails();
+        $carrierCode = $this->getBackupCarrierDetails();
         if(!$carrierCode) {
             return false;
         }
 
-        $tempEnabledCarrier = $this->_tempSetCarrierEnabled($carrierCode,true);
+        $tempEnabledCarrier = $this->tempSetCarrierEnabled($carrierCode,true);
         $carrier = $this->getCarrierByCode($carrierCode, $this->rawRequest->getStoreId());
 
         if (!$carrier) {
-            $this->_tempSetCarrierEnabled($carrierCode,false);
+            $this->tempSetCarrierEnabled($carrierCode,false);
             return false;
         }
 
@@ -768,7 +695,7 @@ class Shipper
 
 
         if ($tempEnabledCarrier) {
-            $this->_tempSetCarrierEnabled($carrierCode,false);
+            $this->tempSetCarrierEnabled($carrierCode,false);
         }
         return $result;
     }
@@ -777,12 +704,12 @@ class Shipper
      * Enable or disable carrier
      * @return boolean
      */
-    protected function _tempSetCarrierEnabled ($carrierCode,$enabled) {
+    protected function tempSetCarrierEnabled ($carrierCode,$enabled) {
         $carrierPath='carriers/'.$carrierCode.'/'.$this->availabilityConfigField;
         $store = $this->storeManager->getStore();
         $tempEnabledCarrier = false;
 
-        if (!$this->scopeConfig->isSetFlag($carrierPath,\Magento\Store\Model\ScopeInterface::SCOPE_STORE) || !$enabled) { // if $enabled set to false was previously enabled!
+        if (!$this->_scopeConfig->isSetFlag($carrierPath,\Magento\Store\Model\ScopeInterface::SCOPE_STORE) || !$enabled) { // if $enabled set to false was previously enabled!
             $store->setConfig($carrierPath,$enabled);
             $tempEnabledCarrier = true;
         }
@@ -795,7 +722,7 @@ class Shipper
      * Get backup carrier if configured
      * @return mixed
      */
-    protected function _getBackupCarrierDetails() {
+    protected function getBackupCarrierDetails() {
         $carrierDetails = $this->getConfigData('backup_carrier');
         if(!$carrierDetails) {
             return false;
@@ -808,10 +735,10 @@ class Shipper
      *
      * @return null|Shipper_Shipper
      */
-    protected function _getShipperInstance()
+    protected function getShipperInstance()
     {
         if (empty($this->shipperWSInstance)) {
-            $this->shipperWSInstance = new \ShipperHQ\WS\Client\WebServiceClient();
+            $this->shipperWSInstance = new WebServiceClient();
         }
         return $this->shipperWSInstance;
     }
@@ -821,13 +748,18 @@ class Shipper
      *
      * @return null|Shipper_Shipper
      */
-    protected function _getErrorMessageLookup()
+    protected function getErrorMessageLookup()
     {
         if (empty($this->errorMessageLookup)) {
-            $this->errorMessageLookup = new \ShipperHQ\WS\Response\ErrorMessages();
+            $this->errorMessageLookup = new ErrorMessages();
         }
         return $this->errorMessageLookup;
     }
+
+
+
+
+    // Taken from AbstractCarrierOnline - caching
 
     /**
      * Returns cache key for some request to carrier quotes service
@@ -835,13 +767,12 @@ class Shipper
      * @param string|array $requestParams
      * @return string
      */
-    protected function _getQuotesCacheKey($requestParams)
+    protected function getQuotesCacheKey($requestParams)
     {
         if (is_array($requestParams)) {
-            $requestParams = implode(',', array_merge(
-                    array($this->getCarrierCode()),
-                    array_keys($requestParams),
-                    $requestParams)
+            $requestParams = implode(
+                ',',
+                array_merge([$this->getCarrierCode()], array_keys($requestParams), $requestParams)
             );
         }
         return crc32($requestParams);
@@ -857,22 +788,10 @@ class Shipper
      * @param string|array $requestParams
      * @return null|string
      */
-    protected function _getCachedQuotes($requestParams)
+    protected function getCachedQuotes($requestParams)
     {
-        $result = false;
-        $key = $this->_getQuotesCacheKey($requestParams);
-        if($this->cacheEnabled) {
-            $cache = Mage::app()->getCache();
-            $result = $cache->load($key);
-            if($result) {
-                $result = unserialize($result);
-            }
-        }
-        else {
-            $result = isset(self::$quotesCache[$key]) ? self::$quotesCache[$key] : false;
-        }
-        return $result;
-
+        $key = $this->getQuotesCacheKey($requestParams);
+        return isset(self::$quotesCache[$key]) ? self::$quotesCache[$key] : null;
     }
 
     /**
@@ -880,18 +799,12 @@ class Shipper
      *
      * @param string|array $requestParams
      * @param string $response
-     * @return Mage_Usa_Model_Shipping_Carrier_Abstract
+     * @return $this
      */
-    protected function _setCachedQuotes($requestParams, $response)
+    protected function setCachedQuotes($requestParams, $response)
     {
-        $key = $this->_getQuotesCacheKey($requestParams);
-        if($this->cacheEnabled) {
-            $cache = Mage::app()->getCache();
-            $cache->save(serialize($response), $key, array("shipperhq_shipper"), 5*60);
-        }
-        else {
-            self::$quotesCache[$key] = $response;
-        }
+        $key = $this->getQuotesCacheKey($requestParams);
+        self::$quotesCache[$key] = $response;
         return $this;
     }
 

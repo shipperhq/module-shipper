@@ -35,21 +35,11 @@ namespace ShipperHQ\Shipper\Model\Carrier\Convert;
  * This class converts the Magento Request into a format that
  * is usable by the ShipperHQ webservice
  */
-
-include_once 'ShipperHQ/User/Credentials.php';
-include_once 'ShipperHQ/User/SiteDetails.php';
-include_once 'ShipperHQ/WS/Request/Rate/CustomerDetails.php';
-include_once 'ShipperHQ/WS/Request/Rate/ShipDetails.php';
-include_once 'ShipperHQ/WS/Request/Rate/RateRequest.php';
-include_once 'ShipperHQ/WS/Request/Rate/InfoRequest.php';
-include_once 'ShipperHQ/Shipping/Address.php';
-include_once 'ShipperHQ/Shipping/Accessorials.php';
-include_once 'ShipperHQ/Shipping/SelectedOptions.php';
-
+use ShipperHQ\WS;
+use ShipperHQ\WS\Rate\Request;
 
 
 class ShipperMapper {
-
 
     protected static $ecommerceType = 'magento';
     protected static $_stdAttributeNames = array(
@@ -68,7 +58,7 @@ class ShipperMapper {
     protected static $alt_width = 'width';
     protected static $alt_length = 'length';
 
-    protected static $_useDefault = 'Use Default';
+    protected static $useDefault = 'Use Default';
 
     protected static $dim_group = 'shipperhq_dim_group';
     protected static $conditional_dims = array('shipperhq_poss_boxes',
@@ -76,25 +66,57 @@ class ShipperMapper {
         'height' , 'width', 'length'
     );
 
-    protected static $_legacyAttributeNames = array(
+    protected static $legacyAttributeNames = array(
         'package_id', 'special_shipping_group', 'volume_weight', 'warehouse', 'handling_id',
         'package_type' // royal mail
     );
 
-    protected static $_shippingOptions = array('liftgate_required', 'notify_required', 'inside_delivery', 'destination_type');
+    protected static $shippingOptions = array('liftgate_required', 'notify_required', 'inside_delivery', 'destination_type');
 
-    protected static $_prodAttributes;
+    protected static $prodAttributes;
 
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
      */
     protected $shipperDataHelper;
+    /**
+     * @var \Magento\Customer\Model\GroupFactory
+     */
+    private $groupFactory;
+    /**
+     * @var \Magento\Framework\App\ProductMetadata
+     */
+    private $productMetadata;
+    /**
+     * @var \Magento\Sales\Model\Config\Data
+     */
+    private $dataContainer;
+    /**
+     * @var \Magento\Tax\Model\Calculation
+     */
+    private $taxCalculation;
+    /**
+     * @var \Magento\Catalog\Helper\Product\Configuration
+     */
+    private $productConfiguration;
 
-    function __construct(\ShipperHQ\Shipper\Helper\Data $shipperData) {
+    function __construct(\ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+                         \Magento\Customer\Model\GroupFactory $groupFactory,
+                         \Magento\Tax\Model\Calculation $taxCalculation,
+                         \Magento\Catalog\Helper\Product\Configuration $productConfiguration,
+                         \Magento\Framework\App\ProductMetadata $productMetadata,
+                         \Magento\Sales\Model\Config\Data $dataContainer,
+                         \Magento\Backend\Block\Template\Context $context
+   ) {
 
-        $this->shipperDataHelper = $shipperData;
-        $this->wsaCommonData = $shipperData;
-        self::$_prodAttributes = $this->shipperDataHelper->getProductAttributes();
+        $this->shipperDataHelper = $shipperDataHelper;
+        $this->storeManager = $context->getStoreManager();
+        self::$prodAttributes = $this->shipperDataHelper->getProductAttributes();
+        $this->groupFactory = $groupFactory;
+        $this->productMetadata = $productMetadata;
+        $this->dataContainer = $dataContainer;
+        $this->taxCalculation = $taxCalculation;
+        $this->productConfiguration = $productConfiguration;
     }
     /**
      * Set up values for ShipperHQ Rates Request
@@ -105,16 +127,12 @@ class ShipperMapper {
     public function getShipperTranslation($magentoRequest)
     {
 
-        $shipperHQRequest = new \ShipperHQ\WS\Request\Rate\RateRequest(
+        $shipperHQRequest = new RateRequest(
             self::getCartDetails($magentoRequest),
             self::getDestination($magentoRequest),
             self::getCustomerGroupDetails($magentoRequest),
             self::getCartType($magentoRequest)
         );
-        if($delDate = self::getDeliveryDateUTC($magentoRequest)) {
-            $shipperHQRequest->setDeliveryDate(self::getDeliveryDate($magentoRequest));
-            $shipperHQRequest->setDeliveryDateUTC($delDate);
-        }
           if($shipDetails = self::getShipDetails($magentoRequest)) {
               $shipperHQRequest->setShipDetails($shipDetails);
           }
@@ -140,7 +158,7 @@ class ShipperMapper {
      */
     public function getCredentialsTranslation($storeId = null)
     {
-        $shipperHQRequest = new \ShipperHQ\WS\Request\Rate\InfoRequest();
+        $shipperHQRequest = new InfoRequest();
         $shipperHQRequest->setCredentials(self::getCredentials($storeId));
         $shipperHQRequest->setSiteDetails(self::getSiteDetails($storeId));
         return $shipperHQRequest;
@@ -155,8 +173,8 @@ class ShipperMapper {
     public function getCredentials($storeId = null)
     {
 
-        $credentials = new \ShipperHQ\User\Credentials(Mage::getStoreConfig('carriers/shipper/api_key', $storeId),
-            Mage::getStoreConfig('carriers/shipper/password', $storeId));
+        $credentials = new Credentials($this->shipperDataHelper->getConfigValue('carriers/shipper/api_key'),
+            $this->shipperDataHelper->getConfigValue('carriers/shipper/password', $storeId));
         return $credentials;
     }
 
@@ -173,8 +191,6 @@ class ShipperMapper {
         $cart['freeShipping'] = (bool)$request->getFreeShipping();
         $cart['items'] = self::getFormattedItems($request,$request->getAllItems());
 
-        // $cart['additional_attributes'] = null; // not currently implemented
-
         return $cart;
     }
 
@@ -186,17 +202,11 @@ class ShipperMapper {
      */
     public function getSiteDetails($storeId = null)
     {
-        $edition = 'Community';
-        if(method_exists('Mage', 'getEdition')) {
-            $edition = Mage::getEdition();
-        }
-        elseif($this->wsaCommonHelper->isEnterpriseEdition()) {
-            $edition = 'Enterprise';
-        }
-        $url = Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK);
-        $siteDetails = new \ShipperHQ\User\SiteDetails('Magento ' . $edition, Mage::getVersion(),
-            $url, Mage::getStoreConfig('carriers/shipper/environment_scope', $storeId),
-            (string)Mage::getConfig()->getNode('modules/Shipperhq_Shipper/extension_version'));
+        $edition = $this->productMetadata->getEdition();
+        $url = $this->storeManager->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK);
+        $siteDetails = new SiteDetails('Magento ' . $edition, $this->productMetadata->getVersion(),
+            $url, $this->shipperDataHelper->getConfigValue('carriers/shipper/environment_scope', $storeId),
+            $this->dataContainer->get('modules/ShipperHQ_Shipper/extension_version'));
 
         return $siteDetails;
     }
@@ -208,9 +218,10 @@ class ShipperMapper {
     public function getCustomerGroupDetails($request)
     {
         $code = self::getCustomerGroupId($request->getAllItems());
-        $group = Mage::getModel('customer/group')->load($code);
 
-        $custGroupDetails = new \ShipperHQ\WS\Request\Rate\CustomerDetails(
+        $group = $this->groupFactory->create()->load($code);
+
+        $custGroupDetails = new CustomerDetails(
             $group->getCustomerGroupCode()
         );
 
@@ -225,7 +236,7 @@ class ShipperMapper {
     {
         $pickupId = self::getLocation($request);
         if($pickupId != '') {
-            $shipDetails = new \ShipperHQ\WS\Request\Rate\ShipDetails(
+            $shipDetails = new ShipDetails(
                 $pickupId
             );
 
@@ -300,7 +311,7 @@ class ShipperMapper {
      * @param null $taxPercentage
      * @return array
      */
-    private static function getFormattedItems($request,$magentoItems, $childItems = false, $taxPercentage = null)
+    private function getFormattedItems($request,$magentoItems, $childItems = false, $taxPercentage = null)
     {
         $formattedItems = array();
         if (empty($magentoItems)) {
@@ -320,10 +331,9 @@ class ShipperMapper {
             if($selectedCarriergroupId && $magentoItem->getCarriergroupId() != $selectedCarriergroupId) {
                 continue;
             }
-            $calculator = Mage::helper('tax')->getCalculator();
-            $taxRequest = $calculator->getRateOriginRequest();
+            $taxRequest = $this->taxCalculation->getRateOriginRequest();
             $taxRequest->setProductClassId($magentoItem->getProduct()->getTaxClassId());
-            $taxPercentage = $calculator->getRate($taxRequest);
+            $taxPercentage = $this->taxCalculation->getRate($taxRequest);
             $fixedPrice = $magentoItem->getProduct()->getPriceType() == Mage_Bundle_Model_Product_Price::PRICE_TYPE_FIXED;
             $fixedWeight =  $magentoItem->getProduct()->getWeightType() == 1 ? true : false;
             $id = $magentoItem->getItemId()? $magentoItem->getItemId() : $magentoItem->getQuoteItemId();
@@ -349,11 +359,11 @@ class ShipperMapper {
                 'discountedTaxInclBasePrice'  => $magentoItem->getBasePrice() - ($magentoItem->getBaseDiscountAmount()/$magentoItem->getQty()) + ($magentoItem->getBaseTaxAmount()/$magentoItem->getQty()),
                 'discountedTaxInclStorePrice' => $magentoItem->getPrice() - ($magentoItem->getDiscountAmount()/$magentoItem->getQty()) +  ($magentoItem->getTaxAmount()/$magentoItem->getQty()),
                 'attributes'                  => $options? array_merge(self::populateAttributes($stdAttributes, $magentoItem), $options) : self::populateAttributes($stdAttributes, $magentoItem),
-                'legacyAttributes'            => self::populateAttributes(self::$_legacyAttributeNames, $magentoItem),
+                'legacyAttributes'            => self::populateAttributes(self::$legacyAttributeNames, $magentoItem),
                 'baseCurrency'                => $request->getBaseCurrency()->getCurrencyCode(),
                 'packageCurrency'             => $request->getPackageCurrency()->getCurrencyCode(),
-                'storeBaseCurrency'           => Mage::app()->getBaseCurrencyCode(),
-                'storeCurrentCurrency'        => Mage::app()->getStore()->getCurrentCurrencyCode(),
+                'storeBaseCurrency'           => $this->storeManager->getStore()->getBaseCurrencyCode(),
+                'storeCurrentCurrency'        => $this->storeManager->getStore()->getCurrentCurrencyCode(),
                 'taxPercentage'               => $taxPercentage,
                 'freeShipping'                => (bool)$magentoItem->getFreeShipping(),
                 'additionalAttributes'        => self::getCustomAttributes($magentoItem),
@@ -393,7 +403,7 @@ class ShipperMapper {
 
         if (self::getCartType($request)=="CART") {
             // Don't pass in street for this scenario
-            $destination = new \ShipperHQ\Shipping\Address(
+            $destination = new Address(
                null,
                 $request->getDestCity(),
                 $request->getDestCountryId(),
@@ -404,7 +414,7 @@ class ShipperMapper {
                 $selectedOptions
             );
         } else {
-            $destination = new \ShipperHQ\Shipping\Address(
+            $destination = new Address(
                 null,
                 $request->getDestCity(),
                 $request->getDestCountryId(),
@@ -423,10 +433,10 @@ class ShipperMapper {
     {
         $attributes = array();
         $product = $item->getProduct();
-        if(in_array(self::$dim_length, self::$_prodAttributes) && $product->getData(self::$dim_length) != '') {
+        if(in_array(self::$dim_length, self::$prodAttributes) && $product->getData(self::$dim_length) != '') {
             $attributes =  array(self::$dim_length, self::$dim_height, self::$dim_width);
         }
-        elseif(in_array(self::$alt_length, self::$_prodAttributes) && $product->getData(self::$alt_length) != '') {
+        elseif(in_array(self::$alt_length, self::$prodAttributes) && $product->getData(self::$alt_length) != '') {
             $attributes =  array(self::$alt_length, self::$alt_height, self::$alt_width);
         }
         return $attributes;
@@ -445,7 +455,7 @@ class ShipperMapper {
         $product = $item->getProduct();
 
 
-        if(!in_array(self::$dim_group, self::$_prodAttributes)) {
+        if(!in_array(self::$dim_group, self::$prodAttributes)) {
 //            if ($this->shipperDataHelper->isDebug()) {
 //                $this->logger->postWarning('ShipperHQ',self::$dim_group .' attribute does not exist',
 //                    'Review installation to ensure latest version is installed and SQL install script has completed');
@@ -481,7 +491,7 @@ class ShipperMapper {
                 $attributeValue = $product->getData($attributeName);
             }
 
-            if (!empty($attributeValue) && !strstr($attributeValue,self::$_useDefault)) {
+            if (!empty($attributeValue) && !strstr($attributeValue,self::$useDefault)) {
                 $attributes[] = array (
                     'name' => $attributeName,
                     'value' => $attributeValue
@@ -499,10 +509,10 @@ class ShipperMapper {
      * @param $item
      * @return array
      */
-    protected static function populateCustomOptions($item)
+    protected function populateCustomOptions($item)
     {
         $option_values = array();
-        $options = Mage::helper('catalog/product_configuration')->getCustomOptions($item);
+        $options = $this->productConfiguration->getCustomOptions($item);
         $value = '';
         foreach($options as $customOption) {
             $value .= $customOption['value'];
@@ -528,13 +538,13 @@ class ShipperMapper {
      * @param $item
      * @return array
      */
-    private static function getCustomAttributes($item)
+    protected function getCustomAttributes($item)
     {
-        $rawCustomAttributes = explode(',', Mage::getStoreConfig('carriers/shipper/item_attributes'));
+        $rawCustomAttributes = explode(',', $this->shipperDataHelper->getConfigValue('carriers/shipper/item_attributes'));
         $customAttributes = array();
         foreach ($rawCustomAttributes as $attribute) {
             $attribute = str_replace(' ', '', $attribute);
-            if(!in_array($attribute, self::$_stdAttributeNames) && !in_array($attribute, self::$_legacyAttributeNames) && $attribute != '') {
+            if(!in_array($attribute, self::$_stdAttributeNames) && !in_array($attribute, self::$legacyAttributeNames) && $attribute != '') {
                 $customAttributes[] = $attribute;
             }
         }
@@ -543,18 +553,18 @@ class ShipperMapper {
 
     }
 
-    protected static function getSelectedOptions($request)
+    protected function getSelectedOptions($request)
     {
         $shippingOptions = array();
         if($request->getQuote() && $shippingAddress = $request->getQuote()->getShippingAddress()) {
-            foreach(self::$_shippingOptions as $option) {
+            foreach(self::$shippingOptions as $option) {
                 if($shippingAddress->getData($option) != '') {
                     $shippingOptions[] = array('name'=> $option, 'value' => $shippingAddress->getData($option));
                 }
             }
         }
 
-        $selectedOptions = new \ShipperHQ\Shipping\SelectedOptions(
+        $selectedOptions = new SelectedOptions(
             $shippingOptions
         );
         return $selectedOptions;

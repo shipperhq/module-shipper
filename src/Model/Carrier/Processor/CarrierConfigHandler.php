@@ -118,13 +118,15 @@ class CarrierConfigHandler
     public function setCarrierConfig($carrierConfig)
     {
         foreach ($carrierConfig as $carrierCode => $config) {
-            $this->shipperDataHelper->saveCarrierTitle($carrierCode, $config['title']);
+            $this->saveCarrierTitle($carrierCode, $config['title']);
             if (array_key_exists('sortOrder', $config)) {
-                $this->shipperDataHelper->saveConfig('carriers/' . $carrierCode . '/sort_order', $config['sortOrder']);
+                $this->saveConfig('carriers/' . $carrierCode . '/sort_order', $config['sortOrder']);
             }
         }
 
     }
+
+
 
 
 }

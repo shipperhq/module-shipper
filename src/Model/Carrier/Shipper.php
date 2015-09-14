@@ -330,6 +330,10 @@ class Shipper
     }
 
 
+    /**
+     * @param $ratesToAdd
+     * @return \Magento\Shipping\Model\Rate\Result
+     */
     public function createMergedRate($ratesToAdd)
     {
         $result = $this->rateFactory->create();
@@ -348,6 +352,12 @@ class Shipper
         return $result;
     }
 
+    /**
+     * @param $carrierRate
+     * @param $carrierGroupId
+     * @param $carrierGroupDetail
+     * @return array
+     */
     public function extractShipperHQRates($carrierRate, $carrierGroupId, $carrierGroupDetail)
     {
 

@@ -29,6 +29,10 @@ class BackupCarrier
      * @var \ShipperHQ\Shipper\Helper\Logger
      */
     private $shipperLogger;
+    /**
+     * @var \Magento\Framework\App\Config\MutableScopeConfigInterface
+     */
+    private $mutableConfig;
 
     /**
      * @param Config $configHelper
@@ -37,12 +41,14 @@ class BackupCarrier
     public function __construct(
         \ShipperHQ\Shipper\Helper\Logger $shipperLogger,
         \Magento\Backend\Block\Template\Context $context,
+        \Magento\Framework\App\Config\MutableScopeConfigInterface $mutableConfig,
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper)
     {
 
         $this->shipperDataHelper = $shipperDataHelper;
         $this->storeManager = $context->getStoreManager();
         $this->shipperLogger = $shipperLogger;
+        $this->mutableConfig = $mutableConfig;
     }
 
     public function getBackupCarrierRates($rawRequest, $backupCarrierDetails)
@@ -79,11 +85,10 @@ class BackupCarrier
     protected function tempSetCarrierEnabled($carrierCode, $enabled)
     {
         $carrierPath = 'carriers/' . $carrierCode . '/active';
-        $store = $this->storeManager->getStore();
         $tempEnabledCarrier = false;
 
         if (!$this->shipperDataHelper->getConfigFlag($carrierPath) || !$enabled) { // if $enabled set to false was previously enabled!
-            // $store->setConfig($carrierPath, $enabled); TODO Issue raised on Magento github as can't do this anymore
+            $this->mutableConfig->setValue($carrierPath, $enabled);
             $tempEnabledCarrier = true;
         }
 

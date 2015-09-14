@@ -7,7 +7,7 @@
             <argument name="shipperData" xsi:type="object">ShipperHQ\Shipper\Helper\Data</argument>
             <argument name="configHelper" xsi:type="object">ShipperHQ\Shipper\Helper\Config</argument>
             <argument name="scopeConfig" xsi:type="object">Magento\Framework\App\Config\ScopeConfigInterface</argument>
-            <argument name="shipperMapper" xsi:type="object">ShipperHQ\Shipper\Model\Carrier\Convert\ShipperMapper</argument>
+            <argument name="shipperMapper" xsi:type="object">ShipperHQ\Shipper\Model\Carrier\Processor\ShipperMapper</argument>
             <argument name="errorFactory" xsi:type="object">Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory</argument>
             <argument name="resultFactory" xsi:type="object">Magento\Shipping\Model\Rate\ResultFactory</argument>
             <argument name="shipperResult" xsi:type="object">ShipperHQ\Shipper\Model\Rate\Result</argument>

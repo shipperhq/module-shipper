@@ -50,6 +50,49 @@ class Logger extends  \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * TODO push out to separate logger
+     *
+     * @param $module
+     * @param $debugData
+     * @param $errorDetailsT
+     */
+    public function postInfo($module, $debugData, $payload) {
+        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/debug')) {
+            $this->logger->info(var_export($module.': '.$debugData, true));
+            $this->logger->info(var_export($payload, true));
+        }
+    }
+
+    /**
+     * TODO push out to separate logger
+     *
+     * @param $module
+     * @param $debugData
+     * @param $errorDetailsT
+     */
+    public function postDebug($module, $debugData, $payload) {
+        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/debug')) {
+            $this->logger->debug(var_export($module.': '.$debugData, true));
+            $this->logger->debug(var_export($payload, true));
+        }
+    }
+
+
+    /**
+     * TODO push out to separate logger
+     *
+     * @param $module
+     * @param $debugData
+     * @param $errorDetailsT
+     */
+    public function postWarning($module, $debugData, $payload) {
+        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/debug')) {
+            $this->logger->warning(var_export($module.': '.$debugData, true));
+            $this->logger->warning(var_export($payload, true));
+        }
+    }
+
+    /**
      * Define if debugging is enabled
      *
      * @return bool

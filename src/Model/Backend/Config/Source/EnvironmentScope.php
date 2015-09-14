@@ -43,23 +43,23 @@ class EnvironmentScope {
 
     public function toOptionArray()
     {
-        return array(
-            array(
+        return [
+            [
                 'value' =>  SiteDetails::LIVE,
                 'label' => __('Live')
-            ),
-            array(
+            ],
+            [
                 'value' =>  SiteDetails::DEV,
                 'label' => __('Development')
-            ),
-            array(
+            ],
+            [
                 'value' =>  SiteDetails::TEST,
                 'label' => __('Test')
-            ),
-            array(
+            ],
+            [
                 'value' =>  SiteDetails::INTEGRATION,
                 'label' => __('Integration')
-            ),
-        );
+            ],
+        ];
     }
 }

@@ -29,24 +29,25 @@
  * @author ShipperHQ Team sales@shipperhq.com
  */
 
-class Shipperhq_Shipper_Model_Sales_Quote_Address_Rate extends Mage_Sales_Model_Quote_Address_Rate
+namespace ShipperHQ\Shipper\Model\Sales\Quote\Address;
+
+class Rate extends \Magento\Quote\Model\Quote\Address\Rate
 {
 
-    public function importShippingRate(Mage_Shipping_Model_Rate_Result_Abstract $rate)
+    public function importShippingRate(\Magento\Quote\Model\Quote\Address\RateResult\AbstractResult $rate)
     {
         if ($rate instanceof Mage_Shipping_Model_Rate_Result_Error) {
             $this
-                ->setCode($rate->getCarrier().'_error')
+                ->setCode($rate->getCarrier() . '_error')
                 ->setCarrier($rate->getCarrier())
                 ->setCarrierTitle($rate->getCarrierTitle())
                 ->setErrorMessage($rate->getErrorMessage())
                 ->setCarrierId($rate->getCarrierId())
                 ->setCarriergroupId($rate->getCarriergroupId())
-                ->setCarriergroup($rate->getCarriergroup())
-            ;
+                ->setCarriergroup($rate->getCarriergroup());
         } elseif ($rate instanceof Mage_Shipping_Model_Rate_Result_Method) {
             $this
-                ->setCode($rate->getCarrier().'_'.$rate->getMethod())
+                ->setCode($rate->getCarrier() . '_' . $rate->getMethod())
                 ->setCarrier($rate->getCarrier())
                 ->setCarrierTitle($rate->getCarrierTitle())
                 ->setMethod($rate->getMethod())
@@ -56,10 +57,14 @@ class Shipperhq_Shipper_Model_Sales_Quote_Address_Rate extends Mage_Sales_Model_
                 ->setCarriergroupId($rate->getCarriergroupId())
                 ->setCarriergroup($rate->getCarriergroup())
                 ->setCarrierType($rate->getCarrierType())
+                ->setDispatchDate($rate->getDispatchDate())
+                ->setDeliveryDate($rate->getDeliveryDate())
                 ->setCarriergroupShippingDetails($rate->getCarriergroupShippingDetails())
+                ->setCarrierNotice($rate->getCarrierNotice())
+                ->setFreightRate($rate->getFreightRate())
                 ->setCustomDescription($rate->getCustomDescription())
                 ->setCarrierId($rate->getCarrierId())
-            ;
+                ->setCustomDuties($rate->getCustomDuties());;
         }
         return $this;
     }

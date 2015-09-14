@@ -16,7 +16,7 @@ class Mapper
      */
     public function map($mapping, $source)
     {
-        $target = array();
+        $target = [];
         foreach ($mapping as $targetField => $sourceField) {
             if (is_string($sourceField)) {
                 if (strpos($sourceField, '/') !== false) {

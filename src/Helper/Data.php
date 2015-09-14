@@ -31,6 +31,7 @@
 namespace ShipperHQ\Shipper\Helper;
 
 use ShipperHQ\Shipper\Helper\Config;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
 
 /**
  * Shipping data helper
@@ -48,12 +49,12 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
     protected $quote;
 
     public $magentoCarrierCodes =
-        array( 'ups' => 'ups',
+        ['ups' => 'ups',
             'fedEx' => 'fedex',
             'usps' => 'usps',
             'dhl' => 'dhl',
             'dhlint' => 'dhlint'
-        );
+        ];
 
     CONST SHIPPERHQ_SHIPPER_CARRIERGROUP_DESC_PATH = 'carriers/shipper/carriergroup_describer';
     /**
@@ -69,10 +70,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
      */
     protected $storeManager;
     /**
-     * @var \Magento\Config\Model\Resource\Config
-     */
-    protected $resourceConfig;
-    /**
      * @var \Magento\Catalog\Model\ProductFactory
      */
     protected $productFactory;
@@ -80,14 +77,28 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
      * @var \Magento\Checkout\Model\Session
      */
     private $checkoutSession;
+    /**
+     * @var JsonHelper
+     */
+    private $jsonHelper;
+    /**
+     * @var \Magento\Framework\ObjectManagerInterface
+     */
+    private $objectManager;
+    /**
+     * @var \Magento\Directory\Model\CurrencyFactory
+     */
+    private $dirCurrencyFactory;
 
     public function __construct(Config $shipperConfig,
                                 \Magento\Eav\Model\Config $eavConfig,
                                 \Magento\Framework\Registry $registry,
                                 \Magento\Backend\Block\Template\Context $context,
+                                JsonHelper $jsonHelper,
+                                \Magento\Directory\Model\CurrencyFactory $dirCurrencyFactory,
+                                \Magento\Framework\ObjectManagerInterface $objectManager,
                                 \Magento\Catalog\Model\ProductFactory $productFactory,
                                 \Magento\Checkout\Model\Session $checkoutSession,
-                                \Magento\Config\Model\Resource\Config $resourceConfig,
                                 \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
         $this->shipperConfig = $shipperConfig;
@@ -95,18 +106,43 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         $this->eavConfig = $eavConfig;
         $this->registry = $registry;
         $this->storeManager = $context->getStoreManager();
-        $this->resourceConfig = $resourceConfig;
         $this->productFactory = $productFactory;
         $this->checkoutSession = $checkoutSession;
+        $this->jsonHelper = $jsonHelper;
+        $this->objectManager = $objectManager;
+        $this->dirCurrencyFactory = $dirCurrencyFactory;
     }
     
     public function isModuleActive() {
         return self::isModuleEnabled("ShipperHQ_Shipper");
     }
 
-    public function getConfigValue($configField) {
+    public function getCarrierGroupDescPath() {
+        return self::SHIPPERHQ_SHIPPER_CARRIERGROUP_DESC_PATH;
+    }
+
+    /**
+     * Get Config Value
+     *
+     * @param $configField
+     * @return mixed
+     */
+    public function getConfigValue($configField)
+    {
         return $this->scopeConfig->getValue($configField,
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+
+    }
+
+    /**
+     * Gets a config flag
+     *
+     * @param $configField
+     * @return mixed
+     */
+    public function getConfigFlag($configField)
+    {
+        return $this->scopeConfig->isSetFlag($configField,\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
     }
 
     /**
@@ -126,33 +162,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
     {
         $id = $this->registry->registry('shipperhq_transaction');
         return $id;
-    }
-    
-
-    public function chooseCarrierAndProcess($carrierRate, $carrierGroupId = null, $carrierGroupDetail = null)
-    {
-        $carrierCode = $carrierRate->carrierCode;
-        $sort = isset($carrierRate->sortOrder) ? $carrierRate->sortOrder : false;
-        $this->dynamicCarrierConfig($carrierCode, $carrierRate->carrierTitle, $sort);
-
-        $this->populateCarrierLevelDetails((array)$carrierRate, $carrierGroupDetail);
-
-        //Always process rates with standard if not already done
-        if (!$this->registry->registry('shipper_carrier')) {
-            $model = $this->carrierShipper;
-            $this->registry->register('shipper_carrier', $model);
-        }
-        return $this->registry->registry('shipper_carrier')->extractShipperhqRates($carrierRate, $carrierGroupId, $carrierGroupDetail);
-    }
-
-    public function populateCarrierLevelDetails($carrierRate, &$carrierGroupDetail)
-    {
-
-        $carrierGroupDetail['carrierType'] = $carrierRate['carrierType'];
-        $carrierGroupDetail['carrierTitle'] = $carrierRate['carrierTitle'];
-        $carrierGroupDetail['carrier_code'] = $carrierRate['carrierCode'];
-        $carrierGroupDetail['carrierName'] = $carrierRate['carrierName'];
-        
     }
 
 
@@ -185,15 +194,20 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
 
     }
 
+    public function getBaseCurrencyCode() {
+        return $this->storeManager->getStore()->getBaseCurrency()->getCode();
+    }
+
     public function getBaseCurrencyRate($code)
     {
-        $allowedCurrencies = $this->directoryCurrency->getConfigAllowCurrencies();
+        $currencyModel = $this->dirCurrencyFactory->create();
+        $allowedCurrencies = $currencyModel->getConfigAllowCurrencies();
         if (!in_array($code, $allowedCurrencies)) {
             return false;
         }
         $baseCurrencyCode = $this->storeManager->getStore((int)$this->getParam('store'))->getBaseCurrencyCode();
         if (!$this->baseCurrencyRate) {
-            $this->baseCurrencyRate = $this->directoryCurrency
+            $this->baseCurrencyRate = $currencyModel
                 ->load($code)
                 ->getAnyRate($baseCurrencyCode);
         }
@@ -297,41 +311,17 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return self::$wsTimeout;
     }
 
-    /**
-     * Saves the carrier title to core_config_data
-     * Need to do this as doesnt read from the shipping rate quote table!
-     * @param $carrierCode
-     * @param $carrierTitle
-     */
-    public function saveCarrierTitle($carrierCode,$carrierTitle)
-    {
-        $this->resourceConfig->saveConfig('carriers/'.$carrierCode.'/title',$carrierTitle);
-    }
 
-    /**
-     * Save config value to db
-     * @param $path
-     * @param $value
-     * @param string $scope
-     * @param int $scopeId
-     * @return $this
-     */
-    public function saveConfig($path, $value, $scope = 'default', $scopeId = 0)
-    {
-        if ($this->getConfigValue($path) != $value) {
-            $this->resourceConfig->saveConfig(rtrim($path, '/'), $value, $scope, $scopeId);
-            $this->getQuote()->setConfigUpdated(true);
-        }
-    }
 
     public function encodeShippingDetails($shippingDetails)
     {
-        return Zend_Json::encode($shippingDetails);
+        return $this->jsonHelper->jsonEncode($shippingDetails);
+
     }
 
     public function decodeShippingDetails($shippingDetailsEnc)
     {
-        return Zend_Json::decode($shippingDetailsEnc);
+        return $this->jsonHelper->jsonDecode($shippingDetailsEnc);
     }
 
     /**
@@ -384,13 +374,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return $this->getQuote()->getShipperGlobal();
     }
 
-    /*
-    *
-    */
-    public function getOurCarrierCode()
-    {
-        return $this->carrierShipper->getCarrierCode();
-    }
 
     public function mapToMagentoCarrierCode($carrierType, $carrierCode)
     {
@@ -400,14 +383,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return $carrierCode;
     }
 
-    public function refreshConfig()
-    {
-        if($this->getQuote()->getConfigUpdated()) {
-            $this->resourceConfig->resetConfig();
-            $this->getQuote()->setConfigUpdated(false);
-        }
-    }
-
     /**
      *
      * @return array
@@ -415,7 +390,7 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
     public function getProductAttributes()
     {
         if(is_null($this->prodAttributes)) {
-            $this->prodAttributes = $this->eavConfig->getEntityAttributeCodes(Mage_Catalog_Model_Product::ENTITY);
+            $this->prodAttributes = $this->eavConfig->getEntityAttributeCodes(\Magento\Catalog\Model\Product::ENTITY);
         }
 
         return $this->prodAttributes;
@@ -434,9 +409,9 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         }
 
         $collection->addAttributeToSelect($attribute_code);
-        $collection->addFieldToFilter(array(
-            array('attribute'=>$attribute_code,'finset'=>$value),
-        ));
+        $collection->addFieldToFilter([
+            ['attribute'=>$attribute_code,'finset'=>$value],
+        ]);
         if($returnCount) {
             return count($collection);
         }
@@ -501,14 +476,14 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getItemsGroupedByCarrierGroup($cartItems)
     {
-        $groupedItems = array();
+        $groupedItems = [];
         foreach($cartItems as $item)
         {
             if(array_key_exists($item->getCarriergroupId(), $groupedItems)) {
                 $groupedItems[$item->getCarriergroupId()][] = $item;
             }
             else {
-                $groupedItems[$item->getCarriergroupId()]= array($item);
+                $groupedItems[$item->getCarriergroupId()]= [$item];
             }
         }
 
@@ -536,20 +511,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return $attribute;
     }
 
-    protected function dynamicCarrierConfig($carrierCode, $carrierTitle, $sortOrder = false)
-    {
-        $modelPath = 'carriers/'.$carrierCode.'/model';
-        if(!$this->getConfigValue($modelPath)) {
-            $model = 'shipperhq_shipper/carrier_shipper';
-            $this->saveConfig($modelPath, $model);
-            $this->saveConfig('carriers/'.$carrierCode.'/active', 0);
-        }
-        $this->saveCarrierTitle($carrierCode, $carrierTitle);
-
-        if($sortOrder) {
-            $this->saveConfig('carriers/'.$carrierCode.'/sort_order', $sortOrder);
-        }
-    }
 
     /**
      * Returns url to use - live if present, otherwise dev
@@ -572,5 +533,29 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         }
         return $url;
     }
+
+    /**
+     * Get carrier by its code
+     *
+     * @param string $carrierCode
+     * @param null|int $storeId
+     * @return bool|\Magento\Shipping\Model\Carrier\AbstractCarrier
+     */
+    public function getCarrierByCode($carrierCode, $storeId = null)
+    {
+        if (!$this->scopeConfig->getValue('carriers/'.$carrierCode.'/active', $storeId)) {
+            return false;
+        }
+        $className = $this->scopeConfig->getValue('carriers/'.$carrierCode.'/model', $storeId);
+        if (!$className) {
+            return false;
+        }
+        $carrier = $this->objectManager->create($className);
+        if ($storeId) {
+            $carrier->setStore($storeId);
+        }
+        return $carrier;
+    }
+
 
 }

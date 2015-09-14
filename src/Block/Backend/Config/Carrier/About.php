@@ -51,17 +51,17 @@ class About extends \Magento\Config\Block\System\Config\Form\Field
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return string
      */
-    protected function _getHeaderCommentHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+    protected function _getHeaderCommentHtml($element)
     {
         $beforeDiv = '<div style="padding:10px;background-color:#fff;border:1px solid #ddd;margin-bottom:7px;">';
         $afterDiv = '</div>';
-        $synch = $this->helper('index')->__('Click here to <a href="%s">Synchronize</a> with ShipperHQ.', $this->getUrl('adminhtml/shqsynchronize'));
+        $synch = __('Click here to <a href="%s">Synchronize</a> with ShipperHQ.', $this->getUrl('adminhtml/shqsynchronize'));
         $element->getComment()
             ? $comment =   $element->getComment()
             : $comment =  '';
         $html =$beforeDiv. '<table>
             <tr>
-            <td width="100px;"><img style="height: 36px; padding: 0px 0px;" class="logo" src="'.$this->getSkinUrl('shipperhq/images/shq-logo.png') .'" alt="ShipperHQ"/></td>
+            <td width="100px;"><img style="height: 36px; padding: 0px 0px;" class="logo" src="'.$this->getViewFileUrl('shipperhq/images/shq-logo.png') .'" alt="ShipperHQ"/></td>
                 <td width="10"></td>
                 <td style="vertical-align:bottom">
                 <h4>ShipperHQ installed version '. $this->getModuleVersion() .'</h4>

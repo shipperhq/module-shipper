@@ -54,7 +54,8 @@ class Observer
                          \Magento\Backend\Model\Session $backendSession,
                          \Psr\Log\LoggerInterface $logger,
                          \ShipperHQ\Shipper\Model\Carrier\Shipper $shipper
-    ) {
+    )
+    {
 
         $this->shipperDataHelper = $shipperDataHelper;
         $this->shipper = $shipper;
@@ -69,7 +70,7 @@ class Observer
      */
     public function updateTitles()
     {
-        if($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
+        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
             $refreshResult = $this->shipper->refreshCarriers();
             if (array_key_exists('error', $refreshResult)) {
                 $message = $refreshResult['error'];
@@ -113,8 +114,7 @@ class Observer
     {
         $quote = $observer->getQuote();
         $addresses = $quote->getAllAddresses();
-        foreach($addresses as $address)
-        {
+        foreach ($addresses as $address) {
             $address->setIsCheckout(1);
         }
     }
@@ -122,31 +122,27 @@ class Observer
 
     public function saveOrderAfter($observer)
     {
-        try
-        {
+        try {
             $recordOrderPackages = true;
 
-            if ($recordOrderPackages)
-            {
+            if ($recordOrderPackages) {
                 $order = $observer->getOrder();
                 $quote = $order->getQuote();
 
                 $shippingAddress = $quote->getShippingAddress();
                 $carrierGroupDetail = json_decode($shippingAddress->getCarriergroupShippingDetails());
-                if(is_array($carrierGroupDetail)){
-                    foreach($carrierGroupDetail as $carrier_group) {
-                        if(!isset($carrier_group->carrierGroupId)) {
+                if (is_array($carrierGroupDetail)) {
+                    foreach ($carrierGroupDetail as $carrier_group) {
+                        if (!isset($carrier_group->carrierGroupId)) {
                             continue;
                         }
                     }
                 }
             }
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error($e);
         }
     }
-
 
 
     public function salesConvertQuoteItemToOrderItem($observer)
@@ -198,8 +194,4 @@ class Observer
 
         $this->shipperDataHelper->setQuote($observer->getOrderCreateModel()->getQuote());
     }
-
-
-
-
 }

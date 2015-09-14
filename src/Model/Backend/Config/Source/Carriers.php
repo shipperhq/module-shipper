@@ -57,7 +57,7 @@ class Carriers  {
 
     public function toOptionArray() {
 
-        $arr = array();
+        $arr = [];
 
         $carriers = $this->shippingConfig->getAllCarriers($this->storeManager->getStore());
 
@@ -66,12 +66,12 @@ class Carriers  {
             if (strpos($carrierCode, 'shipper') === 0 || $carrierTitle == '') {
                 continue;
             }
-            if($this->shipperDataHelper->getConfigValue('carriers/'.$carrierCode.'/model') == 'shipperhq_shipper/carrier_shipper') {
+            if($this->shipperDataHelper->getConfigValue('carriers/'.$carrierCode.'/model') == 'ShipperHQ\Shipper\Model\Carrier\Shipper') {
                 continue;
             }
-            $arr[] = array('value' => $carrierCode, 'label' => $carrierTitle);
+            $arr[] = ['value' => $carrierCode, 'label' => $carrierTitle];
         }
-        array_unshift($arr, array('value' => false, 'label' => __('No Carrier')));
+        array_unshift($arr, ['value' => false, 'label' => __('No Carrier')]);
 
         return $arr;
 

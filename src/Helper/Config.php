@@ -32,29 +32,29 @@ class Config extends AbstractConfig implements ConfigInterface
     public function getCodes()
     {
         return [
-            'date_format'   =>array(
+            'date_format'   => [
                 'dd-mm-yyyy'    	    => 'd-m-Y',
                 'mm/dd/yyyy'    	    => 'm/d/Y',
                 'EEE dd-MM-yyyy'        => 'D d-m-Y'
-            ),
-            'short_date_format'   =>array(
+            ],
+            'short_date_format'   => [
                 'dd-mm-yyyy'   	    => 'd-m-Y',
                 'mm/dd/yyyy'    	    => 'm/d/Y',
                 'EEE dd-MM-yyyy'        => 'D d-m-Y'
-            ),
-            'datepicker_format' => array(
+            ],
+            'datepicker_format' => [
                 'dd-mm-yyyy'         => 'dd-mm-yy',
                 'mm/dd/yyyy'         => 'mm/dd/yy',
                 'EEE dd-MM-yyyy'        => 'DD d-MM-yy'
 
-            ),
-            'zend_date_format'     => array(
+            ],
+            'zend_date_format'     => [
                 'dd-mm-yyyy'         => 'dd-MM-y',
                 'mm/dd/yyyy'         => 'MM/dd/y',
                 'EEE dd-MM-yyyy'        => 'E d-M-y'
-            ),
-            'cldr_date_format'      => array(
-                'en_US'            => array(
+            ],
+            'cldr_date_format'      => [
+                'en_US'            => [
                     'yMd'           => 'M/d/Y',
                     'yMMMd'         => 'MMM d, Y',
                     'yMMMEd'        => 'EEE, MMM d, Y',
@@ -68,8 +68,8 @@ class Config extends AbstractConfig implements ConfigInterface
                     'MMM'          => 'MMM',
                     'E'             => 'EEE',
                     'Ed'            => 'd EEE',
-                )
-            )
+                ]
+            ]
         ];
     }
 }

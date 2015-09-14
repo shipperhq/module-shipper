@@ -15,20 +15,62 @@ use Magento\Framework\Setup\SchemaSetupInterface;
  */
 class InstallSchema implements InstallSchemaInterface
 {
+
+    /**
+     * Category setup factory
+     *
+     * @var CategorySetupFactory
+     */
+    protected $categorySetupFactory;
+
+    /**
+     * Quote setup factory
+     *
+     * @var QuoteSetupFactory
+     */
+    protected $quoteSetupFactory;
+
+    /**
+     * Sales setup factory
+     *
+     * @var SalesSetupFactory
+     */
+    protected $salesSetupFactory;
+
+
+    /**
+     * Init
+     *
+     * @param CategorySetupFactory $categorySetupFactory
+     * @param QuoteSetupFactory $quoteSetupFactory
+     * @param SalesSetupFactory $salesSetupFactory
+     */
+    public function __construct(
+        CategorySetupFactory $categorySetupFactory,
+        QuoteSetupFactory $quoteSetupFactory,
+        SalesSetupFactory $salesSetupFactory
+    ) {
+        $this->categorySetupFactory = $categorySetupFactory;
+        $this->quoteSetupFactory = $quoteSetupFactory;
+        $this->salesSetupFactory = $salesSetupFactory;
+    }
+    
+    
     /**
      * {@inheritdoc}
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
+
         $installer = $setup;
 
         $installer->startSetup();
 
-
+        $catalogSetup = $this->categorySetupFactory->create(['setup' => $setup]);
 
         /* ------ shipperhq_shipping_group -------- */
-        $this->addAttribute('catalog_product', 'shipperhq_shipping_group', array(
+        $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_shipping_group', [
             'type'                     => 'varchar',
             'backend'                  => 'eav/entity_attribute_backend_array',
             'input'                    => 'multiselect',
@@ -45,10 +87,10 @@ class InstallSchema implements InstallSchemaInterface
             'unique'                   => false,
             'user_defined'			   => false,
             'used_in_product_listing'  => false
-        ));
+        ]);
 
         /* ------ shipperhq_warehouse -------- */
-        $this->addAttribute('catalog_product', 'shipperhq_warehouse', array(
+        $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_warehouse', [
             'type'                     => 'text',
             'backend'                  => 'eav/entity_attribute_backend_array',
             'input'                    => 'multiselect',
@@ -65,89 +107,89 @@ class InstallSchema implements InstallSchemaInterface
             'unique'                   => false,
             'user_defined'			   => false,
             'used_in_product_listing'  => false
-        ));
+        ]);
 
 
-        $entityTypeId = $installer->getEntityTypeId('catalog_product');
+        $entityTypeId = $catalogSetup->getEntityTypeId(\Magento\Catalog\Model\Product::ENTITY);
 
-        $attributeSetArr = $installer->getAllAttributeSetIds($entityTypeId);
+        $attributeSetArr = $catalogSetup->getAllAttributeSetIds($entityTypeId);
 
 
-        $stdAttributeCodes = array('shipperhq_shipping_group' => '1',  'shipperhq_warehouse' => '10');
+        $stdAttributeCodes = ['shipperhq_shipping_group' => '1',  'shipperhq_warehouse' => '10'];
 
 
         foreach ($attributeSetArr as $attributeSetId) {
 
-            $installer->addAttributeGroup($entityTypeId, $attributeSetId, 'Shipping', '99');
+            $catalogSetup->addAttributeGroup($entityTypeId, $attributeSetId, 'Shipping', '99');
 
-            $attributeGroupId = $installer->getAttributeGroupId($entityTypeId, $attributeSetId, 'Shipping');
+            $attributeGroupId = $catalogSetup->getAttributeGroupId($entityTypeId, $attributeSetId, 'Shipping');
 
             foreach($stdAttributeCodes as $code => $sort) {
-                $attributeId = $installer->getAttributeId($entityTypeId, $code);
-                $installer->addAttributeToGroup($entityTypeId, $attributeSetId, $attributeGroupId, $attributeId, $sort);
+                $attributeId = $catalogSetup->getAttributeId($entityTypeId, $code);
+                $catalogSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $attributeGroupId, $attributeId, $sort);
             }
 
         };
 
         $text = Varien_Db_Ddl_Table::TYPE_TEXT;
 
-        $isCheckout = array(
+        $isCheckout = [
             'type'  => Varien_Db_Ddl_Table::TYPE_SMALLINT,
             'comment' => 'ShipperHQ Shipper',
             'nullable' => 'false',
             'default'  => '0'
-        );
+        ];
 
-        $carrierType = array(
+        $carrierType = [
             'type' => $text,
             'comment' => 'ShipperHQ Carrier Type',
             'nullable' => 'true',
-        );
+        ];
 
-        $carrierId = array(
+        $carrierId = [
             'type' => $text,
             'length'	=> 20,
             'comment' => 'ShipperHQ Carrier ID',
             'nullable' => 'true',
-        );
+        ];
 
 
-        $carriergroupAttr = array(
+        $carriergroupAttr = [
             'type' => $text,
             'comment' => 'Carrier Group',
             'nullable' => 'true',
-        );
+        ];
 
-        $carriergroupID  = array(
+        $carriergroupID  = [
             'type' => $text,
             'comment' => 'Carrier Group ID',
             'nullable' => 'true',
-        );
+        ];
 
-        $carriergroupDetails = array(
+        $carriergroupDetails = [
             'type' => $text,
             'comment' => 'Carrier Group Details',
             'nullable' => 'true',
-        );
+        ];
 
-        $carriergroupHtml = array(
+        $carriergroupHtml = [
             'type' => $text,
             'comment' => 'Carrier Group Html',
             'nullable' => 'true',
-        );
+        ];
 
-        $displayMerged = array(
+        $displayMerged = [
             'type'  => Varien_Db_Ddl_Table::TYPE_SMALLINT,
             'comment' => 'Checkout display type',
             'nullable' => 'false',
             'default'  => '1'
-        );
+        ];
 
-        $carriergroupShipping = array(
+        $carriergroupShipping = [
             'type' => $text,
             'comment' => 'Shipping Description',
             'nullable' => 'true',
-        );
+        ];
 
         if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_address'), 'is_checkout')){
             $installer->getConnection()->addColumn($installer->getTable('sales/quote_address'), 'is_checkout', $isCheckout);

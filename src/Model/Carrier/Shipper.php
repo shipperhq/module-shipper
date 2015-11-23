@@ -438,8 +438,11 @@ class Shipper
         $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
         $timeout = $this->shipperDataHelper->getWebserviceTimeout();
         if (!$resultSet) {
+            $this->shipperLogger->postInfo('EXTRA', "delete not required" , $this->shipperDataHelper->getRateGatewayUrl());
             $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive($this->shipperRequest,
                 $this->shipperDataHelper->getRateGatewayUrl(), $timeout);
+
+            $this->shipperLogger->postInfo('EXTRA', 'Delete this only for debugging result set',$resultSet);
             if (!$resultSet['result']) {
                 $backupRates = $this->backupCarrier->getBackupCarrierRates($this->rawRequest, $this->getConfigFlag("backup_carrier"));
                 if ($backupRates) {
@@ -479,9 +482,8 @@ class Shipper
         if (!is_object($shipperResponse)) {
             $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ did not return a response',
                 $debugData);
-            $message = $this->configHelper->getCode('error', 1550);
 
-            return $this->returnGeneralError($message);
+            return $this->returnGeneralError('Shipper HQ did not return a response - could not contact ShipperHQ. Please review your settings');
         } elseif (!empty($shipperResponse->errors)) {
             $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ returned an error',
                 $debugData);
@@ -663,7 +665,7 @@ class Shipper
         $error->setCarrier($this->_code);
         $error->setCarrierTitle($this->getConfigData('title'));
         $error->setCarriergroupId('');
-        if ($message && $this->shipperDataHelper->isDebug()) {
+        if ($message && $this->shipperDataHelper->getConfigValue('carriers/shipper/debug')) {
             $error->setErrorMessage($message);
         } else {
             $error->setErrorMessage($this->getConfigData('specificerrmsg'));

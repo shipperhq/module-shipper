@@ -37,27 +37,28 @@ namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
  *
  */
 
-use ShipperHQ\WS\Shared\SiteDetails;
+use ShipperHQ\WS\Shared\SiteDetails as SiteDetails;
 
-class EnvironmentScope {
+class EnvironmentScope implements \Magento\Framework\Option\ArrayInterface{
 
     public function toOptionArray()
     {
         return [
             [
+                'value' => "LIVE",
                 'value' =>  SiteDetails::LIVE,
                 'label' => __('Live')
             ],
             [
-                'value' =>  SiteDetails::DEV,
+                'value' =>   SiteDetails::DEV,
                 'label' => __('Development')
             ],
             [
-                'value' =>  SiteDetails::TEST,
+                'value' =>   SiteDetails::TEST,
                 'label' => __('Test')
             ],
             [
-                'value' =>  SiteDetails::INTEGRATION,
+                'value' => SiteDetails::INTEGRATION,
                 'label' => __('Integration')
             ],
         ];

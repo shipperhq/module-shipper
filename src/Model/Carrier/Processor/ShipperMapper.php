@@ -203,7 +203,6 @@ class ShipperMapper
         $storeId = $magentoRequest->getStore();
         $shipperHQRequest->setSiteDetails($this->getSiteDetails($storeId));
         $shipperHQRequest->setCredentials($this->getCredentials($storeId));
-
         return $shipperHQRequest;
     }
 
@@ -507,10 +506,9 @@ class ShipperMapper
         $attributes = [];
         $product = $item->getProduct();
 
-
         if (!in_array(self::$dim_group, self::$prodAttributes)) {
-            $this->shipperLogger->postWarning('ShipperHQ', self::$dim_group . ' attribute does not exist',
-                'Review installation to ensure latest version is installed and SQL install script has completed');
+//            $this->shipperLogger->postWarning('ShipperHQ', self::$dim_group . ' attribute does not exist',
+//                'Review installation to ensure latest version is installed and SQL install script has completed');
         } elseif ($product->getAttributeText(self::$dim_group) != '') {
             $reqdAttributeNames = array_diff($reqdAttributeNames, self::$conditional_dims);
         }

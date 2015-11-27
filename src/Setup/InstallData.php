@@ -83,7 +83,7 @@ class InstallData implements InstallDataInterface
         /* ------ shipperhq_shipping_group -------- */
         $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_shipping_group', [
             'type'                     => 'text',
-          //  'backend'                  => 'eav/entity_attribute_backend_array',
+            'backend'                  => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
             'input'                    => 'multiselect',
             'label'                    => 'Shipping Group',
             'global' => \Magento\Catalog\Model\Resource\Eav\Attribute::SCOPE_STORE,
@@ -103,7 +103,7 @@ class InstallData implements InstallDataInterface
         /* ------ shipperhq_warehouse -------- */
         $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_warehouse', [
             'type'                     => 'text',
-       //     'backend'                  => 'eav/entity_attribute_backend_array',
+            'backend'                  => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
             'input'                    => 'multiselect',
             'label'                    => 'Origin',
             'global'                   => false,
@@ -142,165 +142,66 @@ class InstallData implements InstallDataInterface
 
         };
 
-        $options = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Carrier Type'];
-        $entities = ['quote_address'];
-        foreach ($entities as $entity) {
-            /** @var \Magento\Quote\Setup\QuoteSetup $quoteSetup */
-            $quoteSetup = $this->quoteSetupFactory->create(['setup' => $setup]);
-            $quoteSetup->addAttribute($entity, 'carrier_type', $options);
-        }
-
+        /** @var \Magento\Quote\Setup\QuoteSetup $quoteSetup */
+        $quoteSetup = $this->quoteSetupFactory->create(['setup' => $setup]);
         $salesSetup = $this->salesSetupFactory->create(['setup' => $setup]);
-        $salesSetup->addAttribute('order', 'carrier_type', $options);
 
-        $options = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Carrier ID'];
-        $entities = ['quote_shipping_rate', 'quote_address'];
+
+        $carrier_type = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Carrier Type'];
+        $entities = ['quote_address', 'quote_address_rate'];
         foreach ($entities as $entity) {
-            /** @var \Magento\Quote\Setup\QuoteSetup $quoteSetup */
-            $quoteSetup = $this->quoteSetupFactory->create(['setup' => $setup]);
-            $quoteSetup->addAttribute($entity, 'carrier_id', $options);
+            $quoteSetup->addAttribute($entity, 'carrier_type', $carrier_type);
         }
-        $salesSetup = $this->salesSetupFactory->create(['setup' => $setup]);
-        $salesSetup->addAttribute('order', 'carrier_id', $options);
+        $salesSetup->addAttribute('order', 'carrier_type', $carrier_type);
 
+        $carrier_id = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Carrier ID'];
+        $entities = ['quote_address_rate', 'quote_address'];
+        foreach ($entities as $entity) {
+            $quoteSetup->addAttribute($entity, 'carrier_id', $carrier_id);
+        }
+        $salesSetup->addAttribute('order', 'carrier_id', $carrier_id);
 
-//        $text = Varien_Db_Ddl_Table::TYPE_TEXT;
+        $carrier_group_id = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'Carrier Group ID'];
+        $entities = ['quote_address_rate', 'quote_item', 'quote_address_item' ];
+        foreach ($entities as $entity) {
+            $quoteSetup->addAttribute($entity, 'carriergroup_id', $carrier_group_id);
+        }
+        $salesSetup->addAttribute('order_item', 'carriergroup_id', $carrier_group_id);
 
-//        $isCheckout = [
-//            'type'  => Varien_Db_Ddl_Table::TYPE_SMALLINT,
-//            'comment' => 'ShipperHQ Shipper',
-//            'nullable' => 'false',
-//            'default'  => '0'
-//        ];
+        $carrier_group = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Carrier Group'];
+        $entities = ['quote_address_rate', 'quote_item', 'quote_address_item' ];
+        foreach ($entities as $entity) {
+            $quoteSetup->addAttribute($entity, 'carriergroup', $carrier_group);
+        }
+        $salesSetup->addAttribute('order_item', 'carriergroup', $carrier_group);
 
+        $carrierGroupDetails = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Carrier Group Details'];
+        $entities = ['quote_address_rate','quote_address' ];
+        foreach ($entities as $entity) {
+            $quoteSetup->addAttribute($entity, 'carriergroup_shipping_details', $carrierGroupDetails);
+        }
+        $salesSetup->addAttribute('order', 'carriergroup_shipping_details', $carrierGroupDetails);
 
-//        $carrierId = [
-//            'type' => $text,
-//            'length'	=> 20,
-//            'comment' => 'ShipperHQ Carrier ID',
-//            'nullable' => 'true',
-//        ];
+        $isCheckout = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT, 'visible' => false, 'required' => true, 'default' => 0, 'comment' => 'ShipperHQ Checkout Flag'];
+        $quoteSetup->addAttribute('quote_address', 'is_checkout', $isCheckout);
 
+        $splitRates = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT, 'visible' => false, 'required' => true, 'default' => 0, 'comment' => 'ShipperHQ Split Rates Flag'];
+        $quoteSetup->addAttribute('quote_address', 'split_rates', $splitRates);
 
-//        $carriergroupAttr = [
-//            'type' => $text,
-//            'comment' => 'Carrier Group',
-//            'nullable' => 'true',
-//        ];
-//
-//        $carriergroupID  = [
-//            'type' => $text,
-//            'comment' => 'Carrier Group ID',
-//            'nullable' => 'true',
-//        ];
-//
-//        $carriergroupDetails = [
-//            'type' => $text,
-//            'comment' => 'Carrier Group Details',
-//            'nullable' => 'true',
-//        ];
-//
-//        $carriergroupHtml = [
-//            'type' => $text,
-//            'comment' => 'Carrier Group Html',
-//            'nullable' => 'true',
-//        ];
+        $displayMerged = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT, 'visible' => false, 'required' => true, 'default' => 1, 'comment' => 'ShipperHQ Checkout Display Type'];
+        $quoteSetup->addAttribute('quote_address', 'checkout_display_merged', $displayMerged);
 
-//        $displayMerged = [
-//            'type'  => Varien_Db_Ddl_Table::TYPE_SMALLINT,
-//            'comment' => 'Checkout display type',
-//            'nullable' => 'false',
-//            'default'  => '1'
-//        ];
-//
-//        $carriergroupShipping = [
-//            'type' => $text,
-//            'comment' => 'Shipping Description',
-//            'nullable' => 'true',
-//        ];
+        $carriergroupHtml = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Carrier Group HTML'];
+        $quoteSetup->addAttribute('quote_address' , 'carriergroup_shipping_html', $carriergroupHtml);
+        $salesSetup->addAttribute('order', 'carriergroup_shipping_html', $carriergroupHtml);
 
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_address'), 'is_checkout')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_address'), 'is_checkout', $isCheckout);
-//        }
+        $carriergroupShipping = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Shipping Description'];
+        $entities = ['quote_item', 'quote_address_item' ];
+        foreach ($entities as $entity) {
+            $quoteSetup->addAttribute($entity, 'carriergroup_shipping', $carriergroupShipping);
+        }
+        $salesSetup->addAttribute('order_item', 'carriergroup_shipping', $carriergroupShipping);
 
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_address'), 'carrier_type')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_address'), 'carrier_type', $carrierType);
-//        }
-
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_address_shipping_rate'), 'carrier_id')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_address_shipping_rate'), 'carrier_id', $carrierId);
-//        }
-//
-
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_address'), 'carrier_id')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_address'),'carrier_id', $carrierId );
-//        }
-
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/order'), 'carrier_id')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/order'),'carrier_id', $carrierId );
-//        }
-
-
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/order'), 'carrier_type')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/order'),'carrier_type', $carrierType );
-//        }
-
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_address'), 'carriergroup_shipping_details')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_address'), 'carriergroup_shipping_details', $carriergroupDetails);
-//        }
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_address'), 'carriergroup_shipping_html')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_address'), 'carriergroup_shipping_html', $carriergroupHtml);
-//        }
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_address'), 'checkout_display_merged')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_address'), 'checkout_display_merged', $displayMerged);
-//        }
-
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_address_shipping_rate'), 'carriergroup_id')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_address_shipping_rate'), 'carriergroup_id', $carriergroupID);
-//        }
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_address_shipping_rate'), 'carriergroup')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_address_shipping_rate'), 'carriergroup', $carriergroupAttr);
-//        }
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_address_shipping_rate'), 'carriergroup_shipping_details')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_address_shipping_rate'), 'carriergroup_shipping_details', $carriergroupDetails);
-//        }
-
-
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_item'), 'carriergroup')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_item'), 'carriergroup', $carriergroupAttr);
-//        }
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/order_item'), 'carriergroup')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/order_item'), 'carriergroup', $carriergroupAttr);
-//        }
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_item'), 'carriergroup_id')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_item'), 'carriergroup_id', $carriergroupID);
-//        }
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/order_item'), 'carriergroup_id')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/order_item'), 'carriergroup_id', $carriergroupID);
-//        }
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_item'), 'carriergroup_shipping')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_item'), 'carriergroup_shipping', $carriergroupShipping);
-//        }
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/order_item'), 'carriergroup_shipping')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/order_item'), 'carriergroup_shipping', $carriergroupShipping);
-//        }
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_address_item'), 'carriergroup_shipping')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_address_item'), 'carriergroup_shipping', $carriergroupShipping);
-//        }
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_address_item'), 'carriergroup')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_address_item'), 'carriergroup', $carriergroupAttr);
-//        }
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/quote_address_item'), 'carriergroup_id')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/quote_address_item'), 'carriergroup_id', $carriergroupID);
-//        }
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/order'), 'carriergroup_shipping_html')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/order'), 'carriergroup_shipping_html', $carriergroupHtml);
-//        }
-//        if(!$installer->getConnection()->tableColumnExists($installer->getTable('sales/order'), 'carriergroup_shipping_details')){
-//            $installer->getConnection()->addColumn($installer->getTable('sales/order'), 'carriergroup_shipping_details', $carriergroupDetails);
-//        }
-
-   //     $installer->endSetup();
 
     }
 }

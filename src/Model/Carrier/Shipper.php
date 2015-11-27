@@ -403,7 +403,7 @@ class Shipper
 
                 }
             }
-            $this->shipperDataHelper->populateRateLevelDetails((array)$oneRate, $carrierGroupDetail, $baseRate);
+            $this->populateRateLevelDetails((array)$oneRate, $carrierGroupDetail, $baseRate);
 
             if ($methodDescription) {
                 $title .= ' ' . $methodDescription;
@@ -427,6 +427,16 @@ class Shipper
         return $thisCarriersRates;
     }
 
+    protected function populateRateLevelDetails($rate, &$carrierGroupDetail, $currencyConversionRate)
+    {
+        $carrierGroupDetail['methodTitle'] = $rate['name'];
+        $carrierGroupDetail['price'] = (float)$rate['totalCharges']*$currencyConversionRate;
+        $carrierGroupDetail['cost'] = (float)$rate['shippingPrice']*$currencyConversionRate;
+        $carrierGroupDetail['code'] = $rate['code'];
+
+
+    }
+
     /**
      * Do remote request for and handle errors
      *
@@ -438,13 +448,11 @@ class Shipper
         $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
         $timeout = $this->shipperDataHelper->getWebserviceTimeout();
         if (!$resultSet) {
-            $this->shipperLogger->postInfo('EXTRA', "delete not required" , $this->shipperDataHelper->getRateGatewayUrl());
             $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive($this->shipperRequest,
                 $this->shipperDataHelper->getRateGatewayUrl(), $timeout);
 
-            $this->shipperLogger->postInfo('EXTRA', 'Delete this only for debugging result set',$resultSet);
             if (!$resultSet['result']) {
-                $backupRates = $this->backupCarrier->getBackupCarrierRates($this->rawRequest, $this->getConfigFlag("backup_carrier"));
+                $backupRates = $this->backupCarrier->getBackupCarrierRates($this->rawRequest, $this->getConfigData("backup_carrier"));
                 if ($backupRates) {
                     return $backupRates;
                 }
@@ -465,8 +473,6 @@ class Shipper
     protected function parseShipperResponse($shipperResponse)
     {
         $debugRequest = $this->shipperRequest;
-
-
         $debugRequest->credentials = null;
         $debugData = ['request' => $debugRequest, 'response' => $shipperResponse];
 
@@ -499,7 +505,7 @@ class Shipper
 
         if (isset($shipperResponse->carrierGroups)) {
             $this->shipperLogger->postInfo('Shipperhq_Shipper',
-                'Shipper HQ returned multi origin/group rates without any merged rate details', $debugData);
+                'Shipper HQ carrier rates', $debugData);
             $carrierRates = $this->processRatesResponse($shipperResponse);
         } else {
             $carrierRates = [];
@@ -508,7 +514,6 @@ class Shipper
             $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ did not return any carrier rates', $debugData);
             return $result;
         }
-
         foreach ($carrierRates as $carrierRate) {
             if (isset($carrierRate['error'])) {
                 $carriergroupId = null;
@@ -535,14 +540,20 @@ class Shipper
                 foreach ($carrierRate['rates'] as $rateDetails) {
                     $rate = $this->rateMethodFactory->create();
                     $rate->setCarrier($carrierRate['code']);
+
                     $rate->setCarrierTitle($carrierRate['title']);
+
                     $methodCombineCode = preg_replace('/&|;| /', "_", $rateDetails['methodcode']);
+
                     $rate->setMethod($methodCombineCode);
+
                     $rate->setMethodTitle(__($rateDetails['method_title']));
+
                     if (array_key_exists('method_description', $rateDetails)) {
                         $rate->setMethodDescription(__($rateDetails['method_description']));
                     }
                     $rate->setCost($rateDetails['cost']);
+
                     $rate->setPrice($rateDetails['price']);
 
                     if (array_key_exists('carrier_type', $rateDetails)) {
@@ -565,13 +576,11 @@ class Shipper
                             $rate->setCarriergroup($rateDetails['carriergroup_detail']['checkoutDescription']);
                         }
                     }
-
                     $result->append($rate);
                 }
             }
         }
-
-        $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Rate request and result', $debugData);
+        $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Rate request and result', $debugData);
 
         return $result;
 
@@ -584,7 +593,6 @@ class Shipper
     protected function processRatesResponse($shipperResponse)
     {
         $this->shipperDataHelper->setStandardShipperResponseType();
-
         $carrierGroups = $shipperResponse->carrierGroups;
         $ratesArray = [];
         $globals = (array)$shipperResponse->globalSettings;

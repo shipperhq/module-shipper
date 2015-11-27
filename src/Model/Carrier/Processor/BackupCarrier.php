@@ -53,12 +53,14 @@ class BackupCarrier
 
     public function getBackupCarrierRates($rawRequest, $backupCarrierDetails)
     {
+
         $carrierCode = $this->retrieveBackupCarrier($backupCarrierDetails);
         if (!$carrierCode) {
             return false;
         }
 
         $tempEnabledCarrier = $this->tempSetCarrierEnabled($carrierCode, true);
+
         $carrier = $this->shipperDataHelper->getCarrierByCode($carrierCode, $rawRequest->getStoreId());
 
         if (!$carrier) {

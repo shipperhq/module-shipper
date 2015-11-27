@@ -13,13 +13,13 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
-use WebShopApps\Common\Model\ConfigInterface;
-use WebShopApps\Common\Helper\AbstractConfig;
+//use WebShopApps\Common\Model\ConfigInterface;
+//use WebShopApps\Common\Helper\AbstractConfig;
 
 /**
  * Class Config
  */
-class Config extends AbstractConfig implements ConfigInterface
+class Config //extends AbstractConfig implements ConfigInterface
 {
 
 
@@ -54,12 +54,12 @@ class Config extends AbstractConfig implements ConfigInterface
                 'EEE dd-MM-yyyy'        => 'E d-M-y'
             ],
             'cldr_date_format'      => [
-                'en_US'            => [
+                'en-US'            => [
                     'yMd'           => 'M/d/Y',
                     'yMMMd'         => 'MMM d, Y',
                     'yMMMEd'        => 'EEE, MMM d, Y',
                     'yMEd'          => 'EEE, M/d/Y',
-                    'MMMd'          => 'MMM yy',
+                    'MMMd'          => 'MMM d',
                     'MMMEd'         => 'EEE, MMM d',
                     'MEd'           => 'EEE, M/d',
                     'Md'            => 'M/d',
@@ -68,6 +68,21 @@ class Config extends AbstractConfig implements ConfigInterface
                     'MMM'          => 'MMM',
                     'E'             => 'EEE',
                     'Ed'            => 'd EEE',
+                ],
+                'en-GB'            => [
+                    'yMd'           => 'd/M/Y',
+                    'yMMMd'         => 'd MMM Y',
+                    'yMMMEd'        => 'EEE, d MMM Y',
+                    'yMEd'          => 'EEE, d/M/Y',
+                    'MMMd'          => 'd MMM',
+                    'MMMEd'         => 'EEE, d MMM',
+                    'MEd'           => 'EEE, d/M',
+                    'Md'            => 'd/M',
+                    'yM'            => 'M/Y',
+                    'yMMM'          => 'MMM Y',
+                    'MMM'          => 'MMM',
+                    'E'             => 'EEE',
+                    'Ed'            => 'EEE d',
                 ]
             ]
         ];

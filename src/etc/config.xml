@@ -23,7 +23,7 @@
                 <display_transaction>0</display_transaction>
                 <sallowspecific>0</sallowspecific>
                 <showerrors>0</showerrors>
-                <showmethod>0</showmethod>
+                <showmethod>1</showmethod>
                 <specificerrmsg>This shipping method is currently unavailable. If you would like to ship using this shipping method, please contact us.</specificerrmsg>
                 <ws_timeout>120</ws_timeout>
                 <use_cache>0</use_cache>

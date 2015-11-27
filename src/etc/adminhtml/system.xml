@@ -40,12 +40,12 @@
                 </field>
                 <field id="url" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1"
                        showInStore="1">
-                    <label>Sandbox URL</label>=
+                    <label>Sandbox URL</label>
                     <comment></comment>
                 </field>
                 <field id="live_url" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1"
                        showInStore="1">
-                    <label>Secure URL</label>=
+                    <label>Secure URL</label>
                     <comment></comment>
                 </field>
                 <field id="sandbox_mode" translate="label" type="select" sortOrder="130" showInDefault="1"
@@ -71,15 +71,15 @@
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <comment>Obtain from under Websites in the ShipperHQ Dashboard</comment>
                 </field>
-                <field id="backup_carrier" translate="label" type="select" sortOrder="180" showInDefault="1"
-                       showInWebsite="1" showInStore="0">
-                    <label>Backup Shipping Carrier/Method</label>
-                    <source_modelmodel>ShipperHQ\Shipper\Model\Backend\Config\Source\Carriers</source_modelmodel>
-                    <comment>In the unlikely event that ShipperHQ is unavailable, configure a backup carrier to
-                        display.
-                        This carrier should be configured but left disabled
-                    </comment>
-                </field>
+                <!--<field id="backup_carrier" translate="label" type="select" sortOrder="180" showInDefault="1"-->
+                       <!--showInWebsite="1" showInStore="0">-->
+                    <!--<label>Backup Shipping Carrier/Method</label>-->
+                    <!--<source_model>ShipperHQ\Shipper\Model\Backend\Config\Source\Carriers</source_model>-->
+                    <!--<comment>In the unlikely event that ShipperHQ is unavailable, configure a backup carrier to-->
+                        <!--display.-->
+                        <!--This carrier should be configured but left disabled-->
+                    <!--</comment>-->
+                <!--</field>-->
                 <field id="heading_advanced" translate="label" sortOrder="300" showInDefault="1" showInWebsite="1">
                     <label>Advanced Settings</label>
                     <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
@@ -114,8 +114,6 @@
                     <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
                     <attribute type="shared">1</attribute>
                 </field>
-
-
                 <field id="handling_type" translate="label" type="select" sortOrder="410" showInDefault="1"
                        showInWebsite="1" showInStore="0">
                     <label>Calculate Handling Fee</label>
@@ -127,7 +125,6 @@
                     <label>Handling Fee</label>
                     <validate>validate-number validate-zero-or-greater</validate>
                 </field>
-
                 <field id="sallowspecific" translate="label" type="select" sortOrder="430" showInDefault="1"
                        showInWebsite="1" showInStore="0">
                     <label>Ship to Applicable Countries</label>
@@ -140,7 +137,7 @@
                     <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
                     <can_be_empty>1</can_be_empty>
                 </field>
-                <field id="showmethod" translate="label" type="select" sortOrder="510" showInDefault="1"
+                <field id="showerrors" translate="label" type="select" sortOrder="510" showInDefault="1"
                        showInWebsite="1" showInStore="0">
                     <label>Show Method if Not Applicable</label>
                     <frontend_class>shipping-skip-hide</frontend_class>
@@ -150,7 +147,6 @@
                        showInWebsite="1" showInStore="1">
                     <label>Displayed Error Message</label>
                 </field>
-
                 <field id="sort_order" translate="label" type="text" sortOrder="520" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>Sort Order</label>
@@ -160,7 +156,6 @@
                     <label>Debug</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-
             </group>
         </section>
     </system>

@@ -183,17 +183,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return $productText;
     }
 
-
-    public function populateRateLevelDetails($rate, &$carrierGroupDetail, $currencyConversionRate)
-    {
-        $carrierGroupDetail['methodTitle'] = $rate['name'];
-        $carrierGroupDetail['price'] = (float)$rate['totalCharges']*$currencyConversionRate;
-        $carrierGroupDetail['cost'] = (float)$rate['shippingPrice']*$currencyConversionRate;
-        $carrierGroupDetail['code'] = $rate['code'];
-
-
-    }
-
     public function getBaseCurrencyCode() {
         return $this->storeManager->getStore()->getBaseCurrency()->getCode();
     }

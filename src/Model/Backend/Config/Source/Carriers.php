@@ -1,5 +1,6 @@
 <?php
-namespace ShipperHQ\Shipper\Model\Config\Backend\Source;
+namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
+
 /**
  *
  * Webshopapps Shipping Module
@@ -29,7 +30,7 @@ namespace ShipperHQ\Shipper\Model\Config\Backend\Source;
  * @author ShipperHQ Team sales@shipperhq.com
  */
 
-class Carriers  {
+class Carriers {
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
      */

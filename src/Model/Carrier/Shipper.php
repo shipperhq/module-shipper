@@ -40,7 +40,10 @@ use ShipperHQ\WS\Client;
 use ShipperHQ\WS\Rate\Response;
 
 use ShipperHQ\Shipper\Helper\Config;
-
+use Magento\Quote\Model\Quote\Address\RateRequest;
+use Magento\Quote\Model\Quote\Address\RateResult\Error;
+use Magento\Shipping\Model\Carrier\AbstractCarrier;
+use Magento\Shipping\Model\Rate\Result;
 
 class Shipper
     extends \Magento\Shipping\Model\Carrier\AbstractCarrier
@@ -182,10 +185,10 @@ class Shipper
     /**
      * Collect and get rates
      *
-     * @param \Magento\Framework\Object $request
-     * @return Result|bool|null
+     * @param RateRequest $request
+     * @return bool|Result|Error
      */
-    public function collectRates(\Magento\Framework\Object $request)
+    public function collectRates(RateRequest $request)
     {
         if (!$this->getConfigFlag(self::ACTIVE_FLAG)) {
             return false;

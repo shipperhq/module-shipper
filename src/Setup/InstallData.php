@@ -6,12 +6,6 @@
 
 namespace ShipperHQ\Shipper\Setup;
 
-//use Magento\Framework\Setup\InstallDataInterface;
-
-//use Magento\Framework\Setup\InstallSchemaInterface;
-//use Magento\Framework\Setup\ModuleContextInterface;
-//use Magento\Framework\Setup\SchemaSetupInterface;
-
 use Magento\Catalog\Setup\CategorySetupFactory;
 use Magento\Framework\Setup\InstallDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
@@ -86,7 +80,7 @@ class InstallData implements InstallDataInterface
             'backend'                  => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
             'input'                    => 'multiselect',
             'label'                    => 'Shipping Group',
-            'global' => \Magento\Catalog\Model\Resource\Eav\Attribute::SCOPE_STORE,
+            'global' =>\Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
             'visible'                  => true,
             'required'                 => false,
             'visible_on_front'         => false,

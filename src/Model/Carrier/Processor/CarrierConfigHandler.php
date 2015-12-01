@@ -19,7 +19,7 @@ class CarrierConfigHandler
      */
     private $shipperDataHelper;
     /**
-     * @var \Magento\Config\Model\Resource\Config
+     * @var \Magento\Config\Model\ResourceModel\Config
      */
     private $resourceConfig;
 
@@ -28,7 +28,7 @@ class CarrierConfigHandler
      *
      */
     public function __construct(
-        \Magento\Config\Model\Resource\Config $resourceConfig,
+        \Magento\Config\Model\ResourceModel\Config $resourceConfig,
         \Magento\Backend\Block\Template\Context $context,
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper)
     {

@@ -39,7 +39,7 @@ use Magento\Catalog\Model\Product\Attribute\OptionManagement;
 //use Magento\Shipping\Model\Carrier\AbstractCarrier;
 //use Magento\Shipping\Model\Rate\Result;
 
-class Synchronizer extends AbstractModel //TODO make sure this is the correct inheritance
+class Synchronizer extends \Magento\Framework\Model\AbstractModel
 {
     /**
      * Attribute add
@@ -157,7 +157,7 @@ class Synchronizer extends AbstractModel //TODO make sure this is the correct in
             $result['error'] = $latestAttributes['error'];
         } elseif ($latestAttributes && !empty($latestAttributes)) {
             $updateData = $this->compareAttributeData($latestAttributes);
-            $result['result'] = $this->_saveSynchData($updateData);
+            $result['result'] = $this->saveSynchData($updateData);
         } else {
             $result['error']
                 = 'ShipperHQ is not responding, please check your settings to ensure they are correct';
@@ -290,11 +290,8 @@ class Synchronizer extends AbstractModel //TODO make sure this is the correct in
                             continue;
                         }
                         $existingAttributeInfo = $this->attributeOptionManagement->getItems($attribute->code);
-                        $this->shipperLogger->postDebug('Shipperhq_Shipper',
-                            'DELETE THIS JUST CHECKING',
-                            $existingAttributeInfo);
-                        if (is_array($existingAttributeInfo) && array_key_exists('options', $existingAttributeInfo)) {
-                            $existingAttributeOptions = $existingAttributeInfo['options'];
+                        if (is_array($existingAttributeInfo)) {
+                            $existingAttributeOptions = $existingAttributeInfo;
                         }
                     } catch (Exception $e) {
                         $e->getMessage();
@@ -308,7 +305,7 @@ class Synchronizer extends AbstractModel //TODO make sure this is the correct in
                     foreach ($attribute->attributes as $latestValue) {
                         $found = false;
                         foreach ($existingAttributeOptions as $key => $option) {
-                            if ($option['label'] == $latestValue->name) {
+                            if ($option->getLabel()== $latestValue->name) {
                                 $found = true;
                                 unset($trackValues[$key]);
                                 continue;
@@ -330,8 +327,12 @@ class Synchronizer extends AbstractModel //TODO make sure this is the correct in
                         //TODO add store selector in here
                         $storeId = '';
                         foreach ($trackValues as $key => $option) {
+                            if($option->getLabel() == '') {
+                                unset($trackValues[$key]);
+                                continue;
+                            }
                             $numberAssigned = $this->shipperDataHelper->getProductsWithAttributeValue(
-                                $attribute->code, $option['value'], $storeId, true, true);
+                                $attribute->code, $option->getValue(), $storeId, true, true);
                             $deleteFlag = self::AUTO_REMOVE_ATTRIBUTE_OPTION;
                             if ($numberAssigned > 0) {
                                 $deleteFlag = self::REMOVE_ATTRIBUTE_OPTION;
@@ -339,8 +340,8 @@ class Synchronizer extends AbstractModel //TODO make sure this is the correct in
 
                             $result[] = array('attribute_type' => $attribute->type,
                                 'attribute_code' => $attribute->code,
-                                'value' => $option['label'],
-                                'option_id' => $option['value'],
+                                'value' => $option->getLabel(),
+                                'option_id' => $option->getValue(),
                                 'status' => $deleteFlag,
                                 'date_added' => date('Y-m-d H:i:s')
                             );

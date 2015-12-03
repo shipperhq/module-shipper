@@ -38,24 +38,24 @@ class Index extends \ShipperHQ\Shipper\Controller\Adminhtml\Synchronize
     public function execute()
     {
 
-      //  $result = $this->sychronizerFactory->create()->updateSynchronizeData();
-//        if (array_key_exists('error', $result)) {
-//           // $session = Mage::getSingleton('Mage_Adminhtml_Model_Session');
-//           // $message = Mage::helper('shipperhq_shipper')->__($result['error']);
-//           // $session->addError($message);
-//
-//        } else {
-//          //  $session = Mage::getSingleton('Mage_Adminhtml_Model_Session');
-//            if ($result['result'] == 0) {
-//           //     $message = Mage::helper('shipperhq_shipper')->__('Received latest attribute values from ShipperHQ, no changes are required.');
-//            //    $session->addSuccess($message);
-//            } else {
-//              //  $message = Mage::helper('shipperhq_shipper')->__('Received latest attribute values from ShipperHQ, %s changes required. Ready to synchronize', $result['result']);
-//               // $session->addSuccess($message);
-//            }
-//
-//
-//        }
+        $result = $this->sychronizerFactory->create()->updateSynchronizeData();
+        if (array_key_exists('error', $result)) {
+           // $session = Mage::getSingleton('Mage_Adminhtml_Model_Session');
+           // $message = Mage::helper('shipperhq_shipper')->__($result['error']);
+           // $session->addError($message);
+
+        } else {
+          //  $session = Mage::getSingleton('Mage_Adminhtml_Model_Session');
+            if ($result['result'] == 0) {
+           //     $message = Mage::helper('shipperhq_shipper')->__('Received latest attribute values from ShipperHQ, no changes are required.');
+            //    $session->addSuccess($message);
+            } else {
+              //  $message = Mage::helper('shipperhq_shipper')->__('Received latest attribute values from ShipperHQ, %s changes required. Ready to synchronize', $result['result']);
+               // $session->addSuccess($message);
+            }
+
+
+        }
 
        return $this->_resultPageFactory->create();
     }

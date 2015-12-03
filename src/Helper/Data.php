@@ -30,6 +30,7 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
+use Magento\Store\Model\Store;
 use ShipperHQ\Shipper\Helper\Config;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 
@@ -390,7 +391,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         if($isSelect) {
             $value = $this->_getOptionId($this->getAttribute($attribute_code, $storeId), $value);
         }
-
         $collection = $this->productFactory->create()->setStoreId($storeId)->getCollection();
 
         if(!is_null($storeId) && $storeId != '') {
@@ -490,8 +490,9 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
 
     protected function getAttribute($attribute_code, $store = null) {
 
-        $attribute = $this->productFactory->create()->getAttribute($attribute_code);
-
+        //$attribute = $this->productFactory->create()->getAttribute($attribute_code);
+        $product =  $this->productFactory->create();
+        $attribute = $product->getResource()->getAttribute($attribute_code);
         if(is_null($store) || $store == '') {
             $store = Store::DEFAULT_STORE_ID;
         }

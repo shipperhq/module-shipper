@@ -57,7 +57,7 @@ abstract class Synchronize extends Action
      *
      * @var  \ShipperHQ\Shipper\Model\Synchronizer
      */
- //   protected $sychronizerFactory;
+    protected $sychronizerFactory;
 
     /**
      * @param Context $context
@@ -67,13 +67,13 @@ abstract class Synchronize extends Action
     public function __construct(
         Context $context,
         Registry $coreRegistry,
-        PageFactory $resultPageFactory//,
-     //   \ShipperHQ\Shipper\Model\SynchronizerFactory $synchronizerFactory
+        PageFactory $resultPageFactory,
+        \ShipperHQ\Shipper\Model\SynchronizerFactory $synchronizerFactory
     ) {
         parent::__construct($context);
         $this->_coreRegistry = $coreRegistry;
         $this->_resultPageFactory = $resultPageFactory;
-   //     $this->sychronizerFactory = $synchronizerFactory;
+        $this->sychronizerFactory = $synchronizerFactory;
     }
 
     /**
@@ -83,8 +83,7 @@ abstract class Synchronize extends Action
      */
     protected function _isAllowed()
     {
-
-      //  return $this->_authorization->isAllowed('Tutorial_SimpleNews::manage_news');
+        return $this->_authorization->isAllowed('ShipperHQ_Shipper::synchronize');
     }
 
 }

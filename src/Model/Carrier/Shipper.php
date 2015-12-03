@@ -436,8 +436,6 @@ class Shipper
         $carrierGroupDetail['price'] = (float)$rate['totalCharges']*$currencyConversionRate;
         $carrierGroupDetail['cost'] = (float)$rate['shippingPrice']*$currencyConversionRate;
         $carrierGroupDetail['code'] = $rate['code'];
-
-
     }
 
     /**

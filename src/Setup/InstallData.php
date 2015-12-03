@@ -16,11 +16,9 @@ use Magento\Sales\Setup\SalesSetupFactory;
 /**
  * @codeCoverageIgnore
  */
-//class InstallSchema implements InstallSchemaInterface
 class InstallData implements InstallDataInterface
 
 {
-
     /**
      * Category setup factory
      *
@@ -195,7 +193,5 @@ class InstallData implements InstallDataInterface
             $quoteSetup->addAttribute($entity, 'carriergroup_shipping', $carriergroupShipping);
         }
         $salesSetup->addAttribute('order_item', 'carriergroup_shipping', $carriergroupShipping);
-
-
     }
 }

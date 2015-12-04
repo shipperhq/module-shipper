@@ -95,6 +95,10 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      */
     private $attributeOptionManagement;
     /**
+     * @var \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory
+     */
+    private $optionDataFactory;
+    /**
      * @var \ShipperHQ\Shipper\Model\SynchronizeFactory
      */
     private $synchronizeFactory;
@@ -114,6 +118,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      * @param \Magento\Shipping\Model\Rate\ResultFactory $resultFactory
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
      * @param \Magento\Catalog\Model\Product\Attribute\OptionManagement $attributeOptionManagement
+     * @param \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory $optionDataFactory,
      * @param SynchronizeFactory $synchronizeFactory
      * @param array $data
      *
@@ -130,6 +135,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         \ShipperHQ\WS\Client\WebServiceClientFactory $shipperWSClientFactory,
         \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Catalog\Model\Product\Attribute\OptionManagement $attributeOptionManagement,
+        \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory $optionDataFactory,
         SynchronizeFactory $synchronizeFactory,
         array $data = []
     )
@@ -143,6 +149,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         $this->carrierConfigHandler = $carrierConfigHandler;
         $this->carrierCache = $carrierCache;
         $this->attributeOptionManagement = $attributeOptionManagement;
+        $this->optionDataFactory = $optionDataFactory;
         $this->synchronizeFactory = $synchronizeFactory;
     }
 
@@ -286,7 +293,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                         if (!in_array($attribute->code, $productAttributes)) {
                             $this->shipperLogger->postDebug('Shipperhq_Shipper',
                                 'Attribute ' . $attribute->code . ' does not exist.',
-                                'Verify you have latest version of ShipperHQ installed');
+                                '');
                             continue;
                         }
                         $existingAttributeInfo = $this->attributeOptionManagement->getItems($attribute->code);
@@ -415,17 +422,10 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         foreach ($updateData as $attributeUpdate) {
             if ($attributeUpdate['attribute_type'] == 'product') {
                 if ($attributeUpdate['status'] == self::ADD_ATTRIBUTE_OPTION) {
-                    $optionToAdd = array(
-                        'label' => array(
-                            array(
-                                'store_id' => 0,
-                                'value' => $attributeUpdate['value']
-                            )
-
-                        ),
-                        'order' => 0,
-                        'is_default' => 0
-                    );
+                    $optionToAdd = $this->optionDataFactory->create();
+                    $optionToAdd->setLabel($attributeUpdate['value'])
+                        ->setSortOrder(0)
+                        ->setIsDefault(0);
                     try {
                         $this->attributeOptionManagement->add($attributeUpdate['attribute_code'], $optionToAdd);
                         $result++;

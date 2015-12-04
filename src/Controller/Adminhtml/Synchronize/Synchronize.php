@@ -28,7 +28,7 @@
  * @author ShipperHQ Team sales@shipperhq.com
  */
 namespace ShipperHQ\Shipper\Controller\Adminhtml\Synchronize;
-class Index extends \ShipperHQ\Shipper\Controller\Adminhtml\Synchronize
+class Synchronize extends \ShipperHQ\Shipper\Controller\Adminhtml\Synchronize
 {
     /**
      * Index Action for Synchronize
@@ -37,19 +37,21 @@ class Index extends \ShipperHQ\Shipper\Controller\Adminhtml\Synchronize
 
     public function execute()
     {
-        $result = $this->sychronizerFactory->create()->updateSynchronizeData();
-        if (array_key_exists('error', $result)) {
-            $message = __($result['error']);
+        $result = $this->sychronizerFactory->create()->synchronizeData();
+        if (empty($result)) {
+            $message = __('ShipperHQ was unable to verify a connection, please contact support.');
             $this->messageManager->addError($message);
-        } else if ($result['result'] == 0) {
-            $message = __('Received latest attribute values from ShipperHQ, no changes are required.');
-            $this->messageManager->addSuccess($message);
-        } else {
-            $message = __('Received latest attribute values from ShipperHQ, %s changes required. Ready to synchronize', $result['result']);
+        }
+        else if (array_key_exists('error',$result)) {
+            $message = $result['error'];
+            $this->messageManager->addError($message);
+        }
+        else if ($result != 0) {
+            $message = __('Updated %1 attribute values from ShipperHQ.', $result['result']);
             $this->messageManager->addSuccess($message);
         }
 
-       return $this->_resultPageFactory->create();
+        $this->_redirect('*/*/index');
     }
 }
 ?>

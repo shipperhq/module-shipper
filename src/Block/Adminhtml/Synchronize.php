@@ -40,10 +40,33 @@ class Synchronize extends Container
      */
     protected function _construct()
     {
-//        $this->_controller = 'shipperhq';
-//        $this->_blockGroup = 'Shipperhq_Shipper';
-//        $this->_headerText = __('Synchronize with ShipperHQ');
+        $this->_controller = 'shipperhq';
+        $this->_blockGroup = 'Shipperhq_Shipper';
+        $this->_headerText = __('Synchronize with ShipperHQ');
 //        $this->_addButtonLabel = __('Perform Synch');
         parent::_construct();
+
+        $this->buttonList->remove('add');
+        $url = $this->getUrl('shipperhq/synchronize/index');
+        $this->buttonList->add(
+            'refresh',
+            [
+                'label' => __('Reload Synchronize Data'),
+                'onclick' => 'setLocation(\'' . $url . '\')',
+                 'class' => 'add primary'
+            ],
+            0
+        );
+        $synchurl = $this->getUrl('shipperhq/synchronize/synchronize');
+        $message = __('Are you sure you are ready to synchronize?');
+        $this->buttonList->add(
+            'synchronize',
+            [
+                'label' => __('Synchronize with ShipperHQ'),
+                'onclick' => 'confirmSetLocation(\'' . $message . '\', \'' . $synchurl . '\')',
+                'class' => 'add primary'
+            ],
+            0
+        );
     }
 }

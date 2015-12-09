@@ -43,7 +43,6 @@ class Synchronize extends Container
         $this->_controller = 'shipperhq';
         $this->_blockGroup = 'Shipperhq_Shipper';
         $this->_headerText = __('Synchronize with ShipperHQ');
-//        $this->_addButtonLabel = __('Perform Synch');
         parent::_construct();
 
         $this->buttonList->remove('add');

@@ -55,7 +55,7 @@ class About extends \Magento\Config\Block\System\Config\Form\Field
     {
         $beforeDiv = '<div style="padding:10px;background-color:#fff;border:1px solid #ddd;margin-bottom:7px;">';
         $afterDiv = '</div>';
-        $synch = __('Click here to <a href="%s">Synchronize</a> with ShipperHQ.', $this->getUrl('adminhtml/shqsynchronize'));
+        $synch = __('Click here to <a href="%1">Synchronize</a> with ShipperHQ.', $this->getUrl('adminhtml/shqsynchronize'));
         $element->getComment()
             ? $comment =   $element->getComment()
             : $comment =  '';

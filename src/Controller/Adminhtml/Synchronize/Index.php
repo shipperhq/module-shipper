@@ -45,7 +45,7 @@ class Index extends \ShipperHQ\Shipper\Controller\Adminhtml\Synchronize
             $message = __('Received latest attribute values from ShipperHQ, no changes are required.');
             $this->messageManager->addSuccess($message);
         } else {
-            $message = __('Received latest attribute values from ShipperHQ, %s changes required. Ready to synchronize', $result['result']);
+            $message = __('Received latest attribute values from ShipperHQ, %1 changes required. Ready to synchronize', $result['result']);
             $this->messageManager->addSuccess($message);
         }
 

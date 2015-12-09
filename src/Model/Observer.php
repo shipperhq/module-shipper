@@ -76,7 +76,7 @@ class Observer
                 $message = $refreshResult['error'];
                 $this->backendSession->addError($message);
             } else {
-                $message = __('%s shipping methods have been updated from ShipperHQ', count($refreshResult));
+                $message = __('%1 shipping methods have been updated from ShipperHQ', count($refreshResult));
                 $this->backendSession->addSuccess($message);
             }
         }

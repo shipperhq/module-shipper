@@ -398,7 +398,7 @@ class Shipper
                     $baseRate = $this->shipperDataHelper->getBaseCurrencyRate($oneRate->currency);
                     $latestCurrencyCode = $oneRate->currency;
                     if (!$baseRate) {
-                        $carrierResultWithRates['error'] = __('Can\'t convert rate from "%s".',
+                        $carrierResultWithRates['error'] = __('Can\'t convert rate from "%1".',
                             $oneRate->currency);
                         $carrierResultWithRates['carriergroup_detail']['carrierGroupId'] = $carrierGroupId;
                         continue;

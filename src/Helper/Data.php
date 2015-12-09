@@ -533,10 +533,10 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getCarrierByCode($carrierCode, $storeId = null)
     {
-        if (!$this->scopeConfig->getValue('carriers/'.$carrierCode.'/active', $storeId)) {
+        if (!$this->scopeConfig->getValue('carriers/'.$carrierCode.'/active', 'store', $storeId)) {
             return false;
         }
-        $className = $this->scopeConfig->getValue('carriers/'.$carrierCode.'/model', $storeId);
+        $className = $this->scopeConfig->getValue('carriers/'.$carrierCode.'/model', 'store', $storeId);
         if (!$className) {
             return false;
         }

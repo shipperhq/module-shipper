@@ -46,14 +46,6 @@
                             </item>
                         </argument>
                     </arguments>
-                    <!--<block class="Magento\Backend\Block\Widget\Grid\Column" as="synch_id">-->
-                        <!--<arguments>-->
-                            <!--<argument name="header" xsi:type="string" translate="true"> ID</argument>-->
-                            <!--<argument name="index" xsi:type="string">synch_id</argument>-->
-                            <!--<argument name="column_css_class" xsi:type="string">col-id</argument>-->
-                            <!--<argument name="header_css_class" xsi:type="string">col-id</argument>-->
-                        <!--</arguments>-->
-                    <!--</block>-->
                     <block class="Magento\Backend\Block\Widget\Grid\Column" as="attribute_code">
                         <arguments>
                             <argument name="header" xsi:type="string" translate="true">Attribute Code</argument>

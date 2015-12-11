@@ -27,27 +27,11 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+namespace ShipperHQ\Shipper\Block\Adminhtml\Synchronize;
 
+use Magento\Backend\Block\Widget\Grid as WidgetGrid;
 
-/**
- * Renderer for ShipperHQ banner in System Configuration
- */
-
-namespace ShipperHQ\Shipper\Block\System\Fieldset\Shipper\Hint;
-
-class Hint
-    extends \Magento\Backend\Block\AbstractBlock  implements \Magento\Framework\Data\Form\Element\Renderer\RendererInterface
+class Grid extends WidgetGrid
 {
-    protected $_template = 'system/config/fieldset/hint.phtml';
 
-    /**
-     * Render fieldset html
-     *
-     * @param Varien_Data_Form_Element_Abstract $element
-     * @return string
-     */
-    public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
-    {
-        return $this->toHtml();
-    }
 }

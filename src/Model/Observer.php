@@ -42,25 +42,31 @@ class Observer
      */
     private $shipper;
     /**
-     * @var \Magento\Backend\Model\Session
+     * @var \Magento\Framework\Message\ManagerInterface
      */
-    private $backendSession;
+    private $messageManager;
     /**
      * @var \Psr\Log\LoggerInterface
      */
     private $logger;
+    /**
+     * @var \ShipperHQ\Shipper\Helper\Logger
+     */
+    private $shipperLogger;
 
     function __construct(\ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-                         \Magento\Backend\Model\Session $backendSession,
+                         \Magento\Framework\Message\ManagerInterface $messageManager,
                          \Psr\Log\LoggerInterface $logger,
+                         \ShipperHQ\Shipper\Helper\Logger $shipperLogger,
                          \ShipperHQ\Shipper\Model\Carrier\Shipper $shipper
     )
     {
 
         $this->shipperDataHelper = $shipperDataHelper;
         $this->shipper = $shipper;
-        $this->backendSession = $backendSession;
+        $this->messageManager = $messageManager;
         $this->logger = $logger;
+        $this->shipperLogger = $shipperLogger;
     }
 
 
@@ -74,10 +80,10 @@ class Observer
             $refreshResult = $this->shipper->refreshCarriers();
             if (array_key_exists('error', $refreshResult)) {
                 $message = $refreshResult['error'];
-                $this->backendSession->addError($message);
+                $this->messageManager->addError($message);
             } else {
-                $message = __('%s shipping methods have been updated from ShipperHQ', count($refreshResult));
-                $this->backendSession->addSuccess($message);
+                $message = __('%1 shipping methods have been updated from ShipperHQ', count($refreshResult));
+                $this->messageManager->addSuccess($message);
             }
         }
     }

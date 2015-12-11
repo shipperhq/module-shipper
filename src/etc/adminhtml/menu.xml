@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="ShipperHQ_Shipper::synchronize" title="Synchronize with ShipperHQ" module="ShipperHQ_Shipper" sortOrder="100" parent="Magento_Backend::other_settings" action="shipperhq/synchronize" resource="ShipperHQ_Shipper::synchronize"/>
+    </menu>
+</config>

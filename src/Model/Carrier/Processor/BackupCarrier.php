@@ -58,24 +58,24 @@ class BackupCarrier
         if (!$carrierCode) {
             return false;
         }
+        $storeId = $rawRequest->getStoreId();
+        $tempEnabledCarrier = $this->tempSetCarrierEnabled($carrierCode, true, $storeId);
 
-        $tempEnabledCarrier = $this->tempSetCarrierEnabled($carrierCode, true);
-
-        $carrier = $this->shipperDataHelper->getCarrierByCode($carrierCode, $rawRequest->getStoreId());
+        $carrier = $this->shipperDataHelper->getCarrierByCode($carrierCode, $storeId );
 
         if (!$carrier) {
-            $this->tempSetCarrierEnabled($carrierCode, false);
+            $this->tempSetCarrierEnabled($carrierCode, false, $storeId);
             $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Unable to activate backup carrier', $carrierCode);
             return false;
         }
 
         $result = $carrier->collectRates($rawRequest);
         $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Backup carrier result: ',
-            $result);
+            'returned ' .count($result) .' results');
 
 
         if ($tempEnabledCarrier) {
-            $this->tempSetCarrierEnabled($carrierCode, false);
+            $this->tempSetCarrierEnabled($carrierCode, false, $storeId);
         }
         return $result;
     }
@@ -84,13 +84,13 @@ class BackupCarrier
      * Enable or disable carrier
      * @return boolean
      */
-    protected function tempSetCarrierEnabled($carrierCode, $enabled)
+    protected function tempSetCarrierEnabled($carrierCode, $enabled, $storeId)
     {
         $carrierPath = 'carriers/' . $carrierCode . '/active';
         $tempEnabledCarrier = false;
 
         if (!$this->shipperDataHelper->getConfigFlag($carrierPath) || !$enabled) { // if $enabled set to false was previously enabled!
-            $this->mutableConfig->setValue($carrierPath, $enabled);
+            $this->mutableConfig->setValue($carrierPath, $enabled, 'store', $storeId);
             $tempEnabledCarrier = true;
         }
 

@@ -66,11 +66,6 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     protected $shipperDataHelper;
 
     /**
-     * @var \Magento\Framework\ObjectManagerInterface
-     */
-    protected $objectManager;
-
-    /**
      * @var \Magento\Framework\Registry
      */
     private $registry;
@@ -113,7 +108,6 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      * @param Carrier\Processor\CarrierConfigHandler $carrierConfigHandler
      * @param \Magento\Framework\Registry $registry
      * @param Client\WebServiceClientFactory $shipperWSClientFactory
-     * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory
      * @param \Magento\Shipping\Model\Rate\ResultFactory $resultFactory
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
@@ -133,7 +127,6 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         Carrier\Processor\CarrierConfigHandler $carrierConfigHandler,
         \Magento\Framework\Registry $registry,
         \ShipperHQ\WS\Client\WebServiceClientFactory $shipperWSClientFactory,
-        \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Catalog\Model\Product\Attribute\OptionManagement $attributeOptionManagement,
         \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory $optionDataFactory,
         SynchronizeFactory $synchronizeFactory,
@@ -142,7 +135,6 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->shipperMapper = $shipperMapper;
-        $this->objectManager = $objectManager;
         $this->registry = $registry;
         $this->shipperLogger = $shipperLogger;
         $this->shipperWSClientFactory = $shipperWSClientFactory;

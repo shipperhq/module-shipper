@@ -83,9 +83,9 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
      */
     private $jsonHelper;
     /**
-     * @var \Magento\Framework\ObjectManagerInterface
+     * @var \Magento\Shipping\Model\CarrierFactoryInterface
      */
-    private $objectManager;
+    private $carrierFactory;
     /**
      * @var \Magento\Directory\Model\CurrencyFactory
      */
@@ -97,7 +97,7 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
                                 \Magento\Backend\Block\Template\Context $context,
                                 JsonHelper $jsonHelper,
                                 \Magento\Directory\Model\CurrencyFactory $dirCurrencyFactory,
-                                \Magento\Framework\ObjectManagerInterface $objectManager,
+                                \Magento\Shipping\Model\CarrierFactoryInterface $carrierFactory,
                                 \Magento\Catalog\Model\ProductFactory $productFactory,
                                 \Magento\Checkout\Model\Session $checkoutSession,
                                 \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
@@ -110,8 +110,9 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         $this->productFactory = $productFactory;
         $this->checkoutSession = $checkoutSession;
         $this->jsonHelper = $jsonHelper;
-        $this->objectManager = $objectManager;
         $this->dirCurrencyFactory = $dirCurrencyFactory;
+        $this->carrierFactory = $carrierFactory;
+
     }
     
     public function isModuleActive() {
@@ -490,7 +491,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
 
     protected function getAttribute($attribute_code, $store = null) {
 
-        //$attribute = $this->productFactory->create()->getAttribute($attribute_code);
         $product =  $this->productFactory->create();
         $attribute = $product->getResource()->getAttribute($attribute_code);
         if(is_null($store) || $store == '') {
@@ -540,7 +540,7 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         if (!$className) {
             return false;
         }
-        $carrier = $this->objectManager->create($className);
+        $carrier = $this->carrierFactory->get($carrierCode);
         if ($storeId) {
             $carrier->setStore($storeId);
         }

@@ -42,8 +42,6 @@ class CarriersTest extends \PHPUnit_Framework_TestCase
             $this->once()
         )->method(
                 'getAllCarriers'
-            )->with(
-                1
             )->will(
                 $this->returnValue(['free' => $carrier])
             );
@@ -56,13 +54,6 @@ class CarriersTest extends \PHPUnit_Framework_TestCase
 
     public function testToOptionArray()
     {
-
-//        $model = $helper->getObject(
-//            'Magento\Shipping\Block\Adminhtml\Order\Tracking',
-//            ['registry' => $registry, 'shippingConfig' => $config]
-//        );
-
-
         $this->assertEquals(
             [
                 ['value' => 'free', 'label' => 'configdata'],

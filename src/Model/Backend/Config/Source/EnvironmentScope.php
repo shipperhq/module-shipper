@@ -45,7 +45,6 @@ class EnvironmentScope implements \Magento\Framework\Option\ArrayInterface{
     {
         return [
             [
-                'value' => "LIVE",
                 'value' =>  SiteDetails::LIVE,
                 'label' => __('Live')
             ],

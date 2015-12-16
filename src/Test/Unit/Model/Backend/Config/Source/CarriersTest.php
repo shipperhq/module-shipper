@@ -73,6 +73,15 @@ class CarriersTest extends \PHPUnit_Framework_TestCase
                 $this->returnValue('configdata')
             );
 
+        $shipHelper = $this->getMock('\ShipperHQ\Shipper\Helper\Data', ['getConfigValue'], [], '', false);
+        $shipHelper->expects(
+            $this->atLeastOnce()
+        )->method(
+                'getConfigValue'
+            )->will(
+                $this->returnValue('configValue')
+            );
+
         $config = $this->getMock('Magento\Shipping\Model\Config', ['getAllCarriers'], [], '', false);
         $config->expects(
             $this->once()
@@ -91,7 +100,7 @@ class CarriersTest extends \PHPUnit_Framework_TestCase
         );
         $response = [];
         $response[] =  ['value' => false, 'label' => 'No Carrier'];
-        $response[] =  ['value' => 'free', 'label' => 'configdata'];
+        $response[] =  ['value' => 'free', 'label' => 'configValue'];
 
         $this->assertEquals($response, $model->toOptionArray());
     }

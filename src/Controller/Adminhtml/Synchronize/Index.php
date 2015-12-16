@@ -1,9 +1,7 @@
 <?php
-namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
-
 /**
  *
- * Webshopapps Shipping Module
+ * WebShopApps Shipping Module
  *
  * NOTICE OF LICENSE
  *
@@ -29,37 +27,29 @@ namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+namespace ShipperHQ\Shipper\Controller\Adminhtml\Synchronize;
+class Index extends \ShipperHQ\Shipper\Controller\Adminhtml\Synchronize
+{
+    /**
+     * Index Action for Synchronize
+     * @return Void
+     * */
 
-/**
- * Class Shipperhq_Shipper_Model_Adminhtml_System_Config_Source_Environmentscope
- *
- * This class provides options for environment scope to configuration
- *
- */
-
-use ShipperHQ\WS\Shared\SiteDetails as SiteDetails;
-
-class EnvironmentScope implements \Magento\Framework\Option\ArrayInterface{
-
-    public function toOptionArray()
+    public function execute()
     {
-        return [
-            [
-                'value' =>  SiteDetails::LIVE,
-                'label' => __('Live')
-            ],
-            [
-                'value' =>   SiteDetails::DEV,
-                'label' => __('Development')
-            ],
-            [
-                'value' =>   SiteDetails::TEST,
-                'label' => __('Test')
-            ],
-            [
-                'value' => SiteDetails::INTEGRATION,
-                'label' => __('Integration')
-            ],
-        ];
+        $result = $this->sychronizerFactory->create()->updateSynchronizeData();
+        if (array_key_exists('error', $result)) {
+            $message = __($result['error']);
+            $this->messageManager->addError($message);
+        } else if ($result['result'] == 0) {
+            $message = __('Received latest attribute values from ShipperHQ, no changes are required.');
+            $this->messageManager->addSuccess($message);
+        } else {
+            $message = __('Received latest attribute values from ShipperHQ, %1 changes required. Ready to synchronize', $result['result']);
+            $this->messageManager->addSuccess($message);
+        }
+
+       return $this->_resultPageFactory->create();
     }
 }
+?>

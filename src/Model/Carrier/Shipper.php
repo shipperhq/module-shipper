@@ -40,7 +40,10 @@ use ShipperHQ\WS\Client;
 use ShipperHQ\WS\Rate\Response;
 
 use ShipperHQ\Shipper\Helper\Config;
-
+use Magento\Quote\Model\Quote\Address\RateRequest;
+use Magento\Quote\Model\Quote\Address\RateResult\Error;
+use Magento\Shipping\Model\Carrier\AbstractCarrier;
+use Magento\Shipping\Model\Rate\Result;
 
 class Shipper
     extends \Magento\Shipping\Model\Carrier\AbstractCarrier
@@ -89,10 +92,6 @@ class Shipper
      * @var \Magento\Shipping\Model\Rate\ResultFactory
      */
     protected $rateFactory;
-    /**
-     * @var \Magento\Framework\ObjectManagerInterface
-     */
-    protected $objectManager;
 
     /**
      * @var \Magento\Framework\Registry
@@ -139,7 +138,6 @@ class Shipper
      * @param Processor\BackupCarrier $backupCarrier
      * @param \Magento\Framework\Registry $registry
      * @param Client\WebServiceClientFactory $shipperWSClientFactory
-     * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory
      * @param \Magento\Shipping\Model\Rate\ResultFactory $resultFactory
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
@@ -157,7 +155,6 @@ class Shipper
         Processor\BackupCarrier $backupCarrier,
         \Magento\Framework\Registry $registry,
         \ShipperHQ\WS\Client\WebServiceClientFactory $shipperWSClientFactory,
-        \Magento\Framework\ObjectManagerInterface $objectManager,
         \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory,
         \Magento\Shipping\Model\Rate\ResultFactory $resultFactory,
         \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory,
@@ -169,7 +166,6 @@ class Shipper
         $this->shipperMapper = $shipperMapper;
         $this->rateFactory = $resultFactory;
         $this->rateMethodFactory = $rateMethodFactory;
-        $this->objectManager = $objectManager;
         $this->registry = $registry;
         $this->shipperLogger = $shipperLogger;
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
@@ -182,10 +178,10 @@ class Shipper
     /**
      * Collect and get rates
      *
-     * @param \Magento\Framework\Object $request
-     * @return Result|bool|null
+     * @param RateRequest $request
+     * @return bool|Result|Error
      */
-    public function collectRates(\Magento\Framework\Object $request)
+    public function collectRates(RateRequest $request)
     {
         if (!$this->getConfigFlag(self::ACTIVE_FLAG)) {
             return false;
@@ -395,7 +391,7 @@ class Shipper
                     $baseRate = $this->shipperDataHelper->getBaseCurrencyRate($oneRate->currency);
                     $latestCurrencyCode = $oneRate->currency;
                     if (!$baseRate) {
-                        $carrierResultWithRates['error'] = __('Can\'t convert rate from "%s".',
+                        $carrierResultWithRates['error'] = __('Can\'t convert rate from "%1".',
                             $oneRate->currency);
                         $carrierResultWithRates['carriergroup_detail']['carrierGroupId'] = $carrierGroupId;
                         continue;
@@ -433,8 +429,6 @@ class Shipper
         $carrierGroupDetail['price'] = (float)$rate['totalCharges']*$currencyConversionRate;
         $carrierGroupDetail['cost'] = (float)$rate['shippingPrice']*$currencyConversionRate;
         $carrierGroupDetail['code'] = $rate['code'];
-
-
     }
 
     /**

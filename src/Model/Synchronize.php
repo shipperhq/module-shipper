@@ -1,6 +1,4 @@
 <?php
-namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
-
 /**
  *
  * Webshopapps Shipping Module
@@ -30,36 +28,33 @@ namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
  * @author ShipperHQ Team sales@shipperhq.com
  */
 
-/**
- * Class Shipperhq_Shipper_Model_Adminhtml_System_Config_Source_Environmentscope
- *
- * This class provides options for environment scope to configuration
- *
- */
+namespace ShipperHQ\Shipper\Model;
 
-use ShipperHQ\WS\Shared\SiteDetails as SiteDetails;
+use Magento\Framework\Model\AbstractModel;
+use ShipperHQ\WS;
+use ShipperHQ\WS\Rate\Request;
+//include_once 'ShipperHQ/WS/Client/WebServiceClient.php';
+//include_once 'ShipperHQ/WS/Response/ErrorMessages.php';
 
-class EnvironmentScope implements \Magento\Framework\Option\ArrayInterface{
-
-    public function toOptionArray()
+class Synchronize extends AbstractModel
+{
+    /**
+     * Define resource model
+     */
+    protected function _construct()
     {
-        return [
-            [
-                'value' =>  SiteDetails::LIVE,
-                'label' => __('Live')
-            ],
-            [
-                'value' =>   SiteDetails::DEV,
-                'label' => __('Development')
-            ],
-            [
-                'value' =>   SiteDetails::TEST,
-                'label' => __('Test')
-            ],
-            [
-                'value' => SiteDetails::INTEGRATION,
-                'label' => __('Integration')
-            ],
-        ];
+        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\Synchronize');
     }
+
+    /**
+     * Deletes all synch data
+     *
+     * @return \ShipperHQ\Shipper\Model\Synchronize
+     */
+    public function deleteAllSynchData()
+    {
+        $this->_getResource()->deleteAllSynchData();
+        return $this;
+    }
+
 }

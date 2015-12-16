@@ -13,13 +13,13 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
-//use WebShopApps\Common\Model\ConfigInterface;
-//use WebShopApps\Common\Helper\AbstractConfig;
+use WebShopApps\Common\Model\ConfigInterface;
+use WebShopApps\Common\Helper\AbstractConfig;
 
 /**
  * Class Config
  */
-class Config //extends AbstractConfig implements ConfigInterface
+class Config extends AbstractConfig implements ConfigInterface
 {
 
 

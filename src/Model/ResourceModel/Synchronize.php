@@ -1,6 +1,4 @@
 <?php
-namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
-
 /**
  *
  * Webshopapps Shipping Module
@@ -30,36 +28,22 @@ namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
  * @author ShipperHQ Team sales@shipperhq.com
  */
 
-/**
- * Class Shipperhq_Shipper_Model_Adminhtml_System_Config_Source_Environmentscope
- *
- * This class provides options for environment scope to configuration
- *
- */
+namespace ShipperHQ\Shipper\Model\ResourceModel;
 
-use ShipperHQ\WS\Shared\SiteDetails as SiteDetails;
 
-class EnvironmentScope implements \Magento\Framework\Option\ArrayInterface{
-
-    public function toOptionArray()
+class Synchronize extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
+{
+    /**
+     * Define main table
+     */
+    protected function _construct()
     {
-        return [
-            [
-                'value' =>  SiteDetails::LIVE,
-                'label' => __('Live')
-            ],
-            [
-                'value' =>   SiteDetails::DEV,
-                'label' => __('Development')
-            ],
-            [
-                'value' =>   SiteDetails::TEST,
-                'label' => __('Test')
-            ],
-            [
-                'value' => SiteDetails::INTEGRATION,
-                'label' => __('Integration')
-            ],
-        ];
+        $this->_init('shipperhq_synchronize', 'synch_id');
+    }
+
+    public function deleteAllSynchData()
+    {
+        $this->getConnection()->delete($this->getMainTable());
+        return $this;
     }
 }

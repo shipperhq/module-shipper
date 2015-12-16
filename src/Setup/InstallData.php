@@ -6,12 +6,6 @@
 
 namespace ShipperHQ\Shipper\Setup;
 
-//use Magento\Framework\Setup\InstallDataInterface;
-
-//use Magento\Framework\Setup\InstallSchemaInterface;
-//use Magento\Framework\Setup\ModuleContextInterface;
-//use Magento\Framework\Setup\SchemaSetupInterface;
-
 use Magento\Catalog\Setup\CategorySetupFactory;
 use Magento\Framework\Setup\InstallDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
@@ -22,11 +16,9 @@ use Magento\Sales\Setup\SalesSetupFactory;
 /**
  * @codeCoverageIgnore
  */
-//class InstallSchema implements InstallSchemaInterface
 class InstallData implements InstallDataInterface
 
 {
-
     /**
      * Category setup factory
      *
@@ -86,7 +78,7 @@ class InstallData implements InstallDataInterface
             'backend'                  => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
             'input'                    => 'multiselect',
             'label'                    => 'Shipping Group',
-            'global' => \Magento\Catalog\Model\Resource\Eav\Attribute::SCOPE_STORE,
+            'global' =>\Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
             'visible'                  => true,
             'required'                 => false,
             'visible_on_front'         => false,
@@ -96,7 +88,7 @@ class InstallData implements InstallDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => false,
+            'user_defined'			   => true,
             'used_in_product_listing'  => false
         ]);
 
@@ -107,16 +99,16 @@ class InstallData implements InstallDataInterface
             'input'                    => 'multiselect',
             'label'                    => 'Origin',
             'global'                   => false,
-            'visible'                  => 1,
-            'required'                 => 0,
-            'visible_on_front'         => 0,
-            'is_html_allowed_on_front' => 0,
-            'searchable'               => 0,
-            'filterable'               => 0,
-            'comparable'               => 0,
-            'is_configurable'          => 0,
+            'visible'                  => true,
+            'required'                 => false,
+            'visible_on_front'         => false,
+            'is_html_allowed_on_front' => false,
+            'searchable'               => false,
+            'filterable'               => false,
+            'comparable'               => false,
+            'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => false,
+            'user_defined'			   => true,
             'used_in_product_listing'  => false
         ]);
 
@@ -201,7 +193,5 @@ class InstallData implements InstallDataInterface
             $quoteSetup->addAttribute($entity, 'carriergroup_shipping', $carriergroupShipping);
         }
         $salesSetup->addAttribute('order_item', 'carriergroup_shipping', $carriergroupShipping);
-
-
     }
 }

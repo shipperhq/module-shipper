@@ -70,7 +70,7 @@ class Carriers {
             if($this->shipperDataHelper->getConfigValue('carriers/'.$carrierCode.'/model') == 'ShipperHQ\Shipper\Model\Carrier\Shipper') {
                 continue;
             }
-            $arr[] = ['value' => $carrierCode, 'label' => $carrierTitle];
+           $arr[] = ['value' => $carrierCode, 'label' => $carrierTitle];
         }
         array_unshift($arr, ['value' => false, 'label' => __('No Carrier')]);
 

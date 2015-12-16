@@ -30,18 +30,30 @@
  */
 namespace ShipperHQ\Shipper\Block\Backend\Config\Carrier;
 
-class About extends \Magento\Config\Block\System\Config\Form\Field
+class About extends \Magento\Config\Block\System\Config\Form\Fieldset//\Magento\Config\Block\System\Config\Form\Field
 {
 
 
     /**
-     * @var \Magento\Sales\Model\Config\Data
      */
-    private $dataContainer;
+    protected $shipperDataHelper;
 
-    public function __construct(\Magento\Sales\Model\Config\Data $dataContainer
+    /**
+     * @param \Magento\Backend\Block\Context $context
+     * @param \Magento\Backend\Model\Auth\Session $authSession
+     * @param \Magento\Framework\View\Helper\Js $jsHelper
+     * @param \Magento\Sales\Model\Config\Data
+     * @param array $data
+     */
+    public function __construct(
+        \Magento\Backend\Block\Context $context,
+        \Magento\Backend\Model\Auth\Session $authSession,
+        \Magento\Framework\View\Helper\Js $jsHelper,
+        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+        array $data = []
     ) {
-        $this->dataContainer = $dataContainer;
+        $this->shipperDataHelper = $shipperDataHelper;
+        parent::__construct($context, $authSession, $jsHelper, $data);
     }
 
 
@@ -55,16 +67,14 @@ class About extends \Magento\Config\Block\System\Config\Form\Field
     {
         $beforeDiv = '<div style="padding:10px;background-color:#fff;border:1px solid #ddd;margin-bottom:7px;">';
         $afterDiv = '</div>';
-        $synch = __('Click here to <a href="%s">Synchronize</a> with ShipperHQ.', $this->getUrl('adminhtml/shqsynchronize'));
+        $synch = __('Click here to <a href="%1">Synchronize</a> with ShipperHQ.', $this->getUrl('shipperhq/synchronize/index'));
         $element->getComment()
             ? $comment =   $element->getComment()
             : $comment =  '';
         $html =$beforeDiv. '<table>
             <tr>
-            <td width="100px;"><img style="height: 36px; padding: 0px 0px;" class="logo" src="'.$this->getViewFileUrl('shipperhq/images/shq-logo.png') .'" alt="ShipperHQ"/></td>
-                <td width="10"></td>
                 <td style="vertical-align:bottom">
-                <h4>ShipperHQ installed version '. $this->getModuleVersion() .'</h4>
+                <b>ShipperHQ installed version '. $this->getModuleVersion() .'</b>
                  </td>
             </tr>
             <tr>
@@ -82,6 +92,6 @@ class About extends \Magento\Config\Block\System\Config\Form\Field
     }
 
     protected function getModuleVersion() {
-        return (string) $this->dataContainer->get('modules/ShipperHQ_Shipper/extension_version');
+       return (string) $this->shipperDataHelper->getConfigValue('carriers/shipper/extension_version');
     }
 }

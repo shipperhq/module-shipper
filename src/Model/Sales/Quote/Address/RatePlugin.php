@@ -8,14 +8,8 @@ namespace ShipperHQ\Shipper\Model\Sales\Quote\Address;
 class RatePlugin
 {
 
-    public function __construct(
-     //   \Magento\Framework\Registry $registry,
-     //   TransactionCollectionFactory $salesTransactionCollectionFactory,
-     //   \Magento\Braintree\Helper\Data $paymentHelper
-    ) {
-       // $this->registry = $registry;
-       // $this->salesTransactionCollectionFactory = $salesTransactionCollectionFactory;
-       // $this->paymentHelper = $paymentHelper;
+    public function __construct() {
+
     }
 
     /**

@@ -1,6 +1,4 @@
 <?php
-namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
-
 /**
  *
  * Webshopapps Shipping Module
@@ -25,10 +23,12 @@ namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
  *
  * @category ShipperHQ
  * @package ShipperHQ_Shipping_Carrier
- * @copyright Copyright (c) 2014 Zowta LLC (http://www.ShipperHQ.com)
+ * @copyright Copyright (c) 2015 Zowta LLC (http://www.ShipperHQ.com)
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
+namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
 
 class Carriers {
     /**

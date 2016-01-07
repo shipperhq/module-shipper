@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * WebShopApps Shipping Module
+ * Webshopapps Shipping Module
  *
  * NOTICE OF LICENSE
  *
@@ -23,9 +23,13 @@
  *
  * @category ShipperHQ
  * @package ShipperHQ_Shipping_Carrier
- * @copyright Copyright (c) 2014 Zowta LLC (http://www.ShipperHQ.com)
+ * @copyright Copyright (c) 2015 Zowta LLC (http://www.ShipperHQ.com)
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
+ */
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
  */
 namespace ShipperHQ\Shipper\Controller\Adminhtml;
 
@@ -33,7 +37,6 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Result\PageFactory;
-//use Tutorial\SimpleNews\Model\NewsFactory;
 
 abstract class Synchronize extends Action
 {

@@ -3,7 +3,14 @@
 
     "description": "Magento Shipping integration with ShipperHQ",
 
-    "license": "OSL",
+    "type": "magento2-module",
+
+    "version": "21.0.0",
+
+    "license": [
+        "OSL-3.0",
+        "AFL-3.0"
+    ],
 
     "authors": [
         {
@@ -16,9 +23,9 @@
         }
     ],
 
-    "type": "magento2-module",
-
-    "version": "21.0.0",
+    "support": {
+        "documentation": "http://docs.shipperhq.com",
+    },
 
     "autoload": {
         "psr-4": {
@@ -30,36 +37,14 @@
     },
 
     "require": {
-        "php": "~5.5.0|~5.6.0",
-        "magento/magento-composer-installer": "*",
-        "magento/framework": "~0.74",
-        "magento/module-store": "~0.74",
-        "magento/module-shipping": "~0.74",
-        "magento/module-quote": "~0.74",
-        "magento/module-checkout": "~0.74"
+       // "webshopapps/matrixrate": "1.0.*" ???
     },
 
-    "require-dev": {
-        "mockery/mockery": "~0.9",
-        "phpunit/phpunit": "~4.0",
-        "sensiolabs/security-checker": "~2.0",
-        "squizlabs/php_codesniffer": "~1.0"
-    },
-
-    "suggest": {
-        "sensiolabs/security-checker": "Required for ComposerSecurityReview.",
-        "squizlabs/php_codesniffer":   "Required for PhpCodeSnifferReview."
-    },
-
-    "config": {
-        "optimize-autoloader": true,
-        "preferred-install": "dist"
-    },
     "extra": {
         "map": [
             [
                 "*",
-                "Webshopapps/Matrixrate"
+                "ShipperHQ/Shipper"
             ]
         ]
     }

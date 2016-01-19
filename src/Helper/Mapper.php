@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Webshopapps Shipping Module
+ * ShipperHQ Shipping Module
  *
  * NOTICE OF LICENSE
  *

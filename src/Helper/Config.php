@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Webshopapps Shipping Module
+ * ShipperHQ Shipping Module
  *
  * NOTICE OF LICENSE
  *
@@ -34,8 +34,8 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
-use WebShopApps\Common\Model\ConfigInterface;
-use WebShopApps\Common\Helper\AbstractConfig;
+use ShipperHQ\Common\Model\ConfigInterface;
+use ShipperHQ\Common\Helper\AbstractConfig;
 
 /**
  * Class Config

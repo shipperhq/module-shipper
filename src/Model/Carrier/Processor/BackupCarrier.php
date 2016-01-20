@@ -41,7 +41,7 @@ class BackupCarrier
      */
     private $shipperDataHelper;
     /**
-     * @var \ShipperHQ\Shipper\Helper\Logger
+     * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
     private $shipperLogger;
     /**
@@ -54,7 +54,7 @@ class BackupCarrier
      *
      */
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Logger $shipperLogger,
+        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\App\Config\MutableScopeConfigInterface $mutableConfig,
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper)
@@ -122,7 +122,7 @@ class BackupCarrier
         $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Unable to establish connection with ShipperHQ',
             'Attempting to use backup carrier: ' . $backupCarrierDetails);
         if (!$backupCarrierDetails) {
-            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Backup carrier: ',
+            $this->shipperLogger->postDebug('Shipperhq_Shipper','Backup carrier: ',
                 'No backup carrier is configured');
             return false;
         }

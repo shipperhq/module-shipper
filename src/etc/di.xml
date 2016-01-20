@@ -1,10 +1,10 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Magento\Framework\Search\Adapter\Mysql\Field\FieldInterface" type="Magento\Framework\Search\Adapter\Mysql\Field\Field" />
-    <!--<type name="ShipperHQ\Shipper\Model\Carrier\Shipper">-->
-        <!--<arguments>-->
-            <!--<argument name="logger" xsi:type="object">ShipperHQ\Logger\Model\Logger</argument>-->
-        <!--</arguments>-->
-    <!--</type>-->
+    <type name="ShipperHQ\Shipper\Helper\LogAssist">
+        <arguments>
+            <argument name="logger" xsi:type="object">ShipperHQ\Logger\Model\Logger</argument>
+        </arguments>
+    </type>
     <type name="\Magento\Quote\Model\Quote\Address\Rate">
         <plugin name="shipperhq_shipper_model_sales_quote_address_rate"
                 type="ShipperHQ\Shipper\Model\Sales\Quote\Address\RatePlugin"

@@ -105,7 +105,7 @@ class ShipperMapper
      */
     private $rateRequestFactory;
     /**
-     * @var \ShipperHQ\Shipper\Helper\Logger
+     * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
     private $shipperLogger;
     /**
@@ -148,7 +148,7 @@ class ShipperMapper
                          \ShipperHQ\WS\Rate\Request\ShipDetailsFactory $shipDetailsFactory,
                          \ShipperHQ\WS\Rate\Request\Shipping\SelectedOptionsFactory $selectedOptionsFactory,
                          \Magento\Tax\Model\Calculation $taxCalculation,
-                         \ShipperHQ\Shipper\Helper\Logger $shipperLogger,
+                         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
                          \Magento\Catalog\Helper\Product\Configuration $productConfiguration,
                          \Magento\Framework\App\ProductMetadata $productMetadata,
                          \Magento\Sales\Model\Config\Data $dataContainer,

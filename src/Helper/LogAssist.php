@@ -39,7 +39,7 @@ use ShipperHQ\Shipper\Helper\Config;
 /**
  * Shipping data helper
  */
-class Logger extends  \Magento\Framework\App\Helper\AbstractHelper
+class LogAssist extends  \Magento\Framework\App\Helper\AbstractHelper
 {
     /**
      * @var \Psr\Log\LoggerInterface
@@ -57,59 +57,48 @@ class Logger extends  \Magento\Framework\App\Helper\AbstractHelper
         $this->logger = $logger;
         $this->shipperDataHelper = $shipperDataHelper;
     }
+
     /**
-     * Log debug data to file
      *
-     * @param mixed $debugData
-     * @return void
+     * @param $module
+     * @param $logData
      */
-    public function debug($debugData)
-    {
+    public function postDebug($module, $message, $data, array $context = array()) {
         if ($this->shipperDataHelper->getConfigValue('carriers/shipper/debug')) {
-            $this->logger->debug(var_export($debugData, true));
+            $this->logger->debug(array($module, $message,$data),$context);
         }
     }
 
     /**
-     * TODO push out to separate logger
      *
      * @param $module
-     * @param $debugData
-     * @param $errorDetailsT
+     * @param $logData
      */
-    public function postInfo($module, $debugData, $payload) {
+    public function postInfo($module, $message, $data, array $context = array()) {
         if ($this->shipperDataHelper->getConfigValue('carriers/shipper/debug')) {
-            $this->logger->info(var_export($module.': '.$debugData, true));
-            $this->logger->info(var_export($payload, true));
+            $this->logger->info(array($module, $message,$data),$context);
         }
     }
 
     /**
-     * TODO push out to separate logger
      *
      * @param $module
-     * @param $debugData
-     * @param $errorDetailsT
+     * @param $logData
      */
-    public function postDebug($module, $debugData, $payload) {
+    public function postWarning($module, $message, $data, array $context = array()) {
         if ($this->shipperDataHelper->getConfigValue('carriers/shipper/debug')) {
-            $this->logger->debug(var_export($module.': '.$debugData, true));
-            $this->logger->debug(var_export($payload, true));
+            $this->logger->warning(array($module, $message,$data),$context);
         }
     }
 
-
     /**
-     * TODO push out to separate logger
      *
      * @param $module
-     * @param $debugData
-     * @param $errorDetailsT
+     * @param $logData
      */
-    public function postWarning($module, $debugData, $payload) {
+    public function postCritical($module, $message, $data, array $context = array()) {
         if ($this->shipperDataHelper->getConfigValue('carriers/shipper/debug')) {
-            $this->logger->warning(var_export($module.': '.$debugData, true));
-            $this->logger->warning(var_export($payload, true));
+            $this->logger->warning(array($module, $message,$data),$context);
         }
     }
 

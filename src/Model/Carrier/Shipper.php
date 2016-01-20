@@ -102,7 +102,7 @@ class Shipper
      */
     private $registry;
     /**
-     * @var \ShipperHQ\Shipper\Helper\Logger
+     * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
     private $shipperLogger;
     /**
@@ -134,7 +134,7 @@ class Shipper
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
      * @param \ShipperHQ\Shipper\Helper\CarrierCache $carrierCache
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \ShipperHQ\Shipper\Helper\Logger $shipperLogger
+     * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param \Psr\Log\LoggerInterface $logger
      * @param Config $configHelper
      * @param Processor\ShipperMapper $shipperMapper
@@ -151,7 +151,7 @@ class Shipper
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \ShipperHQ\Shipper\Helper\CarrierCache $carrierCache,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \ShipperHQ\Shipper\Helper\Logger $shipperLogger,
+        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Psr\Log\LoggerInterface $logger,
         Config $configHelper,
         Processor\ShipperMapper $shipperMapper,
@@ -190,10 +190,14 @@ class Shipper
         if (!$this->getConfigFlag(self::ACTIVE_FLAG)) {
             return false;
         }
+        $initVal = microtime(true);
+
         $this->cacheEnabled = $this->getConfigFlag('use_cache');
         $this->setRequest($request);
 
         $this->result = $this->getQuotes();
+        $elapsed = microtime(true) - $initVal;
+        $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Long lapse',$elapsed);
 
         return $this->getResult();
 
@@ -258,23 +262,22 @@ class Shipper
                 $this->shipperMapper->getCredentialsTranslation(), $allowedMethodUrl, $timeout);
 
             $allowedMethodResponse = $resultSet['result'];
-
-            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Allowed methods response:',
-                $resultSet['debug']);
+            $debugData = $resultSet['debug'];
+            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Allowed methods response', $debugData);
 
             if (!is_object($allowedMethodResponse)) {
                 $this->shipperLogger->postInfo('Shipperhq_Shipper',
-                    'Allowed Methods: No or invalid response received from Shipper HQ',
-                    $allowedMethodResponse);
+                    'Allowed Methods: No or invalid response received from Shipper HQ', $allowedMethodResponse);
 
                 $shipperHQ = "<a href=https://shipperhq.com/ratesmgr/websites>ShipperHQ</a> ";
                 $result['result'] = false;
-                $result['error'] = 'ShipperHQ is not contactable, verify the details from the website configuration in ' . $shipperHQ;
+                $result['error'] = 'ShipperHQ is not contactable, verify the details from the website configuration in '
+                    . $shipperHQ;
                 return $result;
             } else if (count($allowedMethodResponse->errors)) {
 
-                $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Allowed methods: response contained following errors',
-                    $allowedMethodResponse);
+                $this->shipperLogger->postInfo('Shipperhq_Shipper',
+                    'Allowed methods: response contained following errors',$allowedMethodResponse);
                 $error = 'ShipperHQ Error: ';
                 foreach ($allowedMethodResponse->errors as $anError) {
                     if (isset($anError->internalErrorMessage)) {
@@ -288,8 +291,7 @@ class Shipper
                 return $result;
             } else if (!count($allowedMethodResponse->carrierMethods)) {
                 $this->shipperLogger->postInfo('Shipperhq_Shipper',
-                    'Allowed methods web service did not return any carriers or shipping methods',
-                    $allowedMethodResponse);
+                    'Allowed methods web service did not return any carriers or shipping methods',$allowedMethodResponse);
                 $result['result'] = false;
                 $result['warning'] = 'ShipperHQ Warning: No carriers setup, log in to ShipperHQ Dashboard and create carriers';
                 return $result;
@@ -322,7 +324,9 @@ class Shipper
                     $carrierConfig[$carrierMethod->carrierCode]['sortOrder'] = $carrierMethod->sortOrder;
                 }
             }
-            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Allowed methods parsed result: ', $allowedMethods);
+
+            $this->shipperLogger->postDebug('Shipperhq_Shipper','Allowed methods parsed result ',
+                    $allowedMethods);
             // go set carrier titles
             $this->carrierConfigHandler->setCarrierConfig($carrierConfig);
         }
@@ -446,8 +450,11 @@ class Shipper
         $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
         $timeout = $this->shipperDataHelper->getWebserviceTimeout();
         if (!$resultSet) {
+            $initVal =  microtime(true);
             $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive($this->shipperRequest,
                 $this->shipperDataHelper->getRateGatewayUrl(), $timeout);
+            $elapsed = microtime(true) - $initVal;
+            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Short lapse',$elapsed);
 
             if (!$resultSet['result']) {
                 $backupRates = $this->backupCarrier->getBackupCarrierRates($this->rawRequest, $this->getConfigData("backup_carrier"));
@@ -484,13 +491,11 @@ class Shipper
 
         // If no rates are found return error message
         if (!is_object($shipperResponse)) {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ did not return a response',
-                $debugData);
+            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ did not return a response', $debugData);
 
             return $this->returnGeneralError('Shipper HQ did not return a response - could not contact ShipperHQ. Please review your settings');
         } elseif (!empty($shipperResponse->errors)) {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ returned an error',
-                $debugData);
+            $this->shipperLogger->postInfo('Shipperhq_Shipper','Shipper HQ returned an error', $debugData);
             if (isset($shipperResponse->errors)) {
                 foreach ($shipperResponse->errors as $error) {
                     $this->appendError($result, $error, $this->_code, $this->getConfigData('title'));
@@ -502,14 +507,12 @@ class Shipper
         }
 
         if (isset($shipperResponse->carrierGroups)) {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper',
-                'Shipper HQ carrier rates', $debugData);
             $carrierRates = $this->processRatesResponse($shipperResponse);
         } else {
             $carrierRates = [];
         }
         if (count($carrierRates) == 0) {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ did not return any carrier rates', $debugData);
+            $this->shipperLogger->postInfo('Shipperhq_Shipper','Shipper HQ did not return any carrier rates',$debugData);
             return $result;
         }
         foreach ($carrierRates as $carrierRate) {
@@ -530,9 +533,7 @@ class Shipper
             }
 
             if (!array_key_exists('rates', $carrierRate)) {
-                $this->shipperLogger->postInfo('Shipperhq_Shipper',  'Shipper HQ did not return any rates for ' . $carrierRate['code'] . ' ' . $carrierRate['title']
-                    , $debugData);
-
+                $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ did not return any rates for ' . $carrierRate['code'] . ' ' . $carrierRate['title'], $debugData);
             } else {
 
                 foreach ($carrierRate['rates'] as $rateDetails) {
@@ -730,7 +731,7 @@ class Shipper
 
                 $result->append($error);
 
-                $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ returned error', $errorDetails);
+                $this->shipperLogger->postInfo('Shipperhq_Shipper','Shipper HQ returned error', $errorDetails);
             }
 
         }

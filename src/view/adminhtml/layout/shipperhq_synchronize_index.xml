@@ -37,7 +37,7 @@
 <update handle="shipperhq_synchronize_data_grid_block"/>
 <body>
     <referenceContainer name="content">
-        <block class="Shipperhq\Shipper\Block\Adminhtml\Synchronize" name="shipperhq_shipper_synchronize.grid.container"/>
+        <block class="ShipperHQ\Shipper\Block\Adminhtml\Synchronize" name="shipperhq_shipper_synchronize.grid.container"/>
     </referenceContainer>
 </body>
 </page>

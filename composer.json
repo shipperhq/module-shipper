@@ -1,5 +1,5 @@
 {
-    "name": "shipperhq/module-shipper",
+    "name": "shipperhq/shipper",
 
     "description": "Magento Shipping integration with ShipperHQ",
 
@@ -27,25 +27,24 @@
         "documentation": "http://docs.shipperhq.com",
     },
 
-    "autoload": {
-        "psr-4": {
-            "Webshopapps\\Matrixrate\\": "",
-            "ShipperHQ\\Shipper\\": "",
-            "ShipperHQ\\WS\\": "",
-            "ShipperHQ\\Common\\": ""
-        }
-    },
-
     "require": {
-       // "webshopapps/matrixrate": "1.0.*" ???
+        "magento/framework": "100.0.2",
+        "shipperhq/library-ws": "*",
+        "shipperhq/common": "*",
+        "webshopapps/matrixrate": "*"
     },
-
-    "extra": {
-        "map": [
-            [
-                "*",
-                "ShipperHQ/Shipper"
-            ]
-        ]
+    "repositories": [
+        {
+        "type": "vcs",
+        "url": ""
+        }
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "ShipperHQ\\Shipper\\": ""
+        }
     }
 }

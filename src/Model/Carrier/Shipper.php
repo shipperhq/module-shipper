@@ -242,6 +242,25 @@ class Shipper
     }
 
     /**
+     * Refresh saved carrier methods
+     *
+     * @return mixed
+     */
+    public function refreshCarriers()
+    {
+        $allowedMethods =  $this->getAllowedMethods();
+        if(count($allowedMethods) == 0 ) {
+            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Refresh carriers',
+                'Allowed methods web service did not contain any shipping methods for carriers');
+            $result['result'] = false;
+            $result['error'] = 'ShipperHQ Error: No shipping methods for carrier setup in your ShipperHQ account';
+            return $result;
+        }
+        return $allowedMethods;
+
+    }
+
+    /**
      * Get allowed shipping methods
      *
      * @return array

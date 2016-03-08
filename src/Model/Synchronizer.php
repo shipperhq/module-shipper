@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Webshopapps Shipping Module
+ * ShipperHQ Shipping Module
  *
  * NOTICE OF LICENSE
  *
@@ -23,9 +23,13 @@
  *
  * @category ShipperHQ
  * @package ShipperHQ_Shipping_Carrier
- * @copyright Copyright (c) 2014 Zowta LLC (http://www.ShipperHQ.com)
+ * @copyright Copyright (c) 2015 Zowta LLC (http://www.ShipperHQ.com)
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
+ */
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
  */
 
 namespace ShipperHQ\Shipper\Model;
@@ -34,10 +38,7 @@ use ShipperHQ\WS\Client;
 use ShipperHQ\WS\Rate\Response;
 use ShipperHQ\Shipper\Helper\Config;
 use Magento\Catalog\Model\Product\Attribute\OptionManagement;
-//use Magento\Quote\Model\Quote\Address\RateRequest;
-//use Magento\Quote\Model\Quote\Address\RateResult\Error;
-//use Magento\Shipping\Model\Carrier\AbstractCarrier;
-//use Magento\Shipping\Model\Rate\Result;
+
 
 class Synchronizer extends \Magento\Framework\Model\AbstractModel
 {
@@ -70,7 +71,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      */
     private $registry;
     /**
-     * @var \ShipperHQ\Shipper\Helper\Logger
+     * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
     private $shipperLogger;
     /**
@@ -102,7 +103,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
      * @param \ShipperHQ\Shipper\Helper\CarrierCache $carrierCache
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \ShipperHQ\Shipper\Helper\Logger $shipperLogger
+     * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param \Psr\Log\LoggerInterface $logger
      * @param Carrier\Processor\ShipperMapper $shipperMapper
      * @param Carrier\Processor\CarrierConfigHandler $carrierConfigHandler
@@ -121,7 +122,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \ShipperHQ\Shipper\Helper\CarrierCache $carrierCache,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \ShipperHQ\Shipper\Helper\Logger $shipperLogger,
+        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Psr\Log\LoggerInterface $logger,
         Carrier\Processor\ShipperMapper $shipperMapper,
         Carrier\Processor\CarrierConfigHandler $carrierConfigHandler,
@@ -198,12 +199,11 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                 'result' => json_decode($result['debug']['response']),
                 'url' => $result['debug']['url']
             );
-            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Check synchronized status: ',
-                $debugData);
+            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Check synchronized status', $debugData);
 
             if (!empty($synchResult->errors)) {
                 $this->shipperLogger->postWarning('Shipperhq_Shipper', 'Check synchronized status failed. Error: ',
-                    $synchResult->errors);
+                   $synchResult->errors);
                 return false;
             }
 
@@ -224,7 +224,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         if(is_null($request)) {
             $request = $this->shipperMapper->getCredentialsTranslation();
         }
-        $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Synch: Request to ' .$url,
+        $this->shipperLogger->postDebug('Shipperhq_Shipper','Synch: Request to ' .$url,
             $request->siteDetails);
         $result = $this->shipperWSClientFactory->create()->sendAndReceive($request, $url, $timeout);
         return $result;
@@ -244,7 +244,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
 
         if (!is_object($allAttributesResponse)) {
             $this->shipperLogger->postInfo('Shipperhq_Shipper',
-                'Allowed Methods: No or invalid response received from Shipper HQ',
+                'Retrieving attributes: No or invalid response received from Shipper HQ',
                 $allAttributesResponse);
         } elseif (isset($allAttributesResponse->errors) && count($allAttributesResponse->errors) > 0) {
             foreach ($allAttributesResponse->errors as $errorDetails) {
@@ -264,8 +264,8 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         } elseif (!$allAttributesResponse || !isset($allAttributesResponse->responseSummary) ||
             (string)$allAttributesResponse->responseSummary->status != 1 ||
             !$allAttributesResponse->attributeTypes) {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Unable to parse latest attributes response',
-                ': ' . $allAttributesResponse);
+            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Unable to parse latest attributes response : ' ,
+                $allAttributesResponse);
         } else {
             $result = $allAttributesResponse->attributeTypes;
         }
@@ -284,15 +284,14 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                         $existingAttributeOptions = array();
                         if (!in_array($attribute->code, $productAttributes)) {
                             $this->shipperLogger->postDebug('Shipperhq_Shipper',
-                                'Attribute ' . $attribute->code . ' does not exist.',
-                                '');
+                                'Attribute ' . $attribute->code . ' does not exist.','');
                             continue;
                         }
                         $existingAttributeInfo = $this->attributeOptionManagement->getItems($attribute->code);
                         if (is_array($existingAttributeInfo)) {
                             $existingAttributeOptions = $existingAttributeInfo;
                         }
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         $e->getMessage();
                         $this->shipperLogger->postDebug('Shipperhq_Shipper',
                             'Unable to find attribute ' . $attribute->code,
@@ -379,10 +378,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         $result = 0;
         try {
             $this->synchronizeFactory->create()->deleteAllSynchData();
-//            foreach ($collection = Mage::getModel('shipperhq_shipper/attributeupdate')->getCollection() as $oldUpdate) {
-//                $oldUpdate->delete();
-//            }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $result = false;
             $this->shipperLogger->postDebug('Shipperhq_Shipper',
                 'Unable to remove existing attribute update data', $e->getMessage());
@@ -421,7 +417,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                     try {
                         $this->attributeOptionManagement->add($attributeUpdate['attribute_code'], $optionToAdd);
                         $result++;
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Unable to add attribute option',
                             'Error: ' . $e->getMessage());
                         $result = false;
@@ -430,7 +426,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                     try {
                         $this->attributeOptionManagement->delete($attributeUpdate['attribute_code'], $attributeUpdate['option_id']);
                         $result++;
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Unable to remove attribute option',
                             'Error: ' . $e->getMessage());
                         $result = false;

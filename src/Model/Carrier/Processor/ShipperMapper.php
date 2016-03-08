@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Webshopapps Shipping Module
+ * ShipperHQ Shipping Module
  *
  * NOTICE OF LICENSE
  *
@@ -23,7 +23,7 @@
  *
  * @category ShipperHQ
  * @package ShipperHQ_Shipping_Carrier
- * @copyright Copyright (c) 2014 Zowta LLC (http://www.ShipperHQ.com)
+ * @copyright Copyright (c) 2015 Zowta LLC (http://www.ShipperHQ.com)
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
@@ -105,7 +105,7 @@ class ShipperMapper
      */
     private $rateRequestFactory;
     /**
-     * @var \ShipperHQ\Shipper\Helper\Logger
+     * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
     private $shipperLogger;
     /**
@@ -148,7 +148,7 @@ class ShipperMapper
                          \ShipperHQ\WS\Rate\Request\ShipDetailsFactory $shipDetailsFactory,
                          \ShipperHQ\WS\Rate\Request\Shipping\SelectedOptionsFactory $selectedOptionsFactory,
                          \Magento\Tax\Model\Calculation $taxCalculation,
-                         \ShipperHQ\Shipper\Helper\Logger $shipperLogger,
+                         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
                          \Magento\Catalog\Helper\Product\Configuration $productConfiguration,
                          \Magento\Framework\App\ProductMetadata $productMetadata,
                          \Magento\Sales\Model\Config\Data $dataContainer,

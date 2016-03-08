@@ -20,3 +20,18 @@
 "URL","URL"
 "Delivers :","Delivers :"
 "business day(s)","business day(s)"
+"Synchronize with ShipperHQ","Synchronize with ShipperHQ"
+"Reload Synchronize Data","Reload Synchronize Data"
+"Are you sure you are ready to synchronize?","Are you sure you are ready to synchronize?"
+"Click here to <a href="%1">Synchronize</a> with ShipperHQ.","Click here to <a href="%1">Synchronize</a> with ShipperHQ."
+"Received latest attribute values from ShipperHQ, no changes are required.","Received latest attribute values from ShipperHQ, no changes are required."
+"Received latest attribute values from ShipperHQ, %1 changes required. Ready to synchronize","Received latest attribute values from ShipperHQ, %1 changes required. Ready to synchronize"
+"ShipperHQ was unable to verify a connection, please contact support.","ShipperHQ was unable to verify a connection, please contact support."
+"Updated %1 attribute values from ShipperHQ.","Updated %1 attribute values from ShipperHQ."
+"No Carrier","No Carrier"
+Live,Live
+Development,Development
+Test,Test
+Integration,Integration
+"Can\'t convert rate from "%1".","Can\'t convert rate from "%1"."
+

@@ -103,11 +103,9 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
                                 \Magento\Directory\Model\CurrencyFactory $dirCurrencyFactory,
                                 \Magento\Shipping\Model\CarrierFactoryInterface $carrierFactory,
                                 \Magento\Catalog\Model\ProductFactory $productFactory,
-                                \Magento\Checkout\Model\Session $checkoutSession,
-                                \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+                                \Magento\Checkout\Model\Session $checkoutSession
     ) {
         $this->shipperConfig = $shipperConfig;
-        $this->scopeConfig = $scopeConfig;
         $this->eavConfig = $eavConfig;
         $this->registry = $registry;
         $this->storeManager = $context->getStoreManager();

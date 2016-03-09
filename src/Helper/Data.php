@@ -37,6 +37,7 @@ namespace ShipperHQ\Shipper\Helper;
 use Magento\Store\Model\Store;
 use ShipperHQ\Shipper\Helper\Config;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Shipping data helper
@@ -98,23 +99,25 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
     public function __construct(Config $shipperConfig,
                                 \Magento\Eav\Model\Config $eavConfig,
                                 \Magento\Framework\Registry $registry,
-                                \Magento\Backend\Block\Template\Context $context,
+                                \Magento\Framework\App\Helper\Context $context,
                                 JsonHelper $jsonHelper,
                                 \Magento\Directory\Model\CurrencyFactory $dirCurrencyFactory,
                                 \Magento\Shipping\Model\CarrierFactoryInterface $carrierFactory,
                                 \Magento\Catalog\Model\ProductFactory $productFactory,
-                                \Magento\Checkout\Model\Session $checkoutSession
+                                \Magento\Checkout\Model\Session $checkoutSession,
+                                StoreManagerInterface $storeManager
     ) {
+         parent::__construct($context);
+
         $this->shipperConfig = $shipperConfig;
         $this->eavConfig = $eavConfig;
         $this->registry = $registry;
-        $this->storeManager = $context->getStoreManager();
+        $this->storeManager = $storeManager;
         $this->productFactory = $productFactory;
         $this->checkoutSession = $checkoutSession;
         $this->jsonHelper = $jsonHelper;
         $this->dirCurrencyFactory = $dirCurrencyFactory;
         $this->carrierFactory = $carrierFactory;
-
     }
     
     public function isModuleActive() {

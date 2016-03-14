@@ -38,6 +38,7 @@ use ShipperHQ\WS\Client;
 use ShipperHQ\WS\Rate\Response;
 use ShipperHQ\Shipper\Helper\Config;
 use Magento\Catalog\Model\Product\Attribute\OptionManagement;
+use Magento\Framework\App\ResourceConnection;
 
 
 class Synchronizer extends \Magento\Framework\Model\AbstractModel
@@ -98,6 +99,12 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      * @var \ShipperHQ\Shipper\Model\SynchronizeFactory
      */
     private $synchronizeFactory;
+    /**
+     * Database connection
+     *
+     * @var \Magento\Framework\DB\Adapter\AdapterInterface
+     */
+    protected $connection;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
@@ -131,6 +138,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         \Magento\Catalog\Model\Product\Attribute\OptionManagement $attributeOptionManagement,
         \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory $optionDataFactory,
         SynchronizeFactory $synchronizeFactory,
+        ResourceConnection $resource,
         array $data = []
     )
     {
@@ -144,6 +152,8 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         $this->attributeOptionManagement = $attributeOptionManagement;
         $this->optionDataFactory = $optionDataFactory;
         $this->synchronizeFactory = $synchronizeFactory;
+        $this->connection = $resource->getConnection();
+
     }
 
     /*
@@ -329,10 +339,9 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                                 unset($trackValues[$key]);
                                 continue;
                             }
-                            $numberAssigned = $this->shipperDataHelper->getProductsWithAttributeValue(
-                                $attribute->code, $option->getValue(), $storeId, true, true);
+                            $isAssigned = $this->getIsAttributeValueUsed($attribute->code, $option->getValue(), $storeId, true);
                             $deleteFlag = self::AUTO_REMOVE_ATTRIBUTE_OPTION;
-                            if ($numberAssigned > 0) {
+                            if($isAssigned) {
                                 $deleteFlag = self::REMOVE_ATTRIBUTE_OPTION;
                             }
 
@@ -447,4 +456,41 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         }
         return $result;
     }
+
+    protected function getIsAttributeValueUsed($attribute_code, $value, $storeId, $isSelect = false)
+    {
+        $attributeModel = $this->shipperDataHelper->getAttribute($attribute_code, $storeId);
+
+        $select = $this->connection->select()->distinct(
+            true
+        )->from(
+                $attributeModel->getBackend()->getTable(),
+                ['value']
+            )->where(
+                'attribute_id=?',
+                $attributeModel->getId()
+            )->where(
+                'value!=?',
+                ''
+            );
+
+        $usedAttributeValues = $this->connection->fetchCol($select);
+
+        if($isSelect) {
+            //account for multiselect values
+            $separated = array();
+            foreach($usedAttributeValues as $key => $aValue) {
+                if(strstr($aValue, ',')) {
+                    $values = explode(',', $aValue);
+                    $separated = array_merge($separated,$values);
+                    unset($usedAttributeValues[$key]);
+                }
+            }
+            $usedAttributeValues = array_merge($usedAttributeValues, $separated);
+
+        }
+        return in_array($value, $usedAttributeValues);
+    }
+
+
 }

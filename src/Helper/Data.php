@@ -391,28 +391,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return $this->prodAttributes;
     }
 
-    public function getProductsWithAttributeValue($attribute_code, $value, $storeId = null, $isSelect = false, $returnCount = true)
-    {
-        if($isSelect) {
-            $value = $this->_getOptionId($this->getAttribute($attribute_code, $storeId), $value);
-        }
-        $collection = $this->productFactory->create()->setStoreId($storeId)->getCollection();
-
-        if(!is_null($storeId) && $storeId != '') {
-            $collection->addStoreFilter((int)$storeId);
-        }
-
-        $collection->addAttributeToSelect($attribute_code);
-        $collection->addFieldToFilter([
-            ['attribute'=>$attribute_code,'finset'=>$value],
-        ]);
-        if($returnCount) {
-            return count($collection);
-        }
-
-        return $collection;
-    }
-
     public function extractAddressIdAndCarriergroupId(&$addressId, &$carrierGroupId)
     {
         if(strstr($carrierGroupId, 'ma')) {
@@ -493,7 +471,7 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return $id;
     }
 
-    protected function getAttribute($attribute_code, $store = null) {
+    public function getAttribute($attribute_code, $store = null) {
 
         $product =  $this->productFactory->create();
         $attribute = $product->getResource()->getAttribute($attribute_code);

@@ -62,12 +62,12 @@ class ShippingInformationPlugin
     }
 
     /**
-     *Set additional information on shipping rate
+     *Set additional information for shipping address
      *
-     * @param \Magento\Quote\Model\Quote\Address\Rate $subject
+     * @param \Magento\Checkout\Model\ShippingInformationManagement $subject
      * @param callable $proceed
      *
-     * @return \Magento\Quote\Model\Quote\Address\Rate
+     * @return \Magento\Checkout\Api\Data\PaymentDetailsInterface $paymentDetails
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function aroundSaveAddressInformation(\Magento\Checkout\Model\ShippingInformationManagement $subject, $proceed,
@@ -85,19 +85,18 @@ class ShippingInformationPlugin
     }
 
     /**
- * Save the carrier group shipping details for single carriergroup orders and then
- * return to standard Magento logic to save the method
- *
- * @param $shippingMethod
- * @return array
- */
+    * Save the carrier group shipping details for single carriergroup orders and then
+    * return to standard Magento logic to save the method
+    *
+    * @param $shippingMethod
+    * @return array
+    */
     protected function saveCarrierGroupInformation($shippingAddress)
     {
 
         $foundRate = $shippingAddress->getShippingRateByCode($shippingAddress->getShippingMethod());
         if($foundRate) {
             $shipDetails = $this->shipperDataHelper->decodeShippingDetails($foundRate->getCarriergroupShippingDetails());
-            //TODO this is a mess - should always be an array(carriergroupID => arrayOfCGDetail (,.....));
             if(array_key_exists('carrierGroupId', $shipDetails)) {
                 $arrayofShipDetails = array();
                 $arrayofShipDetails[] = $shipDetails;
@@ -108,15 +107,10 @@ class ShippingInformationPlugin
             else {
                 $encodedShipDetails = $this->shipperDataHelper->encodeShippingDetails($shipDetails);
             }
-            //TODO end
-
 
             $shippingAddress
                 ->setCarrierId($foundRate->getCarrierId())
                 ->setCarrierType($foundRate->getCarrierType())
-             //   ->setCarriergroupShippingDetails($encodedShipDetails)
-             //   ->setCarriergroupShippingHtml($this->shipperDataHelper->getCarriergroupShippingHtml(
-             //       $encodedShipDetails))
                 ->save();
 
             $carrierGroupDetail = $this->carrierGroupFactory->create();
@@ -126,9 +120,7 @@ class ShippingInformationPlugin
                                    $encodedShipDetails)];
             $carrierGroupDetail->setData($update);
             $carrierGroupDetail->save();
-            //In M1 we used this to set delivery dates etc on items. Lets not do this in M2 -
-            //lets recall using helper functions to extract from Cg detail when viewed
-          //  Mage::helper('shipperhq_shipper')->setShippingOnItems($shipDetails,  $shippingAddress);
+            //save selected shipping options to items
 
         }
         return array();

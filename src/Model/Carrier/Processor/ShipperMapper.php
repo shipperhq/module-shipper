@@ -58,6 +58,9 @@ class ShipperMapper
     protected static $alt_height = 'height';
     protected static $alt_width = 'width';
     protected static $alt_length = 'length';
+    protected static $origin = 'shipperhq_warehouse';
+    protected static $location = 'shipperhq_location';
+    protected static $available_date = 'shipperhq_availability_date';
 
     protected static $useDefault = 'Use Default';
 
@@ -136,6 +139,10 @@ class ShipperMapper
      * @var Request\ShipDetailsFactory
      */
     private $shipDetailsFactory;
+    /**
+     * @var \Magento\CatalogInventory\Api\StockRegistryInterface
+     */
+    protected $stockRegistry;
 
     function __construct(\ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
                          \Magento\Customer\Model\GroupFactory $groupFactory,
@@ -152,7 +159,8 @@ class ShipperMapper
                          \Magento\Catalog\Helper\Product\Configuration $productConfiguration,
                          \Magento\Framework\App\ProductMetadata $productMetadata,
                          \Magento\Sales\Model\Config\Data $dataContainer,
-                         \Magento\Backend\Block\Template\Context $context
+                         \Magento\Backend\Block\Template\Context $context,
+                         \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry
     )
     {
 
@@ -173,6 +181,7 @@ class ShipperMapper
         $this->siteDetailsFactory = $siteDetailsFactory;
         $this->customerDetailsFactory = $customerDetailsFactory;
         $this->shipDetailsFactory = $shipDetailsFactory;
+        $this->stockRegistry = $stockRegistry;
     }
 
     /**
@@ -399,6 +408,9 @@ class ShipperMapper
             $productType = $magentoItem->getProductType() ? $magentoItem->getProductType() : $magentoItem->getProduct()->getTypeId();
             $stdAttributes = array_merge($this->getDimensionalAttributes($magentoItem), self::$stdAttributeNames);
             $options = self::populateCustomOptions($magentoItem);
+
+            $warehouseDetails = self::getWarehouseDetails($magentoItem);
+            $pickupLocationDetails = self::getPickupLocationDetails($magentoItem);
             $formattedItem = [
                 'id' => $id,
                 'sku' => $magentoItem->getSku(),
@@ -428,6 +440,8 @@ class ShipperMapper
                 'additionalAttributes' => self::getCustomAttributes($magentoItem),
                 'fixedPrice' => $fixedPrice,
                 'fixedWeight' => $fixedWeight,
+                'warehouseDetails'            => $warehouseDetails,
+                'pickupLocationDetails'       => $pickupLocationDetails
             ];
 
             if (!$childItems) {
@@ -613,6 +627,56 @@ class ShipperMapper
 
         return $this->selectedOptionsFactory->create(['options' => $shippingOptions]);
 
+    }
+
+    protected function getWarehouseDetails($item)
+    {
+        $details = [];
+        $itemOriginsString = $item->getProduct()->getData(self::$origin);
+        $itemOrigins = explode(',', $itemOriginsString);
+        if(is_array($itemOrigins)) {
+            $product = $item->getProduct();
+            $attribute = $product->getResource()->getAttribute(self::$origin);
+            $valueString = [];
+            if($attribute) {
+                foreach($itemOrigins as $aValue) {
+                $admin_value= $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
+                $valueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
+                $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
+                $inStock =  $stockItem->getQty() >= $item->getQty();
+                $details[] = ['originCode' => $valueString,
+                    'inventoryCount' => $stockItem->getQty(),
+                    'availabilityDate' => $product->getData(self::$available_date),
+                    'inStock' => $inStock];
+                }
+            }
+        }
+        return $details;
+    }
+
+    protected function getPickupLocationDetails($item)
+    {
+        $details = [];
+        $itemLocationsString = $item->getProduct()->getData(self::$location);
+        $itemLocations = explode(',', $itemLocationsString);
+        if(is_array($itemLocations)) {
+            $product = $item->getProduct();
+            $attribute = $product->getResource()->getAttribute(self::$location);
+            $valueString = [];
+            if($attribute) {
+                foreach($itemLocations as $aValue) {
+                    $admin_value= $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
+                    $valueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
+                    $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
+                    $inStock =  $product->getStockItem()->getQty() >= $item->getQty();
+                    $details[] = array('locationCode' => $valueString,
+                        'inventoryCount' => $product->getStockItem()->getQty(),
+                        'availabilityDate' => $product->getData(self::$available_date),
+                        'inStock' => $inStock);
+                }
+            }
+        }
+        return $details;
     }
 
     /**

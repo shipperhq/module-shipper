@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!--
+/**
+ *
+ * ShipperHQ Shipping Module
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * Shipper HQ Shipping
+ *
+ * @category ShipperHQ
+ * @package ShipperHQ_Shipping_Carrier
+ * @copyright Copyright (c) 2015 Zowta LLC (http://www.ShipperHQ.com)
+ * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @author ShipperHQ Team sales@shipperhq.com
+*/
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+ -->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="shipperhq_shipper_synchronize.grid.container">
+            <block class="Magento\Backend\Block\Widget\Grid" name="shipperhq_shipper_synchronize.grid" as="grid">
+                <arguments>
+                    <argument name="id" xsi:type="string">synchronizeGrid</argument>
+                    <argument name="dataSource" xsi:type="object">ShipperHQ\Shipper\Model\ResourceModel\Synchronize\Collection</argument>
+                    <argument name="default_sort" xsi:type="string">synch_id</argument>
+                    <argument name="default_dir" xsi:type="string">ASC</argument>
+                </arguments>
+                <block class="Magento\Backend\Block\Widget\Grid\ColumnSet" name="adminhtml.system.variable.grid.columnSet" as="grid.columnSet">
+                    <arguments>
+                        <argument name="rowUrl" xsi:type="array">
+                            <item name="path" xsi:type="string">adminhtml/*/edit</item>
+                            <item name="extraParamsTemplate" xsi:type="array">
+                                <item name="variable_id" xsi:type="string">getId</item>
+                            </item>
+                        </argument>
+                    </arguments>
+                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="attribute_code">
+                        <arguments>
+                            <argument name="header" xsi:type="string" translate="true">Attribute Code</argument>
+                            <argument name="index" xsi:type="string">attribute_code</argument>
+                        </arguments>
+                    </block>
+                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="value">
+                        <arguments>
+                            <argument name="header" xsi:type="string" translate="true">Value</argument>
+                            <argument name="index" xsi:type="string">value</argument>
+                        </arguments>
+                    </block>
+                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="status">
+                        <arguments>
+                            <argument name="header" xsi:type="string" translate="true">Status</argument>
+                            <argument name="index" xsi:type="string">status</argument>
+                        </arguments>
+                    </block>
+                </block>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

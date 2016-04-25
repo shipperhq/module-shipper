@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!--
+/**
+ *
+ * ShipperHQ Shipping Module
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * Shipper HQ Shipping
+ *
+ * @category ShipperHQ
+ * @package ShipperHQ_Shipping_Carrier
+ * @copyright Copyright (c) 2015 Zowta LLC (http://www.ShipperHQ.com)
+ * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @author ShipperHQ Team sales@shipperhq.com
+*/
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../Magento/Store/etc/config.xsd">
+    <default>
+        <carriers>
+            <shipper>
+                <active>0</active>
+                <title>Shipping Rates</title>
+                <api_key backend_model="Magento\Config\Model\Config\Backend\Encrypted">ZcmhDy912bavqmBnzMs6PCcUgQfv8ek82ty+zb9EBW4=</api_key>
+                <password backend_model="Magento\Config\Model\Config\Backend\Encrypted">DTAzdo8+0u4DbuvI5NgP8V711uNH6COXD/e821CQSmY6gfOzH1enxEVmexG2sPbEQQGDbEelSQ4=</password>
+                <url>http://sandbox.shipperhq.com/v1/</url>
+                <live_url>http://api.shipperhq.com/v1/</live_url>
+                <secure_url>https://api.shipperhq.com/v1/</secure_url>
+                <model>ShipperHQ\Shipper\Model\Carrier\Shipper</model>
+                <sandbox_mode>0</sandbox_mode>
+                <environment_scope>LIVE</environment_scope>
+                <hide_notify>0</hide_notify>
+                <display_transaction>0</display_transaction>
+                <sallowspecific>0</sallowspecific>
+                <showerrors>0</showerrors>
+                <showmethod>1</showmethod>
+                <specificerrmsg>This shipping method is currently unavailable. If you would like to ship using this shipping method, please contact us.</specificerrmsg>
+                <ws_timeout>120</ws_timeout>
+                <use_cache>0</use_cache>
+                <extension_version>1.2.5</extension_version>
+            </shipper>
+        </carriers>
+    </default>
+</config>

@@ -34,7 +34,7 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="../../../../Magento/Config/etc/system_file.xsd">
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="carriers">
             <group id="shipper" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1"

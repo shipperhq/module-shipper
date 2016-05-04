@@ -1,2 +1,2 @@
-# m2SHQBase
-ShipperHQ Base Extension
+# Shipper
+Base ShipperHQ Repo

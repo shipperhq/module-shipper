@@ -95,6 +95,10 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
      * @var \Magento\Directory\Model\CurrencyFactory
      */
     private $dirCurrencyFactory;
+    /**
+     * @var \Magento\Checkout\Helper\Data
+     */
+    private $checkoutHelper;
 
     public function __construct(Config $shipperConfig,
                                 \Magento\Eav\Model\Config $eavConfig,
@@ -105,7 +109,8 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
                                 \Magento\Shipping\Model\CarrierFactoryInterface $carrierFactory,
                                 \Magento\Catalog\Model\ProductFactory $productFactory,
                                 \Magento\Checkout\Model\Session $checkoutSession,
-                                StoreManagerInterface $storeManager
+                                StoreManagerInterface $storeManager,
+                                \Magento\Checkout\Helper\Data $checkoutHelper
     ) {
          parent::__construct($context);
 
@@ -118,6 +123,7 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         $this->jsonHelper = $jsonHelper;
         $this->dirCurrencyFactory = $dirCurrencyFactory;
         $this->carrierFactory = $carrierFactory;
+        $this->checkoutHelper = $checkoutHelper;
     }
     
     public function isModuleActive() {
@@ -416,7 +422,7 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
             }
             $htmlText .= $shipLine['name'].
                 ' : '.$shipLine['carrierTitle'].' - '. $shipLine['methodTitle'].' ';
-            $htmlText .= " ". $this->getQuote()->getStore()->formatPrice($shipLine['price']).'<br/>';
+            $htmlText .= " ". $this->checkoutHelper->formatPrice($shipLine['price']).'<br/>';
 
         }
         return $htmlText;

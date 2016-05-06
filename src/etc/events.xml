@@ -9,4 +9,10 @@
     <event name="admin_system_config_changed_section_carriers">
         <observer name="shipperhq" instance="ShipperHQ\Shipper\Observer\RefreshCarriers"/>
     </event>
+    <event name="controller_action_predispatch_checkout_cart_index">
+        <observer name="shipperhq" instance="ShipperHQ\Shipper\Observer\SetCartFlag"/>
+    </event>
+    <event name="controller_action_predispatch_checkout_index_index">
+        <observer name="shipperhq" instance="ShipperHQ\Shipper\Observer\SetCheckoutFlag"/>
+    </event>
 </config>

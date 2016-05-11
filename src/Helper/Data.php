@@ -95,6 +95,7 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
      * @var \Magento\Directory\Model\CurrencyFactory
      */
     private $dirCurrencyFactory;
+
     /**
      * @var \Magento\Checkout\Helper\Data
      */

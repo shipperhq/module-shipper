@@ -2,13 +2,11 @@ define(
     [
         'jquery',
         'mageUtils',
-
         './shipping-rates-validation-rules',
         'mage/translate'
     ],
     function ($, utils, validationRules, $t) {
-        debugger;
-        'use strict';
+        "use strict";
         return {
             validationErrors: [],
             validate: function(address) {

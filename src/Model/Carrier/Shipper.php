@@ -128,9 +128,7 @@ class Shipper
      * @var Mage_Shipping_Model_Rate_Result|null
      */
     protected $result = null;
-
     protected $carrierGroupFactory;
-
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
@@ -665,7 +663,6 @@ class Shipper
 
         foreach ($quoteItems as $item) {
             if (array_key_exists($item->getSku(), $rateItems)) {
-
                 $item->setCarriergroupId($carriergroupDetails['carrierGroupId']);
                 $item->setCarriergroup($carriergroupDetails['name']);
             }

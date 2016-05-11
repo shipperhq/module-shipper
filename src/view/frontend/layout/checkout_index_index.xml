@@ -21,7 +21,7 @@
                                                     <item name="children" xsi:type="array">
                                                         <item name="shipping-rates-validation" xsi:type="array">
                                                             <item name="children" xsi:type="array">
-                                                                <item name="shipperhq-rates-validation" xsi:type="array">
+                                                                <item name="shipper-rates-validation" xsi:type="array">
                                                                     <item name="component" xsi:type="string">ShipperHQ_Shipper/js/view/shipping-rates-validation</item>
                                                                 </item>
                                                             </item>

@@ -1,5 +1,4 @@
 # ShipperHQ
-Base Magento ShipperHQ Repository
 =====================
 Integrate Magento 2 with ShipperHQ to provide highly flexible shipping rate management.
 More information on ShipperHQ capabilities are available at www.shipperhq.com
@@ -11,7 +10,7 @@ Facts
 
 Description
 -----------
-ShipperHQ will install as a simple shipper carrier in Magento 2. Once installed you can configure with your ShipperHQ platform credentials to provide multiple carrier rates and manage complex shipping rules via our ShipperHQ dashboard.
+ShipperHQ will install as a simple shipping carrier in Magento 2. Once installed you can configure with your ShipperHQ platform credentials to provide multiple carrier rates and manage complex shipping rules via our ShipperHQ dashboard.
 
 Compatibility
 -------------
@@ -34,7 +33,7 @@ We recommend you also install our logging module
 Support
 -------
 If you have any issues with this extension, open an issue on [GitHub](https://github.com/shipperhq/module-shipper/issues).
-Alternatively you can contact us via email as support@shipperhq.com or via our website https://shipperhq.com/contact
+Alternatively you can contact us via email at support@shipperhq.com or via our website https://shipperhq.com/contact
 
 Contribution
 ------------

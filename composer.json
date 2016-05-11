@@ -20,8 +20,8 @@
         "documentation": "http://docs.shipperhq.com"
     },
     "require": {
-        "shipperhq/library-ws": "dev-master",
-        "shipperhq/module-common": "dev-master"
+        "shipperhq/library-ws": "*",
+        "shipperhq/module-common": "*"
     },
     "repositories": [
         {

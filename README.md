@@ -1,5 +1,4 @@
 # ShipperHQ
-=====================
 Integrate Magento 2 with ShipperHQ to provide highly flexible shipping rate management.
 More information on ShipperHQ capabilities are available at www.shipperhq.com
 

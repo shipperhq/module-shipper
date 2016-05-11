@@ -11,4 +11,10 @@
                 sortOrder="10"
                 disabled="false"/>
     </type>
+    <type name="\Magento\Checkout\Model\ShippingInformationManagement">
+        <plugin name="shipperhq_shipper_plugin_checkout_shipping_information_management"
+                type="ShipperHQ\Shipper\Plugin\Checkout\ShippingInformationPlugin"
+                sortOrder="10"
+                disabled="false"/>
+    </type>
 </config>

@@ -128,7 +128,7 @@ class Shipper
      * @var Mage_Shipping_Model_Rate_Result|null
      */
     protected $result = null;
-
+    protected $carrierGroupFactory;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
@@ -162,6 +162,7 @@ class Shipper
         \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory,
         \Magento\Shipping\Model\Rate\ResultFactory $resultFactory,
         \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory,
+        \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
         array $data = []
     )
     {
@@ -177,6 +178,7 @@ class Shipper
         $this->carrierConfigHandler = $carrierConfigHandler;
         $this->carrierCache = $carrierCache;
         $this->backupCarrier = $backupCarrier;
+        $this->carrierGroupFactory = $carrierGroupFactory;
     }
 
     /**
@@ -408,6 +410,10 @@ class Shipper
         $baseCurrencyCode = $this->shipperDataHelper->getBaseCurrencyCode();
         $latestCurrencyCode = '';
         $methodDescription = false;
+        $carrierGroupDetail['carrierType'] = $carrierRate->carrierType;
+        $carrierGroupDetail['carrierTitle'] = $carrierRate->carrierTitle;
+        $carrierGroupDetail['carrier_code'] = $carrierRate->carrierCode;
+        $carrierGroupDetail['carrierName'] = $carrierRate->carrierName;
         foreach ($carrierRate->rates as $oneRate) {
             $title = $this->shipperDataHelper->isTransactionIdEnabled() ?
                 __($oneRate->name) . ' (' . $carrierGroupDetail['transaction'] . ')'

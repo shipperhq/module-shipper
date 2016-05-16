@@ -52,5 +52,6 @@
         <attribute name="length"/>
         <attribute name="width"/>
         <attribute name="height"/>
+        <attribute name="shipperhq_availability_date"/>
     </group>
 </config>

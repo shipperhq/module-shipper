@@ -17,9 +17,4 @@
                 sortOrder="10"
                 disabled="false"/>
     </type>
-    <type name="ShipperHQ\Shipper\Model\Carrier\Processor\ShipperMapper">
-        <arguments>
-            <argument name="stockHandler" xsi:type="object">ShipperHQ\Shipper\Model\TestStockHandler</argument>
-        </arguments>
-    </type>
 </config>

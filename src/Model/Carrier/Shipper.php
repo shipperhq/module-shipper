@@ -42,6 +42,7 @@ namespace ShipperHQ\Shipper\Model\Carrier;
 
 use ShipperHQ\WS\Client;
 use ShipperHQ\WS\Rate\Response;
+use ShipperHQ\WS\Helper\RateHelper;
 
 use ShipperHQ\Shipper\Helper\Config;
 use Magento\Quote\Model\Quote\Address\RateRequest;
@@ -121,6 +122,14 @@ class Shipper
      * @var Processor\BackupCarrier
      */
     private $backupCarrier;
+    /**
+     * @var \ShipperHQ\WS\Helper\RateHelper
+     */
+    private $shipperRateHelper;
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
+     */
+    protected $_localeDate;
 
     /**
      * Rate result data
@@ -145,6 +154,8 @@ class Shipper
      * @param \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory
      * @param \Magento\Shipping\Model\Rate\ResultFactory $resultFactory
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
+     * @param  \ShipperHQ\WS\Helper\RateHelper $shipperWSRateHelper
+     * @param  \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate,
      * @param array $data
      */
     public function __construct(
@@ -163,6 +174,8 @@ class Shipper
         \Magento\Shipping\Model\Rate\ResultFactory $resultFactory,
         \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory,
         \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
+        \ShipperHQ\WS\Helper\RateHelper $shipperWSRateHelper,
+        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate,
         array $data = []
     )
     {
@@ -173,12 +186,14 @@ class Shipper
         $this->rateMethodFactory = $rateMethodFactory;
         $this->registry = $registry;
         $this->shipperLogger = $shipperLogger;
-        parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
         $this->shipperWSClientFactory = $shipperWSClientFactory;
         $this->carrierConfigHandler = $carrierConfigHandler;
         $this->carrierCache = $carrierCache;
         $this->backupCarrier = $backupCarrier;
         $this->carrierGroupFactory = $carrierGroupFactory;
+        $this->shipperRateHelper = $shipperWSRateHelper;
+        $this->_localeDate = $localeDate;
+        parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
     }
 
     /**
@@ -409,16 +424,19 @@ class Shipper
         $baseRate = 1;
         $baseCurrencyCode = $this->shipperDataHelper->getBaseCurrencyCode();
         $latestCurrencyCode = '';
-        $methodDescription = false;
-        $carrierGroupDetail['carrierType'] = $carrierRate->carrierType;
-        $carrierGroupDetail['carrierTitle'] = $carrierRate->carrierTitle;
-        $carrierGroupDetail['carrier_code'] = $carrierRate->carrierCode;
-        $carrierGroupDetail['carrierName'] = $carrierRate->carrierName;
+        $this->populateCarrierLevelDetails($carrierRate, $carrierGroupDetail);
+
+        $interim = isset($carrierRate->deliveryDateFormat) ?
+            $carrierRate->deliveryDateFormat : $this->shipperRateHelper->getDateFormat();
+        $dateFormat = $this->shipperDataHelper->getCldrDateFormat($this->getLocaleInGlobals(), $interim);
+        $dateOption = $carrierRate->dateOption;
+        $deliveryMessage = $this->shipperRateHelper->getDeliveryMessage($carrierRate, $dateOption);
+
         foreach ($carrierRate->rates as $oneRate) {
+            $methodDescription = false;
             $title = $this->shipperDataHelper->isTransactionIdEnabled() ?
                 __($oneRate->name) . ' (' . $carrierGroupDetail['transaction'] . ')'
                 : __($oneRate->name);
-            //currency conversion required
             if (isset($oneRate->currency) && $oneRate->currency != $latestCurrencyCode) {
                 if ($oneRate->currency != $baseCurrencyCode || $baseRate != 1) {
                     $baseRate = $this->shipperDataHelper->getBaseCurrencyRate($oneRate->currency);
@@ -427,6 +445,9 @@ class Shipper
                         $carrierResultWithRates['error'] = __('Can\'t convert rate from "%1".',
                             $oneRate->currency);
                         $carrierResultWithRates['carriergroup_detail']['carrierGroupId'] = $carrierGroupId;
+                        $this->shipperLogger->postWarning('Shipperhq_Shipper','Currency Rate Missing',
+                            'Currency code in shipping rate is ' .$oneRate->currency
+                            .' but there is no currency conversion rate configured so we cannot display this shipping rate');
                         continue;
                     }
 
@@ -434,9 +455,17 @@ class Shipper
             }
             $this->populateRateLevelDetails((array)$oneRate, $carrierGroupDetail, $baseRate);
 
+            $this->populateRateDeliveryDetails($oneRate, $carrierGroupDetail, $methodDescription, $dateFormat,
+                $dateOption, $deliveryMessage);
+
             if ($methodDescription) {
                 $title .= ' ' . $methodDescription;
             }
+            $carrierType = $oneRate->carrierType;
+            if($carrierType == 'shqshared') {
+                $carrierType.= '_' .$oneRate->carrierType;
+            }
+            //create rateToAdd array - freight_rate, custom_duties,
             $rateToAdd = [
                 'methodcode' => $oneRate->code,
                 'method_title' => $title,
@@ -456,12 +485,75 @@ class Shipper
         return $thisCarriersRates;
     }
 
+    protected function populateCarrierLevelDetails($carrierRate, &$carrierGroupDetail)
+    {
+        $carrierGroupDetail['carrierType'] = $carrierRate->carrierType;
+        $carrierGroupDetail['carrierTitle'] = $carrierRate->carrierTitle;
+        $carrierGroupDetail['carrier_code'] = $carrierRate->carrierCode;
+        $carrierGroupDetail['carrierName'] = $carrierRate->carrierName;
+        $notice = $customDescription = false;
+        if(!$this->shipperDataHelper->getConfigFlag('carriers/shipper/hide_notify') && isset($carrierRate->notices)) {
+            $notice = '';
+            foreach($carrierRate->notices as $oneNotice) {
+                $notice .= $oneNotice ;
+            }
+
+        }
+        $carrierGroupDetail['notice'] = $notice;
+        if(isset($carrierRate->customDescription)) {
+            $customDescription =  __($carrierRate->customDescription) ;
+        }
+        $carrierGroupDetail['custom_description'] = $customDescription;
+    }
+
     protected function populateRateLevelDetails($rate, &$carrierGroupDetail, $currencyConversionRate)
     {
         $carrierGroupDetail['methodTitle'] = $rate['name'];
         $carrierGroupDetail['price'] = (float)$rate['totalCharges']*$currencyConversionRate;
         $carrierGroupDetail['cost'] = (float)$rate['shippingPrice']*$currencyConversionRate;
         $carrierGroupDetail['code'] = $rate['code'];
+    }
+
+    protected function populateRateDeliveryDetails($rate, &$carrierGroupDetail, &$methodDescription, $dateFormat, $dateOption, $deliveryMessage)
+    {
+        if($rate->deliveryDate && is_numeric($rate->deliveryDate)) {
+            $deliveryDate = $this->_localeDate->formatDate(\DateTime($rate->deliveryDate/1000), $dateFormat);
+            if($dateOption == \ShipperHQ\WS\Helper\RateHelper::DELIVERY_DATE_OPTION && isset($rate->deliveryDate)) {
+//                $methodDescription = __(' %1 %2',$deliveryMessage, $deliveryDate);
+//                if($rate->latestDeliveryDate && is_numeric($rate->latestDeliveryDate)) {
+//                    $latestDeliveryDate = $this->_localeDate->formatDate($rate->latestDeliveryDate/1000, $dateFormat);
+//                    $methodDescription.= ' - ' .$latestDeliveryDate;
+//                }
+            }
+            else if($dateOption == Shipperhq_Shipper_Helper_Data::TIME_IN_TRANSIT
+                && isset($rate->dispatchDate)) {
+//                $numDays = floor(abs($rate->deliveryDate/1000 - $rate->dispatchDate/1000)/60/60/24);
+//                if($rate->latestDeliveryDate && is_numeric($rate->latestDeliveryDate)) {
+//                    $maxNumDays = floor(abs($rate->latestDeliveryDate/1000 - $rate->dispatchDate/1000)/60/60/24);
+//                    $methodDescription = __(' (%1 - %2 %3)',$numDays, $maxNumDays, $deliveryMessage);
+//                }
+//                else {
+//                    $methodDescription = __(' (%1 %2)',$numDays, $deliveryMessage);
+//                }
+            }
+            $carrierGroupDetail['delivery_date'] = $deliveryDate;
+        }
+        if($rate->dispatchDate && is_numeric($rate->dispatchDate)) {
+//            $dispatchDate = $this->_localeDate->formatDate(\DateTime($rate->dispatchDate/1000), $dateFormat);
+//            $carrierGroupDetail['dispatch_date'] = $dispatchDate;
+        }
+
+    }
+
+    protected function getLocaleInGlobals()
+    {
+        $locale = $this->shipperDataHelper->getGlobalSetting('preferredLocale');
+        return $locale ? $locale : 'en-US';
+    }
+
+    protected function getDateFormat()
+    {
+        $dateFormat = $this->shipperDataHelper->getGlobalSetting('preferredLocale');
     }
 
     /**

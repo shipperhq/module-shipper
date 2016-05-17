@@ -537,5 +537,92 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return $carrier;
     }
 
+    public function getCldrDateFormat($locale, $code)
+    {
+        $dateFormatArray = $this->getCode('cldr_date_format', $locale);
+        $dateFormat = is_array($dateFormatArray) && array_key_exists($code, $dateFormatArray) ? $dateFormatArray[$code]:
+            'MM/dd/Y';
+        return $dateFormat;
+    }
+
+
+    /**
+     * Get configuration data of carrier
+     *
+     * @param string $type
+     * @param string $code
+     * @return array|bool
+     */
+    public function getCode($type, $code = '')
+    {
+        $codes = array(
+            'date_format'   =>array(
+                'dd-mm-yyyy'    	    => 'd-m-Y',
+                'mm/dd/yyyy'    	    => 'm/d/Y',
+                'EEE dd-MM-yyyy'        => 'D d-m-Y'
+            ),
+            'short_date_format'   =>array(
+                'dd-mm-yyyy'   	    => 'd-m-Y',
+                'mm/dd/yyyy'    	    => 'm/d/Y',
+                'EEE dd-MM-yyyy'        => 'D d-m-Y'
+            ),
+            'datepicker_format' => array(
+                'dd-mm-yyyy'         => 'dd-mm-yy',
+                'mm/dd/yyyy'         => 'mm/dd/yy',
+                'EEE dd-MM-yyyy'        => 'DD d-MM-yy'
+
+            ),
+            'zend_date_format'     => array(
+                'dd-mm-yyyy'         => 'dd-MM-y',
+                'mm/dd/yyyy'         => 'MM/dd/y',
+                'EEE dd-MM-yyyy'        => 'E d-M-y'
+            ),
+            'cldr_date_format'      => array(
+                'en-US'            => array(
+                    'yMd'           => 'MM/dd/Y',
+                    'yMMMd'         => 'MMM d, Y',
+                    'yMMMEd'        => 'EEE, MMM d, Y',
+                    'yMEd'          => 'EEE, M/d/Y',
+                    'MMMd'          => 'MMM d',
+                    'MMMEd'         => 'EEE, MMM d',
+                    'MEd'           => 'EEE, M/d',
+                    'Md'            => 'M/d',
+                    'yM'            => 'M/Y',
+                    'yMMM'          => 'MMM Y',
+                    'MMM'          => 'MMM',
+                    'E'             => 'EEE',
+                    'Ed'            => 'd EEE',
+                ),
+                'en-GB'            => array(
+                    'yMd'           => 'dd-MM-Y',
+                    'yMMMd'         => 'd MMM Y',
+                    'yMMMEd'        => 'EEE, d MMM Y',
+                    'yMEd'          => 'EEE, d-M-Y',
+                    'MMMd'          => 'd MMM',
+                    'MMMEd'         => 'EEE, d MMM',
+                    'MEd'           => 'EEE, d-M',
+                    'Md'            => 'd-M',
+                    'yM'            => 'M-Y',
+                    'yMMM'          => 'MMM Y',
+                    'MMM'          =>  'MMM',
+                    'E'             => 'EEE',
+                    'Ed'            => 'EEE d',
+                )
+            )
+        );
+
+        if (!isset($codes[$type])) {
+            return false;
+        } elseif ('' === $code) {
+            return $codes[$type];
+        }
+
+        if (!isset($codes[$type][$code])) {
+            return false;
+        } else {
+            return $codes[$type][$code];
+        }
+    }
+
 
 }

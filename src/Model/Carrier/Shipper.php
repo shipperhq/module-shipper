@@ -457,6 +457,7 @@ class Shipper
 
             $this->shipperRateHelper->populateRateDeliveryDetails((array)$oneRate, $carrierGroupDetail, $methodDescription, $dateFormat,
                $dateOption, $deliveryMessage);
+
             if ($methodDescription) {
                 $title .= ' ' . __($methodDescription);
             }

@@ -408,14 +408,22 @@ class ShipperMapper
             $productType = $magentoItem->getProductType() ? $magentoItem->getProductType() : $magentoItem->getProduct()->getTypeId();
             $stdAttributes = array_merge($this->getDimensionalAttributes($magentoItem), self::$stdAttributeNames);
             $options = self::populateCustomOptions($magentoItem);
-
+            $weight = $magentoItem->getWeight();
+            if(is_null($weight)) { //SHIPPERHQ-1855
+                if ($productType!= \Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL &&
+                    $productType!= \Magento\Downloadable\Model\Product\Type::TYPE_DOWNLOADABLE) {
+                    $this->shipperLogger->postCritical('ShipperHQ','Item weight is null, using 0',
+                        'Please review the product configuration for Sku ' .$magentoItem->getSku() .' as product has NULL weight');
+               }
+                $weight = 0;
+            }
             $warehouseDetails = $this->getWarehouseDetails($magentoItem);
             $pickupLocationDetails = $this->getPickupLocationDetails($magentoItem);
             $formattedItem = [
                 'id' => $id,
                 'sku' => $magentoItem->getSku(),
                 'storePrice' => $magentoItem->getPrice() ? $magentoItem->getPrice() : 0,
-                'weight' => $magentoItem->getWeight() ? $magentoItem->getWeight() : 0,
+                'weight' => $weight,
                 'qty' => $magentoItem->getQty() ? floatval($magentoItem->getQty()) : 0,
                 'type' => $productType,
                 'items' => [], // child items

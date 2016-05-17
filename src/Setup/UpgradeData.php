@@ -92,7 +92,7 @@ class UpgradeData implements UpgradeDataInterface
 
         $catalogSetup = $this->categorySetupFactory->create(['setup' => $setup]);
 
-        if (version_compare($context->getVersion(), '2.0.0.2') < 0) {
+        if ($context->getVersion() && version_compare($context->getVersion(), '1.0.2') < 0) {
             /* ------ shipperhq_shipping_fee -------- */
             $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_shipping_fee', [
                 'type'                     => 'decimal',
@@ -357,6 +357,28 @@ class UpgradeData implements UpgradeDataInterface
 
             };
 
+
+        }
+        if ($context->getVersion() && version_compare($context->getVersion(), '1.0.3') < 0) {
+
+            $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_availability_date', [
+                'type'                     => 'datetime',
+                'backend'                  => 'Magento\Eav\Model\Entity\Attribute\Backend\Datetime',
+                'input'                    => 'date',
+                'label'                    => 'Availability Date',
+                'global'                   => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
+                'visible'                  => true,
+                'required'                 => false,
+                'visible_on_front'         => false,
+                'is_html_allowed_on_front' => false,
+                'searchable'               => false,
+                'filterable'               => false,
+                'comparable'               => false,
+                'is_configurable'          => false,
+                'unique'                   => false,
+                'user_defined'			   => true,
+                'used_in_product_listing'  => false
+            ]);
         }
         $installer->endSetup();
     }

@@ -430,7 +430,7 @@ class Shipper
             $carrierRate->deliveryDateFormat : $this->shipperRateHelper->getDateFormat();
         $dateFormat = $this->shipperDataHelper->getCldrDateFormat($this->getLocaleInGlobals(), $interim);
         $dateOption = $carrierRate->dateOption;
-        $deliveryMessage = $this->shipperRateHelper->getDeliveryMessage($carrierRate, $dateOption);
+        $deliveryMessage = __($this->shipperRateHelper->getDeliveryMessage($carrierRate, $dateOption));
 
         foreach ($carrierRate->rates as $oneRate) {
             $methodDescription = false;
@@ -455,11 +455,10 @@ class Shipper
             }
             $this->populateRateLevelDetails((array)$oneRate, $carrierGroupDetail, $baseRate);
 
-            $this->populateRateDeliveryDetails($oneRate, $carrierGroupDetail, $methodDescription, $dateFormat,
-                $dateOption, $deliveryMessage);
-
+            $this->shipperRateHelper->populateRateDeliveryDetails((array)$oneRate, $carrierGroupDetail, $methodDescription, $dateFormat,
+               $dateOption, $deliveryMessage);
             if ($methodDescription) {
-                $title .= ' ' . $methodDescription;
+                $title .= ' ' . __($methodDescription);
             }
             $carrierType = $oneRate->carrierType;
             if($carrierType == 'shqshared') {
@@ -514,46 +513,10 @@ class Shipper
         $carrierGroupDetail['code'] = $rate['code'];
     }
 
-    protected function populateRateDeliveryDetails($rate, &$carrierGroupDetail, &$methodDescription, $dateFormat, $dateOption, $deliveryMessage)
-    {
-        if($rate->deliveryDate && is_numeric($rate->deliveryDate)) {
-            $deliveryDate = $this->_localeDate->formatDate(\DateTime($rate->deliveryDate/1000), $dateFormat);
-            if($dateOption == \ShipperHQ\WS\Helper\RateHelper::DELIVERY_DATE_OPTION && isset($rate->deliveryDate)) {
-//                $methodDescription = __(' %1 %2',$deliveryMessage, $deliveryDate);
-//                if($rate->latestDeliveryDate && is_numeric($rate->latestDeliveryDate)) {
-//                    $latestDeliveryDate = $this->_localeDate->formatDate($rate->latestDeliveryDate/1000, $dateFormat);
-//                    $methodDescription.= ' - ' .$latestDeliveryDate;
-//                }
-            }
-            else if($dateOption == Shipperhq_Shipper_Helper_Data::TIME_IN_TRANSIT
-                && isset($rate->dispatchDate)) {
-//                $numDays = floor(abs($rate->deliveryDate/1000 - $rate->dispatchDate/1000)/60/60/24);
-//                if($rate->latestDeliveryDate && is_numeric($rate->latestDeliveryDate)) {
-//                    $maxNumDays = floor(abs($rate->latestDeliveryDate/1000 - $rate->dispatchDate/1000)/60/60/24);
-//                    $methodDescription = __(' (%1 - %2 %3)',$numDays, $maxNumDays, $deliveryMessage);
-//                }
-//                else {
-//                    $methodDescription = __(' (%1 %2)',$numDays, $deliveryMessage);
-//                }
-            }
-            $carrierGroupDetail['delivery_date'] = $deliveryDate;
-        }
-        if($rate->dispatchDate && is_numeric($rate->dispatchDate)) {
-//            $dispatchDate = $this->_localeDate->formatDate(\DateTime($rate->dispatchDate/1000), $dateFormat);
-//            $carrierGroupDetail['dispatch_date'] = $dispatchDate;
-        }
-
-    }
-
     protected function getLocaleInGlobals()
     {
         $locale = $this->shipperDataHelper->getGlobalSetting('preferredLocale');
         return $locale ? $locale : 'en-US';
-    }
-
-    protected function getDateFormat()
-    {
-        $dateFormat = $this->shipperDataHelper->getGlobalSetting('preferredLocale');
     }
 
     /**

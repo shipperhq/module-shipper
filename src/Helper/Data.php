@@ -208,7 +208,7 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         if (!in_array($code, $allowedCurrencies)) {
             return false;
         }
-        $baseCurrencyCode = $this->storeManager->getStore((int)$this->getParam('store'))->getBaseCurrencyCode();
+        $baseCurrencyCode = $this->storeManager->getStore()->getBaseCurrencyCode();
         if (!$this->baseCurrencyRate) {
             $this->baseCurrencyRate = $currencyModel
                 ->load($code)
@@ -536,93 +536,5 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         }
         return $carrier;
     }
-
-    public function getCldrDateFormat($locale, $code)
-    {
-        $dateFormatArray = $this->getCode('cldr_date_format', $locale);
-        $dateFormat = is_array($dateFormatArray) && array_key_exists($code, $dateFormatArray) ? $dateFormatArray[$code]:
-            'MM/dd/Y';
-        return $dateFormat;
-    }
-
-
-    /**
-     * Get configuration data of carrier
-     *
-     * @param string $type
-     * @param string $code
-     * @return array|bool
-     */
-    public function getCode($type, $code = '')
-    {
-        $codes = array(
-            'date_format'   =>array(
-                'dd-mm-yyyy'    	    => 'd-m-Y',
-                'mm/dd/yyyy'    	    => 'm/d/Y',
-                'EEE dd-MM-yyyy'        => 'D d-m-Y'
-            ),
-            'short_date_format'   =>array(
-                'dd-mm-yyyy'   	    => 'd-m-Y',
-                'mm/dd/yyyy'    	    => 'm/d/Y',
-                'EEE dd-MM-yyyy'        => 'D d-m-Y'
-            ),
-            'datepicker_format' => array(
-                'dd-mm-yyyy'         => 'dd-mm-yy',
-                'mm/dd/yyyy'         => 'mm/dd/yy',
-                'EEE dd-MM-yyyy'        => 'DD d-MM-yy'
-
-            ),
-            'zend_date_format'     => array(
-                'dd-mm-yyyy'         => 'dd-MM-y',
-                'mm/dd/yyyy'         => 'MM/dd/y',
-                'EEE dd-MM-yyyy'        => 'E d-M-y'
-            ),
-            'cldr_date_format'      => array(
-                'en-US'            => array(
-                    'yMd'           => 'M/d/Y',
-                    'yMMMd'         => 'M d, Y',
-                    'yMMMEd'        => 'EEE, M d, Y',
-                    'yMEd'          => 'EEE, M/d/Y',
-                    'MMMd'          => 'M d',
-                    'MMMEd'         => 'EEE, M d',
-                    'MEd'           => 'EEE, M/d',
-                    'Md'            => 'M/d',
-                    'yM'            => 'M/Y',
-                    'yMMM'          => 'M Y',
-                    'MMM'          => 'M',
-                    'E'             => 'EEE',
-                    'Ed'            => 'd EEE',
-                ),
-                'en-GB'            => array(
-                    'yMd'           => 'd-M-Y',
-                    'yMMMd'         => 'd M Y',
-                    'yMMMEd'        => 'EEE, d M Y',
-                    'yMEd'          => 'EEE, d-M-Y',
-                    'MMMd'          => 'd M',
-                    'MMMEd'         => 'EEE, d M',
-                    'MEd'           => 'EEE, d-M',
-                    'Md'            => 'd-M',
-                    'yM'            => 'M-Y',
-                    'yMMM'          => 'M Y',
-                    'MMM'          =>  'M',
-                    'E'             => 'EEE',
-                    'Ed'            => 'EEE d',
-                )
-            )
-        );
-
-        if (!isset($codes[$type])) {
-            return false;
-        } elseif ('' === $code) {
-            return $codes[$type];
-        }
-
-        if (!isset($codes[$type][$code])) {
-            return false;
-        } else {
-            return $codes[$type][$code];
-        }
-    }
-
 
 }

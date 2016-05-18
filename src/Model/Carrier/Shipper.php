@@ -123,13 +123,9 @@ class Shipper
      */
     private $backupCarrier;
     /**
-     * @var \ShipperHQ\WS\Helper\RateHelper
+     * @var \ShipperHQ\Lib\Rate\Helper
      */
     private $shipperRateHelper;
-    /**
-     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
-     */
-    protected $_localeDate;
 
     /**
      * Rate result data
@@ -154,8 +150,7 @@ class Shipper
      * @param \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory
      * @param \Magento\Shipping\Model\Rate\ResultFactory $resultFactory
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
-     * @param  \ShipperHQ\WS\Helper\RateHelper $shipperWSRateHelper
-     * @param  \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate,
+     * @param \ShipperHQ\Lib\Rate\Helper $shipperWSRateHelper
      * @param array $data
      */
     public function __construct(
@@ -174,8 +169,7 @@ class Shipper
         \Magento\Shipping\Model\Rate\ResultFactory $resultFactory,
         \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory,
         \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
-        \ShipperHQ\WS\Helper\RateHelper $shipperWSRateHelper,
-        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate,
+        \ShipperHQ\Lib\Rate\Helper $shipperWSRateHelper,
         array $data = []
     )
     {
@@ -192,7 +186,6 @@ class Shipper
         $this->backupCarrier = $backupCarrier;
         $this->carrierGroupFactory = $carrierGroupFactory;
         $this->shipperRateHelper = $shipperWSRateHelper;
-        $this->_localeDate = $localeDate;
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
     }
 

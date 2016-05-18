@@ -58,6 +58,9 @@ class ShipperMapper
     protected static $alt_height = 'height';
     protected static $alt_width = 'width';
     protected static $alt_length = 'length';
+    protected static $origin = 'shipperhq_warehouse';
+    protected static $location = 'shipperhq_location';
+    protected static $available_date = 'shipperhq_availability_date';
 
     protected static $useDefault = 'Use Default';
 
@@ -136,6 +139,10 @@ class ShipperMapper
      * @var Request\ShipDetailsFactory
      */
     private $shipDetailsFactory;
+    /**
+     * @var StockHandler
+     */
+    protected $stockHandler;
 
     function __construct(\ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
                          \Magento\Customer\Model\GroupFactory $groupFactory,
@@ -152,7 +159,8 @@ class ShipperMapper
                          \Magento\Catalog\Helper\Product\Configuration $productConfiguration,
                          \Magento\Framework\App\ProductMetadata $productMetadata,
                          \Magento\Sales\Model\Config\Data $dataContainer,
-                         \Magento\Backend\Block\Template\Context $context
+                         \Magento\Backend\Block\Template\Context $context,
+                         StockHandler $stockHandler
     )
     {
 
@@ -173,6 +181,7 @@ class ShipperMapper
         $this->siteDetailsFactory = $siteDetailsFactory;
         $this->customerDetailsFactory = $customerDetailsFactory;
         $this->shipDetailsFactory = $shipDetailsFactory;
+        $this->stockHandler = $stockHandler;
     }
 
     /**
@@ -399,11 +408,22 @@ class ShipperMapper
             $productType = $magentoItem->getProductType() ? $magentoItem->getProductType() : $magentoItem->getProduct()->getTypeId();
             $stdAttributes = array_merge($this->getDimensionalAttributes($magentoItem), self::$stdAttributeNames);
             $options = self::populateCustomOptions($magentoItem);
+            $weight = $magentoItem->getWeight();
+            if(is_null($weight)) { //SHIPPERHQ-1855
+                if ($productType!= \Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL &&
+                    $productType!= \Magento\Downloadable\Model\Product\Type::TYPE_DOWNLOADABLE) {
+                    $this->shipperLogger->postCritical('ShipperHQ','Item weight is null, using 0',
+                        'Please review the product configuration for Sku ' .$magentoItem->getSku() .' as product has NULL weight');
+               }
+                $weight = 0;
+            }
+            $warehouseDetails = $this->getWarehouseDetails($magentoItem);
+            $pickupLocationDetails = $this->getPickupLocationDetails($magentoItem);
             $formattedItem = [
                 'id' => $id,
                 'sku' => $magentoItem->getSku(),
                 'storePrice' => $magentoItem->getPrice() ? $magentoItem->getPrice() : 0,
-                'weight' => $magentoItem->getWeight() ? $magentoItem->getWeight() : 0,
+                'weight' => $weight,
                 'qty' => $magentoItem->getQty() ? floatval($magentoItem->getQty()) : 0,
                 'type' => $productType,
                 'items' => [], // child items
@@ -428,6 +448,8 @@ class ShipperMapper
                 'additionalAttributes' => self::getCustomAttributes($magentoItem),
                 'fixedPrice' => $fixedPrice,
                 'fixedWeight' => $fixedWeight,
+                'warehouseDetails'            => $warehouseDetails,
+                'pickupLocationDetails'       => $pickupLocationDetails
             ];
 
             if (!$childItems) {
@@ -481,6 +503,54 @@ class ShipperMapper
 
         return $destination;
     }
+
+
+    protected function getWarehouseDetails($item)
+    {
+        $details = [];
+        $itemOriginsString = $item->getProduct()->getData(self::$origin);
+        $itemOrigins = explode(',', $itemOriginsString);
+        if(is_array($itemOrigins)) {
+            $product = $item->getProduct();
+            $attribute = $product->getResource()->getAttribute(self::$origin);
+            $valueString = [];
+            if($attribute) {
+                foreach($itemOrigins as $aValue) {
+                    $admin_value= $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
+                    $valueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
+                    $details[] = ['originCode' => $valueString,
+                        'inventoryCount' => $this->stockHandler->getOriginInventoryCount($valueString,$item, $product),
+                        'availabilityDate' => $this->stockHandler->getOriginAvailabilityDate($valueString,$item, $product),
+                        'inStock' => $this->stockHandler->getOriginInstock($valueString,$item, $product)];
+                }
+            }
+        }
+        return $details;
+    }
+
+    protected function getPickupLocationDetails($item)
+    {
+        $details = [];
+        $itemLocationsString = $item->getProduct()->getData(self::$location);
+        $itemLocations = explode(',', $itemLocationsString);
+        if(is_array($itemLocations)) {
+            $product = $item->getProduct();
+            $attribute = $product->getResource()->getAttribute(self::$location);
+            $valueString = [];
+            if($attribute) {
+                foreach($itemLocations as $aValue) {
+                    $admin_value= $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
+                    $valueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
+                    $details[] = ['locationCode' => $valueString,
+                        'inventoryCount' => $this->stockHandler->getLocationInventoryCount($valueString,$item, $product),
+                        'availabilityDate' => $this->stockHandler->getLocationAvailabilityDate($valueString,$item, $product),
+                        'inStock' => $this->stockHandler->getLocationInstock($valueString,$item, $product)];
+                }
+            }
+        }
+        return $details;
+    }
+
 
     protected function getDimensionalAttributes($item)
     {

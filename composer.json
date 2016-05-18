@@ -21,7 +21,9 @@
     },
     "require": {
         "shipperhq/library-ws": "*",
-        "shipperhq/module-common": "*"
+        "shipperhq/library-shipper": "*",
+        "shipperhq/module-common": "*",
+        "shipperhq/module-logger": "*"
     },
     "repositories": [
         {

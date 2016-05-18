@@ -208,7 +208,7 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         if (!in_array($code, $allowedCurrencies)) {
             return false;
         }
-        $baseCurrencyCode = $this->storeManager->getStore((int)$this->getParam('store'))->getBaseCurrencyCode();
+        $baseCurrencyCode = $this->storeManager->getStore()->getBaseCurrencyCode();
         if (!$this->baseCurrencyRate) {
             $this->baseCurrencyRate = $currencyModel
                 ->load($code)
@@ -536,6 +536,5 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         }
         return $carrier;
     }
-
 
 }

@@ -42,6 +42,8 @@ namespace ShipperHQ\Shipper\Model\Carrier;
 
 use ShipperHQ\WS\Client;
 use ShipperHQ\WS\Rate\Response;
+use ShipperHQ\Lib\Rate\Helper;
+use ShipperHQ\Lib\Rate\ConfigSettings;
 
 use ShipperHQ\Shipper\Helper\Config;
 use Magento\Quote\Model\Quote\Address\RateRequest;
@@ -121,6 +123,14 @@ class Shipper
      * @var Processor\BackupCarrier
      */
     private $backupCarrier;
+    /**
+     * @var \ShipperHQ\Lib\Rate\Helper
+     */
+    private $shipperRateHelper;
+    /**
+     * @var \ShipperHQ\Lib\Rate\ConfigSettingsFactory
+     */
+    private $configSettingsFactory;
 
     /**
      * Rate result data
@@ -145,6 +155,8 @@ class Shipper
      * @param \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory
      * @param \Magento\Shipping\Model\Rate\ResultFactory $resultFactory
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
+     * @param \ShipperHQ\Lib\Rate\Helper $shipperWSRateHelper
+     * @param \ShipperHQ\Lib\Rate\ConfigSettingsFactory $configSettingsFactory
      * @param array $data
      */
     public function __construct(
@@ -163,6 +175,8 @@ class Shipper
         \Magento\Shipping\Model\Rate\ResultFactory $resultFactory,
         \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory,
         \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
+        \ShipperHQ\Lib\Rate\Helper $shipperLibRateHelper,
+        \ShipperHQ\Lib\Rate\ConfigSettingsFactory $configSettingsFactory,
         array $data = []
     )
     {
@@ -173,12 +187,14 @@ class Shipper
         $this->rateMethodFactory = $rateMethodFactory;
         $this->registry = $registry;
         $this->shipperLogger = $shipperLogger;
-        parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
         $this->shipperWSClientFactory = $shipperWSClientFactory;
         $this->carrierConfigHandler = $carrierConfigHandler;
         $this->carrierCache = $carrierCache;
         $this->backupCarrier = $backupCarrier;
         $this->carrierGroupFactory = $carrierGroupFactory;
+        $this->shipperRateHelper = $shipperLibRateHelper;
+        $this->configSettingsFactory = $configSettingsFactory;
+        parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
     }
 
     /**
@@ -354,114 +370,10 @@ class Shipper
         return $allowedMethods;
     }
 
-
-    /**
-     * @param $ratesToAdd
-     * @return \Magento\Shipping\Model\Rate\Result
-     */
-    public function createMergedRate($ratesToAdd)
+    protected function getLocaleInGlobals()
     {
-        $result = $this->rateFactory->create();
-        foreach ($ratesToAdd as $rateToAdd) {
-            $method = $this->rateMethodFactory->create();
-            $method->setPrice((float)$rateToAdd['price']);
-            $method->setCost((float)$rateToAdd['price']);
-            $method->setCarrier($this->_code);
-            $method->setCarrierTitle($rateToAdd['mergedTitle']);
-            $method->setMethod($rateToAdd['title']);
-            $method->setMethodTitle($rateToAdd['title']);
-            $method->setMethodDescription($rateToAdd['mergedDescription']);
-            $method->setCarrierType(__('multiple_shipments'));
-            $result->append($method);
-        }
-        return $result;
-    }
-
-    /**
-     * @param $carrierRate
-     * @param $carrierGroupId
-     * @param $carrierGroupDetail
-     * @return array
-     */
-    public function extractShipperHQRates($carrierRate, $carrierGroupId, $carrierGroupDetail)
-    {
-
-        $carrierResultWithRates = [
-            'code' => $carrierRate->carrierCode,
-            'title' => $carrierRate->carrierTitle];
-
-        if (isset($carrierRate->error)) {
-            $carrierResultWithRates['error'] = (array)$carrierRate->error;
-            $carrierResultWithRates['carriergroup_detail']['carrierGroupId'] = $carrierGroupId;
-        }
-
-        if (isset($carrierRate->rates) && !array_key_exists('error', $carrierResultWithRates)) {
-            $thisCarriersRates = $this->populateRates($carrierRate, $carrierGroupDetail, $carrierGroupId);
-            $carrierResultWithRates['rates'] = $thisCarriersRates;
-        }
-
-        return $carrierResultWithRates;
-    }
-
-    protected function populateRates($carrierRate, &$carrierGroupDetail, $carrierGroupId)
-    {
-        $thisCarriersRates = [];
-        $baseRate = 1;
-        $baseCurrencyCode = $this->shipperDataHelper->getBaseCurrencyCode();
-        $latestCurrencyCode = '';
-        $methodDescription = false;
-        $carrierGroupDetail['carrierType'] = $carrierRate->carrierType;
-        $carrierGroupDetail['carrierTitle'] = $carrierRate->carrierTitle;
-        $carrierGroupDetail['carrier_code'] = $carrierRate->carrierCode;
-        $carrierGroupDetail['carrierName'] = $carrierRate->carrierName;
-        foreach ($carrierRate->rates as $oneRate) {
-            $title = $this->shipperDataHelper->isTransactionIdEnabled() ?
-                __($oneRate->name) . ' (' . $carrierGroupDetail['transaction'] . ')'
-                : __($oneRate->name);
-            //currency conversion required
-            if (isset($oneRate->currency) && $oneRate->currency != $latestCurrencyCode) {
-                if ($oneRate->currency != $baseCurrencyCode || $baseRate != 1) {
-                    $baseRate = $this->shipperDataHelper->getBaseCurrencyRate($oneRate->currency);
-                    $latestCurrencyCode = $oneRate->currency;
-                    if (!$baseRate) {
-                        $carrierResultWithRates['error'] = __('Can\'t convert rate from "%1".',
-                            $oneRate->currency);
-                        $carrierResultWithRates['carriergroup_detail']['carrierGroupId'] = $carrierGroupId;
-                        continue;
-                    }
-
-                }
-            }
-            $this->populateRateLevelDetails((array)$oneRate, $carrierGroupDetail, $baseRate);
-
-            if ($methodDescription) {
-                $title .= ' ' . $methodDescription;
-            }
-            $rateToAdd = [
-                'methodcode' => $oneRate->code,
-                'method_title' => $title,
-                'cost' => (float)$oneRate->shippingPrice * $baseRate,
-                'price' => (float)$oneRate->totalCharges * $baseRate,
-                'carrier_type' => $carrierRate->carrierType,
-                'carrier_id' => $carrierRate->carrierId,
-            ];
-
-            if ($methodDescription) {
-                $rateToAdd['method_description'] = $methodDescription;
-            }
-            $rateToAdd['carriergroup_detail'] = $carrierGroupDetail;
-
-            $thisCarriersRates[] = $rateToAdd;
-        }
-        return $thisCarriersRates;
-    }
-
-    protected function populateRateLevelDetails($rate, &$carrierGroupDetail, $currencyConversionRate)
-    {
-        $carrierGroupDetail['methodTitle'] = $rate['name'];
-        $carrierGroupDetail['price'] = (float)$rate['totalCharges']*$currencyConversionRate;
-        $carrierGroupDetail['cost'] = (float)$rate['shippingPrice']*$currencyConversionRate;
-        $carrierGroupDetail['code'] = $rate['code'];
+        $locale = $this->shipperDataHelper->getGlobalSetting('preferredLocale');
+        return $locale ? $locale : 'en-US';
     }
 
     /**
@@ -506,9 +418,14 @@ class Shipper
         $debugRequest->credentials = null;
         $debugData = ['request' => $debugRequest, 'response' => $shipperResponse];
 
+        $transactionId = $this->shipperRateHelper->extractTransactionId($shipperResponse);
+        $this->registry->unregister('shipperhq_transaction');
+        $this->registry->register('shipperhq_transaction', $transactionId);
+
         //first check and save globals for display purposes
         if (is_object($shipperResponse) && isset($shipperResponse->globalSettings)) {
-            $globals = (array)$shipperResponse->globalSettings;
+            $globals = $this->shipperRateHelper->extractGlobalSettings($shipperResponse);
+            $globals['transaction'] = $transactionId;
             $this->shipperDataHelper->getQuote()->setShipperGlobal($globals);
         }
 
@@ -532,10 +449,11 @@ class Shipper
         }
 
         if (isset($shipperResponse->carrierGroups)) {
-            $carrierRates = $this->processRatesResponse($shipperResponse);
+            $carrierRates = $this->processRatesResponse($shipperResponse, $transactionId);
         } else {
             $carrierRates = [];
         }
+
         if (count($carrierRates) == 0) {
             $this->shipperLogger->postInfo('Shipperhq_Shipper','Shipper HQ did not return any carrier rates',$debugData);
             return $result;
@@ -560,12 +478,29 @@ class Shipper
             if (!array_key_exists('rates', $carrierRate)) {
                 $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ did not return any rates for ' . $carrierRate['code'] . ' ' . $carrierRate['title'], $debugData);
             } else {
-
+                $baseRate = 1;
+                $baseCurrencyCode = $this->shipperDataHelper->getBaseCurrencyCode();
                 foreach ($carrierRate['rates'] as $rateDetails) {
+                    if (isset($rateDetails['currency'])) {
+                        if ($rateDetails['currency'] != $baseCurrencyCode || $baseRate != 1) {
+                            $baseRate = $this->shipperDataHelper->getBaseCurrencyRate($rateDetails['currency']);
+                            if (!$baseRate) {
+                                $error =  __('Can\'t convert rate from "%1".',$rateDetails['currency']);
+                                $this->appendError($result, $error, $carrierRate['code'], $carrierRate['title'],
+                                    $rateDetails['carriergroup_detail']['carrierGroupId'], $rateDetails['carriergroup_detail']);
+                                $this->shipperLogger->postWarning('Shipperhq_Shipper','Currency Rate Missing',
+                                    'Currency code in shipping rate is ' .$rateDetails['currency']
+                                    .' but there is no currency conversion rate configured so we cannot display this shipping rate');
+                                continue;
+                            }
+
+                        }
+                    }
+
                     $rate = $this->rateMethodFactory->create();
                     $rate->setCarrier($carrierRate['code']);
 
-                    $rate->setCarrierTitle($carrierRate['title']);
+                    $rate->setCarrierTitle(__($carrierRate['title']));
 
                     $methodCombineCode = preg_replace('/&|;| /', "_", $rateDetails['methodcode']);
 
@@ -576,9 +511,9 @@ class Shipper
                     if (array_key_exists('method_description', $rateDetails)) {
                         $rate->setMethodDescription(__($rateDetails['method_description']));
                     }
-                    $rate->setCost($rateDetails['cost']);
+                    $rate->setCost($rateDetails['cost']*$baseRate);
 
-                    $rate->setPrice($rateDetails['price']);
+                    $rate->setPrice($rateDetails['price']*$baseRate);
 
                     if (array_key_exists('carrier_type', $rateDetails)) {
                         $rate->setCarrierType($rateDetails['carrier_type']);
@@ -591,15 +526,20 @@ class Shipper
                     if (array_key_exists('carriergroup_detail', $rateDetails)
                         && !is_null($rateDetails['carriergroup_detail'])
                     ) {
+                        $carrierGroupDetail = $baseRate != 1 ? $this->updateWithCurrrencyConversion($rateDetails['carriergroup_detail'],$baseRate):
+                            $rateDetails['carriergroup_detail'];
+
                         $rate->setCarriergroupShippingDetails(
-                            $this->shipperDataHelper->encodeShippingDetails($rateDetails['carriergroup_detail']));
-                        if (array_key_exists('carrierGroupId', $rateDetails['carriergroup_detail'])) {
-                            $rate->setCarriergroupId($rateDetails['carriergroup_detail']['carrierGroupId']);
+                            $this->shipperDataHelper->encodeShippingDetails($carrierGroupDetail));
+                        if (array_key_exists('carrierGroupId', $carrierGroupDetail)) {
+                            $rate->setCarriergroupId($carrierGroupDetail['carrierGroupId']);
                         }
-                        if (array_key_exists('checkoutDescription', $rateDetails['carriergroup_detail'])) {
-                            $rate->setCarriergroup($rateDetails['carriergroup_detail']['checkoutDescription']);
+
+                        if (array_key_exists('checkoutDescription', $carrierGroupDetail)) {
+                            $rate->setCarriergroup($carrierGroupDetail['checkoutDescription']);
                         }
                     }
+
                     $result->append($rate);
                 }
             }
@@ -614,32 +554,29 @@ class Shipper
      *
      * Build array of rates based on split or merged rates display
      */
-    protected function processRatesResponse($shipperResponse)
+    protected function processRatesResponse($shipperResponse, $transactionId)
     {
         $this->shipperDataHelper->setStandardShipperResponseType();
         $carrierGroups = $shipperResponse->carrierGroups;
         $ratesArray = [];
-        $globals = (array)$shipperResponse->globalSettings;
-        $responseSummary = (array)$shipperResponse->responseSummary;
-        foreach ($carrierGroups as $carrierGroup) {
-            $carrierGroupDetail = (array)$carrierGroup->carrierGroupDetail;
-            $carrierGroupId = array_key_exists('carrierGroupId', $carrierGroupDetail) ? $carrierGroupDetail['carrierGroupId'] : 0;
 
-            $this->registry->unregister('shipperhq_transaction');
-            $this->registry->register('shipperhq_transaction', $responseSummary['transactionId']);
-            $carrierGroupDetail['transaction'] = $responseSummary['transactionId'];
+        $configSetttings = $this->configSettingsFactory->create([
+            'hideNotifications' => $this->shipperDataHelper->getConfigFlag('carriers/shipper/hide_notify'),
+            'transactionIdEnabled' => $this->shipperDataHelper->isTransactionIdEnabled(),
+            'locale' => $this->getLocaleInGlobals()]);
+
+        foreach ($carrierGroups as $carrierGroup) {
+            $carrierGroupDetail = $this->shipperRateHelper->extractCarriergroupDetail($carrierGroup, $transactionId);
 
             $this->setCarriergroupOnItems($carrierGroupDetail, $carrierGroup->products);
-            $globals = array_merge($globals, $carrierGroupDetail);
             //Pass off each carrier group to helper to decide best fit to process it.
             //Push result back into our array
             foreach ($carrierGroup->carrierRates as $carrierRate) {
                 $this->carrierConfigHandler->saveCarrierResponseDetails($carrierRate, $carrierGroupDetail, false);
-                $carrierResultWithRates = $this->extractShipperHQRates($carrierRate, $carrierGroupId, $carrierGroupDetail);
+                $carrierResultWithRates = $this->shipperRateHelper->extractShipperHQRates($carrierRate, $carrierGroupDetail, $configSetttings);
                 $ratesArray[] = $carrierResultWithRates;
             }
         }
-        $this->shipperDataHelper->getQuote()->setShipperGlobal($globals);
 
         $carriergroupDescriber = $shipperResponse->globalSettings->carrierGroupDescription;
         if ($carriergroupDescriber != '') {
@@ -654,7 +591,7 @@ class Shipper
 
     protected function setCarriergroupOnItems($carriergroupDetails, $productInRateResponse)
     {
-        $quoteItems = $this->getQuote()->getAllItems();
+        $quoteItems = $this->shipperDataHelper->getQuote()->getAllItems();
         $rateItems = [];
         foreach ($productInRateResponse as $item) {
             $item = (array)$item;
@@ -673,16 +610,6 @@ class Shipper
                 $quoteItem->setCarriergroup($carriergroupDetails['name']);
             }
         }
-    }
-
-    /**
-     * Retrieve checkout quote model object
-     *
-     * @return Mage_Sales_Model_Quote
-     */
-    public function getQuote()
-    {
-        return $this->shipperDataHelper->getQuote();
     }
 
     /**
@@ -762,4 +689,33 @@ class Shipper
         }
         return $result;
     }
+
+    protected function updateWithCurrrencyConversion($carrierGroupDetail, $currencyConversionRate)
+    {
+        $carrierGroupDetail['cost'] *= $currencyConversionRate;
+        $carrierGroupDetail['price'] *= $currencyConversionRate;
+    }
+
+    /**
+     * @param $ratesToAdd
+     * @return \Magento\Shipping\Model\Rate\Result
+     */
+    public function createMergedRate($ratesToAdd)
+    {
+        $result = $this->rateFactory->create();
+        foreach ($ratesToAdd as $rateToAdd) {
+            $method = $this->rateMethodFactory->create();
+            $method->setPrice((float)$rateToAdd['price']);
+            $method->setCost((float)$rateToAdd['price']);
+            $method->setCarrier($this->_code);
+            $method->setCarrierTitle($rateToAdd['mergedTitle']);
+            $method->setMethod($rateToAdd['title']);
+            $method->setMethodTitle($rateToAdd['title']);
+            $method->setMethodDescription($rateToAdd['mergedDescription']);
+            $method->setCarrierType(__('multiple_shipments'));
+            $result->append($method);
+        }
+        return $result;
+    }
+
 }

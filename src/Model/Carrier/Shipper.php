@@ -500,7 +500,7 @@ class Shipper
                     $rate = $this->rateMethodFactory->create();
                     $rate->setCarrier($carrierRate['code']);
 
-                    $rate->setCarrierTitle($carrierRate['title']);
+                    $rate->setCarrierTitle(__($carrierRate['title']));
 
                     $methodCombineCode = preg_replace('/&|;| /', "_", $rateDetails['methodcode']);
 

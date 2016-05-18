@@ -13,3 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [20.0.3] - 2016-05-11
 ### Added
 - SHQ16-911 resolved shipping carrier validation in cart and checkout
+
+## [20.0.4] - 2016-05-17
+### Added
+- SHQ16-880 implemented time in transit and estimated delivery dates

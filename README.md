@@ -34,6 +34,14 @@ Support
 If you have any issues with this extension, open an issue on [GitHub](https://github.com/shipperhq/module-shipper/issues).
 Alternatively you can contact us via email at support@shipperhq.com or via our website https://shipperhq.com/contact
 
+Magento Issues Impacting ShipperHQ
+-------
+1. "Malformed Request" error when saving configuration or attempting to synchronize - environment is PHP 7
+    - Github Issue: https://github.com/magento/magento2/issues/2984
+    - Code change required to fix: https://github.com/magento/magento2/commit/32ca5c97304a1bd84cfbee7cec3d57c9307da9a6
+2. Only country, region and postcode are included in shipping request at checkout - you may not see correct rates returned if filtering on city or PO box addresses
+    - Github Issue: https://github.com/magento/magento2/issues/3789
+
 Contribution
 ------------
 Any contribution is highly appreciated. The best way to contribute code is to open a [pull request on GitHub](https://help.github.com/articles/using-pull-requests).

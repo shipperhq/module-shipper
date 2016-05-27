@@ -56,6 +56,7 @@
                 <ws_timeout>120</ws_timeout>
                 <use_cache>0</use_cache>
                 <extension_version>20.0.4</extension_version>
+                <allowed_methods></allowed_methods>
             </shipper>
         </carriers>
     </default>

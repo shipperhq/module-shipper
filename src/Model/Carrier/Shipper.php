@@ -266,7 +266,7 @@ class Shipper
      */
     public function refreshCarriers()
     {
-        $allowedMethods =  $this->getAllowedMethods();
+        $allowedMethods =  $this->getAllShippingMethods();
         if(count($allowedMethods) == 0 ) {
             $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Refresh carriers',
                 'Allowed methods web service did not contain any shipping methods for carriers');
@@ -283,7 +283,7 @@ class Shipper
      *
      * @return array
      */
-    public function getAllowedMethods()
+    public function getAllShippingMethods()
     {
         $ourCarrierCode = $this->getId();
         $result = [];
@@ -293,10 +293,19 @@ class Shipper
             'carriers/shipper/active',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
         ) {
-            $allowedMethodUrl = $this->shipperDataHelper->getAllowedMethodGatewayUrl();
+
+            $allMethodsRequest =  $this->shipperMapper->getCredentialsTranslation();
+            $requestString = serialize($allMethodsRequest);
+            $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
             $timeout = $this->shipperDataHelper->getWebserviceTimeout();
-            $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive(
-                $this->shipperMapper->getCredentialsTranslation(), $allowedMethodUrl, $timeout);
+            if (!$resultSet) {
+                $allowedMethodUrl = $this->shipperDataHelper->getAllowedMethodGatewayUrl();
+                $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive(
+                    $this->shipperMapper->getCredentialsTranslation(), $allowedMethodUrl, $timeout);
+                if(is_object($resultSet['result'])) {
+                    $this->carrierCache->setCachedQuotes($requestString, $resultSet, $this->getCarrierCode());
+                }
+            }
 
             $allowedMethodResponse = $resultSet['result'];
             $debugData = $resultSet['debug'];
@@ -352,7 +361,8 @@ class Shipper
                     $allowedMethodCode = preg_replace('/&|;| /', "_", $allowedMethodCode);
 
                     if (!array_key_exists($allowedMethodCode, $allowedMethods)) {
-                        $allowedMethods[$allowedMethodCode] = $carrierMethod->title . '(' . $method->name . ')';
+                        $allowedMethods[] = $allowedMethodCode .'==' .$carrierMethod->title . '(' . $method->name . ')';
+                      //  $allowedMethods[$allowedMethodCode] = $carrierMethod->title . '(' . $method->name . ')';
                     }
                 }
 
@@ -366,9 +376,43 @@ class Shipper
                     $allowedMethods);
             // go set carrier titles
             $this->carrierConfigHandler->setCarrierConfig($carrierConfig);
+            $this->saveAllowedMethods($allowedMethods);
         }
         return $allowedMethods;
     }
+
+    /**
+     * Get allowed shipping methods
+     *
+     * @return array
+     */
+    public function getAllowedMethods()
+    {
+        //SHQ16-950 - need to cache value so we don't get repeated shipping methods when viewing in shopping cart rules
+        //  $cache = Mage::app()->getCache();
+        //  $cachedValue = $cache->load('getAllowedMethods');
+        $arr = array();
+        //   if($cachedValue && $cachedValue =='true') {
+        //      return $arr;
+        //  }
+        $allowed = explode(',', $this->getConfigData('allowed_methods'));
+        foreach ($allowed as $allowedMethod) {
+            $allowedMethodArray = explode('==',$allowedMethod);
+            if(is_array($allowedMethodArray) && count($allowedMethodArray) > 1) {
+                $arr[$allowedMethodArray[0]] = $allowedMethodArray[1];
+            }
+        }
+ //        $cache->save('true', 'getAllowedMethods', array("shipperhq_shipper"), 5);
+         return $arr;
+     }
+
+     public function saveAllowedMethods($allowedMethodsArray)
+     {
+         $carriersCodesString = implode(',', $allowedMethodsArray);
+         $this->carrierConfigHandler->saveConfig($this->shipperDataHelper->getAllowedMethodsPath(),
+             $carriersCodesString);
+    }
+
 
     protected function getLocaleInGlobals()
     {

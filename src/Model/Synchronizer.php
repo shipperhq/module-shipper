@@ -198,7 +198,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         return $result;
     }
 
-    public function checkSynchStatus()
+    public function checkSynchStatus($saveTime = false)
     {
         if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
 
@@ -222,8 +222,12 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                     $synchResult);
                 return false;
             }
-
-            $result = $synchResult->synchronized == 1 ? '1' : "Required";
+            $currentVal = $this->shipperDataHelper->getConfigValue($this->shipperDataHelper->getLastSyncPath());
+            $latestSync = $synchResult->lastSynchronization;
+            $result = $latestSync == $currentVal ? '1' : "Required";
+            if($saveTime) {
+                $this->carrierConfigHandler->saveConfig($this->shipperDataHelper->getLastSyncPath(), $latestSync, 'default', 0, false);
+            }
             return $result;
         }
     }
@@ -447,12 +451,8 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
             }
         }
 
-
         if ($result >= 0) {
-            $synchSetUrl = $this->shipperDataHelper->getSetSynchronizedUrl();
-            $setSynchResult = $this->send($synchSetUrl);
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Setting synchronized status: ',
-                $setSynchResult['result']);
+            $this->checkSynchStatus(true);
         }
         return $result;
     }

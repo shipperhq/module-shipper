@@ -362,7 +362,6 @@ class Shipper
 
                     if (!array_key_exists($allowedMethodCode, $allowedMethods)) {
                         $allowedMethods[] = $allowedMethodCode .'==' .$carrierMethod->title . '(' . $method->name . ')';
-                      //  $allowedMethods[$allowedMethodCode] = $carrierMethod->title . '(' . $method->name . ')';
                     }
                 }
 
@@ -389,7 +388,7 @@ class Shipper
     public function getAllowedMethods()
     {
         //SHQ16-950 - need to cache value so we don't get repeated shipping methods when viewing in shopping cart rules
-        //  $cache = Mage::app()->getCache();
+        //  $cache = $this->getCache();
         //  $cachedValue = $cache->load('getAllowedMethods');
         $arr = array();
         //   if($cachedValue && $cachedValue =='true') {

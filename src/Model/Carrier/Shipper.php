@@ -445,7 +445,7 @@ class Shipper
             $this->carrierCache->setCachedQuotes($requestString, $resultSet, $this->getCarrierCode());
 
         }
-
+        $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Rate request and result', $resultSet['debug']);
         return $this->parseShipperResponse($resultSet['result']);
 
     }
@@ -458,7 +458,7 @@ class Shipper
     protected function parseShipperResponse($shipperResponse)
     {
         $debugRequest = $this->shipperRequest;
-        $debugRequest->credentials = null;
+
         $debugData = ['request' => $debugRequest, 'response' => $shipperResponse];
 
         $transactionId = $this->shipperRateHelper->extractTransactionId($shipperResponse);
@@ -587,8 +587,6 @@ class Shipper
                 }
             }
         }
-        $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Rate request and result', $debugData);
-
         return $result;
 
     }

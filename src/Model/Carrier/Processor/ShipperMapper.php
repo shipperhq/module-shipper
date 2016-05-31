@@ -143,6 +143,10 @@ class ShipperMapper
      * @var StockHandler
      */
     protected $stockHandler;
+    /**
+     * @var  \ShipperHQ\WS\Rate\Request\Checkout\PhysicalBuildingDetailFactory
+     */
+    protected $physicalBuildingDetailFactory;
 
     function __construct(\ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
                          \Magento\Customer\Model\GroupFactory $groupFactory,
@@ -160,7 +164,8 @@ class ShipperMapper
                          \Magento\Framework\App\ProductMetadata $productMetadata,
                          \Magento\Sales\Model\Config\Data $dataContainer,
                          \Magento\Backend\Block\Template\Context $context,
-                         StockHandler $stockHandler
+                         StockHandler $stockHandler,
+                         \ShipperHQ\WS\Rate\Request\Checkout\PhysicalBuildingDetailFactory $physicalBuildingDetailFactory
     )
     {
 
@@ -182,6 +187,7 @@ class ShipperMapper
         $this->customerDetailsFactory = $customerDetailsFactory;
         $this->shipDetailsFactory = $shipDetailsFactory;
         $this->stockHandler = $stockHandler;
+        $this->physicalBuildingDetailFactory = $physicalBuildingDetailFactory;
     }
 
     /**
@@ -518,10 +524,11 @@ class ShipperMapper
                 foreach($itemOrigins as $aValue) {
                     $admin_value= $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
                     $valueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
-                    $details[] = ['originCode' => $valueString,
+                    $warehouseDetail = $this->physicalBuildingDetailFactory->create(['name' => $valueString,
                         'inventoryCount' => $this->stockHandler->getOriginInventoryCount($valueString,$item, $product),
                         'availabilityDate' => $this->stockHandler->getOriginAvailabilityDate($valueString,$item, $product),
-                        'inStock' => $this->stockHandler->getOriginInstock($valueString,$item, $product)];
+                        'inStock' => $this->stockHandler->getOriginInstock($valueString,$item, $product)]);
+                    $details[] = $warehouseDetail;
                 }
             }
         }
@@ -541,10 +548,11 @@ class ShipperMapper
                 foreach($itemLocations as $aValue) {
                     $admin_value= $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
                     $valueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
-                    $details[] = ['locationCode' => $valueString,
+                    $locationDetail = $this->physicalBuildingDetailFactory->create(['name' => $valueString,
                         'inventoryCount' => $this->stockHandler->getLocationInventoryCount($valueString,$item, $product),
                         'availabilityDate' => $this->stockHandler->getLocationAvailabilityDate($valueString,$item, $product),
-                        'inStock' => $this->stockHandler->getLocationInstock($valueString,$item, $product)];
+                        'inStock' => $this->stockHandler->getLocationInstock($valueString,$item, $product)]);
+                    $details[] = $locationDetail;
                 }
             }
         }

@@ -45,7 +45,7 @@ class ShipperMapper
     protected static $ecommerceType = 'magento';
     protected static $stdAttributeNames = [
         'shipperhq_shipping_group', 'shipperhq_post_shipping_group',
-        'shipperhq_warehouse', 'shipperhq_royal_mail_group', 'shipperhq_shipping_qty',
+       /* 'shipperhq_warehouse',*/ 'shipperhq_royal_mail_group', 'shipperhq_shipping_qty',
         'shipperhq_shipping_fee', 'shipperhq_additional_price', 'freight_class',
         'shipperhq_nmfc_class', 'shipperhq_nmfc_sub', 'shipperhq_handling_fee', 'shipperhq_carrier_code',
         'shipperhq_volume_weight', 'shipperhq_declared_value', 'ship_separately',
@@ -451,6 +451,9 @@ class ShipperMapper
                 'warehouseDetails'            => $warehouseDetails,
                 'pickupLocationDetails'       => $pickupLocationDetails
             ];
+            if(count($warehouseDetails) == 0) {
+                $formattedItem['defaultWarehouseStockDetail'] = $this->getDefaultWarehouseStockDetail($magentoItem);
+            }
 
             if (!$childItems) {
                 $formattedItem['items'] = $this->getFormattedItems(
@@ -507,8 +510,10 @@ class ShipperMapper
 
     protected function getWarehouseDetails($item)
     {
-        $details = [];
-        $itemOriginsString = $item->getProduct()->getData(self::$origin);
+        $details = [];$itemOriginsString = $item->getProduct()->getData(self::$origin);
+        if($itemOriginsString == '') {
+            return $details;
+        }
         $itemOrigins = explode(',', $itemOriginsString);
         if(is_array($itemOrigins)) {
             $product = $item->getProduct();
@@ -516,6 +521,9 @@ class ShipperMapper
             $valueString = [];
             if($attribute) {
                 foreach($itemOrigins as $aValue) {
+                    if($aValue == '') {
+                        continue;
+                    }
                     $admin_value= $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
                     $valueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
                /*     $warehouseDetail = $this->physicalBuildingDetailFactory->create(['name' => $valueString,
@@ -561,6 +569,20 @@ class ShipperMapper
         return $details;
     }
 
+    protected function getDefaultWarehouseStockDetail($item)
+    {
+        $product = $item->getProduct();
+                /*     $details = $this->stockDetailFactory->create([
+                         'inventoryCount' => $this->stockHandler->getOriginInventoryCount($valueString,$item, $product),
+                         'availabilityDate' => $this->stockHandler->getOriginAvailabilityDate($valueString,$item, $product),
+                         'inStock' => $this->stockHandler->getOriginInstock($valueString,$item, $product)]); */
+        $details = ['inventoryCount' => $this->stockHandler->getInventoryCount($item, $product),
+                    'availabilityDate' => $this->stockHandler->getAvailabilityDate($item, $product),
+                    'inStock' => $this->stockHandler->getInstock($item, $product)];
+
+        return $details;
+
+    }
 
     protected function getDimensionalAttributes($item)
     {

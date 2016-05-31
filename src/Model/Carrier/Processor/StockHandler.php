@@ -57,7 +57,10 @@ class StockHandler
     public function getOriginInstock($origin, $item, $product)
     {
         $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
-        $inStock =  $stockItem->getQty() >= $item->getQty();
+        if(!$stockItem->getManageStock()) {
+            return true;
+        }
+        $inStock = !is_null($stockItem->getQty()) ? $stockItem->getQty() >= $item->getQty() : true;
         return $inStock;
     }
 
@@ -75,7 +78,10 @@ class StockHandler
     public function getLocationInstock($origin, $item, $product)
     {
         $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
-        $inStock =  $stockItem->getQty() >= $item->getQty();
+        if(!$stockItem->getManageStock()) {
+            return true;
+        }
+        $inStock = !is_null($stockItem->getQty()) ? $stockItem->getQty() >= $item->getQty() : true;
         return $inStock;
     }
 

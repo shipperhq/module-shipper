@@ -56,36 +56,51 @@ class StockHandler
 
     public function getOriginInstock($origin, $item, $product)
     {
-        $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
-        $inStock =  $stockItem->getQty() >= $item->getQty();
-        return $inStock;
+        return $this->getInstock($item, $product);
     }
 
    public function getOriginInventoryCount($origin, $item, $product)
    {
-       $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
-       return $stockItem->getQty();
+       $this->getInventoryCount($item, $product);
    }
 
    public function getOriginAvailabilityDate($origin, $item, $product)
    {
-       return $product->getData(self::$available_date);
+       return $this->getAvailabilityDate($item, $product);
    }
 
     public function getLocationInstock($origin, $item, $product)
     {
-        $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
-        $inStock =  $stockItem->getQty() >= $item->getQty();
-        return $inStock;
+        return $this->getInstock($item, $product);
     }
 
     public function getLocationInventoryCount($origin, $item, $product)
+    {
+        $this->getInventoryCount($item, $product);
+    }
+
+    public function getLocationAvailabilityDate($origin, $item, $product)
+    {
+        return $this->getAvailabilityDate($item, $product);
+    }
+
+    public function getInstock($item, $product)
+    {
+        $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
+        if(!$stockItem->getManageStock()) {
+            return true;
+        }
+        $inStock = !is_null($stockItem->getQty()) ? $stockItem->getQty() >= $item->getQty() : true;
+        return $inStock;
+    }
+
+    public function getInventoryCount($item, $product)
     {
         $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
         return $stockItem->getQty();
     }
 
-    public function getLocationAvailabilityDate($origin, $item, $product)
+    public function getAvailabilityDate($item, $product)
     {
         return $product->getData(self::$available_date);
     }

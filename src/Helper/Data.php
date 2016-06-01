@@ -63,6 +63,8 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         ];
 
     CONST SHIPPERHQ_SHIPPER_CARRIERGROUP_DESC_PATH = 'carriers/shipper/carriergroup_describer';
+    CONST SHIPPERHQ_LAST_SYNC = 'carriers/shipper/last_sync';
+    CONST SHIPPERHQ_SHIPPER_ALLOWED_METHODS_PATH = 'carriers/shipper/allowed_methods';
     /**
      * @var \Magento\Eav\Model\Config
      */
@@ -133,6 +135,14 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
 
     public function getCarrierGroupDescPath() {
         return self::SHIPPERHQ_SHIPPER_CARRIERGROUP_DESC_PATH;
+    }
+
+    public function getLastSyncPath() {
+        return self::SHIPPERHQ_LAST_SYNC;
+    }
+
+    public function getAllowedMethodsPath() {
+        return self::SHIPPERHQ_SHIPPER_ALLOWED_METHODS_PATH;
     }
 
     /**
@@ -288,14 +298,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
     public function getCheckSynchronizedUrl()
     {
         return $this->_getGatewayUrl().'attributes/check';
-    }
-
-    /*
-     * *Retrieve url for retrieving attributes
-     */
-    public function getSetSynchronizedUrl()
-    {
-        return $this->_getGatewayUrl().'attributes/set/updated';
     }
 
     /*

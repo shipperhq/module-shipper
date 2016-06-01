@@ -17,3 +17,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [20.0.4] - 2016-05-17
 ### Added
 - SHQ16-880 implemented time in transit and estimated delivery dates
+
+## [20.0.5] - 2016-06-01
+### Added
+- SHQ16-613 support for inventory objects in request
+- SHQ16-950 store allowed methods in configuration
+- SHQ16-1006 Log API key and request as JSON
+

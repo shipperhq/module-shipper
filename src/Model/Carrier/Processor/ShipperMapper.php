@@ -510,7 +510,8 @@ class ShipperMapper
 
     protected function getWarehouseDetails($item)
     {
-        $details = [];$itemOriginsString = $item->getProduct()->getData(self::$origin);
+        $details = [];
+        $itemOriginsString = $item->getProduct()->getData(self::$origin);
         if($itemOriginsString == '') {
             return $details;
         }

@@ -460,7 +460,11 @@ class Shipper
         $debugRequest = $this->shipperRequest;
 
         $debugData = ['request' => $debugRequest, 'response' => $shipperResponse];
+        if (!is_object($shipperResponse)) {
+            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ did not return a response', $debugData);
 
+            return $this->returnGeneralError('Shipper HQ did not return a response - could not contact ShipperHQ. Please review your settings');
+        }
         $transactionId = $this->shipperRateHelper->extractTransactionId($shipperResponse);
         $this->registry->unregister('shipperhq_transaction');
         $this->registry->register('shipperhq_transaction', $transactionId);
@@ -475,11 +479,7 @@ class Shipper
         $result = $this->rateFactory->create();
 
         // If no rates are found return error message
-        if (!is_object($shipperResponse)) {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ did not return a response', $debugData);
-
-            return $this->returnGeneralError('Shipper HQ did not return a response - could not contact ShipperHQ. Please review your settings');
-        } elseif (!empty($shipperResponse->errors)) {
+        if (!empty($shipperResponse->errors)) {
             $this->shipperLogger->postInfo('Shipperhq_Shipper','Shipper HQ returned an error', $debugData);
             if (isset($shipperResponse->errors)) {
                 foreach ($shipperResponse->errors as $error) {

@@ -24,3 +24,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - SHQ16-950 store allowed methods in configuration
 - SHQ16-1006 Log API key and request as JSON
 
+## [20.0.6] - 2016-06-07
+### Added
+- SHQ16-1065 correct method signature for logger
+- SHQ16-1041 handle null value for carrier group detail

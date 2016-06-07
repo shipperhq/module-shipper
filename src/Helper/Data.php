@@ -321,12 +321,15 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
     public function encodeShippingDetails($shippingDetails)
     {
         return $this->jsonHelper->jsonEncode($shippingDetails);
-
     }
 
     public function decodeShippingDetails($shippingDetailsEnc)
     {
-        return $this->jsonHelper->jsonDecode($shippingDetailsEnc);
+        $decoded = array();
+        if(!is_null($shippingDetailsEnc) && $shippingDetailsEnc != '') {
+            $decoded = $this->jsonHelper->jsonDecode($shippingDetailsEnc);
+        }
+        return $decoded;
     }
 
     /**

@@ -28,3 +28,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - SHQ16-1065 correct method signature for logger
 - SHQ16-1041 handle null value for carrier group detail
+
+## [20.0.7] - 2016-06-07
+### Added
+- SHQ16-1065 support for admin logging with correct method signature for logger

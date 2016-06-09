@@ -117,6 +117,6 @@ class LogAssist extends  \Magento\Framework\App\Helper\AbstractHelper
     protected function getMessage($module, $message, $data)
     {
         $data = is_string($data) ? $data : var_export($data,true);
-        return $module .'- ' .$message .': ' .$data;
+        return $module .'-- ' .$message .'-- ' .$data;
     }
 }

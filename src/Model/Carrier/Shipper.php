@@ -89,6 +89,10 @@ class Shipper
      * @var \ShipperHQ\Shipper\Helper\Data
      */
     protected $shipperDataHelper;
+    /*
+     *@var \ShipperHQ\Shipper\Helper\Rest
+     */
+    protected $restHelper;
 
     /**
      * @var \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory
@@ -142,6 +146,7 @@ class Shipper
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+     * @param \ShipperHQ\Shipper\Helper\Rest $restHelper
      * @param \ShipperHQ\Shipper\Helper\CarrierCache $carrierCache
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
@@ -161,6 +166,7 @@ class Shipper
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+        \ShipperHQ\Shipper\Helper\Rest $restHelper,
         \ShipperHQ\Shipper\Helper\CarrierCache $carrierCache,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
@@ -181,6 +187,7 @@ class Shipper
     )
     {
         $this->shipperDataHelper = $shipperDataHelper;
+        $this->restHelper = $restHelper;
         $this->configHelper = $configHelper;
         $this->shipperMapper = $shipperMapper;
         $this->rateFactory = $resultFactory;
@@ -297,9 +304,9 @@ class Shipper
             $allMethodsRequest =  $this->shipperMapper->getCredentialsTranslation();
             $requestString = serialize($allMethodsRequest);
             $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
-            $timeout = $this->shipperDataHelper->getWebserviceTimeout();
+            $timeout = $this->restHelper->getWebserviceTimeout();
             if (!$resultSet) {
-                $allowedMethodUrl = $this->shipperDataHelper->getAllowedMethodGatewayUrl();
+                $allowedMethodUrl = $this->restHelper->getAllowedMethodGatewayUrl();
                 $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive(
                     $this->shipperMapper->getCredentialsTranslation(), $allowedMethodUrl, $timeout);
                 if(is_object($resultSet['result'])) {
@@ -428,11 +435,11 @@ class Shipper
     {
         $requestString = serialize($this->shipperRequest);
         $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
-        $timeout = $this->shipperDataHelper->getWebserviceTimeout();
+        $timeout = $this->restHelper->getWebserviceTimeout();
         if (!$resultSet) {
             $initVal =  microtime(true);
             $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive($this->shipperRequest,
-                $this->shipperDataHelper->getRateGatewayUrl(), $timeout);
+                $this->restHelper->getRateGatewayUrl(), $timeout);
             $elapsed = microtime(true) - $initVal;
             $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Short lapse',$elapsed);
 

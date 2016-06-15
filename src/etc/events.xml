@@ -7,12 +7,15 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <event name="admin_system_config_changed_section_carriers">
-        <observer name="shipperhq" instance="ShipperHQ\Shipper\Observer\RefreshCarriers"/>
+        <observer name="shipperhq_refresh_carriers" instance="ShipperHQ\Shipper\Observer\RefreshCarriers"/>
     </event>
     <event name="controller_action_predispatch_checkout_cart_index">
-        <observer name="shipperhq" instance="ShipperHQ\Shipper\Observer\SetCartFlag"/>
+        <observer name="shipperhq_set_cart" instance="ShipperHQ\Shipper\Observer\SetCartFlag"/>
     </event>
     <event name="controller_action_predispatch_checkout_index_index">
-        <observer name="shipperhq" instance="ShipperHQ\Shipper\Observer\SetCheckoutFlag"/>
+        <observer name="shipperhq_set_checkout" instance="ShipperHQ\Shipper\Observer\SetCheckoutFlag"/>
+    </event>
+    <event name="checkout_onepage_controller_success_action">
+        <observer name="shipperhq_record_order" instance="ShipperHQ\Shipper\Observer\RecordOrder" />
     </event>
 </config>

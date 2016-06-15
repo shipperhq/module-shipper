@@ -17,4 +17,10 @@
                 sortOrder="10"
                 disabled="false"/>
     </type>
+    <type name="\Magento\Shipping\Model\Config\Source\AllMethods">
+        <plugin name="shipperhq_shipper_plugin_shipping_config_source_allmethods"
+                type="ShipperHQ\Shipper\Plugin\Checkout\AllMethodsPlugin"
+                sortOrder="10"
+                disabled="false"/>
+    </type>
 </config>

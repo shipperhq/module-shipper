@@ -36,3 +36,4 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [20.0.8] - 2016-06-15
 ### Added
 - SHQ16-1026 - display selected carrier and code for single carrier display
+- SHQ16-1117 - correct customer group in request

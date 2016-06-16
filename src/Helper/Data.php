@@ -45,7 +45,6 @@ use Magento\Store\Model\StoreManagerInterface;
 class Data extends  \Magento\Framework\App\Helper\AbstractHelper
 {
     protected static $showTransId;
-    protected static $wsTimeout;
     protected $prodAttributes;
     protected $baseCurrencyRate;
 
@@ -264,60 +263,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return 'checkout/multishipping/shipping.phtml';
     }
 
-
-    /**
-     * Retrieve url for getting allowed methods
-     * @return string
-     */
-    public function getAllowedMethodGatewayUrl()
-    {
-        return $this->_getGatewayUrl().'allowed_methods';
-    }
-
-    /**
-     * Retrieve url for getting shipping rates
-     * @return string
-     */
-    public function getRateGatewayUrl()
-    {
-        return  $this->_getGatewayUrl().'rates';
-
-    }
-
-    /*
-     * *Retrieve url for retrieving attributes
-     */
-    public function getAttributeGatewayUrl()
-    {
-        return $this->_getGatewayUrl().'attributes/get';
-    }
-
-    /*
-     * *Retrieve url for retrieving attributes
-     */
-    public function getCheckSynchronizedUrl()
-    {
-        return $this->_getGatewayUrl().'attributes/check';
-    }
-
-    /*
-     * Retrieve configured timeout for webservice
-     */
-    public function getWebserviceTimeout()
-    {
-
-        if (self::$wsTimeout==NULL) {
-            $timeout =  $this->getConfigValue('carriers/shipper/ws_timeout');
-            if(!is_numeric($timeout) || $timeout < 120) {
-                $timeout = 120;
-            }
-            self::$wsTimeout = $timeout;
-        }
-        return self::$wsTimeout;
-    }
-
-
-
     public function encodeShippingDetails($shippingDetails)
     {
         return $this->jsonHelper->jsonEncode($shippingDetails);
@@ -494,29 +439,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         $attribute->setStoreId($store);
 
         return $attribute;
-    }
-
-
-    /**
-     * Returns url to use - live if present, otherwise dev
-     * @return array
-     */
-    protected function _getGatewayUrl()
-    {
-        $live = $this->_cleanUpUrl($this->getConfigValue('carriers/shipper/live_url'));
-
-        $test = $this->_cleanUpUrl($this->getConfigValue('carriers/shipper/url'));
-        return $this->getConfigValue('carriers/shipper/sandbox_mode') ? $test : $live;
-    }
-
-    protected function _cleanUpUrl($urlStart)
-    {
-        $url = trim($urlStart);
-        $lastChar = substr("abcdef", -1);
-        if($lastChar != '/') {
-            $url .= '/';
-        }
-        return $url;
     }
 
     /**

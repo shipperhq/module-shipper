@@ -66,6 +66,10 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      * @var \ShipperHQ\Shipper\Helper\Data
      */
     protected $shipperDataHelper;
+    /*
+    *@var \ShipperHQ\Shipper\Helper\Rest
+    */
+    protected $restHelper;
 
     /**
      * @var \Magento\Framework\Registry
@@ -127,6 +131,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+        \ShipperHQ\Shipper\Helper\Rest $restHelper,
         \ShipperHQ\Shipper\Helper\CarrierCache $carrierCache,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
@@ -143,6 +148,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     )
     {
         $this->shipperDataHelper = $shipperDataHelper;
+        $this->restHelper = $restHelper;
         $this->shipperMapper = $shipperMapper;
         $this->registry = $registry;
         $this->shipperLogger = $shipperLogger;
@@ -202,7 +208,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     {
         if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
 
-            $synchCheckUrl = $this->shipperDataHelper->getCheckSynchronizedUrl();
+            $synchCheckUrl = $this->restHelper->getCheckSynchronizedUrl();
             $result = $this->send($synchCheckUrl);
             $synchResult = $result['result'];
             $debugData = array(
@@ -234,7 +240,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
 
     protected function send($url, $request = null)
     {
-        $timeout = $this->shipperDataHelper->getWebserviceTimeout();
+        $timeout = $this->restHelper->getWebserviceTimeout();
         if(is_null($request)) {
             $request = $this->shipperMapper->getCredentialsTranslation();
         }
@@ -248,7 +254,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     protected function getLatestAttributeData()
     {
         $result = array();
-        $synchronizeUrl = $this->shipperDataHelper->getAttributeGatewayUrl();
+        $synchronizeUrl = $this->restHelper->getAttributeGatewayUrl();
         $resultSet = $this->send($synchronizeUrl);
 
         $allAttributesResponse = $resultSet['result'];

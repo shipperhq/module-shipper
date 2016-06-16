@@ -286,9 +286,9 @@ class ShipperMapper
         $code = $this->getCustomerGroupId($request->getAllItems());
 
         $group = $this->groupFactory->create()->load($code);
-
+        $name =  $group->getCustomerGroupCode();
         $custGroupDetails = $this->customerDetailsFactory->create(
-            ['name' => $group->getCustomerGroupCode()]
+            ['customerGroup' => $name]
         );
 
         return $custGroupDetails;

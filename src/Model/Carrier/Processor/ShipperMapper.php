@@ -151,6 +151,10 @@ class ShipperMapper
      * @var  \ShipperHQ\WS\Rate\Request\Checkout\PhysicalBuildingDetailFactory
      */
     protected $physicalBuildingDetailFactory;
+    /**
+     * @var  \ShipperHQ\WS\Rate\Request\Checkout\StockDetailFactory
+     */
+    protected $stockDetailFactory;
 
     function __construct(\ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
                          \Magento\Customer\Model\GroupFactory $groupFactory,
@@ -170,7 +174,8 @@ class ShipperMapper
                          \Magento\Framework\App\ProductMetadata $productMetadata,
                          \Magento\Backend\Block\Template\Context $context,
                          StockHandler $stockHandler,
-                         \ShipperHQ\WS\Rate\Request\Checkout\PhysicalBuildingDetailFactory $physicalBuildingDetailFactory
+                         \ShipperHQ\WS\Rate\Request\Checkout\PhysicalBuildingDetailFactory $physicalBuildingDetailFactory,
+                         \ShipperHQ\WS\Rate\Request\Checkout\StockDetailFactory $stockDetailFactory
     )
     {
 
@@ -194,6 +199,7 @@ class ShipperMapper
         $this->shipDetailsFactory = $shipDetailsFactory;
         $this->stockHandler = $stockHandler;
         $this->physicalBuildingDetailFactory = $physicalBuildingDetailFactory;
+        $this->stockDetailFactory = $stockDetailFactory;
     }
 
     /**
@@ -585,11 +591,11 @@ class ShipperMapper
 
     protected function getDefaultWarehouseStockDetail($item)
     {
-        $product = $item->getProduct();
-                     $details = $this->stockDetailFactory->create([
-                         'inventoryCount' => $this->stockHandler->getOriginInventoryCount($valueString,$item, $product),
-                         'availabilityDate' => $this->stockHandler->getOriginAvailabilityDate($valueString,$item, $product),
-                         'inStock' => $this->stockHandler->getOriginInstock($valueString,$item, $product)]);
+         $product = $item->getProduct();
+         $details = $this->stockDetailFactory->create([
+             'inventoryCount' => $this->stockHandler->getInventoryCount($item, $product),
+             'availabilityDate' => $this->stockHandler->getAvailabilityDate($item, $product),
+             'inStock' => $this->stockHandler->getInstock($item, $product)]);
       /*  $details = ['inventoryCount' => $this->stockHandler->getInventoryCount($item, $product),
                     'availabilityDate' => $this->stockHandler->getAvailabilityDate($item, $product),
                     'inStock' => $this->stockHandler->getInstock($item, $product)];*/

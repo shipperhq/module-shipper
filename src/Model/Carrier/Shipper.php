@@ -616,7 +616,7 @@ class Shipper
             'shipperHQTitle' => $this->shipperDataHelper->getConfigFlag('carriers/shipper/title')]);
         $splitCarrierGroupDetail = [];
         foreach ($carrierGroups as $carrierGroup) {
-            $carrierGroupDetail = $this->shipperRateHelper->extractCarriergroupDetail($carrierGroup, $transactionId);
+            $carrierGroupDetail = $this->shipperRateHelper->extractCarrierGroupDetail($carrierGroup, $transactionId);
             $this->setCarriergroupOnItems($carrierGroupDetail, $carrierGroup->products);
             //Pass off each carrier group to helper to decide best fit to process it.
             //Push result back into our array
@@ -631,7 +631,7 @@ class Shipper
         if($shipperResponse->mergedRateResponse) {
             $mergedRatesArray = [];
             foreach($shipperResponse->mergedRateResponse->carrierRates as $carrierRate) {
-                $mergedResultWithRates = $this->shipperRateHelper->extractShipperHQMergedRates($carrierRate, $splitCarrierGroupDetail, $configSetttings);
+                $mergedResultWithRates = $this->shipperRateHelper->extractShipperHQMergedRates($carrierRate, $splitCarrierGroupDetail, $configSetttings, $transactionId);
                 $mergedRatesArray[] = $mergedResultWithRates;
             }
             $ratesArray = $mergedRatesArray;

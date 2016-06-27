@@ -41,3 +41,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [20.0.9] - 2016-06-23
 ### Added
 - SHQ16-1119 - process merged rates
+
+## [20.0.10] - 2016-06-27
+### Added
+- SHQ16-1093 - restructure rate processing

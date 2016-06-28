@@ -111,6 +111,14 @@ class ShipperMapper
      * @var Request\Shipping\SelectedOptionsFactory
      */
     private $selectedOptionsFactory;
+    /*
+     * @var \ShipperHQ\WS\Rate\Request\Checkout\CartFactory
+     */
+    private  $cartFactory;
+    /*
+     * @var \ShipperHQ\WS\Rate\Request\Checkout\Item
+     */
+    private $itemFactory;
     /**
      * @var WS\Shared\AddressFactory
      */
@@ -143,6 +151,10 @@ class ShipperMapper
      * @var  \ShipperHQ\WS\Rate\Request\Checkout\PhysicalBuildingDetailFactory
      */
     protected $physicalBuildingDetailFactory;
+    /**
+     * @var  \ShipperHQ\WS\Rate\Request\Checkout\StockDetailFactory
+     */
+    protected $stockDetailFactory;
 
     function __construct(\ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
                          \Magento\Customer\Model\GroupFactory $groupFactory,
@@ -154,13 +166,16 @@ class ShipperMapper
                          \ShipperHQ\WS\Rate\Request\CustomerDetailsFactory $customerDetailsFactory,
                          \ShipperHQ\WS\Rate\Request\ShipDetailsFactory $shipDetailsFactory,
                          \ShipperHQ\WS\Rate\Request\Shipping\SelectedOptionsFactory $selectedOptionsFactory,
+                         \ShipperHQ\WS\Rate\Request\Checkout\CartFactory $cartFactory,
+                         \ShipperHQ\WS\Rate\Request\Checkout\ItemFactory $itemFactory,
                          \Magento\Tax\Model\Calculation $taxCalculation,
                          \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
                          \Magento\Catalog\Helper\Product\Configuration $productConfiguration,
                          \Magento\Framework\App\ProductMetadata $productMetadata,
                          \Magento\Backend\Block\Template\Context $context,
                          StockHandler $stockHandler,
-                         \ShipperHQ\WS\Rate\Request\Checkout\PhysicalBuildingDetailFactory $physicalBuildingDetailFactory
+                         \ShipperHQ\WS\Rate\Request\Checkout\PhysicalBuildingDetailFactory $physicalBuildingDetailFactory,
+                         \ShipperHQ\WS\Rate\Request\Checkout\StockDetailFactory $stockDetailFactory
     )
     {
 
@@ -174,6 +189,8 @@ class ShipperMapper
         $this->rateRequestFactory = $rateRequestFactory;
         $this->shipperLogger = $shipperLogger;
         $this->selectedOptionsFactory = $selectedOptionsFactory;
+        $this->cartFactory = $cartFactory;
+        $this->itemFactory = $itemFactory;
         $this->addressFactory = $addressFactory;
         $this->infoRequestFactory = $infoRequestFactory;
         $this->credentialsFactory = $credentialsFactory;
@@ -182,6 +199,7 @@ class ShipperMapper
         $this->shipDetailsFactory = $shipDetailsFactory;
         $this->stockHandler = $stockHandler;
         $this->physicalBuildingDetailFactory = $physicalBuildingDetailFactory;
+        $this->stockDetailFactory = $stockDetailFactory;
     }
 
     /**
@@ -249,12 +267,13 @@ class ShipperMapper
      */
     public function getCartDetails($request)
     {
-        $cart = [];
-        $cart['declaredValue'] = $request->getPackageValue();
-        $cart['freeShipping'] = (bool)$request->getFreeShipping();
-        $cart['items'] = $this->getFormattedItems($request, $request->getAllItems());
+        $cartDetails = $this->cartFactory->create([
+            'declaredValue' => $request->getPackageValue(),
+            'freeShipping'  => (bool)$request->getFreeShipping(),
+            'items'         => $this->getFormattedItems($request, $request->getAllItems())
+        ]);
+        return $cartDetails;
 
-        return $cart;
     }
 
 
@@ -286,9 +305,8 @@ class ShipperMapper
         $code = $this->getCustomerGroupId($request->getAllItems());
 
         $group = $this->groupFactory->create()->load($code);
-
         $custGroupDetails = $this->customerDetailsFactory->create(
-            ['name' => $group->getCustomerGroupCode()]
+            ['customerGroup' => $group->getCustomerGroupCode()]
         );
 
         return $custGroupDetails;
@@ -419,45 +437,46 @@ class ShipperMapper
             }
             $warehouseDetails = $this->getWarehouseDetails($magentoItem);
             $pickupLocationDetails = $this->getPickupLocationDetails($magentoItem);
-            $formattedItem = [
+            $formattedItem = $this->itemFactory->create([
                 'id' => $id,
                 'sku' => $magentoItem->getSku(),
-                'storePrice' => $magentoItem->getPrice() ? $magentoItem->getPrice() : 0,
-                'weight' => $weight,
                 'qty' => $magentoItem->getQty() ? floatval($magentoItem->getQty()) : 0,
-                'type' => $productType,
-                'items' => [], // child items
-                'basePrice' => $magentoItem->getBasePrice(),
-                'taxInclBasePrice' => $magentoItem->getBasePriceInclTax() ? $magentoItem->getBasePriceInclTax() : 0,
-                'taxInclStorePrice' => $magentoItem->getPriceInclTax() ? $magentoItem->getPriceInclTax() : 0,
+                'weight' => $weight,
                 'rowTotal' => $magentoItem->getRowTotal(),
+                'basePrice' => $magentoItem->getBasePrice(),
                 'baseRowTotal' => $magentoItem->getBaseRowTotal(),
+                'discountAmount' => $magentoItem->getDiscountAmount(),
                 'discountPercent' => $magentoItem->getDiscountPercent(),
                 'discountedBasePrice' => $magentoItem->getBasePrice() - ($magentoItem->getBaseDiscountAmount() / $magentoItem->getQty()),
                 'discountedStorePrice' => $magentoItem->getPrice() - ($magentoItem->getDiscountAmount() / $magentoItem->getQty()),
                 'discountedTaxInclBasePrice' => $magentoItem->getBasePrice() - ($magentoItem->getBaseDiscountAmount() / $magentoItem->getQty()) + ($magentoItem->getBaseTaxAmount() / $magentoItem->getQty()),
                 'discountedTaxInclStorePrice' => $magentoItem->getPrice() - ($magentoItem->getDiscountAmount() / $magentoItem->getQty()) + ($magentoItem->getTaxAmount() / $magentoItem->getQty()),
-                'attributes' => $options ? array_merge(self::populateAttributes($stdAttributes, $magentoItem), $options) : self::populateAttributes($stdAttributes, $magentoItem),
-                'legacyAttributes' => self::populateAttributes(self::$legacyAttributeNames, $magentoItem),
-                'baseCurrency' => $request->getBaseCurrency()->getCurrencyCode(),
-                'packageCurrency' => $request->getPackageCurrency()->getCurrencyCode(),
-                'storeBaseCurrency' => $this->storeManager->getStore()->getBaseCurrencyCode(),
-                'storeCurrentCurrency' => $this->storeManager->getStore()->getCurrentCurrencyCode(),
-                'taxPercentage' => $taxPercentage,
-                'freeShipping' => (bool)$magentoItem->getFreeShipping(),
-                'additionalAttributes' => self::getCustomAttributes($magentoItem),
                 'fixedPrice' => $fixedPrice,
                 'fixedWeight' => $fixedWeight,
+                'freeShipping' => (bool)$magentoItem->getFreeShipping(),
+                'packageCurrency' => $request->getPackageCurrency()->getCurrencyCode(),
+                'baseCurrency' => $request->getBaseCurrency()->getCurrencyCode(),
+                'storeBaseCurrency' => $this->storeManager->getStore()->getBaseCurrencyCode(),
+                'storeCurrentCurrency' => $this->storeManager->getStore()->getCurrentCurrencyCode(),
+                'storePrice' => $magentoItem->getPrice() ? $magentoItem->getPrice() : 0,
+                'taxInclBasePrice' => $magentoItem->getBasePriceInclTax() ? $magentoItem->getBasePriceInclTax() : 0,
+                'taxInclStorePrice' => $magentoItem->getPriceInclTax() ? $magentoItem->getPriceInclTax() : 0,
+                'taxPercentage' => $taxPercentage,
+                'type' => $productType,
+                'items' => [], // child items
+                'attributes' => $options ? array_merge(self::populateAttributes($stdAttributes, $magentoItem), $options) : self::populateAttributes($stdAttributes, $magentoItem),
+                'legacyAttributes' => self::populateAttributes(self::$legacyAttributeNames, $magentoItem),
+                'additionalAttributes' => self::getCustomAttributes($magentoItem),
                 'warehouseDetails'            => $warehouseDetails,
                 'pickupLocationDetails'       => $pickupLocationDetails
-            ];
+            ]);
             if(count($warehouseDetails) == 0) {
-                $formattedItem['defaultWarehouseStockDetail'] = $this->getDefaultWarehouseStockDetail($magentoItem);
+                $formattedItem->setDefaultWarehouseStockDetail($this->getDefaultWarehouseStockDetail($magentoItem));
             }
 
             if (!$childItems) {
-                $formattedItem['items'] = $this->getFormattedItems(
-                    $request, $magentoItem->getChildren(), true);
+                $formattedItem->setItems($this->getFormattedItems(
+                    $request, $magentoItem->getChildren(), true));
             }
 
             $formattedItems[] = $formattedItem;
@@ -527,14 +546,14 @@ class ShipperMapper
                     }
                     $admin_value= $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
                     $valueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
-               /*     $warehouseDetail = $this->physicalBuildingDetailFactory->create(['name' => $valueString,
+                    $warehouseDetail = $this->physicalBuildingDetailFactory->create(['name' => $valueString,
                         'inventoryCount' => $this->stockHandler->getOriginInventoryCount($valueString,$item, $product),
                         'availabilityDate' => $this->stockHandler->getOriginAvailabilityDate($valueString,$item, $product),
-                        'inStock' => $this->stockHandler->getOriginInstock($valueString,$item, $product)]); */
-                    $warehouseDetail = ['name' => $valueString,
+                        'inStock' => $this->stockHandler->getOriginInstock($valueString,$item, $product)]);
+                  /*  $warehouseDetail = ['name' => $valueString,
                         'inventoryCount' => $this->stockHandler->getOriginInventoryCount($valueString,$item, $product),
                         'availabilityDate' => $this->stockHandler->getOriginAvailabilityDate($valueString,$item, $product),
-                        'inStock' => $this->stockHandler->getOriginInstock($valueString,$item, $product)];
+                        'inStock' => $this->stockHandler->getOriginInstock($valueString,$item, $product)];*/
                     $details[] = $warehouseDetail;
                 }
             }
@@ -555,14 +574,14 @@ class ShipperMapper
                 foreach($itemLocations as $aValue) {
                     $admin_value= $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
                     $valueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
-                  /*  $locationDetail = $this->physicalBuildingDetailFactory->create(['name' => $valueString,
+                   $locationDetail = $this->physicalBuildingDetailFactory->create(['name' => $valueString,
                         'inventoryCount' => $this->stockHandler->getLocationInventoryCount($valueString,$item, $product),
                         'availabilityDate' => $this->stockHandler->getLocationAvailabilityDate($valueString,$item, $product),
-                        'inStock' => $this->stockHandler->getLocationInstock($valueString,$item, $product)]); */
-                    $locationDetail = ['name' => $valueString,
+                        'inStock' => $this->stockHandler->getLocationInstock($valueString,$item, $product)]);
+                /*    $locationDetail = ['name' => $valueString,
                         'inventoryCount' => $this->stockHandler->getLocationInventoryCount($valueString,$item, $product),
                         'availabilityDate' => $this->stockHandler->getLocationAvailabilityDate($valueString,$item, $product),
-                        'inStock' => $this->stockHandler->getLocationInstock($valueString,$item, $product)];
+                        'inStock' => $this->stockHandler->getLocationInstock($valueString,$item, $product)];*/
                     $details[] = $locationDetail;
                 }
             }
@@ -572,14 +591,14 @@ class ShipperMapper
 
     protected function getDefaultWarehouseStockDetail($item)
     {
-        $product = $item->getProduct();
-                /*     $details = $this->stockDetailFactory->create([
-                         'inventoryCount' => $this->stockHandler->getOriginInventoryCount($valueString,$item, $product),
-                         'availabilityDate' => $this->stockHandler->getOriginAvailabilityDate($valueString,$item, $product),
-                         'inStock' => $this->stockHandler->getOriginInstock($valueString,$item, $product)]); */
-        $details = ['inventoryCount' => $this->stockHandler->getInventoryCount($item, $product),
+         $product = $item->getProduct();
+         $details = $this->stockDetailFactory->create([
+             'inventoryCount' => $this->stockHandler->getInventoryCount($item, $product),
+             'availabilityDate' => $this->stockHandler->getAvailabilityDate($item, $product),
+             'inStock' => $this->stockHandler->getInstock($item, $product)]);
+      /*  $details = ['inventoryCount' => $this->stockHandler->getInventoryCount($item, $product),
                     'availabilityDate' => $this->stockHandler->getAvailabilityDate($item, $product),
-                    'inStock' => $this->stockHandler->getInstock($item, $product)];
+                    'inStock' => $this->stockHandler->getInstock($item, $product)];*/
 
         return $details;
 

@@ -17,15 +17,10 @@
                 sortOrder="10"
                 disabled="false"/>
     </type>
-    <!--<type name="Magento\Shipping\Model\Config\Source\AllMethods">-->
-        <!--<plugin name="shipperhq_shipper_plugin_shipping_config_source_allmethods"-->
-                <!--type="ShipperHQ\Shipper\Plugin\Checkout\AllMethodsPlugin"-->
-                <!--sortOrder="1"-->
-                <!--disabled="false"/>-->
-    <!--</type>-->
-    <type name="Magento\SalesRule\Model\Rule\Condition\Address">
-        <arguments>
-            <argument name="shippingAllmethods" xsi:type="object">ShipperHQ\Shipper\Plugin\Checkout\AllMethods</argument>
-        </arguments>
+    <type name="Magento\Shipping\Model\Config\Source\Allmethods">
+        <plugin name="shipperhq_shipper_plugin_shipping_config_source_allmethods"
+                type="ShipperHQ\Shipper\Plugin\Shipping\AllmethodsPlugin"
+                sortOrder="1"
+                disabled="false"/>
     </type>
 </config>

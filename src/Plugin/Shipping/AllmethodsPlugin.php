@@ -31,32 +31,43 @@
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace ShipperHQ\Shipper\Plugin\Checkout;
+namespace ShipperHQ\Shipper\Plugin\Shipping;
 
-class AllMethods extends \Magento\Shipping\Model\Config\Source\AllMethods implements \Magento\Framework\Option\ArrayInterface
+class AllmethodsPlugin
 {
+    /*
+     * Ignore carrier codes
+     */
+    protected $ignoreCarrierCodes = ['multicarrier', 'shipper', 'calendar', 'pickup'];
+    /**
+     * @var \ShipperHQ\Shipper\Helper\Data
+     */
+    protected $shipperDataHelper;
+    /**
+     * @var \ShipperHQ\Shipper\Helper\LogAssist
+     */
+    protected $shipperLogger;
+    /*
+     * @var \Magento\Shipping\Model\Config
+     */
+    protected $shippingConfig;
     /**
      * Core store config
      *
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
 
-    /**
-     * @var \Magento\Shipping\Model\Config
-     */
-    protected $_shippingConfig;
-
-    /**
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Magento\Shipping\Model\Config $shippingConfig
-     */
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Shipping\Model\Config $shippingConfig
+        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
+        \Magento\Shipping\Model\Config $shippingConfig,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
-        $this->_scopeConfig = $scopeConfig;
-        $this->_shippingConfig = $shippingConfig;
+        $this->shipperDataHelper = $shipperDataHelper;
+        $this->shipperLogger = $shipperLogger;
+        $this->shippingConfig = $shippingConfig;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**
@@ -66,19 +77,27 @@ class AllMethods extends \Magento\Shipping\Model\Config\Source\AllMethods implem
      * @param bool $isActiveOnlyFlag
      * @return array
      */
-    public function toOptionArray($isActiveOnlyFlag = false)
+    public function aroundToOptionArray(\Magento\Shipping\Model\Config\Source\Allmethods $subject, \Closure $proceed, $isActiveOnlyFlag = false )
     {
+        $result = $proceed();
+
         $methods = [['value' => '', 'label' => '']];
-        $carriers = $this->_shippingConfig->getAllCarriers();
+        $carriers = $this->shippingConfig->getAllCarriers();
         foreach ($carriers as $carrierCode => $carrierModel) {
-            if (!$carrierModel->isActive() && (bool)$isActiveOnlyFlag === true) {
+            if ((!$carrierModel->isActive() && (bool)$isActiveOnlyFlag === true) ||
+                in_array($carrierCode, $this->ignoreCarrierCodes)) {
                 continue;
             }
-            $carrierMethods = $carrierModel->getAllowedMethods();
+            if(strstr($carrierCode, 'shq') && $carrierModel instanceof \ShipperHQ\Shipper\Model\Carrier\Shipper) {
+                $carrierMethods = $carrierModel->getAllowedMethods($carrierCode);
+            }
+            else {
+                $carrierMethods = $carrierModel->getAllowedMethods();
+            }
             if (!$carrierMethods) {
                 continue;
             }
-            $carrierTitle = $this->_scopeConfig->getValue(
+            $carrierTitle = $this->scopeConfig->getValue(
                 'carriers/' . $carrierCode . '/title',
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );
@@ -91,6 +110,9 @@ class AllMethods extends \Magento\Shipping\Model\Config\Source\AllMethods implem
             }
         }
 
+        $this->shipperLogger->postDebug('ShipperHQ', 'Modifying shipping all methods response', $methods);
         return $methods;
+
     }
+
 }

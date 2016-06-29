@@ -389,7 +389,17 @@ class Shipper
      * @param $requestedCode
      * @return array
      */
-    public function getAllowedMethods($requestedCode = null)
+    public function getAllowedMethods()
+    {
+        return $this->getAllowedMethodsByCode();
+    }
+
+    /**
+     * Get allowed shipping methods
+     * @param $requestedCode
+     * @return array
+     */
+    public function getAllowedMethodsByCode($requestedCode = null)
     {
         $arr = [];
 

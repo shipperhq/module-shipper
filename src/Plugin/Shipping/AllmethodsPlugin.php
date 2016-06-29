@@ -89,7 +89,7 @@ class AllmethodsPlugin
                 continue;
             }
             if(strstr($carrierCode, 'shq') && $carrierModel instanceof \ShipperHQ\Shipper\Model\Carrier\Shipper) {
-                $carrierMethods = $carrierModel->getAllowedMethods($carrierCode);
+                $carrierMethods = $carrierModel->getAllowedMethodsByCode($carrierCode);
             }
             else {
                 $carrierMethods = $carrierModel->getAllowedMethods();

@@ -110,7 +110,7 @@ class AllmethodsPlugin
             }
         }
 
-        $this->shipperLogger->postDebug('ShipperHQ', 'Modifying shipping all methods response', $methods);
+        $this->shipperLogger->postDebug('ShipperHQ', 'Modifying shipping all methods response', '');
         return $methods;
 
     }

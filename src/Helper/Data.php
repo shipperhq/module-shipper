@@ -286,6 +286,15 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return $decoded;
     }
 
+    public function decodeShippingDetails($shippingDetailsEnc)
+    {
+        $decoded = array();
+        if(!is_null($shippingDetailsEnc) && $shippingDetailsEnc != '') {
+            $decoded = $this->jsonHelper->jsonDecode($shippingDetailsEnc);
+        }
+        return $decoded;
+    }
+
     /**
      * Retrieve checkout quote model object
      *

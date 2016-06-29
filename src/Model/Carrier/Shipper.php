@@ -299,9 +299,9 @@ class Shipper
         $allMethodsRequest =  $this->shipperMapper->getCredentialsTranslation();
         $requestString = serialize($allMethodsRequest);
         $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
-        $timeout = $this->shipperDataHelper->getWebserviceTimeout();
+        $timeout = $this->restHelper->getWebserviceTimeout();
         if (!$resultSet) {
-            $allowedMethodUrl = $this->shipperDataHelper->getAllowedMethodGatewayUrl();
+            $allowedMethodUrl = $this->restHelper->getAllowedMethodGatewayUrl();
             $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive(
                 $allMethodsRequest, $allowedMethodUrl, $timeout);
             if(is_object($resultSet['result'])) {
@@ -420,8 +420,7 @@ class Shipper
         }
         if (count($arr) < 1 && $this->getConfigFlag(self::ACTIVE_FLAG)) {
             $this->shipperLogger->postDebug('Shipperhq_Shipper', 'No saved allowed methods for ' .$requestedCode,
-                'If you expect to see shipping methods for this carrier, please refresh your carriers by pressing Save
-                 button on the shipping method configuration screen from Stores > Configuration > Shipping Methods');
+                'If you expect to see shipping methods for this carrier, please refresh your carriers by pressing Save button on the shipping method configuration screen from Stores > Configuration > Shipping Methods');
         }
          return $arr;
 

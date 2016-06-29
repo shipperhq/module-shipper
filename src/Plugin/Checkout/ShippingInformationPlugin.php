@@ -96,7 +96,7 @@ class ShippingInformationPlugin
 
         $foundRate = $shippingAddress->getShippingRateByCode($shippingAddress->getShippingMethod());
         if($foundRate && $foundRate->getCarriergroupShippingDetails() != '') {
-            $shipDetails = $this->shipperDataHelper->decode($foundRate->getCarriergroupShippingDetails());
+            $shipDetails = $this->shipperDataHelper->decodeShippingDetails($foundRate->getCarriergroupShippingDetails());
             if(array_key_exists('carrierGroupId', $shipDetails)) {
                 $arrayofShipDetails = array();
                 $arrayofShipDetails[] = $shipDetails;

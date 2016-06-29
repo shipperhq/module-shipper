@@ -175,7 +175,7 @@ class RecordOrder implements ObserverInterface
                 $carrierGroupDetail = $carrierGroupDetailObject->getData('carrier_group_detail');
                 $currentShipDescription = $order->getShippingDescription();
                 $shipDescriptionArray = explode('-', $currentShipDescription);
-                $cgArray = $this->shipperDataHelper->decode($carrierGroupDetail);
+                $cgArray = $this->shipperDataHelper->decodeShippingDetails($carrierGroupDetail);
                 foreach($cgArray as $key => $cgDetail) {
                     if(isset($cgDetail['carrierType']) && $cgDetail['carrierType'] == $original) {
                         $cgDetail['carrierType'] = $carrierTypeArray[1];

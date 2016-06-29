@@ -419,7 +419,7 @@ class Shipper
             }
         }
         if (count($arr) < 1 && $this->getConfigFlag(self::ACTIVE_FLAG)) {
-            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'No saved allowed methods for ' .$requestedCode,
+            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'There are no allowed methods for ' .$requestedCode,
                 'If you expect to see shipping methods for this carrier, please refresh your carriers by pressing Save button on the shipping method configuration screen from Stores > Configuration > Shipping Methods');
         }
          return $arr;

@@ -40,9 +40,9 @@ class ShippingInformationPlugin
      */
     protected $shipperDataHelper;
     /**
-     * @var \ShipperHQ\Shipper\Model\CarrierGroupFactory
+     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
-    protected $carrierGroupFactory;
+    protected $carrierGroupHelper;
     /**
      * Quote repository.
      *
@@ -52,11 +52,11 @@ class ShippingInformationPlugin
 
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
+        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
-        $this->carrierGroupFactory = $carrierGroupFactory;
+        $this->carrierGroupHelper = $carrierGroupHelper;
         $this->quoteRepository = $quoteRepository;
 
     }
@@ -78,52 +78,11 @@ class ShippingInformationPlugin
         $result = $proceed($cartId, $addressInformation);
         $quote = $this->quoteRepository->getActive($cartId);
         $address = $quote->getShippingAddress();
-        $this->saveCarrierGroupInformation($address);
+        $this->carrierGroupHelper->saveCarrierGroupInformation($address,
+            $address->getShippingMethod());
 
         return $result;
 
-    }
-
-    /**
-    * Save the carrier group shipping details for single carriergroup orders and then
-    * return to standard Magento logic to save the method
-    *
-    * @param $shippingMethod
-    * @return array
-    */
-    protected function saveCarrierGroupInformation($shippingAddress)
-    {
-
-        $foundRate = $shippingAddress->getShippingRateByCode($shippingAddress->getShippingMethod());
-        if($foundRate && $foundRate->getCarriergroupShippingDetails() != '') {
-            $shipDetails = $this->shipperDataHelper->decodeShippingDetails($foundRate->getCarriergroupShippingDetails());
-            if(array_key_exists('carrierGroupId', $shipDetails)) {
-                $arrayofShipDetails = array();
-                $arrayofShipDetails[] = $shipDetails;
-
-                $shipDetails = $arrayofShipDetails;
-                $encodedShipDetails = $this->shipperDataHelper->encode($arrayofShipDetails);
-            }
-            else {
-                $encodedShipDetails = $this->shipperDataHelper->encode($shipDetails);
-            }
-
-            $shippingAddress
-                ->setCarrierId($foundRate->getCarrierId())
-                ->setCarrierType($foundRate->getCarrierType())
-                ->save();
-
-            $carrierGroupDetail = $this->carrierGroupFactory->create();
-            $update = ['quote_address_id' => $shippingAddress->getId(),
-                        'carrier_group_detail' => $encodedShipDetails,
-                        'carrier_group_html' => $this->shipperDataHelper->getCarriergroupShippingHtml(
-                                   $encodedShipDetails)];
-            $carrierGroupDetail->setData($update);
-            $carrierGroupDetail->save();
-            //save selected shipping options to items
-
-        }
-        return array();
     }
 
 }

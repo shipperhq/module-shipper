@@ -49,9 +49,9 @@ class SaveShippingAdmin implements ObserverInterface
      */
     protected $shipperDataHelper;
     /**
-     * @var \ShipperHQ\Shipper\Model\CarrierGroupFactory
+     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
-    protected $carrierGroupFactory;
+    protected $carrierGroupHelper;
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
@@ -59,18 +59,18 @@ class SaveShippingAdmin implements ObserverInterface
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
-     * @param  \ShipperHQ\Shipper\Model\Carrier\Shipper $carrier
+     * @param  \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
      * @param  \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
 
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
+        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
 )
     {
         $this->shipperDataHelper = $shipperDataHelper;
-        $this->carrierGroupFactory = $carrierGroupFactory;
+        $this->carrierGroupHelper = $carrierGroupHelper;
         $this->shipperLogger = $shipperLogger;
     }
     /**
@@ -90,109 +90,11 @@ class SaveShippingAdmin implements ObserverInterface
             //if(!empty($orderData['shipping_method_flag']))
             if (!empty($orderData['shipping_method'])) {
                 $shippingMethod = $orderData['shipping_method'];
-                $this->saveCarrierGroupInformation($quote->getShippingAddress(), $shippingMethod);
+                $this->carrierGroupHelper->saveCarrierGroupInformation($quote->getShippingAddress(), $shippingMethod);
             }
             //}
         }
     }
 
-    /**
-     * Save the carrier group shipping details for single carriergroup orders and then
-     * return to standard Magento logic to save the method
-     *
-     * @param $shippingMethod
-     * @return array
-     */
-    protected function saveCarrierGroupInformation($shippingAddress, $shippingMethod)
-    {
-
-        $foundRate = $shippingAddress->getShippingRateByCode($shippingMethod);
-        if($foundRate && $foundRate->getCarriergroupShippingDetails() != '') {
-            $shipDetails = $this->shipperDataHelper->decodeShippingDetails($foundRate->getCarriergroupShippingDetails());
-            if(array_key_exists('carrierGroupId', $shipDetails)) {
-                $arrayofShipDetails = array();
-                $arrayofShipDetails[] = $shipDetails;
-
-                $shipDetails = $arrayofShipDetails;
-                $encodedShipDetails = $this->shipperDataHelper->encode($arrayofShipDetails);
-            }
-            else {
-                $encodedShipDetails = $this->shipperDataHelper->encode($shipDetails);
-            }
-
-            $shippingAddress
-                ->setCarrierId($foundRate->getCarrierId())
-                ->setCarrierType($foundRate->getCarrierType())
-                ->save();
-
-            $carrierGroupDetail = $this->carrierGroupFactory->create();
-            $update = ['quote_address_id' => $shippingAddress->getId(),
-                'carrier_group_detail' => $encodedShipDetails,
-                'carrier_group_html' => $this->shipperDataHelper->getCarriergroupShippingHtml(
-                    $encodedShipDetails)];
-            $carrierGroupDetail->setData($update);
-            $carrierGroupDetail->save();
-            //save selected shipping options to items
-        }
-        return array();
-    }
-
-    /**
-     * Save shipping breakdown per carrier group
-     * @param $observer
-     */
-    public function saveShippingMethodAdmin($observer)
-    {
-        if(!Mage::helper('shipperhq_shipper')->isModuleEnabled('Shipperhq_Shipper', 'carriers/shipper/active')) {
-            return;
-        }
-        $requestData = $observer->getRequestModel()->getPost();
-        $orderData = array();
-        if (isset($requestData['order'])) {
-            $orderData = $requestData['order'];
-        }
-        if(!empty($requestData['shipping_method_flag'])) {
-            $orderData = $requestData;
-        }
-        $quote = $observer->getOrderCreateModel()->getQuote();
-        Mage::helper('shipperhq_shipper')->setQuote($quote);
-
-        if (!empty($orderData['shipping_method_flag'])) {
-            if (!empty($orderData['shipping_method'])) {
-                $shippingMethod = $orderData['shipping_method'];
-                $helper = Mage::getSingleton('shipperhq_shipper/checkout_helper');
-                $helper->saveSingleShippingMethod($quote->getShippingAddress(), $shippingMethod);
-
-                $rate = $quote->getShippingAddress()->getShippingRateByCode($shippingMethod);
-                if(!$rate) {
-                    if (Mage::helper('shipperhq_shipper')->isDebug()) {
-                        Mage::helper('wsalogger/log')->postDebug('Shipperhq_Shipper',
-                            'save Shipping Method', "Can't find rate for selected shipping method of " .$shippingMethod);
-                    }
-                    return;
-                }
-
-                if(Mage::helper('shipperhq_shipper')->isModuleEnabled('Shipperhq_Pbint') &&
-                    Mage::helper('shipperhq_shipper')->isModuleEnabled('Shipperhq_Shipper', 'carriers/shipper/active')) {
-                    $address = $quote->getShippingAddress();
-                    $pbHelper = Mage::getModel('shipperhq_pbint/helper');
-                    $pbHelper->cleanDownSession();
-
-                    if (Mage::helper('shipperhq_pbint')->isPbOrder($address->getCarrierType())) {
-
-                        $result = $this->reserveOrder($pbHelper, $address, $rate->getCarrier(), $rate->getCarriergroupId());
-                    }
-                    else {
-                        if (Mage::helper('shipperhq_shipper')->isDebug()) {
-                            Mage::helper('wsalogger/log')->postDebug('Shipperhq_Shipper',
-                                '', "Selected shipping method is NOT ShipperHQ Pitney");
-                        }
-                    }
-                }
-                $requestData['order']['shipping_method'] = $orderData['shipping_method'];
-            }
-            $observer->getRequestModel()->setPost($requestData);
-        }
-    }
 }
 

@@ -135,7 +135,10 @@ class Shipper
      * @var \ShipperHQ\Lib\Rate\ConfigSettingsFactory
      */
     private $configSettingsFactory;
-
+    /**
+     * @var \ShipperHQ\Lib\AllowedMethods\Helper
+     */
+    private $allowedMethodsHelper;
     /**
      * Rate result data
      *
@@ -183,6 +186,7 @@ class Shipper
         \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
         \ShipperHQ\Lib\Rate\Helper $shipperLibRateHelper,
         \ShipperHQ\Lib\Rate\ConfigSettingsFactory $configSettingsFactory,
+        \ShipperHQ\Lib\AllowedMethods\Helper $allowedMethodsHelper,
         array $data = []
     )
     {
@@ -201,6 +205,7 @@ class Shipper
         $this->carrierGroupFactory = $carrierGroupFactory;
         $this->shipperRateHelper = $shipperLibRateHelper;
         $this->configSettingsFactory = $configSettingsFactory;
+        $this->allowedMethodsHelper = $allowedMethodsHelper;
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
     }
 
@@ -296,125 +301,135 @@ class Shipper
         $result = [];
         $allowedMethods = [];
 
-        if ($this->_scopeConfig->getValue(
-            'carriers/shipper/active',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
-        ) {
+        $allMethodsRequest =  $this->shipperMapper->getCredentialsTranslation();
+        $requestString = serialize($allMethodsRequest);
+        $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
+        $timeout = $this->restHelper->getWebserviceTimeout();
+        if (!$resultSet) {
+            $allowedMethodUrl = $this->restHelper->getAllowedMethodGatewayUrl();
+            $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive(
+                $allMethodsRequest, $allowedMethodUrl, $timeout);
+            if(is_object($resultSet['result'])) {
+                $this->carrierCache->setCachedQuotes($requestString, $resultSet, $this->getCarrierCode());
 
-            $allMethodsRequest =  $this->shipperMapper->getCredentialsTranslation();
-            $requestString = serialize($allMethodsRequest);
-            $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
-            $timeout = $this->restHelper->getWebserviceTimeout();
-            if (!$resultSet) {
-                $allowedMethodUrl = $this->restHelper->getAllowedMethodGatewayUrl();
-                $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive(
-                    $this->shipperMapper->getCredentialsTranslation(), $allowedMethodUrl, $timeout);
-                if(is_object($resultSet['result'])) {
-                    $this->carrierCache->setCachedQuotes($requestString, $resultSet, $this->getCarrierCode());
-                }
             }
-
-            $allowedMethodResponse = $resultSet['result'];
-            $debugData = $resultSet['debug'];
-            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Allowed methods response', $debugData);
-
-            if (!is_object($allowedMethodResponse)) {
-                $this->shipperLogger->postInfo('Shipperhq_Shipper',
-                    'Allowed Methods: No or invalid response received from Shipper HQ', $allowedMethodResponse);
-
-                $shipperHQ = "<a href=https://shipperhq.com/ratesmgr/websites>ShipperHQ</a> ";
-                $result['result'] = false;
-                $result['error'] = 'ShipperHQ is not contactable, verify the details from the website configuration in '
-                    . $shipperHQ;
-                return $result;
-            } else if (count($allowedMethodResponse->errors)) {
-
-                $this->shipperLogger->postInfo('Shipperhq_Shipper',
-                    'Allowed methods: response contained following errors',$allowedMethodResponse);
-                $error = 'ShipperHQ Error: ';
-                foreach ($allowedMethodResponse->errors as $anError) {
-                    if (isset($anError->internalErrorMessage)) {
-                        $error .= ' ' . $anError->internalErrorMessage;
-                    } elseif (isset($anError->externalErrorMessage) && $anError->externalErrorMessage != '') {
-                        $error .= ' ' . $anError->externalErrorMessage;
-                    }
-                }
-                $result['result'] = false;
-                $result['error'] = $error;
-                return $result;
-            } else if (!count($allowedMethodResponse->carrierMethods)) {
-                $this->shipperLogger->postInfo('Shipperhq_Shipper',
-                    'Allowed methods web service did not return any carriers or shipping methods',$allowedMethodResponse);
-                $result['result'] = false;
-                $result['warning'] = 'ShipperHQ Warning: No carriers setup, log in to ShipperHQ Dashboard and create carriers';
-                return $result;
-            }
-
-            $returnedMethods = $allowedMethodResponse->carrierMethods;
-
-            $carrierConfig = [];
-
-            foreach ($returnedMethods as $carrierMethod) {
-
-                $rateMethods = $carrierMethod->methods;
-
-                foreach ($rateMethods as $method) {
-                    if (!is_null($ourCarrierCode) && $carrierMethod->carrierCode != $ourCarrierCode) {
-                        continue;
-                    }
-
-                    $allowedMethodCode = /*$carrierMethod->carrierCode . '_' .*/
-                        $method->methodCode;
-                    $allowedMethodCode = preg_replace('/&|;| /', "_", $allowedMethodCode);
-
-                    if (!array_key_exists($allowedMethodCode, $allowedMethods)) {
-                        $allowedMethods[] = $allowedMethodCode .'==' .$carrierMethod->title . '(' . $method->name . ')';
-                    }
-                }
-
-                $carrierConfig[$carrierMethod->carrierCode]['title'] = $carrierMethod->title;
-                if (isset($carrierMethod->sortOrder)) {
-                    $carrierConfig[$carrierMethod->carrierCode]['sortOrder'] = $carrierMethod->sortOrder;
-                }
-            }
-
-            $this->shipperLogger->postDebug('Shipperhq_Shipper','Allowed methods parsed result ',
-                    $allowedMethods);
-            // go set carrier titles
-            $this->carrierConfigHandler->setCarrierConfig($carrierConfig);
-            $this->saveAllowedMethods($allowedMethods);
         }
+
+        $allowedMethodResponse = $resultSet['result'];
+        $debugData = $resultSet['debug'];
+        $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Allowed methods response', $debugData);
+
+        if (!is_object($allowedMethodResponse)) {
+            $this->shipperLogger->postInfo('Shipperhq_Shipper',
+                'Allowed Methods: No or invalid response received from Shipper HQ', $allowedMethodResponse);
+
+            $shipperHQ = "<a href=https://shipperhq.com/ratesmgr/websites>ShipperHQ</a> ";
+            $result['result'] = false;
+            $result['error'] = 'ShipperHQ is not contactable, verify the details from the website configuration in '
+                . $shipperHQ;
+            return $result;
+        } else if (count($allowedMethodResponse->errors)) {
+
+            $this->shipperLogger->postInfo('Shipperhq_Shipper',
+                'Allowed methods: response contained following errors',$allowedMethodResponse);
+            $error = 'ShipperHQ Error: ';
+            foreach ($allowedMethodResponse->errors as $anError) {
+                if (isset($anError->internalErrorMessage)) {
+                    $error .= ' ' . $anError->internalErrorMessage;
+                } elseif (isset($anError->externalErrorMessage) && $anError->externalErrorMessage != '') {
+                    $error .= ' ' . $anError->externalErrorMessage;
+                }
+            }
+            $result['result'] = false;
+            $result['error'] = $error;
+            return $result;
+        } else if (!count($allowedMethodResponse->carrierMethods)) {
+            $this->shipperLogger->postInfo('Shipperhq_Shipper',
+                'Allowed methods web service did not return any carriers or shipping methods',$allowedMethodResponse);
+            $result['result'] = false;
+            $result['warning'] = 'ShipperHQ Warning: No carriers setup, log in to ShipperHQ Dashboard and create carriers';
+            return $result;
+        }
+        $carrierConfig = $this->allowedMethodsHelper->extractAllowedMethodsAndCarrierConfig(
+            $allowedMethodResponse, $allowedMethods);
+//        $returnedMethods = $allowedMethodResponse->carrierMethods;
+//
+//        $carrierConfig = [];
+//
+//        foreach ($returnedMethods as $carrierMethod) {
+//
+//            $methodList = $carrierMethod->methods;
+//            $methodCodeArray = [];
+//
+//            foreach ($methodList as $method) {
+//                if(!is_null($ourCarrierCode) && $carrierMethod->carrierCode != $ourCarrierCode) {
+//                    continue;
+//                }
+//
+//                $allowedMethodCode = $method->methodCode;
+//                $allowedMethodCode = preg_replace('/&|;| /', "_", $allowedMethodCode);
+//
+//                if (!array_key_exists($allowedMethodCode, $allowedMethods)) {
+//                    $methodCodeArray[$allowedMethodCode] = $method->name;
+//                }
+//            }
+//
+//            $allowedMethods[$carrierMethod->carrierCode] = $methodCodeArray;
+//            $carrierConfig[$carrierMethod->carrierCode]['title'] = $carrierMethod->title;
+//            if(isset($carrierMethod->sortOrder)) {
+//                $carrierConfig[$carrierMethod->carrierCode]['sortOrder'] = $carrierMethod->sortOrder;
+//            }
+//
+//        }
+
+        $this->shipperLogger->postDebug('Shipperhq_Shipper','Allowed methods parsed result ',
+                $allowedMethods);
+        // go set carrier titles
+        $this->carrierConfigHandler->setCarrierConfig($carrierConfig);
+        $this->saveAllowedMethods($allowedMethods);
         return $allowedMethods;
     }
 
     /**
      * Get allowed shipping methods
-     *
+     * @param $requestedCode
      * @return array
      */
     public function getAllowedMethods()
     {
-        //SHQ16-950 - need to cache value so we don't get repeated shipping methods when viewing in shopping cart rules
-        //  $cache = $this->getCache();
-        //  $cachedValue = $cache->load('getAllowedMethods');
-        $arr = array();
-        //   if($cachedValue && $cachedValue =='true') {
-        //      return $arr;
-        //  }
-        $allowed = explode(',', $this->getConfigData('allowed_methods'));
-        foreach ($allowed as $allowedMethod) {
-            $allowedMethodArray = explode('==',$allowedMethod);
-            if(is_array($allowedMethodArray) && count($allowedMethodArray) > 1) {
-                $arr[$allowedMethodArray[0]] = $allowedMethodArray[1];
-            }
+        return $this->getAllowedMethodsByCode();
+    }
+
+    /**
+     * Get allowed shipping methods
+     * @param $requestedCode
+     * @return array
+     */
+    public function getAllowedMethodsByCode($requestedCode = null)
+    {
+        $arr = [];
+
+        $allowedConfigValue = $this->shipperDataHelper->getConfigValue($this->shipperDataHelper->getAllowedMethodsPath());
+
+        $allowed = $this->shipperDataHelper->decode($allowedConfigValue);
+        if(is_null($allowed)) {
+            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Allowed methods config is empty',
+                    'Please refresh your carriers by pressing Save button on the shipping method configuration screen from Stores > Configuration > Shipping Methods');
+            return $arr;
         }
- //        $cache->save('true', 'getAllowedMethods', array("shipperhq_shipper"), 5);
+        $arr = $this->allowedMethodsHelper->getAllowedMethodsArray($allowed, $requestedCode);
+
+        if (count($arr) < 1 && $this->getConfigFlag(self::ACTIVE_FLAG)) {
+            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'There are no allowed methods for ' .$requestedCode,
+                'If you expect to see shipping methods for this carrier, please refresh your carriers by pressing Save button on the shipping method configuration screen from Stores > Configuration > Shipping Methods');
+        }
          return $arr;
+
      }
 
      public function saveAllowedMethods($allowedMethodsArray)
      {
-         $carriersCodesString = implode(',', $allowedMethodsArray);
+         $carriersCodesString = $this->shipperDataHelper->encode($allowedMethodsArray);
          $this->carrierConfigHandler->saveConfig($this->shipperDataHelper->getAllowedMethodsPath(),
              $carriersCodesString);
     }
@@ -580,7 +595,7 @@ class Shipper
                             $rateDetails['carriergroup_detail'];
 
                         $rate->setCarriergroupShippingDetails(
-                            $this->shipperDataHelper->encodeShippingDetails($carrierGroupDetail));
+                            $this->shipperDataHelper->encode($carrierGroupDetail));
                         if (array_key_exists('carrierGroupId', $carrierGroupDetail)) {
                             $rate->setCarriergroupId($carrierGroupDetail['carrierGroupId']);
                         }

@@ -102,10 +102,10 @@ class ShippingInformationPlugin
                 $arrayofShipDetails[] = $shipDetails;
 
                 $shipDetails = $arrayofShipDetails;
-                $encodedShipDetails = $this->shipperDataHelper->encodeShippingDetails($arrayofShipDetails);
+                $encodedShipDetails = $this->shipperDataHelper->encode($arrayofShipDetails);
             }
             else {
-                $encodedShipDetails = $this->shipperDataHelper->encodeShippingDetails($shipDetails);
+                $encodedShipDetails = $this->shipperDataHelper->encode($shipDetails);
             }
 
             $shippingAddress

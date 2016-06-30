@@ -135,7 +135,10 @@ class Shipper
      * @var \ShipperHQ\Lib\Rate\ConfigSettingsFactory
      */
     private $configSettingsFactory;
-
+    /**
+     * @var \ShipperHQ\Lib\AllowedMethods\Helper
+     */
+    private $allowedMethodsHelper;
     /**
      * Rate result data
      *
@@ -183,6 +186,7 @@ class Shipper
         \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
         \ShipperHQ\Lib\Rate\Helper $shipperLibRateHelper,
         \ShipperHQ\Lib\Rate\ConfigSettingsFactory $configSettingsFactory,
+        \ShipperHQ\Lib\AllowedMethods\Helper $allowedMethodsHelper,
         array $data = []
     )
     {
@@ -201,6 +205,7 @@ class Shipper
         $this->carrierGroupFactory = $carrierGroupFactory;
         $this->shipperRateHelper = $shipperLibRateHelper;
         $this->configSettingsFactory = $configSettingsFactory;
+        $this->allowedMethodsHelper = $allowedMethodsHelper;
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
     }
 
@@ -345,36 +350,37 @@ class Shipper
             $result['warning'] = 'ShipperHQ Warning: No carriers setup, log in to ShipperHQ Dashboard and create carriers';
             return $result;
         }
-
-        $returnedMethods = $allowedMethodResponse->carrierMethods;
-
-        $carrierConfig = [];
-
-        foreach ($returnedMethods as $carrierMethod) {
-
-            $methodList = $carrierMethod->methods;
-            $methodCodeArray = [];
-
-            foreach ($methodList as $method) {
-                if(!is_null($ourCarrierCode) && $carrierMethod->carrierCode != $ourCarrierCode) {
-                    continue;
-                }
-
-                $allowedMethodCode = $method->methodCode;
-                $allowedMethodCode = preg_replace('/&|;| /', "_", $allowedMethodCode);
-
-                if (!array_key_exists($allowedMethodCode, $allowedMethods)) {
-                    $methodCodeArray[$allowedMethodCode] = $method->name;
-                }
-            }
-
-            $allowedMethods[$carrierMethod->carrierCode] = $methodCodeArray;
-            $carrierConfig[$carrierMethod->carrierCode]['title'] = $carrierMethod->title;
-            if(isset($carrierMethod->sortOrder)) {
-                $carrierConfig[$carrierMethod->carrierCode]['sortOrder'] = $carrierMethod->sortOrder;
-            }
-
-        }
+        $carrierConfig = $this->allowedMethodsHelper->extractAllowedMethodsAndCarrierConfig(
+            $allowedMethodResponse, $allowedMethods);
+//        $returnedMethods = $allowedMethodResponse->carrierMethods;
+//
+//        $carrierConfig = [];
+//
+//        foreach ($returnedMethods as $carrierMethod) {
+//
+//            $methodList = $carrierMethod->methods;
+//            $methodCodeArray = [];
+//
+//            foreach ($methodList as $method) {
+//                if(!is_null($ourCarrierCode) && $carrierMethod->carrierCode != $ourCarrierCode) {
+//                    continue;
+//                }
+//
+//                $allowedMethodCode = $method->methodCode;
+//                $allowedMethodCode = preg_replace('/&|;| /', "_", $allowedMethodCode);
+//
+//                if (!array_key_exists($allowedMethodCode, $allowedMethods)) {
+//                    $methodCodeArray[$allowedMethodCode] = $method->name;
+//                }
+//            }
+//
+//            $allowedMethods[$carrierMethod->carrierCode] = $methodCodeArray;
+//            $carrierConfig[$carrierMethod->carrierCode]['title'] = $carrierMethod->title;
+//            if(isset($carrierMethod->sortOrder)) {
+//                $carrierConfig[$carrierMethod->carrierCode]['sortOrder'] = $carrierMethod->sortOrder;
+//            }
+//
+//        }
 
         $this->shipperLogger->postDebug('Shipperhq_Shipper','Allowed methods parsed result ',
                 $allowedMethods);
@@ -411,13 +417,8 @@ class Shipper
                     'Please refresh your carriers by pressing Save button on the shipping method configuration screen from Stores > Configuration > Shipping Methods');
             return $arr;
         }
-        foreach ($allowed as $carrierCode => $allowedMethodArray) {
-            if(is_null($requestedCode) || $carrierCode == $requestedCode) {
-                foreach($allowedMethodArray as $methodCode => $allowedMethod) {
-                    $arr[$methodCode] = $allowedMethod;
-                }
-            }
-        }
+        $arr = $this->allowedMethodsHelper->getAllowedMethodsArray($allowed, $requestedCode);
+
         if (count($arr) < 1 && $this->getConfigFlag(self::ACTIVE_FLAG)) {
             $this->shipperLogger->postDebug('Shipperhq_Shipper', 'There are no allowed methods for ' .$requestedCode,
                 'If you expect to see shipping methods for this carrier, please refresh your carriers by pressing Save button on the shipping method configuration screen from Stores > Configuration > Shipping Methods');
@@ -428,7 +429,6 @@ class Shipper
 
      public function saveAllowedMethods($allowedMethodsArray)
      {
-       //  $carriersCodesString = implode(',', $allowedMethodsArray);
          $carriersCodesString = $this->shipperDataHelper->encode($allowedMethodsArray);
          $this->carrierConfigHandler->saveConfig($this->shipperDataHelper->getAllowedMethodsPath(),
              $carriersCodesString);

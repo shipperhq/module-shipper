@@ -116,7 +116,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
                                 \Magento\Checkout\Helper\Data $checkoutHelper
     ) {
          parent::__construct($context);
-
         $this->shipperConfig = $shipperConfig;
         $this->eavConfig = $eavConfig;
         $this->registry = $registry;

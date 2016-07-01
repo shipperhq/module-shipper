@@ -9,7 +9,7 @@ Facts
 
 Description
 -----------
-ShipperHQ will install as a simple shipping carrier in Magento 2. To get started you'll need to sign up for a ShipperHQ account at https://shipperhq.com/magento2.
+ShipperHQ will install as a simple shipping carrier in Magento 2. To get started you'll need to sign up for a ShipperHQ account at [ShipperHQ](https://shipperhq.com/magento2).
 There's no cost for the extension and ShipperHQ is free for 30 days.
 Once installed, you can configure with your ShipperHQ platform credentials to provide multiple carrier rates and manage complex shipping rules via our ShipperHQ dashboard.
 
@@ -31,7 +31,7 @@ We recommend you also install our logging module
 2. composer update
 3. bin/magento setup:upgrade
 
-Further information is available from ShipperHQ docs http://docs.shipperhq.com/installing-magento-2-shipperhq-extension/
+Further information is available from [ShipperHQ documentation](http://docs.shipperhq.com/installing-magento-2-shipperhq-extension/)
 
 Support
 -------

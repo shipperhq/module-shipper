@@ -10,7 +10,9 @@ Facts
 Description
 -----------
 ShipperHQ will install as a simple shipping carrier in Magento 2. To get started you'll need to sign up for a ShipperHQ account at [ShipperHQ](https://shipperhq.com/magento2).
+
 There's no cost for the extension and ShipperHQ is free for 30 days.
+
 Once installed, you can configure with your ShipperHQ platform credentials to provide multiple carrier rates and manage complex shipping rules via our ShipperHQ dashboard.
 
 Compatibility

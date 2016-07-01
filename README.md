@@ -47,6 +47,7 @@ Magento Issues Impacting ShipperHQ
     - Code change required to fix: https://github.com/magento/magento2/commit/32ca5c97304a1bd84cfbee7cec3d57c9307da9a6
 2. Only country, region and postcode are included in shipping request at checkout - you may not see correct rates returned if filtering on city or PO box addresses
     - Github Issue: https://github.com/magento/magento2/issues/3789
+    - Resolved in Magento 2.1 and above
 
 Contribution
 ------------

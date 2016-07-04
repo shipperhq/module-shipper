@@ -352,35 +352,6 @@ class Shipper
         }
         $carrierConfig = $this->allowedMethodsHelper->extractAllowedMethodsAndCarrierConfig(
             $allowedMethodResponse, $allowedMethods);
-//        $returnedMethods = $allowedMethodResponse->carrierMethods;
-//
-//        $carrierConfig = [];
-//
-//        foreach ($returnedMethods as $carrierMethod) {
-//
-//            $methodList = $carrierMethod->methods;
-//            $methodCodeArray = [];
-//
-//            foreach ($methodList as $method) {
-//                if(!is_null($ourCarrierCode) && $carrierMethod->carrierCode != $ourCarrierCode) {
-//                    continue;
-//                }
-//
-//                $allowedMethodCode = $method->methodCode;
-//                $allowedMethodCode = preg_replace('/&|;| /', "_", $allowedMethodCode);
-//
-//                if (!array_key_exists($allowedMethodCode, $allowedMethods)) {
-//                    $methodCodeArray[$allowedMethodCode] = $method->name;
-//                }
-//            }
-//
-//            $allowedMethods[$carrierMethod->carrierCode] = $methodCodeArray;
-//            $carrierConfig[$carrierMethod->carrierCode]['title'] = $carrierMethod->title;
-//            if(isset($carrierMethod->sortOrder)) {
-//                $carrierConfig[$carrierMethod->carrierCode]['sortOrder'] = $carrierMethod->sortOrder;
-//            }
-//
-//        }
 
         $this->shipperLogger->postDebug('Shipperhq_Shipper','Allowed methods parsed result ',
                 $allowedMethods);

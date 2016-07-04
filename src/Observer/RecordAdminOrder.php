@@ -42,39 +42,8 @@ use Magento\Framework\Message\ManagerInterface;
 /**
  * ShipperHQ Shipper module observer
  */
-class RecordOrder extends AbstractRecordOrder implements ObserverInterface
+class RecordAdminOrder extends AbstractRecordOrder implements ObserverInterface
 {
-    /**
-     * @var \Magento\Sales\Model\OrderFactory
-     */
-    protected $orderFactory;
-    /**
-     * @var \Magento\Checkout\Model\Session
-     */
-    protected $checkoutSession;
-
-    /**
-     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
-     * @param  \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory
-     * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
-     * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
-     * @param \Magento\Sales\Model\OrderFactory $orderFactory
-     * @param \Magento\Checkout\Model\Session $checkoutSession
-     */
-    public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Magento\Checkout\Model\Session $checkoutSession
-    )
-    {
-        $this->orderFactory = $orderFactory;
-        $this->checkoutSession = $checkoutSession;
-        parent::__construct($shipperDataHelper, $carrierGroupFactory, $quoteRepository, $shipperLogger);
-    }
-
     /**
      * Record order shipping information after order is placed
      *
@@ -84,15 +53,11 @@ class RecordOrder extends AbstractRecordOrder implements ObserverInterface
     public function execute(EventObserver $observer)
     {
         if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
-            $order = $this->orderFactory->create()->loadByIncrementId(
-                $this->checkoutSession->getLastRealOrderId()
-            );
+            $order = $observer->getEvent()->getData('order');
             if($order->getIncrementId()) {
                 $this->recordOrder($order);
             }
-
         }
     }
-
 }
 

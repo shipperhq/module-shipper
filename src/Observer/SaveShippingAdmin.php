@@ -31,9 +31,18 @@
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace ShipperHQ\Shipper\Plugin\Checkout;
 
-class ShippingInformationPlugin
+namespace ShipperHQ\Shipper\Observer;
+
+use Magento\Framework\Event\Observer as EventObserver;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Message\ManagerInterface;
+
+
+/**
+ * ShipperHQ Shipper module observer
+ */
+class SaveShippingAdmin implements ObserverInterface
 {
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
@@ -44,45 +53,48 @@ class ShippingInformationPlugin
      */
     protected $carrierGroupHelper;
     /**
-     * Quote repository.
-     *
-     * @var \Magento\Quote\Api\CartRepositoryInterface
+     * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
-    protected $quoteRepository;
+    private $shipperLogger;
 
+    /**
+     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+     * @param  \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
+     * @param  \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
+
+     */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
-    ) {
+        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
+)
+    {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
-        $this->quoteRepository = $quoteRepository;
-
+        $this->shipperLogger = $shipperLogger;
     }
-
     /**
-     *Set additional information for shipping address
+     * Record order shipping information after order is placed
      *
-     * @param \Magento\Checkout\Model\ShippingInformationManagement $subject
-     * @param callable $proceed
-     *
-     * @return \Magento\Checkout\Api\Data\PaymentDetailsInterface $paymentDetails
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @param EventObserver $observer
+     * @return void
      */
-    public function aroundSaveAddressInformation(\Magento\Checkout\Model\ShippingInformationManagement $subject, $proceed,
-                                                 $cartId,
-                                                 \Magento\Checkout\Api\Data\ShippingInformationInterface $addressInformation)
+    public function execute(EventObserver $observer)
     {
-
-        $result = $proceed($cartId, $addressInformation);
-        $quote = $this->quoteRepository->getActive($cartId);
-        $address = $quote->getShippingAddress();
-        $this->carrierGroupHelper->saveCarrierGroupInformation($address,
-            $address->getShippingMethod());
-
-        return $result;
-
+        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
+            $requestData = $observer->getRequestModel()->getPost();
+            if (isset($requestData['order'])) {
+                $orderData = $requestData['order'];
+            }
+            $quote = $observer->getSession()->getQuote();
+            //if(!empty($orderData['shipping_method_flag']))
+            if (!empty($orderData['shipping_method'])) {
+                $shippingMethod = $orderData['shipping_method'];
+                $this->carrierGroupHelper->saveCarrierGroupInformation($quote->getShippingAddress(), $shippingMethod);
+            }
+            //}
+        }
     }
 
 }
+

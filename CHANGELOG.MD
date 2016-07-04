@@ -45,3 +45,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [20.0.10] - 2016-06-27
 ### Added
 - SHQ16-1093 - restructure rate processing
+
+## [20.0.11] - 2016-07-04
+### Added
+- SHQ16-1066 - shipping method filtering in shopping cart promotions
+- SHQ16-1031 - single carrier list shipping logic for admin orders
+- SHQ16-1189 - carrier validation for all address fields
+- SHQ16-1201 - Upgrade data script changes and attribute synch ignore empty value

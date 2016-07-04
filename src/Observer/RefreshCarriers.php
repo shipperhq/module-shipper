@@ -89,7 +89,7 @@ class RefreshCarriers implements ObserverInterface
                 $message = __($refreshResult['error']);
                 $this->messageManager->addError($message);
             } else {
-                $message = __('%1 shipping methods have been updated from ShipperHQ', count($refreshResult));
+                $message = __('%1 carriers have been updated from ShipperHQ', count($refreshResult));
                 $this->messageManager->addSuccess($message);
             }
         }

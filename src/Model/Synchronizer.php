@@ -345,7 +345,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                         //TODO add store selector in here
                         $storeId = '';
                         foreach ($trackValues as $key => $option) {
-                            if($option->getLabel() == '') {
+                            if(ctype_space($option->getLabel()) || $option->getLabel() == '') {
                                 unset($trackValues[$key]);
                                 continue;
                             }

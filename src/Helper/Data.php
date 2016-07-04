@@ -34,6 +34,7 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
+use Magento\Framework\Webapi\Exception;
 use Magento\Store\Model\Store;
 use ShipperHQ\Shipper\Helper\Config;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
@@ -115,7 +116,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
                                 \Magento\Checkout\Helper\Data $checkoutHelper
     ) {
          parent::__construct($context);
-
         $this->shipperConfig = $shipperConfig;
         $this->eavConfig = $eavConfig;
         $this->registry = $registry;
@@ -263,9 +263,26 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return 'checkout/multishipping/shipping.phtml';
     }
 
-    public function encodeShippingDetails($shippingDetails)
+    public function encode($data)
     {
-        return $this->jsonHelper->jsonEncode($shippingDetails);
+        return $this->jsonHelper->jsonEncode($data);
+    }
+
+    public function decode($data)
+    {
+        $decoded = array();
+        if(!is_null($data) && $data != '') {
+            try {
+                $result = json_decode($data);
+                if(!is_null($result)) {
+                    $decoded = $result;
+                }
+            }
+            catch(Exception $e) {
+                return $decoded;
+            }
+        }
+        return $decoded;
     }
 
     public function decodeShippingDetails($shippingDetailsEnc)
@@ -365,7 +382,7 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
 
     public function getCarriergroupShippingHtml($encodedDetails)
     {
-        $decodedDetails = self::decodeShippingDetails($encodedDetails);
+        $decodedDetails = self::decode($encodedDetails);
         $htmlText='';
         foreach ($decodedDetails as $shipLine) {
             if(!is_array($shipLine) || !array_key_exists('name', $shipLine)) {

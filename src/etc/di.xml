@@ -5,16 +5,22 @@
             <argument name="logger" xsi:type="object">ShipperHQ\Logger\Model\Logger</argument>
         </arguments>
     </type>
-    <type name="\Magento\Quote\Model\Quote\Address\Rate">
+    <type name="Magento\Quote\Model\Quote\Address\Rate">
         <plugin name="shipperhq_shipper_model_sales_quote_address_rate"
                 type="ShipperHQ\Shipper\Model\Sales\Quote\Address\RatePlugin"
                 sortOrder="10"
                 disabled="false"/>
     </type>
-    <type name="\Magento\Checkout\Model\ShippingInformationManagement">
+    <type name="Magento\Checkout\Model\ShippingInformationManagement">
         <plugin name="shipperhq_shipper_plugin_checkout_shipping_information_management"
                 type="ShipperHQ\Shipper\Plugin\Checkout\ShippingInformationPlugin"
                 sortOrder="10"
+                disabled="false"/>
+    </type>
+    <type name="Magento\Shipping\Model\Config\Source\Allmethods">
+        <plugin name="shipperhq_shipper_plugin_shipping_config_source_allmethods"
+                type="ShipperHQ\Shipper\Plugin\Shipping\AllmethodsPlugin"
+                sortOrder="1"
                 disabled="false"/>
     </type>
 </config>

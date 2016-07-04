@@ -9,7 +9,11 @@ Facts
 
 Description
 -----------
-ShipperHQ will install as a simple shipping carrier in Magento 2. Once installed you can configure with your ShipperHQ platform credentials to provide multiple carrier rates and manage complex shipping rules via our ShipperHQ dashboard.
+ShipperHQ will install as a simple shipping carrier in Magento 2. To get started you'll need to sign up for a ShipperHQ account at [ShipperHQ](https://shipperhq.com/magento2).
+
+There's no cost for the extension and ShipperHQ is free for 30 days.
+
+Once installed, you can configure with your ShipperHQ platform credentials to provide multiple carrier rates and manage complex shipping rules via our ShipperHQ dashboard.
 
 Compatibility
 -------------
@@ -29,6 +33,8 @@ We recommend you also install our logging module
 2. composer update
 3. bin/magento setup:upgrade
 
+Further information is available from [ShipperHQ documentation](http://docs.shipperhq.com/installing-magento-2-shipperhq-extension/)
+
 Support
 -------
 If you have any issues with this extension, open an issue on [GitHub](https://github.com/shipperhq/module-shipper/issues).
@@ -41,6 +47,7 @@ Magento Issues Impacting ShipperHQ
     - Code change required to fix: https://github.com/magento/magento2/commit/32ca5c97304a1bd84cfbee7cec3d57c9307da9a6
 2. Only country, region and postcode are included in shipping request at checkout - you may not see correct rates returned if filtering on city or PO box addresses
     - Github Issue: https://github.com/magento/magento2/issues/3789
+    - Resolved in Magento 2.1 and above
 
 Contribution
 ------------

@@ -52,3 +52,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - SHQ16-1031 - single carrier list shipping logic for admin orders
 - SHQ16-1189 - carrier validation for all address fields
 - SHQ16-1201 - Upgrade data script changes and attribute synch ignore empty value
+
+## [20.0.13] - 2016-07-05
+### Added
+- SHQ16-636 - record item level carrier group detail

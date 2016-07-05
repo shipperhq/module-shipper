@@ -76,12 +76,11 @@ class CarrierGroup extends Data
             if(array_key_exists('carrierGroupId', $shipDetails)) {
                 $arrayofShipDetails = [];
                 $arrayofShipDetails[] = $shipDetails;
-
-                $encodedShipDetails = $this->shipperDataHelper->encode($arrayofShipDetails);
             }
             else {
-                $encodedShipDetails = $this->shipperDataHelper->encode($shipDetails);
+                $arrayofShipDetails = $shipDetails;
             }
+            $encodedShipDetails = $this->shipperDataHelper->encode($arrayofShipDetails);
 
             $shippingAddress
                 ->setCarrierId($foundRate->getCarrierId())
@@ -96,6 +95,7 @@ class CarrierGroup extends Data
             $carrierGroupDetail->setData($update);
             $carrierGroupDetail->save();
             //save selected shipping options to items
+            $this->shipperDataHelper->setShippingOnItems($arrayofShipDetails,  $shippingAddress);
         }
         return true;
     }

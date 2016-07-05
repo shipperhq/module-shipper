@@ -24,5 +24,27 @@
                 <aspect name="to_quote_address" />
             </field>
         </fieldset>
+        <fieldset id="quote_convert_item">
+            <field name="carriergroup_id">
+                <aspect name="to_order_item" />
+            </field>
+            <field name="carriergroup">
+                <aspect name="to_order_item" />
+            </field>
+            <field name="carriergroup_shipping">
+                <aspect name="to_order_item" />
+            </field>
+        </fieldset>
+        <fieldset id="sales_convert_order_item">
+            <field name="carriergroup_id">
+                <aspect name="to_quote_item" />
+            </field>
+            <field name="carriergroup">
+                <aspect name="to_quote_item" />
+            </field>
+            <field name="carriergroup_shipping">
+                <aspect name="to_quote_item" />
+            </field>
+        </fieldset>
     </scope>
 </config>

@@ -110,6 +110,7 @@ Abstract class AbstractRecordOrder implements ObserverInterface
         $shippingAddress = $quote->getShippingAddress();
         $carrierType = $shippingAddress->getCarrierType();
         $order->setCarrierType($carrierType);
+        $this->recordOrderItems($order, $quote);
         if(strstr($order->getCarrierType(), 'shqshared_')) {
             $original  = $order->getCarrierType();
             $carrierTypeArray = explode('_', $order->getCarrierType());
@@ -142,6 +143,21 @@ Abstract class AbstractRecordOrder implements ObserverInterface
                     'Resetting carrier type on order to be ' .$carrierTypeArray[1]);
 
             }
+        }
+    }
+
+    protected function recordOrderItems($order, $quote)
+    {
+        foreach($order->getAllItems() as $orderItem) {
+            foreach($quote->getAllItems() as $quoteItem) {
+                if($quoteItem->getId() == $orderItem->getQuoteItemId()) {
+                    $orderItem->setCarriergroupId($quoteItem->getCarriergroupId());
+                    $orderItem->setCarriergroup($quoteItem->getCarriergroup());
+                    $orderItem->setCarriergroupShipping($quoteItem->getCarriergroupShipping());
+                    $orderItem->save();
+                }
+            }
+
         }
     }
 }

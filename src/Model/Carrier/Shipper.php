@@ -490,6 +490,20 @@ class Shipper
             $carrierRates = [];
         }
 
+        //needs correct processing based on use cases of mix between existing and returned value
+        $shippingAddress = $this->shipperDataHelper->getQuote()->getShippingAddress();
+        $addressType = $this->shipperRateHelper->extractDestinationType($shipperResponse);
+        if($addressType) {
+             $shippingAddress->setDestinationType($addressType)
+                            ->save();
+        }
+        $adressValidation = $this->shipperRateHelper->extractAddressValidationStatus($shipperResponse);
+        if($adressValidation) {
+            $shippingAddress->setValidationStatus($adressValidation)
+                ->save();
+        }
+
+        
         if (count($carrierRates) == 0) {
             $this->shipperLogger->postInfo('Shipperhq_Shipper','Shipper HQ did not return any carrier rates',$debugData);
             return $result;

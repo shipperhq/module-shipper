@@ -40,6 +40,7 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Quote\Setup\QuoteSetupFactory;
 use Magento\Sales\Setup\SalesSetupFactory;
+use Magento\Customer\Setup\CustomerSetupFactory;
 
 use Magento\Framework\Setup\UpgradeDataInterface;
 
@@ -65,6 +66,12 @@ class UpgradeData implements UpgradeDataInterface
      * @var SalesSetupFactory
      */
     protected $salesSetupFactory;
+    /**
+     * Customer setup factory
+     *
+     * @var CustomerSetupFactory
+     */
+    private $customerSetupFactory;
 
     /**
      * @param SalesSetupFactory $salesSetupFactory
@@ -73,11 +80,13 @@ class UpgradeData implements UpgradeDataInterface
     public function __construct(
         CategorySetupFactory $categorySetupFactory,
         QuoteSetupFactory $quoteSetupFactory,
-        SalesSetupFactory $salesSetupFactory
+        SalesSetupFactory $salesSetupFactory,
+        CustomerSetupFactory $customerSetupFactory
     ) {
         $this->categorySetupFactory = $categorySetupFactory;
         $this->quoteSetupFactory = $quoteSetupFactory;
         $this->salesSetupFactory = $salesSetupFactory;
+        $this->customerSetupFactory = $customerSetupFactory;
     }
 
     /**
@@ -376,6 +385,22 @@ class UpgradeData implements UpgradeDataInterface
             'used_in_product_listing'  => false
         ]);
 
+        /** @var \Magento\Quote\Setup\QuoteSetup $quoteSetup */
+        $quoteSetup = $this->quoteSetupFactory->create(['setup' => $setup]);
+        $salesSetup = $this->salesSetupFactory->create(['setup' => $setup]);
+        $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
+
+        $destinationTypeAttr = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Address Type'];
+        $quoteSetup->addAttribute('quote_address' , 'destination_type', $destinationTypeAttr);
+        $salesSetup->addAttribute('order', 'destination_type', $destinationTypeAttr);
+        $customerSetup->addAttribute('customer_address', 'destination_type', $destinationTypeAttr);
+
+        $addressValiationStatus = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Address Validation Status'];
+        $quoteSetup->addAttribute('quote_address' , 'validation_status', $addressValiationStatus);
+        $salesSetup->addAttribute('order', 'validation_status', $addressValiationStatus);
+        $customerSetup->addAttribute('customer_address', 'validation_status', $addressValiationStatus);
+
         $installer->endSetup();
+
     }
 }

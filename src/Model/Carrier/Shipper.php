@@ -248,6 +248,13 @@ class Shipper
             }
         }
 
+        $request->setDestCity("New York");
+        $request->setDestStreet("51 E BROADWAY");
+        $shippingAddress = $this->shipperDataHelper->getQuote()->getShippingAddress();
+
+        $request->setValidateAddress($this->shipperRateHelper->shouldValidateAddress(
+            $shippingAddress->getValidationStatus(), $shippingAddress->getDestinationType()));
+
         $isCheckout = $this->shipperDataHelper->isCheckout();
         $cartType = (!is_null($isCheckout) && $isCheckout != 1) ? "CART" : "STD";
         if ($this->shipperDataHelper->isMultiAddressCheckout()) {
@@ -489,6 +496,20 @@ class Shipper
         } else {
             $carrierRates = [];
         }
+
+        //needs correct processing based on use cases of mix between existing and returned value
+        $shippingAddress = $this->shipperDataHelper->getQuote()->getShippingAddress();
+        $addressType = $this->shipperRateHelper->extractDestinationType($shipperResponse);
+        if($addressType) {
+             $shippingAddress->setDestinationType($addressType)
+                            ->save();
+        }
+        $adressValidation = $this->shipperRateHelper->extractAddressValidationStatus($shipperResponse);
+        if($adressValidation) {
+            $shippingAddress->setValidationStatus($adressValidation)
+                ->save();
+        }
+
 
         if (count($carrierRates) == 0) {
             $this->shipperLogger->postInfo('Shipperhq_Shipper','Shipper HQ did not return any carrier rates',$debugData);

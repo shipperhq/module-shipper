@@ -147,6 +147,9 @@ class Shipper
     protected $result = null;
     protected $carrierGroupFactory;
 
+    protected static $shippingOptions = ['liftgate_required', 'notify_required', 'inside_delivery', 'destination_type'];
+
+
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
      * @param \ShipperHQ\Shipper\Helper\Rest $restHelper
@@ -252,6 +255,8 @@ class Shipper
 
         $request->setValidateAddress($this->shipperRateHelper->shouldValidateAddress(
             $shippingAddress->getValidationStatus(), $shippingAddress->getDestinationType()));
+
+        $request->setSelectedOptions($this->getSelectedOptions($shippingAddress));
 
         $isCheckout = $this->shipperDataHelper->isCheckout();
         $cartType = (!is_null($isCheckout) && $isCheckout != 1) ? "CART" : "STD";
@@ -780,6 +785,18 @@ class Shipper
             $result->append($method);
         }
         return $result;
+    }
+
+    protected function  getSelectedOptions($shippingAddress)
+    {
+        $shippingOptions = [];
+
+        foreach (self::$shippingOptions as $option) {
+            if ($shippingAddress->getData($option) != '') {
+                $shippingOptions[] = ['name' => $option, 'value' => $shippingAddress->getData($option)];
+            }
+        }
+        return $shippingOptions;
     }
 
 }

@@ -735,17 +735,8 @@ class ShipperMapper
 
     protected function getSelectedOptions($request)
     {
-        $shippingOptions = [];
-        if ($request->getQuote() && $shippingAddress = $request->getQuote()->getShippingAddress()) {
-            foreach (self::$shippingOptions as $option) {
-                if ($shippingAddress->getData($option) != '') {
-                    $shippingOptions[] = ['name' => $option, 'value' => $shippingAddress->getData($option)];
-                }
-            }
-        }
-
+        $shippingOptions = $request->getSelectedOptions();
         return $this->selectedOptionsFactory->create(['options' => $shippingOptions]);
-
     }
 
     /**

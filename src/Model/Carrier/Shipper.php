@@ -247,9 +247,7 @@ class Shipper
                 $request->setQuote($item->getQuote());
             }
         }
-
-        $request->setDestCity("New York");
-        $request->setDestStreet("51 E BROADWAY");
+        
         $shippingAddress = $this->shipperDataHelper->getQuote()->getShippingAddress();
 
         $request->setValidateAddress($this->shipperRateHelper->shouldValidateAddress(

@@ -112,6 +112,19 @@ Abstract class AbstractRecordOrder implements ObserverInterface
         $order->setCarrierType($carrierType);
         $order->setDestinationType($shippingAddress->getDestinationType());
         $order->setValidationStatus($shippingAddress->getValidationStatus());
+        if($shippingAddress->getCustomerId()) {
+            $customerAddresses = $quote->getCustomer()->getAddresses();
+            foreach($customerAddresses as $address) {
+
+              //  $currentValue = $address->getValidationStatus();
+
+                if($address->getId() == $shippingAddress->getCustomerAddressId()) {
+                    $address->setCustomAttribute('validation_status',$shippingAddress->getValidationStatus());
+                    $address->setCustomAttribute('destination_type', $shippingAddress->getDestinationType());
+                   // $address->save();
+                }
+            }
+        }
         $this->recordOrderItems($order, $quote);
         if(strstr($order->getCarrierType(), 'shqshared_')) {
             $original  = $order->getCarrierType();

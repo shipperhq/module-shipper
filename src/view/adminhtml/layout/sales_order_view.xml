@@ -10,7 +10,7 @@
                 </argument>
             </arguments>
             <block class="Magento\Sales\Block\Adminhtml\Items\Column\DefaultColumn" name="column_carriergroup" template="ShipperHQ_Shipper::order/view/carriergroup.phtml" group="column"/>
-            <block class="Magento\Sales\Block\Adminhtml\Items\Column\DefaultColumn" name="column_carriergroup_shipping" template="items/column/name.phtml" group="column"/>
+            <block class="Magento\Sales\Block\Adminhtml\Items\Column\DefaultColumn" name="column_carriergroup_shipping" template="ShipperHQ_Shipper::order/view/carriergroup_shipping.phtml" group="column"/>
             <!-- using plugin instead due to following issue -->
             <!--https://github.com/magento/magento2/issues/3724 -->
             <!--<referenceBlock name="default">-->

@@ -31,34 +31,19 @@
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace ShipperHQ\Shipper\Plugin\Checkout;
+namespace ShipperHQ\Shipper\Plugin\Adminhtml;
 
-class ShippingInformationPlugin
+class DefaultRendererPlugin
 {
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
      */
     protected $shipperDataHelper;
-    /**
-     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
-     */
-    protected $carrierGroupHelper;
-    /**
-     * Quote repository.
-     *
-     * @var \Magento\Quote\Api\CartRepositoryInterface
-     */
-    protected $quoteRepository;
 
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
+        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
-        $this->carrierGroupHelper = $carrierGroupHelper;
-        $this->quoteRepository = $quoteRepository;
-
     }
 
     /**

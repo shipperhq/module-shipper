@@ -23,4 +23,8 @@
                 sortOrder="1"
                 disabled="false"/>
     </type>
+    <type name="Magento\Sales\Block\Adminhtml\Order\View\Items\Renderer\DefaultRenderer">
+        <plugin name="shipperhq_shipper_plugin_adminhtml_order_items_getcolumns"
+                type="ShipperHQ\Shipper\Plugin\Adminhtml\DefaultRendererPlugin" sortOrder="20"/>
+    </type>
 </config>

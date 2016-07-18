@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <!--<block class="Magento\Sales\Block\Adminhtml\Order\View\Items" name="order_items" template="ShipperHQ_Shipper::order/view/items.phtml">-->
+        <referenceBlock name="order_items">
+            <arguments>
+                <argument name="columns" xsi:type="array">
+                    <item name="carriergroup" xsi:type="string" translate="true">Origin</item>
+                    <item name="carriergroup_shipping" xsi:type="string" translate="true">Shipping Method</item>
+                </argument>
+            </arguments>
+            <block class="Magento\Sales\Block\Adminhtml\Items\Column\DefaultColumn" name="column_carriergroup" template="ShipperHQ_Shipper::order/view/carriergroup.phtml" group="column"/>
+            <block class="Magento\Sales\Block\Adminhtml\Items\Column\DefaultColumn" name="column_carriergroup_shipping" template="ShipperHQ_Shipper::order/view/carriergroup_shipping.phtml" group="column"/>
+            <!-- using plugin instead due to following issue -->
+            <!--https://github.com/magento/magento2/issues/3724 -->
+            <!--<referenceBlock name="default">-->
+                <!--<arguments>-->
+                    <!--<argument name="columns" xsi:type="array">-->
+                        <!--<item name="carriergroup" xsi:type="string" translate="false">col-carriergroup</item>-->
+                        <!--<item name="carriergroup_shipping" xsi:type="string" translate="false">col-carriergroup_shipping</item>-->
+                    <!--</argument>-->
+                <!--</arguments>-->
+            <!--</referenceBlock>-->
+        </referenceBlock>
+    </body>
+</page>

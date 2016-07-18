@@ -407,6 +407,7 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
                 if(array_key_exists($carrierGroupId, $itemsGrouped)) {
                     foreach($itemsGrouped[$carrierGroupId] as $item) {
                         $item->setCarriergroupShipping($shippingText);
+                        $item->save();
                     }
                 }
 

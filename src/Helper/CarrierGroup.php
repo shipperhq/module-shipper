@@ -93,7 +93,7 @@ class CarrierGroup extends Data
                 'carrier_group_html' => $this->getCarriergroupShippingHtml(
                     $encodedShipDetails)];
             $carrierGroupDetail->setData($update);
-            $carrierGroupDetail->save();
+           // $carrierGroupDetail->save();
             //save selected shipping options to items
             $this->shipperDataHelper->setShippingOnItems($arrayofShipDetails,  $shippingAddress);
         }

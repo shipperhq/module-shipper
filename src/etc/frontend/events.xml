@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="controller_action_predispatch_checkout_cart_index">
+        <observer name="shipperhq_set_cart" instance="ShipperHQ\Shipper\Observer\SetCartFlag"/>
+    </event>
+    <event name="controller_action_predispatch_checkout_index_index">
+        <observer name="shipperhq_set_checkout" instance="ShipperHQ\Shipper\Observer\SetCheckoutFlag"/>
+    </event>
+    <event name="checkout_controller_multishipping_shipping_post">
+        <observer name="shipperhq_multiaddress_save_shipping" instance="ShipperHQ\Shipper\Observer\SaveShippingMulti" />
+    </event>
+    <event name="checkout_onepage_controller_success_action">
+        <observer name="shipperhq_record_order" instance="ShipperHQ\Shipper\Observer\RecordOrder" />
+    </event>
+    <event name="multishipping_checkout_controller_success_action">
+        <observer name="shipperhq_record_order_multi" instance="ShipperHQ\Shipper\Observer\RecordMultiOrder" />
+    </event>
+</config>

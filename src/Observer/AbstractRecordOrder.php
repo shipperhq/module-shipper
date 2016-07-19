@@ -81,25 +81,6 @@ Abstract class AbstractRecordOrder implements ObserverInterface
 
     }
 
-    //TODO multiaddress multishipping_checkout_controller_success_action
-
-//    public function checkoutMulitaddressSuccess($observer)
-//    {
-//        if(!Mage::helper('shipperhq_shipper')->isModuleEnabled('Shipperhq_Shipper', 'carriers/shipper/active')) {
-//            return;
-//        }
-//        $orderIds = $observer->getEvent()->getOrderIds();
-//        if (empty($orderIds) || !is_array($orderIds)) {
-//            return;
-//        }
-//        foreach($orderIds as $orderId) {
-//            $order = Mage::getModel('sales/order')->load($orderId);
-//            if($order->getIncrementId()) {
-//                $this->confirmOrder($order);
-//            }
-//        }
-//    }
-
     protected function recordOrder($order)
     {
         $customOrderId = null;

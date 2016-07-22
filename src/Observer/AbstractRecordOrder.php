@@ -36,7 +36,6 @@ namespace ShipperHQ\Shipper\Observer;
 
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Message\ManagerInterface;
 
 
 /**
@@ -78,7 +77,6 @@ Abstract class AbstractRecordOrder implements ObserverInterface
         $this->carrierGroupFactory = $carrierGroupFactory;
         $this->quoteRepository = $quoteRepository;
         $this->shipperLogger = $shipperLogger;
-
     }
 
     protected function recordOrder($order)
@@ -93,19 +91,7 @@ Abstract class AbstractRecordOrder implements ObserverInterface
         $order->setCarrierType($carrierType);
         $order->setDestinationType($shippingAddress->getDestinationType());
         $order->setValidationStatus($shippingAddress->getValidationStatus());
-        if($shippingAddress->getCustomerId()) {
-            $customerAddresses = $quote->getCustomer()->getAddresses();
-            foreach($customerAddresses as $address) {
 
-              //  $currentValue = $address->getValidationStatus();
-
-                if($address->getId() == $shippingAddress->getCustomerAddressId()) {
-                    $address->setCustomAttribute('validation_status',$shippingAddress->getValidationStatus());
-                    $address->setCustomAttribute('destination_type', $shippingAddress->getDestinationType());
-                   // $address->save();
-                }
-            }
-        }
         $this->recordOrderItems($order, $quote);
         if(strstr($order->getCarrierType(), 'shqshared_')) {
             $original  = $order->getCarrierType();

@@ -393,12 +393,48 @@ class UpgradeData implements UpgradeDataInterface
         $destinationTypeAttr = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Address Type'];
         $quoteSetup->addAttribute('quote_address' , 'destination_type', $destinationTypeAttr);
         $salesSetup->addAttribute('order', 'destination_type', $destinationTypeAttr);
-        $customerSetup->addAttribute('customer_address', 'destination_type', $destinationTypeAttr);
+
+        $destinationTypeAddressAttr = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            'label' => 'Address Type',
+
+            'system' => 0, // <-- important, otherwise values aren't saved.
+                            // @see Magento\Customer\Model\Metadata\AddressMetadata::getCustomAttributesMetadata()
+//            'visible' => false,
+            'required' => false,
+            'position' => 100,
+            'comment' => 'ShipperHQ Address Type'
+        ];
+        $customerSetup->addAttribute('customer_address', 'destination_type', $destinationTypeAddressAttr);
+
+
 
         $addressValiationStatus = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Address Validation Status'];
         $quoteSetup->addAttribute('quote_address' , 'validation_status', $addressValiationStatus);
         $salesSetup->addAttribute('order', 'validation_status', $addressValiationStatus);
-        $customerSetup->addAttribute('customer_address', 'validation_status', $addressValiationStatus);
+
+        $validationStatusAddressAttr = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            'label' => 'Address Validation',
+
+            'system' => 0, // <-- important, otherwise values aren't saved.
+            // @see Magento\Customer\Model\Metadata\AddressMetadata::getCustomAttributesMetadata()
+//            'visible' => false,
+            'required' => false,
+            'position' => 101,
+            'comment' => 'ShipperHQ Address Validation Status'
+        ];
+        $customerSetup->addAttribute('customer_address', 'validation_status', $validationStatusAddressAttr);
+
+        // add attribute to form
+        /** @var  $attribute */
+        $attribute = $customerSetup->getEavConfig()->getAttribute('customer_address', 'validation_status');
+        $attribute->setData('used_in_forms', ['adminhtml_customer_address']);
+        $attribute->save();
+
+        $attribute = $customerSetup->getEavConfig()->getAttribute('customer_address', 'destination_type');
+        $attribute->setData('used_in_forms', ['adminhtml_customer_address']);
+        $attribute->save();
 
         $installer->endSetup();
 

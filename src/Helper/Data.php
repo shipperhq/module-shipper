@@ -482,4 +482,23 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return $carrier;
     }
 
+    /**
+     * @param $shippingAddress
+     * @return int
+     */
+    public function getAddressKey($shippingAddress)
+    {
+
+        $addressArray = [
+            implode(',',$shippingAddress->getStreet()),
+            $shippingAddress->getCity(),
+            $shippingAddress->getPostcode(),
+            $shippingAddress->getRegionId(),
+            $shippingAddress->getCountryCode()
+        ];
+        $key = implode(',', $addressArray);
+
+        return crc32($key);
+    }
+
 }

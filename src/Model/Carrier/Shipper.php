@@ -405,6 +405,18 @@ class Shipper
              $carriersCodesString);
     }
 
+    /**
+     *  Retrieve sort order of current carrier
+     *
+     * @return mixed
+     */
+    public function getSortOrder()
+    {
+        $path = 'carriers/'.$this->getId().'/sort_order';
+        $value = $this->shipperDataHelper->getConfigValue($path);
+        return $value;
+    }
+
 
     protected function getLocaleInGlobals()
     {

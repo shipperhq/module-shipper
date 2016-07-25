@@ -75,7 +75,7 @@ class CarrierConfigHandler
     }
 
 
-    protected function dynamicCarrierConfig($carrierCode, $carrierTitle, $sortOrder = false)
+    protected function dynamicCarrierConfig($carrierCode, $carrierTitle, $sortOrder = null)
     {
         $modelPath = 'carriers/' . $carrierCode . '/model';
         if (!$this->shipperDataHelper->getConfigValue($modelPath)) {
@@ -85,7 +85,7 @@ class CarrierConfigHandler
         }
         $this->saveCarrierTitle($carrierCode, $carrierTitle);
 
-        if ($sortOrder) {
+        if (!is_null($sortOrder)) {
             $this->saveConfig('carriers/' . $carrierCode . '/sort_order', $sortOrder);
         }
     }

@@ -1,7 +1,13 @@
 <?xml version="1.0"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
-        <!--<block class="Magento\Sales\Block\Adminhtml\Order\View\Items" name="order_items" template="ShipperHQ_Shipper::order/view/items.phtml">-->
+        <referenceBlock name="order_shipping_view">
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">ShipperHQ_Shipper::order/view/info.phtml</argument>
+            </action>
+            <block class="ShipperHQ\Shipper\Block\Adminhtml\Order\View\Info" name="postorder_info" template="ShipperHQ_Shipper::order/view/shq_info.phtml"/>
+            <block class="Magento\Sales\Block\Adminhtml\Order\AbstractOrder" name="order_shipping_view_orig" template="Magento_Shipping::order/view/info.phtml"/>
+        </referenceBlock>
         <referenceBlock name="order_items">
             <arguments>
                 <argument name="columns" xsi:type="array">

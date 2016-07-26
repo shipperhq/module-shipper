@@ -257,11 +257,10 @@ class Shipper
                 $request->setQuote($item->getQuote());
             }
         }
-        
+        //SHQ16-1261 - further detail as values not on shipping address
         $shippingAddress = $this->shipperDataHelper->getQuote()->getShippingAddress();
         $key = $this->shipperDataHelper->getAddressKey($shippingAddress);
         $existing = $this->checkoutSession->getShipAddressValidation();
-
         $validate = true;
         if(is_array($existing)) {
              if(isset($existing['key']) && $existing['key'] == $key) {

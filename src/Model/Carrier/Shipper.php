@@ -140,12 +140,19 @@ class Shipper
      */
     private $allowedMethodsHelper;
     /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    private $checkoutSession;
+    /**
      * Rate result data
      *
      * @var Mage_Shipping_Model_Rate_Result|null
      */
     protected $result = null;
     protected $carrierGroupFactory;
+
+    protected static $shippingOptions = ['liftgate_required', 'notify_required', 'inside_delivery', 'destination_type'];
+
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
@@ -165,6 +172,7 @@ class Shipper
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
      * @param \ShipperHQ\Lib\Rate\Helper $shipperWSRateHelper
      * @param \ShipperHQ\Lib\Rate\ConfigSettingsFactory $configSettingsFactory
+     * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param array $data
      */
     public function __construct(
@@ -187,6 +195,7 @@ class Shipper
         \ShipperHQ\Lib\Rate\Helper $shipperLibRateHelper,
         \ShipperHQ\Lib\Rate\ConfigSettingsFactory $configSettingsFactory,
         \ShipperHQ\Lib\AllowedMethods\Helper $allowedMethodsHelper,
+        \Magento\Checkout\Model\Session $checkoutSession,
         array $data = []
     )
     {
@@ -206,6 +215,7 @@ class Shipper
         $this->shipperRateHelper = $shipperLibRateHelper;
         $this->configSettingsFactory = $configSettingsFactory;
         $this->allowedMethodsHelper = $allowedMethodsHelper;
+        $this->checkoutSession = $checkoutSession;
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
     }
 
@@ -247,7 +257,24 @@ class Shipper
                 $request->setQuote($item->getQuote());
             }
         }
+        //SHQ16-1261 - further detail as values not on shipping address
+        $shippingAddress = $this->shipperDataHelper->getQuote()->getShippingAddress();
+        $key = $this->shipperDataHelper->getAddressKey($shippingAddress);
+        $existing = $this->checkoutSession->getShipAddressValidation();
+        $validate = true;
+        if(is_array($existing)) {
+             if(isset($existing['key']) && $existing['key'] == $key) {
+                 $validate = false;
+             }
+        }
+        else {
+            $validate = $this->shipperRateHelper->shouldValidateAddress(
+                $shippingAddress->getValidationStatus(), $shippingAddress->getDestinationType());
+        }
+        $request->setValidateAddress($validate);
 
+        $request->setSelectedOptions($this->getSelectedOptions($shippingAddress));
+        
         $isCheckout = $this->shipperDataHelper->isCheckout();
         $cartType = (!is_null($isCheckout) && $isCheckout != 1) ? "CART" : "STD";
         if ($this->shipperDataHelper->isMultiAddressCheckout()) {
@@ -502,6 +529,8 @@ class Shipper
             $carrierRates = [];
         }
 
+        $this->persistAddressValidation($shipperResponse);
+
         if (count($carrierRates) == 0) {
             $this->shipperLogger->postInfo('Shipperhq_Shipper','Shipper HQ did not return any carrier rates',$debugData);
             return $result;
@@ -669,6 +698,25 @@ class Shipper
         }
     }
 
+    protected function persistAddressValidation($shipperResponse)
+    {
+        //we've validated so we need to save
+        $shippingAddress = $this->shipperDataHelper->getQuote()->getShippingAddress();
+        $key = $this->shipperDataHelper->getAddressKey($shippingAddress);
+
+        $addressType = $this->shipperRateHelper->extractDestinationType($shipperResponse);
+        $validationStatus = $this->shipperRateHelper->extractAddressValidationStatus($shipperResponse);
+        if($addressType || $validationStatus) {
+            $existing = ['key' => $key,
+            'destination_type' => $addressType,
+            'validation_status' =>$validationStatus ];
+            $this->checkoutSession->setShipAddressValidation($existing);
+
+            $test = $this->checkoutSession->getShipAddressValidation();
+        }
+    }
+
+
     /**
      *
      * Build up an error message when no carrier rates returned
@@ -773,6 +821,18 @@ class Shipper
             $result->append($method);
         }
         return $result;
+    }
+
+    protected function  getSelectedOptions($shippingAddress)
+    {
+        $shippingOptions = [];
+
+        foreach (self::$shippingOptions as $option) {
+            if ($shippingAddress->getData($option) != '') {
+                $shippingOptions[] = ['name' => $option, 'value' => $shippingAddress->getData($option)];
+            }
+        }
+        return $shippingOptions;
     }
 
 }

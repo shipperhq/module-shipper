@@ -36,7 +36,6 @@ namespace ShipperHQ\Shipper\Observer;
 
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Message\ManagerInterface;
 
 
 /**
@@ -60,6 +59,8 @@ class RecordOrder extends AbstractRecordOrder implements ObserverInterface
      * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
      * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \Magento\Customer\Model\AddressFactory $addressFactory
+
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
@@ -67,8 +68,7 @@ class RecordOrder extends AbstractRecordOrder implements ObserverInterface
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Magento\Checkout\Model\Session $checkoutSession
-    )
+        \Magento\Checkout\Model\Session $checkoutSession)
     {
         $this->orderFactory = $orderFactory;
         $this->checkoutSession = $checkoutSession;

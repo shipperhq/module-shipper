@@ -6,6 +6,9 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="admin_system_config_changed_section_carriers">
+        <observer name="shipperhq_refresh_carriers" instance="ShipperHQ\Shipper\Observer\RefreshCarriers"/>
+    </event>
     <event name="adminhtml_sales_order_create_process_data_before">
         <observer name="shipperhq_save_shipping_admin" instance="ShipperHQ\Shipper\Observer\SaveShippingAdmin" />
     </event>

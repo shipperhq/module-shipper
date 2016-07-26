@@ -214,7 +214,8 @@ class ShipperMapper
             'cart' => $this->getCartDetails($magentoRequest),
             'destination' => $this->getDestination($magentoRequest),
             'customerDetails' => $this->getCustomerGroupDetails($magentoRequest),
-            'cartType' => $this->getCartType($magentoRequest)]);
+            'cartType' => $this->getCartType($magentoRequest),
+            'validateAddress' => $this->getValidateAddress($magentoRequest)]);
 
         if ($shipDetails = $this->getShipDetails($magentoRequest)) {
             $shipperHQRequest->setShipDetails($shipDetails);
@@ -337,6 +338,16 @@ class ShipperMapper
     {
         $cartType = $request->getCartType();
         return $cartType;
+    }
+
+    /*
+    * Return cartType String
+    *
+    */
+    public function getValidateAddress($request)
+    {
+        return $request->getValidateAddress();
+
     }
 
     /*
@@ -724,17 +735,8 @@ class ShipperMapper
 
     protected function getSelectedOptions($request)
     {
-        $shippingOptions = [];
-        if ($request->getQuote() && $shippingAddress = $request->getQuote()->getShippingAddress()) {
-            foreach (self::$shippingOptions as $option) {
-                if ($shippingAddress->getData($option) != '') {
-                    $shippingOptions[] = ['name' => $option, 'value' => $shippingAddress->getData($option)];
-                }
-            }
-        }
-
+        $shippingOptions = $request->getSelectedOptions();
         return $this->selectedOptionsFactory->create(['options' => $shippingOptions]);
-
     }
 
     /**

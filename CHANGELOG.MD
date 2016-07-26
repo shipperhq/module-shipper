@@ -56,3 +56,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [20.0.13] - 2016-07-05
 ### Added
 - SHQ16-636 - record item level carrier group detail
+
+## [20.0.14] - 2016-07-26
+### Added
+- SHQ16-1261 - support for destination type and address validation status
+- SHQ16-1312 - sort order obeys ShipperHQ settings

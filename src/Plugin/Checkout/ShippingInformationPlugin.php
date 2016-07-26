@@ -49,16 +49,28 @@ class ShippingInformationPlugin
      * @var \Magento\Quote\Api\CartRepositoryInterface
      */
     protected $quoteRepository;
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    private $checkoutSession;
+    /**
+     * @var \Magento\Customer\Api\AddressRepositoryInterface
+     */
+    private $addressRepository;
 
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
+
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->quoteRepository = $quoteRepository;
-
+        $this->checkoutSession = $checkoutSession;
+        $this->addressRepository = $addressRepository;
     }
 
     /**
@@ -80,7 +92,36 @@ class ShippingInformationPlugin
         $address = $quote->getShippingAddress();
         $this->carrierGroupHelper->saveCarrierGroupInformation($address,
             $address->getShippingMethod());
+        $validation = $this->checkoutSession->getShipAddressValidation();
+        if(is_array($validation) && isset($validation['key'])) {
+            if(isset($validation['validation_status'])) {
+                $address->setValidationStatus($validation['validation_status']);
+            }
+            if(isset($validation['destination_type'])) {
+                $address->setDestinationType($validation['destination_type']);
+            }
+            $address->save();
+            $this->checkoutSession->setShipAddressValidation(null);
+        }
 
+        if($address->getCustomerId()) {
+            $customerAddresses = $quote->getCustomer()->getAddresses();
+            foreach($customerAddresses as $oneAddress) {
+
+                if ($oneAddress->getId() == $address->getCustomerAddressId()) {
+
+                    if($address->getValidationStatus()) {
+                        $oneAddress->setCustomAttribute('validation_status', $address->getValidationStatus());
+                    }
+
+                    if($address->getDestinationType()) {
+                        $oneAddress->setCustomAttribute('destination_type',$address->getDestinationType());
+                    }
+                    $this->addressRepository->save($oneAddress);
+
+                }
+            }
+        }
         return $result;
 
     }

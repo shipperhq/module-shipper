@@ -407,6 +407,7 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
                 if(array_key_exists($carrierGroupId, $itemsGrouped)) {
                     foreach($itemsGrouped[$carrierGroupId] as $item) {
                         $item->setCarriergroupShipping($shippingText);
+                        $item->save();
                     }
                 }
 
@@ -479,6 +480,25 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
             $carrier->setStore($storeId);
         }
         return $carrier;
+    }
+
+    /**
+     * @param $shippingAddress
+     * @return int
+     */
+    public function getAddressKey($shippingAddress)
+    {
+
+        $addressArray = [
+            implode(',',$shippingAddress->getStreet()),
+            $shippingAddress->getCity(),
+            $shippingAddress->getPostcode(),
+            $shippingAddress->getRegionId(),
+            $shippingAddress->getCountryCode()
+        ];
+        $key = implode(',', $addressArray);
+
+        return crc32($key);
     }
 
 }

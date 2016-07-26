@@ -15,12 +15,28 @@
             <field name="carrier_id">
                 <aspect name="to_order" />
             </field>
+            <field name="destination_type">
+                <aspect name="to_order" />
+                <aspect name="to_customer_address" />
+            </field>
+            <field name="validation_status">
+                <aspect name="to_order" />
+                <aspect name="to_customer_address" />
+            </field>
         </fieldset>
         <fieldset id="sales_convert_order">
             <field name="carrier_type">
                 <aspect name="to_quote_address" />
             </field>
             <field name="carrier_id">
+                <aspect name="to_quote_address" />
+            </field>
+        </fieldset>
+        <fieldset id="customer_address">
+            <field name="destination_type">
+                <aspect name="to_quote_address" />
+            </field>
+            <field name="validation_status">
                 <aspect name="to_quote_address" />
             </field>
         </fieldset>

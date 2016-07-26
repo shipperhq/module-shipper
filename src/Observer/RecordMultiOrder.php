@@ -37,20 +37,16 @@ namespace ShipperHQ\Shipper\Observer;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 
-
 /**
  * ShipperHQ Shipper module observer
  */
-class RecordOrder extends AbstractRecordOrder implements ObserverInterface
+class RecordMultiOrder extends AbstractRecordOrder implements ObserverInterface
 {
+
     /**
      * @var \Magento\Sales\Model\OrderFactory
      */
     protected $orderFactory;
-    /**
-     * @var \Magento\Checkout\Model\Session
-     */
-    protected $checkoutSession;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
@@ -59,19 +55,16 @@ class RecordOrder extends AbstractRecordOrder implements ObserverInterface
      * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
      * @param \Magento\Checkout\Model\Session $checkoutSession
-     * @param \Magento\Customer\Model\AddressFactory $addressFactory
-
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Magento\Checkout\Model\Session $checkoutSession)
+        \Magento\Sales\Model\OrderFactory $orderFactory
+    )
     {
         $this->orderFactory = $orderFactory;
-        $this->checkoutSession = $checkoutSession;
         parent::__construct($shipperDataHelper, $carrierGroupFactory, $quoteRepository, $shipperLogger);
     }
 
@@ -84,13 +77,16 @@ class RecordOrder extends AbstractRecordOrder implements ObserverInterface
     public function execute(EventObserver $observer)
     {
         if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
-            $order = $this->orderFactory->create()->loadByIncrementId(
-                $this->checkoutSession->getLastRealOrderId()
-            );
-            if($order->getIncrementId()) {
-                $this->recordOrder($order);
+            $orderIds = $observer->getEvent()->getOrderIds();
+            if (empty($orderIds) || !is_array($orderIds)) {
+                return;
             }
-
+            foreach ($orderIds as $orderId) {
+                $order = $this->orderFactory->create()->loadByIncrementId($orderId);
+                if ($order->getIncrementId()) {
+                    $this->recordOrder($order);
+                }
+            }
         }
     }
 

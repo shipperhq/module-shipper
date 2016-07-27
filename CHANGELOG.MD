@@ -61,3 +61,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - SHQ16-1261 - support for destination type and address validation status
 - SHQ16-1312 - sort order obeys ShipperHQ settings
+
+## [20.0.15] - 2016-07-27
+### Added
+- SHQ16-1330 - removed empty events file

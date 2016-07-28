@@ -53,7 +53,7 @@
                 <showerrors>0</showerrors>
                 <showmethod>1</showmethod>
                 <specificerrmsg>This shipping method is currently unavailable. If you would like to ship using this shipping method, please contact us.</specificerrmsg>
-                <ws_timeout>120</ws_timeout>
+                <ws_timeout>30</ws_timeout>
                 <use_cache>0</use_cache>
                 <extension_version>20.0.15</extension_version>
                 <allowed_methods></allowed_methods>

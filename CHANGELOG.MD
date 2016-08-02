@@ -65,3 +65,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [20.0.15] - 2016-07-27
 ### Added
 - SHQ16-1330 - removed empty events file
+
+## [20.0.16] - 2016-08-02
+### Added
+- SHQ16-1346 - field validation changes

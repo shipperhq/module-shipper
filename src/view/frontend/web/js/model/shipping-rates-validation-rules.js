@@ -17,13 +17,13 @@ define(
                         'required': true
                     },
                     'region_id' : {
-                        'required': true
+                        'required': false
                     },
+                    'region' : {
+                        'required': false
+                     },
                     'city' : {
-                        'required': true
-                    },
-                    'street' : {
-                        'required': true
+                        'required': false
                     }
                 };
             }

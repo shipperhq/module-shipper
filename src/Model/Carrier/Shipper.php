@@ -635,7 +635,6 @@ class Shipper
         $carrierGroups = $shipperResponse->carrierGroups;
         $ratesArray = [];
         $timezone = $this->shipperDataHelper->getConfigValue('general/locale/timezone');
-        $this->shipperLogger->postDebug('test of time zone set ', 'it is ,,,,,,', $timezone);
         $configSetttings = $this->configSettingsFactory->create([
             'hideNotifications' => $this->shipperDataHelper->getConfigFlag('carriers/shipper/hide_notify'),
             'transactionIdEnabled' => $this->shipperDataHelper->isTransactionIdEnabled(),

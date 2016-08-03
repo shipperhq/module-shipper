@@ -640,9 +640,10 @@ class Shipper
             'hideNotifications' => $this->shipperDataHelper->getConfigFlag('carriers/shipper/hide_notify'),
             'transactionIdEnabled' => $this->shipperDataHelper->isTransactionIdEnabled(),
             'locale' => $this->getLocaleInGlobals(),
-            'timezone' => $timezone,
             'shipperHQCode' => $this->_code,
-            'shipperHQTitle' => $this->shipperDataHelper->getConfigFlag('carriers/shipper/title')]);
+            'shipperHQTitle' => $this->shipperDataHelper->getConfigFlag('carriers/shipper/title'),
+            'timezone' => $timezone
+        ]);
 
 
         $splitCarrierGroupDetail = [];

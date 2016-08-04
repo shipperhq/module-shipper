@@ -634,13 +634,17 @@ class Shipper
         $this->shipperDataHelper->setStandardShipperResponseType();
         $carrierGroups = $shipperResponse->carrierGroups;
         $ratesArray = [];
-
+        $timezone = $this->shipperDataHelper->getConfigValue('general/locale/timezone');
         $configSetttings = $this->configSettingsFactory->create([
             'hideNotifications' => $this->shipperDataHelper->getConfigFlag('carriers/shipper/hide_notify'),
             'transactionIdEnabled' => $this->shipperDataHelper->isTransactionIdEnabled(),
             'locale' => $this->getLocaleInGlobals(),
             'shipperHQCode' => $this->_code,
-            'shipperHQTitle' => $this->shipperDataHelper->getConfigFlag('carriers/shipper/title')]);
+            'shipperHQTitle' => $this->shipperDataHelper->getConfigFlag('carriers/shipper/title'),
+            'timezone' => $timezone
+        ]);
+
+
         $splitCarrierGroupDetail = [];
         foreach ($carrierGroups as $carrierGroup) {
             $carrierGroupDetail = $this->shipperRateHelper->extractCarrierGroupDetail($carrierGroup, $transactionId);

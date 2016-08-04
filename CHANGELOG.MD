@@ -69,3 +69,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [20.0.16] - 2016-08-02
 ### Added
 - SHQ16-1346 - field validation changes
+
+## [20.0.17] - 2016-08-04
+### Added
+- SHQ16-1359 - include timezone in config settings for date calculations

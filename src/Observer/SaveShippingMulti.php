@@ -80,31 +80,26 @@ class SaveShippingMulti implements ObserverInterface
     public function execute(EventObserver $observer)
     {
         if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
-            try {
-
-                $request = $observer->getEvent()->getRequest();
-                $shippingMethods = $request->getPost('shipping_method', '');
-                if(!is_array($shippingMethods)) {
+            $request = $observer->getEvent()->getRequest();
+            $shippingMethods = $request->getPost('shipping_method', '');
+            if(!is_array($shippingMethods)) {
+                return;
+            }
+            foreach($shippingMethods as $addressId => $shippingMethod) {
+                if (empty($shippingMethod)) {
                     return;
                 }
-                foreach($shippingMethods as $addressId => $shippingMethod) {
-                    if (empty($shippingMethod)) {
-                        return;
+                $quote = $observer->getEvent()->getQuote();
+                $addresses = $quote->getAllShippingAddresses();
+                $shippingAddress = false;
+                foreach($addresses as $address) {
+                    if($address->getId() == $addressId) {
+                        $shippingAddress = $address;
+                        break;
                     }
-                    $quote = $observer->getEvent()->getQuote();
-                    $addresses = $quote->getAllShippingAddresses();
-                    $shippingAddress = false;
-                    foreach($addresses as $address) {
-                        if($address->getId() == $addressId) {
-                            $shippingAddress = $address;
-                            break;
-                        }
 
-                    }
-                    $this->carrierGroupHelper->saveCarrierGroupInformation($shippingAddress, $shippingMethod);
                 }
-            }catch (Exception $e) {
-                Mage::logException($e);
+                $this->carrierGroupHelper->saveCarrierGroupInformation($shippingAddress, $shippingMethod);
             }
 
         }

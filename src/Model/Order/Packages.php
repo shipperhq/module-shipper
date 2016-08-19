@@ -32,21 +32,28 @@
  * See COPYING.txt for license details.
  */
 
-namespace ShipperHQ\Shipper\Model;
+namespace ShipperHQ\Shipper\Model\Order;
 
-class CarrierGroup extends \Magento\Framework\Model\AbstractExtensibleModel
+class Packages extends \Magento\Framework\Model\AbstractExtensibleModel
 {
     /**
      * Define resource model
      */
     protected function _construct()
     {
-        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\CarrierGroup');
+        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\Order\Packages');
     }
 
-    public function loadByAddressId($shippingAddressId)
+    /**
+     * @param $orderId
+     * @return mixed
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function loadByOrderId($orderId)
     {
-        $this->_getResource()->loadByAddressId($this, $shippingAddressId);
+        $this->_getResource()->loadByOrderId($this, $orderId);
         return $this;
     }
+
+
 }

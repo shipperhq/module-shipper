@@ -50,4 +50,19 @@ class CarrierGroup extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     {
         $this->_init('shipperhq_quote_carrier_group', 'id');
     }
+
+    public function loadByAddressId($object, $shippingAddressId)
+    {
+        $connection = $this->getConnection();
+        $select = $connection->select()->from(
+            $this->getMainTable()
+        )->where(
+            'quote_address_id = :quote_address_id'
+        );
+        $data = $connection->fetchRow($select, [':quote_address_id' => $shippingAddressId]);
+        if ($data) {
+            $object->addData($data);
+        }
+        return $this;
+    }
 }

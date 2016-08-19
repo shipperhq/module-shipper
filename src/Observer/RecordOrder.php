@@ -60,7 +60,8 @@ class RecordOrder extends AbstractRecordOrder implements ObserverInterface
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Customer\Model\AddressFactory $addressFactory
-
+     * @param \ShipperHQ\Shipper\Helper\Package $packageHelper
+     * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
@@ -68,11 +69,13 @@ class RecordOrder extends AbstractRecordOrder implements ObserverInterface
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Magento\Checkout\Model\Session $checkoutSession)
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \ShipperHQ\Shipper\Helper\Package $packageHelper,
+        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper)
     {
         $this->orderFactory = $orderFactory;
         $this->checkoutSession = $checkoutSession;
-        parent::__construct($shipperDataHelper, $carrierGroupFactory, $quoteRepository, $shipperLogger);
+        parent::__construct($shipperDataHelper, $carrierGroupFactory, $quoteRepository, $shipperLogger, $packageHelper, $carrierGroupHelper);
     }
 
     /**

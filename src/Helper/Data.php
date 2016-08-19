@@ -187,25 +187,6 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return $id;
     }
 
-
-    public function getProductBreakdownText($box) {
-        $productText = '';
-        $weightUnit = $this->getGlobalSetting('weightUnit');
-        if(!$weightUnit) {
-            $weightUnit = '';
-        }
-        if (array_key_exists('items',$box)  || (is_object($box) && !is_null($box->getItems()))) {
-            if (is_array($box['items'])) {
-                foreach ($box['items'] as $item) {
-                    $productText .= ' SKU=' .$item['qty_packed'] .' * '.$item['sku'] .' ' .$item['weight_packed'] .$weightUnit .';  ';
-                }
-            } else {
-                $productText = $box['items'];
-            }
-        }
-        return $productText;
-    }
-
     public function getBaseCurrencyCode() {
         return $this->storeManager->getStore()->getBaseCurrency()->getCode();
     }
@@ -227,6 +208,16 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return $this->baseCurrencyRate > 0 ? $this->baseCurrencyRate : false;
 
     }
+
+    public function useDefaultCarrierCodes()
+    {
+        $result = false;
+        if($this->getConfigValue('carriers/shipper/CARRIER_STRIP_CODE')) {
+            $result = true;
+        }
+        return $result;
+    }
+
     public function setStandardShipperResponseType()
     {
         $shipping = $this->getQuote()->getShippingAddress();
@@ -394,6 +385,51 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
 
         }
         return $htmlText;
+    }
+
+    public function getPackageBreakdownText($packages, $carrierGroupName = false) {
+        $boxText = '';
+        $count = 1;
+        if($carrierGroupName) {
+            $boxText .= $carrierGroupName .': ';
+        }
+        foreach ($packages as $key=>$box)
+        {
+            $boxText .= __('Package').' #'.($count++);
+
+            if ($box!=null) {
+                $boxText .= ' Box name: ' .$box['package_name'];
+                $boxText .= ' : ' . $box['length'];
+                $boxText .= 'x' . $box['width'] ;
+                $boxText .= 'x'. $box['height'] ;
+                $boxText .= ': W='.$box['weight'] . ':' ;
+                $boxText .= ' Value='.$box['declaredValue']. ':';
+                $boxText .= $this->getProductBreakdownText($box);
+            }
+            $boxText .= '</br>';
+        }
+        //registry issue
+     //   $boxText .= 'Transaction ID: ' .$this->getTransactionId();
+
+        return $boxText;
+    }
+
+    public function getProductBreakdownText($box) {
+        $productText = '';
+        $weightUnit = $this->getGlobalSetting('weightUnit');
+        if(!$weightUnit) {
+            $weightUnit = '';
+        }
+        if (array_key_exists('items',$box)  || (is_object($box) && !is_null($box->getItems()))) {
+            if (is_array($box['items'])) {
+                foreach ($box['items'] as $item) {
+                    $productText .= ' SKU=' .$item['qty_packed'] .' * '.$item['sku'] .' ' .$item['weight_packed'] .$weightUnit .';  ';
+                }
+            } else {
+                $productText = $box['items'];
+            }
+        }
+        return $productText;
     }
 
     public function setShippingOnItems($shippingDetails, $shippingAddress)

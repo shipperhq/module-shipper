@@ -32,21 +32,18 @@
  * See COPYING.txt for license details.
  */
 
-namespace ShipperHQ\Shipper\Model;
+namespace ShipperHQ\Shipper\Model\ResourceModel\Quote;
 
-class CarrierGroup extends \Magento\Framework\Model\AbstractExtensibleModel
+class ItemDetail extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**
-     * Define resource model
+     * Define main table
+     *
+     * @return void
      */
     protected function _construct()
     {
-        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\CarrierGroup');
+        $this->_init('shipperhq_quote_item_detail', 'id');
     }
 
-    public function loadByAddressId($shippingAddressId)
-    {
-        $this->_getResource()->loadByAddressId($this, $shippingAddressId);
-        return $this;
-    }
 }

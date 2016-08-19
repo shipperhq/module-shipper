@@ -143,13 +143,21 @@ class Shipper
      * @var \Magento\Checkout\Model\Session
      */
     private $checkoutSession;
+    /*
+     *@var \ShipperHQ\Shipper\Helper\Package
+     */
+    protected $packageHelper;
+    /**
+     *
+     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
+     */
+    protected $carrierGroupHelper;
     /**
      * Rate result data
      *
      * @var Mage_Shipping_Model_Rate_Result|null
      */
     protected $result = null;
-    protected $carrierGroupFactory;
 
     protected static $shippingOptions = ['liftgate_required', 'notify_required', 'inside_delivery', 'destination_type'];
 
@@ -173,6 +181,7 @@ class Shipper
      * @param \ShipperHQ\Lib\Rate\Helper $shipperWSRateHelper
      * @param \ShipperHQ\Lib\Rate\ConfigSettingsFactory $configSettingsFactory
      * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \ShipperHQ\Shipper\Helper\Package $packageHelper
      * @param array $data
      */
     public function __construct(
@@ -191,11 +200,12 @@ class Shipper
         \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory,
         \Magento\Shipping\Model\Rate\ResultFactory $resultFactory,
         \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory,
-        \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
+        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \ShipperHQ\Lib\Rate\Helper $shipperLibRateHelper,
         \ShipperHQ\Lib\Rate\ConfigSettingsFactory $configSettingsFactory,
         \ShipperHQ\Lib\AllowedMethods\Helper $allowedMethodsHelper,
         \Magento\Checkout\Model\Session $checkoutSession,
+        \ShipperHQ\Shipper\Helper\Package $packageHelper,
         array $data = []
     )
     {
@@ -211,11 +221,12 @@ class Shipper
         $this->carrierConfigHandler = $carrierConfigHandler;
         $this->carrierCache = $carrierCache;
         $this->backupCarrier = $backupCarrier;
-        $this->carrierGroupFactory = $carrierGroupFactory;
+        $this->carrierGroupHelper = $carrierGroupHelper;
         $this->shipperRateHelper = $shipperLibRateHelper;
         $this->configSettingsFactory = $configSettingsFactory;
         $this->allowedMethodsHelper = $allowedMethodsHelper;
         $this->checkoutSession = $checkoutSession;
+        $this->packageHelper = $packageHelper;
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
     }
 
@@ -619,6 +630,9 @@ class Shipper
 
                     $result->append($rate);
                 }
+                if(isset($carrierRate['shipments'])) {
+                    $this->persistShipments($carrierRate['shipments']);
+                }
             }
         }
         return $result;
@@ -681,24 +695,24 @@ class Shipper
 
     protected function setCarriergroupOnItems($carriergroupDetails, $productInRateResponse)
     {
-        $quoteItems = $this->shipperDataHelper->getQuote()->getAllItems();
         $rateItems = [];
         foreach ($productInRateResponse as $item) {
             $item = (array)$item;
             $rateItems[$item['sku']] = $item['qty'];
         }
 
-        foreach ($quoteItems as $item) {
-            if (array_key_exists($item->getSku(), $rateItems)) {
-                $item->setCarriergroupId($carriergroupDetails['carrierGroupId']);
-                $item->setCarriergroup($carriergroupDetails['name']);
-            }
-        }
         foreach ($this->rawRequest->getAllItems() as $quoteItem) {
             if (array_key_exists($quoteItem->getSku(), $rateItems)) {
                 $quoteItem->setCarriergroupId($carriergroupDetails['carrierGroupId']);
                 $quoteItem->setCarriergroup($carriergroupDetails['name']);
+
+                if ($quoteItem->getQuoteItemId()) {
+                    //need to work out how to distinguish between quote address items on multi address checkout
+                }
+                $this->carrierGroupHelper->saveCarrierGroupItem(
+                    $quoteItem, $carriergroupDetails['carrierGroupId'],$carriergroupDetails['name']);
             }
+
         }
     }
 
@@ -715,11 +729,15 @@ class Shipper
             'destination_type' => $addressType,
             'validation_status' =>$validationStatus ];
             $this->checkoutSession->setShipAddressValidation($existing);
-
-            $test = $this->checkoutSession->getShipAddressValidation();
         }
     }
 
+    protected function persistShipments($shipmentArray)
+    {
+        $shippingAddress = $this->shipperDataHelper->getQuote()->getShippingAddress();
+        $addressId = $shippingAddress->getId();
+        $this->packageHelper->saveQuotePackages($addressId, $shipmentArray);
+    }
 
     /**
      *
@@ -803,6 +821,7 @@ class Shipper
     {
         $carrierGroupDetail['cost'] *= $currencyConversionRate;
         $carrierGroupDetail['price'] *= $currencyConversionRate;
+        return $carrierGroupDetail;
     }
 
     /**

@@ -55,17 +55,21 @@ class RecordMultiOrder extends AbstractRecordOrder implements ObserverInterface
      * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
      * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \ShipperHQ\Shipper\Helper\Package $packageHelper
+     * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Magento\Sales\Model\OrderFactory $orderFactory
+        \Magento\Sales\Model\OrderFactory $orderFactory,
+        \ShipperHQ\Shipper\Helper\Package $packageHelper,
+        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
     )
     {
         $this->orderFactory = $orderFactory;
-        parent::__construct($shipperDataHelper, $carrierGroupFactory, $quoteRepository, $shipperLogger);
+        parent::__construct($shipperDataHelper, $carrierGroupFactory, $quoteRepository, $shipperLogger, $packageHelper, $carrierGroupHelper);
     }
 
     /**

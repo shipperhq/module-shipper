@@ -41,6 +41,12 @@ class Info extends AbstractOrder
      * @var \ShipperHQ\Shipper\Helper\Data
      */
     protected $shipperDataHelper;
+    /**
+     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
+     */
+    protected $carrierGroupHelper;
+
+    protected $cgInfo = null;
 
     /**
      * @param \Magento\Backend\Block\Template\Context $context
@@ -50,12 +56,14 @@ class Info extends AbstractOrder
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\Registry $registry,
         \Magento\Sales\Helper\Admin $adminHelper,
         array $data = []
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
+        $this->carrierGroupHelper = $carrierGroupHelper;
         $this->_adminHelper = $adminHelper;
         $this->_coreRegistry = $registry;
         parent::__construct($context, $registry, $adminHelper, $data);
@@ -64,10 +72,51 @@ class Info extends AbstractOrder
     public function getCarriergroupInfo()
     {
         $order = $this->getOrder();
-        //retrieve using quote shipping address ID from carrier group helper
-        $cginfo = $this->shipperDataHelper->decodeShippingDetails($order->getCarriergroupShippingDetails());
+        if(is_null($this->cgInfo)) {
+            $this->cgInfo = $this->carrierGroupHelper->getOrderCarrierGroupInfo($order->getId());
 
-        return $cginfo;
+            if(empty($this->cgInfo)) {
+                //retrieve using quote shipping address ID from carrier group helper
+                //legacy
+                $this->cgInfo = $this->shipperDataHelper->decodeShippingDetails($order->getCarriergroupShippingDetails());
+            }
+        }
 
+        return $this->cgInfo;
+
+    }
+
+    public function getAddressValidStatus()
+    {
+        $info = $this->getCarriergroupInfo();
+        $result = null;
+        foreach($info as $carrierGroupDetail)
+        {
+            if(isset($carrierGroupDetail['address_valid'])) {
+                $result = $carrierGroupDetail['address_valid'];
+            }
+        }
+
+        if(is_null($result) && $this->getOrder()->getValidationStatus()) {
+            $result = $this->getOrder()->getValidationStatus();
+        }
+        return $result;
+    }
+
+    public function getFieldValue($fieldName)
+    {
+        $info = $this->getCarriergroupInfo();
+        $result = null;
+        foreach($info as $carrierGroupDetail)
+        {
+            if(isset($carrierGroupDetail[$fieldName])) {
+                $result = $carrierGroupDetail[$fieldName];
+            }
+        }
+
+        if(is_null($result) && $this->getOrder()->getData($fieldName)) {
+            $result = $this->getOrder()->getData($fieldName);
+        }
+        return $result;
     }
 }

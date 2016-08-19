@@ -43,6 +43,22 @@ class CarrierGroup extends Data
     * @var \ShipperHQ\Shipper\Model\CarrierGroupFactory
     */
     protected $carrierGroupFactory;
+    /**
+     * @var \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory
+     */
+    private $addressDetailFactory;
+    /**
+     * @var \ShipperHQ\Shipper\Model\Quote\ItemDetailFactory
+     */
+    private $itemDetailFactory;
+    /**
+     * @var \ShipperHQ\Shipper\Model\Order\DetailFactory
+     */
+    private $orderDetailFactory;
+    /**
+     * @var \ShipperHQ\Shipper\Model\Order\ItemDetailFactory
+     */
+    private $orderItemDetailFactory;
     /*
     * @var Data
     */
@@ -53,9 +69,17 @@ class CarrierGroup extends Data
      * @param Data $shipperHelperData
      */
     public function __construct(\ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
+                                \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory $addressDetailFactory,
+                                \ShipperHQ\Shipper\Model\Quote\ItemDetailFactory $itemDetailFactory,
+                                \ShipperHQ\Shipper\Model\Order\DetailFactory $orderDetailFactory,
+                                \ShipperHQ\Shipper\Model\Order\ItemDetailFactory $orderItemDetailFactory,
                                 Data $shipperDataHelper)
     {
         $this->carrierGroupFactory = $carrierGroupFactory;
+        $this->addressDetailFactory = $addressDetailFactory;
+        $this->itemDetailFactory = $itemDetailFactory;
+        $this->orderDetailFactory = $orderDetailFactory;
+        $this->orderItemDetailFactory = $orderItemDetailFactory;
         $this->shipperDataHelper = $shipperDataHelper;
     }
 
@@ -67,7 +91,7 @@ class CarrierGroup extends Data
      * @param $shippingMethod
      * @return array
      */
-    public function saveCarrierGroupInformation($shippingAddress, $shippingMethod)
+    public function saveCarrierGroupInformation($shippingAddress, $shippingMethod, array $additionalDetail = [])
     {
         //admin and front end orders use method
         $foundRate = $shippingAddress->getShippingRateByCode($shippingMethod);
@@ -87,17 +111,146 @@ class CarrierGroup extends Data
                 ->setCarrierType($foundRate->getCarrierType())
                 ->save();
 
-            $carrierGroupDetail = $this->carrierGroupFactory->create();
+            $addressDetail = $this->addressDetailFactory->create();
+            $thisAddressDetail = $addressDetail->loadByCarrierGroupIdAndAddress($foundRate->getCarriergroupId(),
+                $shippingAddress->getId());
+            if(!$thisAddressDetail) {
+                $thisAddressDetail = $addressDetail;
+            }
             $update = ['quote_address_id' => $shippingAddress->getId(),
+                'carrier_group_id' => $foundRate->getCarriergroupId(),
+                'carrier_type' => $foundRate->getCarrierType(),
+                'carrier_id' => $foundRate->getCarrierId(),
                 'carrier_group_detail' => $encodedShipDetails,
                 'carrier_group_html' => $this->getCarriergroupShippingHtml(
                     $encodedShipDetails)];
-            $carrierGroupDetail->setData($update);
-           // $carrierGroupDetail->save();
+            foreach($additionalDetail as $key => $data){
+                $update[$key] = $data;
+            }
+            $existing = $thisAddressDetail->getData();
+            $data = array_merge($existing, $update);
+            $thisAddressDetail->setData($data);
+            $thisAddressDetail->save();
+
             //save selected shipping options to items
-            $this->shipperDataHelper->setShippingOnItems($arrayofShipDetails,  $shippingAddress);
+            $this->setShippingOnItems($arrayofShipDetails,  $shippingAddress);
         }
         return true;
     }
+
+    public function saveCarrierGroupItem($item, $carrierGroupId, $carrierGroup)
+    {
+        $itemDetail = $this->itemDetailFactory->create();
+        $itemRecord = $itemDetail->loadDetailByItemId($item->getItemId());
+        if(!$itemRecord) {
+            $itemRecord = $itemDetail->setQuoteItemId($item->getItemId());
+        }
+        $itemRecord->setCarrierGroupId($carrierGroupId)
+                    ->setCarrierGroup($carrierGroup);
+        $itemRecord->save();
+    }
+
+    public function setShippingOnItems($shippingDetails, $shippingAddress)
+    {
+        $itemDetail = $this->itemDetailFactory->create();
+        foreach($shippingAddress->getAllItems() as $item){
+            $itemRecord = $itemDetail->loadDetailByItemId($item->getItemId());
+            //TODO handle when no record exists
+            if($itemRecord) {
+                foreach($shippingDetails as $carrierGroupDetail) {
+                    if($carrierGroupDetail['carrierGroupId'] == $itemRecord->getCarrierGroupId()) {
+                        //updateRecord
+                        $shippingText = $carrierGroupDetail['carrierTitle'] .' - ' .$carrierGroupDetail['methodTitle'];
+                        $itemRecord->setCarriergroupShipping($shippingText);
+                        $itemRecord->save();
+                    }
+                }
+            }
+        }
+    }
+
+    public function saveOrderDetail($order, $shippingAddress)
+    {
+
+        $quoteAddressCollection = $this->loadAddressDetailByShippingAddress($shippingAddress->getId());
+        $orderId = $order->getId();
+        foreach($quoteAddressCollection as $quoteDetail ) {
+            $orderDetailModel = $this->orderDetailFactory->create();
+            $data = $quoteDetail->getData();
+            $existingOrderDetailCollection = $orderDetailModel->loadByOrder($orderId);
+            if(count($existingOrderDetailCollection) > 0) {
+                //TODO deal with this so we don't get duplicates
+                foreach($existingOrderDetailCollection as $order) {
+                    $data = array_merge($data, $order->getData());
+                    break;
+                }
+            }
+
+            unset($data['quote_address_id']);
+            unset($data['id']);
+            $data['order_id'] = $orderId;
+            $orderDetailModel->setData($data);
+            $orderDetailModel->save();
+        }
+
+    }
+
+    public function recordOrderItems($order)
+    {
+        foreach($order->getAllItems() as $orderItem) {
+            $quoteItemId =  $orderItem->getQuoteItemId();
+            $quoteItemDetail = $this->itemDetailFactory->create()->loadDetailByItemId($quoteItemId);
+
+            $orderItemDetail = $this->orderItemDetailFactory->create();
+            $data = $quoteItemDetail->getData();
+            $data['order_item_id'] = $orderItem->getId();
+            unset($data['quote_item_id']);
+            unset($data['id']);
+            $orderItemDetail->setData($data)
+                ->save();
+        }
+    }
+
+    //deprecated
+    public function loadCarrierGroupDetailByShippingAddress($shippingAddressId)
+    {
+        $carrierGroup = $this->carrierGroupFactory->create();
+
+        $carrierGroupModel = $carrierGroup->loadByAddressId($shippingAddressId);
+        if($carrierGroupModel) {
+            return $carrierGroupModel->getCarrierGroupDetail();
+        }
+        return '';
+    }
+
+    public function loadAddressDetailByShippingAddress($shippingAddressId)
+    {
+        $addressDetailModel = $this->addressDetailFactory->create();
+
+        $addressDetailCollection = $addressDetailModel->loadByAddress($shippingAddressId);
+        return $addressDetailCollection;
+    }
+
+    public function getOrderCarrierGroupInfo($orderId)
+    {
+        $orderDetailCollection = $this->loadOrderDetailByOrderId($orderId);
+        $detail = [];
+        foreach ($orderDetailCollection as $orderDetail)
+        {
+          //  $cginfo = $this->decode($orderDetail->getCarrierGroupDetail());
+            $data = $orderDetail->getData();
+            $detail[] = $data;
+        }
+        return $detail;
+    }
+
+    public function loadOrderDetailByOrderId($orderId)
+    {
+        $orderDetailModel = $this->orderDetailFactory->create();
+
+        $orderDetailCollection = $orderDetailModel->loadByOrder($orderId);
+        return $orderDetailCollection;
+    }
+
 
 }

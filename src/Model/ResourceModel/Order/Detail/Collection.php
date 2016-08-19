@@ -32,21 +32,29 @@
  * See COPYING.txt for license details.
  */
 
-namespace ShipperHQ\Shipper\Model;
+namespace ShipperHQ\Shipper\Model\ResourceModel\Order\Detail;
 
-class CarrierGroup extends \Magento\Framework\Model\AbstractExtensibleModel
+class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
     /**
-     * Define resource model
+     * Resource initialization
+     *
+     * @return void
      */
     protected function _construct()
     {
-        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\CarrierGroup');
+        $this->_init('ShipperHQ\Shipper\Model\Order\Detail', 'ShipperHQ\Shipper\Model\ResourceModel\Order\Detail');
     }
 
-    public function loadByAddressId($shippingAddressId)
+    public function addOrderIdToFilter($orderId)
     {
-        $this->_getResource()->loadByAddressId($this, $shippingAddressId);
+        $this->addFieldToFilter('order_id', $orderId);
+        return $this;
+    }
+
+    public function addCarrierGroupToFilter($carrierGroupId)
+    {
+        $this->addFieldToFilter('carrier_group_id', $carrierGroupId);
         return $this;
     }
 }

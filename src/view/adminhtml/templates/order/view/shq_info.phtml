@@ -15,14 +15,14 @@
 <?php /* Shipping Method */ ?>
 <div class="admin__page-section-item order-shipping-method">
     <div class="admin__page-section-item-content">
-        <?php if ($order->getDestinationType()): ?>
+        <?php if ($destType = $this->getFieldValue('destination_type')): ?>
             <div class="order-shipping-additional">
-                <?php echo __('Destination type') .': ' .$block->escapeHtml($order->getDestinationType()) ?>
+                <?php echo __('Destination type') .': ' .$block->escapeHtml($destType) ?>
             </div>
         <?php endif; ?>
-        <?php if ($order->getValidationStatus()): ?>
+        <?php if ($validStatus = $this->getAddressValidStatus()): ?>
             <div class="order-shipping-additional">
-                <?php echo __('Shipping address validation') .': ' .$block->escapeHtml($order->getValidationStatus()) ?>
+                <?php echo __('Shipping address validation') .': ' .$block->escapeHtml($validStatus) ?>
             </div>
         <?php endif; ?>
     </div>

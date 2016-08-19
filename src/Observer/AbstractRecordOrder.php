@@ -48,6 +48,10 @@ Abstract class AbstractRecordOrder implements ObserverInterface
      */
     protected $shipperDataHelper;
     /**
+     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
+     */
+    protected $carrierGroupHelper;
+    /**
      * @var \ShipperHQ\Shipper\Model\CarrierGroupFactory
      */
     protected $carrierGroupFactory;
@@ -59,24 +63,34 @@ Abstract class AbstractRecordOrder implements ObserverInterface
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
     private $shipperLogger;
+    /**
+     * @var \ShipperHQ\Shipper\Helper\Package
+     */
+    private $packageHelper;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
      * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
+     * @param \ShipperHQ\Shipper\Helper\Package $packageHelper
+     * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
+        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
+        \ShipperHQ\Shipper\Helper\Package $packageHelper,
+        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
     )
     {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->carrierGroupFactory = $carrierGroupFactory;
         $this->quoteRepository = $quoteRepository;
         $this->shipperLogger = $shipperLogger;
+        $this->packageHelper = $packageHelper;
+        $this->carrierGroupHelper = $carrierGroupHelper;
     }
 
     protected function recordOrder($order)
@@ -88,60 +102,70 @@ Abstract class AbstractRecordOrder implements ObserverInterface
 
         $shippingAddress = $quote->getShippingAddress();
         $carrierType = $shippingAddress->getCarrierType();
-        $order->setCarrierType($carrierType);
+
+        //  $order->setCarrierType($carrierType);
         $order->setDestinationType($shippingAddress->getDestinationType());
         $order->setValidationStatus($shippingAddress->getValidationStatus());
 
-        $this->recordOrderItems($order, $quote);
-        if(strstr($order->getCarrierType(), 'shqshared_')) {
-            $original  = $order->getCarrierType();
-            $carrierTypeArray = explode('_', $order->getCarrierType());
-            if(is_array($carrierTypeArray)) {
-                $order->setCarrierType($carrierTypeArray[1]);
-                //SHQ16-1026
-                //    $carrierGroupDetail = $order->getCarriergroupShippingDetails();
-                $shipId = $shippingAddress->getAddressId();
-                $carrierGroupDetailObject = $this->carrierGroupFactory->create()->load($shipId, 'quote_address_id');
-                $carrierGroupDetail = $carrierGroupDetailObject->getData('carrier_group_detail');
-                $currentShipDescription = $order->getShippingDescription();
-                $shipDescriptionArray = explode('-', $currentShipDescription);
-                $cgArray = $this->shipperDataHelper->decodeShippingDetails($carrierGroupDetail);
-                foreach($cgArray as $key => $cgDetail) {
-                    if(isset($cgDetail['carrierType']) && $cgDetail['carrierType'] == $original) {
-                        $cgDetail['carrierType'] = $carrierTypeArray[1];
+        $this->carrierGroupHelper->saveOrderDetail($order, $shippingAddress);
+        $this->carrierGroupHelper->recordOrderItems($order);
+        $this->packageHelper->saveOrderPackages($order, $shippingAddress);
+
+        if(strstr($order->getShippingMethod(), 'shqshared_')) {
+            $orderDetailArray = $this->carrierGroupHelper->loadOrderDetailByOrderId($order->getId());
+            //SHQ16- Review for splits
+            foreach($orderDetailArray as $orderDetail) {
+                $original  = $orderDetail->getCarrierType();
+                $carrierTypeArray = explode('_', $orderDetail->getCarrierType());
+                if(is_array($carrierTypeArray)) {
+                    $orderDetail->setCarrierType($carrierTypeArray[1]);
+                    //SHQ16-1026
+                    $currentShipDescription = $order->getShippingDescription();
+                    $shipDescriptionArray = explode('-', $currentShipDescription);
+                    $cgArray = $this->shipperDataHelper->decodeShippingDetails($orderDetail->getCarrierGroupDetail());
+                    foreach($cgArray as $key => $cgDetail) {
+                        if(isset($cgDetail['carrierType']) && $cgDetail['carrierType'] == $original) {
+                            $cgDetail['carrierType'] = $carrierTypeArray[1];
+                        }
+                        if(is_array($shipDescriptionArray) && isset($cgDetail['carrierTitle'])) {
+                            $shipDescriptionArray[0] = $cgDetail['carrierTitle'] .' ';
+                            $newShipDescription = implode('-', $shipDescriptionArray);
+                            $order->setShippingDescription($newShipDescription);
+                        }
+                        $cgArray[$key] = $cgDetail;
                     }
-                    if(is_array($shipDescriptionArray) && isset($cgDetail['carrierTitle'])) {
-                        $shipDescriptionArray[0] = $cgDetail['carrierTitle'] .' ';
-                        $newShipDescription = implode('-', $shipDescriptionArray);
-                        $order->setShippingDescription($newShipDescription);
-                    }
-                    $cgArray[$key] = $cgDetail;
+                    $encoded = $this->shipperDataHelper->encode($cgArray);
+                    $orderDetail->setCarrierGroupDetail($encoded);
+                    $orderDetail->save();
                 }
-                $carrierGroupDetailObject->setData('carrier_group_detail', $carrierGroupDetail);
-                $carrierGroupDetailObject->save();
+
                 $this->shipperLogger->postInfo('Shipperhq_Shipper',
                     'Rates displayed as single carrier',
                     'Resetting carrier type on order to be ' .$carrierTypeArray[1]);
 
             }
         }
+
+        if($this->shipperDataHelper->useDefaultCarrierCodes()) {
+            $order->setShippingMethod($this->getDefaultCarrierShipMethod($order, $shippingAddress));
+        }
+
         $order->save();
 
     }
 
-    protected function recordOrderItems($order, $quote)
+    protected function getDefaultCarrierShipMethod($order, $shippingAddress)
     {
-        foreach($order->getAllItems() as $orderItem) {
-            foreach($quote->getAllItems() as $quoteItem) {
-                if($quoteItem->getId() == $orderItem->getQuoteItemId()) {
-                    $orderItem->setCarriergroupId($quoteItem->getCarriergroupId());
-                    $orderItem->setCarriergroup($quoteItem->getCarriergroup());
-                    $orderItem->setCarriergroupShipping($quoteItem->getCarriergroupShipping());
-                    $orderItem->save();
-                }
-            }
-
+        $shipping_method = $order->getShippingMethod();
+        $rate = $shippingAddress->getShippingRateByCode($shipping_method);
+        if($rate) {
+            list($carrierCode, $method) = explode('_', $shipping_method, 2);
+            $magentoCarrierCode = $this->shipperDataHelper->mapToMagentoCarrierCode(
+                $rate->getCarrierType(),$carrierCode);
+            $shipping_method = ($magentoCarrierCode .'_' .$method);
         }
+        return $shipping_method;
     }
+
 }
 

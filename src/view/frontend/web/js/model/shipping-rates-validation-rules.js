@@ -24,6 +24,9 @@ define(
                      },
                     'city' : {
                         'required': false
+                    },
+                    'street' : {
+                        'required': false
                     }
                 };
             }

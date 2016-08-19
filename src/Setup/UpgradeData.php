@@ -408,7 +408,6 @@ class UpgradeData implements UpgradeDataInterface
         $customerSetup->addAttribute('customer_address', 'destination_type', $destinationTypeAddressAttr);
 
 
-
         $addressValiationStatus = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Address Validation Status'];
         $quoteSetup->addAttribute('quote_address' , 'validation_status', $addressValiationStatus);
         $salesSetup->addAttribute('order', 'validation_status', $addressValiationStatus);

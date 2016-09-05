@@ -108,57 +108,57 @@ class Package extends Data
     {
         $orderId = $order->getId();
         $packagesColl = [];
-        $cgDetail = $this->carrierGroupHelper->loadCarrierGroupDetailByShippingAddress($shippingAddress->getAddressId());
-        $carrierGroupDetail = $this->shipperDataHelper->decodeShippingDetails(
-            $cgDetail);
-        try {
-            if (is_array($carrierGroupDetail)) {
-                foreach ($carrierGroupDetail as $carrier_group) {
-                    if (!isset($carrier_group['carrierGroupId'])) {
-                        continue;
-                    }
-                    $carrierGroupId = $carrier_group['carrierGroupId'];
-                    $carrier_code = $carrier_group['carrier_code'];
-                    $shippingMethodCode = $carrier_group['code'];
-                    $quotePackageModel = $this->quotePackageFactory->create();
-                    $packagesColl = $quotePackageModel->loadByCarrier(
-                        $shippingAddress->getAddressId(), $carrierGroupId, $carrier_code . '_' . $shippingMethodCode);
-                    if (count($packagesColl) < 1) {
+        $addressDetail = $this->carrierGroupHelper->loadAddressDetailByShippingAddress($shippingAddress->getAddressId());
+        foreach($addressDetail as $detail) {
+            try {
+                $carrierGroupDetail = $this->shipperDataHelper->decodeShippingDetails(
+                    $detail->getCarrierGroupDetail());
+                if (is_array($carrierGroupDetail)) {
+                    foreach ($carrierGroupDetail as $carrier_group) {
+                        if (!isset($carrier_group['carrierGroupId'])) {
+                            continue;
+                        }
+                        $carrierGroupId = $carrier_group['carrierGroupId'];
+                        $carrier_code = $carrier_group['carrier_code'];
+                        $shippingMethodCode = $carrier_group['code'];
+                        $quotePackageModel = $this->quotePackageFactory->create();
                         $packagesColl = $quotePackageModel->loadByCarrier(
-                            $shippingAddress->getAddressId(), $carrierGroupId, $carrier_code);
-                    }
-                    foreach ($packagesColl as $box) {
-                        $package = $this->orderPackageFactory->create();
-                        $package->setOrderId($orderId);
-                        $package->setCarrierGroupId($carrierGroupId)
-                            ->setCarrierCode($box->getCarrierCode())
-                            ->setPackageName($box->getPackageName())
-                            ->setLength($box->getLength())
-                            ->setWidth($box->getWidth())
-                            ->setHeight($box->getHeight())
-                            ->setWeight($box->getWeight())
-                            ->setDeclaredValue($box->getDeclaredValue())
-                            ->setSurchargePrice($box->getSurchargePrice())
-                            ->setItems($box->getItems());
-                        $package->save();
+                            $shippingAddress->getAddressId(), $carrierGroupId, $carrier_code . '_' . $shippingMethodCode);
+                        if (count($packagesColl) < 1) {
+                            $packagesColl = $quotePackageModel->loadByCarrier(
+                                $shippingAddress->getAddressId(), $carrierGroupId, $carrier_code);
+                        }
+                        foreach ($packagesColl as $box) {
+                            $package = $this->orderPackageFactory->create();
+                            $package->setOrderId($orderId);
+                            $package->setCarrierGroupId($carrierGroupId)
+                                ->setCarrierCode($box->getCarrierCode())
+                                ->setPackageName($box->getPackageName())
+                                ->setLength($box->getLength())
+                                ->setWidth($box->getWidth())
+                                ->setHeight($box->getHeight())
+                                ->setWeight($box->getWeight())
+                                ->setDeclaredValue($box->getDeclaredValue())
+                                ->setSurchargePrice($box->getSurchargePrice())
+                                ->setItems($box->getItems());
+                            $package->save();
+                        }
+
+                        if (count($packagesColl) > 0) {
+                            $boxText = $this->shipperDataHelper->getPackageBreakdownText($packagesColl, $carrier_group['name']);
+                            $boxText .= __('Transaction ID: ') . $carrier_group['transaction'];
+                            $order->addStatusToHistory($order->getStatus(), $boxText, false);
+                        }
                     }
 
-
-                    //if (Mage::helper('shipperhq_shipper')->storeDimComments()) {
-                    if (count($packagesColl) > 0) {
-                        $boxText = $this->shipperDataHelper->getPackageBreakdownText($packagesColl, $carrier_group['name']);
-                        $boxText .= __('Transaction ID: ') . $carrier_group['transaction'];
-                        $order->addStatusToHistory($order->getStatus(), $boxText, false);
-                    }
-                    //}
                 }
-                $order->save();
-
+            }catch (\Exception $e) {
+                //Log exception and move on.
+                $this->_logger->critical('ShipperHQ save order package error: ' .$e->getMessage());
             }
-        }catch (\Exception $e) {
-            //Log exception and move on.
-            $this->_logger->critical('ShipperHQ save order package error: ' .$e->getMessage());
         }
+        $order->save();
+
         //record without carrier group details?
     }
 

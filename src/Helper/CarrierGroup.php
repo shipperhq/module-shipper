@@ -39,10 +39,6 @@ namespace ShipperHQ\Shipper\Helper;
  */
 class CarrierGroup extends Data
 {
-    /*
-    * @var \ShipperHQ\Shipper\Model\CarrierGroupFactory
-    */
-    protected $carrierGroupFactory;
     /**
      * @var \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory
      */
@@ -68,14 +64,12 @@ class CarrierGroup extends Data
      * @param \ShipperHQ\Lib\Helper\Rest $restHelper
      * @param Data $shipperHelperData
      */
-    public function __construct(\ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
-                                \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory $addressDetailFactory,
+    public function __construct(\ShipperHQ\Shipper\Model\Quote\AddressDetailFactory $addressDetailFactory,
                                 \ShipperHQ\Shipper\Model\Quote\ItemDetailFactory $itemDetailFactory,
                                 \ShipperHQ\Shipper\Model\Order\DetailFactory $orderDetailFactory,
                                 \ShipperHQ\Shipper\Model\Order\ItemDetailFactory $orderItemDetailFactory,
                                 Data $shipperDataHelper)
     {
-        $this->carrierGroupFactory = $carrierGroupFactory;
         $this->addressDetailFactory = $addressDetailFactory;
         $this->itemDetailFactory = $itemDetailFactory;
         $this->orderDetailFactory = $orderDetailFactory;
@@ -104,6 +98,7 @@ class CarrierGroup extends Data
             else {
                 $arrayofShipDetails = $shipDetails;
             }
+
             $encodedShipDetails = $this->shipperDataHelper->encode($arrayofShipDetails);
 
             $shippingAddress
@@ -126,6 +121,13 @@ class CarrierGroup extends Data
                     $encodedShipDetails)];
             foreach($additionalDetail as $key => $data){
                 $update[$key] = $data;
+            }
+            //test this
+            foreach($arrayofShipDetails as $detail) {
+                //records destination type returned on rate - not type from address validation or user selection
+                if(isset($detail['destination_type'])) {
+                    $update['destination_type'] = $detail['destination_type'];
+                }
             }
             $existing = $thisAddressDetail->getData();
             $data = array_merge($existing, $update);
@@ -209,18 +211,6 @@ class CarrierGroup extends Data
             $orderItemDetail->setData($data)
                 ->save();
         }
-    }
-
-    //deprecated
-    public function loadCarrierGroupDetailByShippingAddress($shippingAddressId)
-    {
-        $carrierGroup = $this->carrierGroupFactory->create();
-
-        $carrierGroupModel = $carrierGroup->loadByAddressId($shippingAddressId);
-        if($carrierGroupModel) {
-            return $carrierGroupModel->getCarrierGroupDetail();
-        }
-        return '';
     }
 
     public function loadAddressDetailByShippingAddress($shippingAddressId)

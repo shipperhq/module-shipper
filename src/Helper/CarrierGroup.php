@@ -122,7 +122,6 @@ class CarrierGroup extends Data
             foreach($additionalDetail as $key => $data){
                 $update[$key] = $data;
             }
-            //test this
             foreach($arrayofShipDetails as $detail) {
                 //records destination type returned on rate - not type from address validation or user selection
                 if(isset($detail['destination_type'])) {

@@ -1,5 +1,8 @@
 # Change Log
 
+## [20.0.23](https://github.com/webshopapps/module-shipper/tree/20.0.23) (2016-09-06)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.22...20.0.23)
+
 ## [20.0.22](https://github.com/webshopapps/module-shipper/tree/20.0.22) (2016-09-05)
 [Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.21...20.0.22)
 
@@ -21,13 +24,13 @@
 - Dev [\#1](https://github.com/webshopapps/module-shipper/pull/1) ([wsagen](https://github.com/wsagen))
 
 ## [1.2.5](https://github.com/webshopapps/module-shipper/tree/1.2.5) (2016-04-07)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.4...1.2.5)
-
-## [1.2.4](https://github.com/webshopapps/module-shipper/tree/1.2.4) (2016-03-16)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.3...1.2.4)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.3...1.2.5)
 
 ## [1.2.3](https://github.com/webshopapps/module-shipper/tree/1.2.3) (2016-03-16)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.1...1.2.3)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.4...1.2.3)
+
+## [1.2.4](https://github.com/webshopapps/module-shipper/tree/1.2.4) (2016-03-16)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.1...1.2.4)
 
 ## [1.2.1](https://github.com/webshopapps/module-shipper/tree/1.2.1) (2016-03-09)
 [Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.2...1.2.1)

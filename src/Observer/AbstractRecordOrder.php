@@ -48,14 +48,6 @@ Abstract class AbstractRecordOrder implements ObserverInterface
      */
     protected $shipperDataHelper;
     /**
-     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
-     */
-    protected $carrierGroupHelper;
-    /**
-     * @var \ShipperHQ\Shipper\Model\CarrierGroupFactory
-     */
-    protected $carrierGroupFactory;
-    /**
      * @var \Magento\Quote\Api\CartRepositoryInterface
      */
     protected $quoteRepository;
@@ -67,18 +59,20 @@ Abstract class AbstractRecordOrder implements ObserverInterface
      * @var \ShipperHQ\Shipper\Helper\Package
      */
     private $packageHelper;
+    /**
+     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
+     */
+    protected $carrierGroupHelper;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
-     * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
-     * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
+     * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param \ShipperHQ\Shipper\Helper\Package $packageHelper
      * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \ShipperHQ\Shipper\Model\CarrierGroupFactory $carrierGroupFactory,
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
@@ -86,7 +80,6 @@ Abstract class AbstractRecordOrder implements ObserverInterface
     )
     {
         $this->shipperDataHelper = $shipperDataHelper;
-        $this->carrierGroupFactory = $carrierGroupFactory;
         $this->quoteRepository = $quoteRepository;
         $this->shipperLogger = $shipperLogger;
         $this->packageHelper = $packageHelper;

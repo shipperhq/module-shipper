@@ -201,14 +201,15 @@ class CarrierGroup extends Data
         foreach($order->getAllItems() as $orderItem) {
             $quoteItemId =  $orderItem->getQuoteItemId();
             $quoteItemDetail = $this->itemDetailFactory->create()->loadDetailByItemId($quoteItemId);
-
             $orderItemDetail = $this->orderItemDetailFactory->create();
-            $data = $quoteItemDetail->getData();
-            $data['order_item_id'] = $orderItem->getId();
-            unset($data['quote_item_id']);
-            unset($data['id']);
-            $orderItemDetail->setData($data)
-                ->save();
+            if($quoteItemDetail) {
+                $data = $quoteItemDetail->getData();
+                $data['order_item_id'] = $orderItem->getId();
+                unset($data['quote_item_id']);
+                unset($data['id']);
+                $orderItemDetail->setData($data)
+                    ->save();
+            }
         }
     }
 

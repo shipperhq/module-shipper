@@ -136,6 +136,12 @@ class Shipper
      */
     private $configSettingsFactory;
     /**
+     * Application Event Dispatcher
+     *
+     * @var \Magento\Framework\Event\ManagerInterface
+     */
+    protected $eventManager;
+    /*
      * @var \ShipperHQ\Lib\AllowedMethods\Helper
      */
     private $allowedMethodsHelper;
@@ -203,6 +209,7 @@ class Shipper
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \ShipperHQ\Lib\Rate\Helper $shipperLibRateHelper,
         \ShipperHQ\Lib\Rate\ConfigSettingsFactory $configSettingsFactory,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
         \ShipperHQ\Lib\AllowedMethods\Helper $allowedMethodsHelper,
         \Magento\Checkout\Model\Session $checkoutSession,
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
@@ -224,6 +231,7 @@ class Shipper
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->shipperRateHelper = $shipperLibRateHelper;
         $this->configSettingsFactory = $configSettingsFactory;
+        $this->eventManager = $eventManager;
         $this->allowedMethodsHelper = $allowedMethodsHelper;
         $this->checkoutSession = $checkoutSession;
         $this->packageHelper = $packageHelper;
@@ -292,6 +300,11 @@ class Shipper
             $cartType = 'MAC';
         }
         $request->setCartType($cartType);
+
+        $this->eventManager->dispatch(
+            'shipperhq_carrier_set_request',
+            ['request' => $request]
+        );
 
         $this->shipperRequest = $this->shipperMapper->getShipperTranslation($request);
         $this->rawRequest = $request;
@@ -502,7 +515,7 @@ class Shipper
     {
         $debugRequest = $this->shipperRequest;
 
-        $debugData = ['request' => $debugRequest, 'response' => $shipperResponse];
+        $debugData = ['request' => json_encode($debugRequest, JSON_PRETTY_PRINT), 'response' => $shipperResponse];
         if (!is_object($shipperResponse)) {
             $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ did not return a response', $debugData);
 
@@ -510,6 +523,7 @@ class Shipper
         }
         $transactionId = $this->shipperRateHelper->extractTransactionId($shipperResponse);
         $this->registry->unregister('shipperhq_transaction');
+
         $this->registry->register('shipperhq_transaction', $transactionId);
 
         //first check and save globals for display purposes
@@ -595,6 +609,7 @@ class Shipper
                     $rate->setMethod($methodCombineCode);
 
                     $rate->setMethodTitle(__($rateDetails['method_title']));
+                    $rate->setTooltip($rateDetails['tooltip']);
 
                     if (array_key_exists('method_description', $rateDetails)) {
                         $rate->setMethodDescription(__($rateDetails['method_description']));
@@ -610,6 +625,15 @@ class Shipper
                     if (array_key_exists('carrier_id', $rateDetails)) {
                         $rate->setCarrierId($rateDetails['carrier_id']);
                     }
+
+                    if (array_key_exists('dispatch_date', $rateDetails)) {
+                        $rate->setDispatchDate($rateDetails['dispatch_date']);
+                    }
+
+                    if (array_key_exists('delivery_date', $rateDetails)) {
+                        $rate->setDeliveryDate($rateDetails['delivery_date']);
+                    }
+
 
                     if (array_key_exists('carriergroup_detail', $rateDetails)
                         && !is_null($rateDetails['carriergroup_detail'])
@@ -648,6 +672,7 @@ class Shipper
         $this->shipperDataHelper->setStandardShipperResponseType();
         $carrierGroups = $shipperResponse->carrierGroups;
         $ratesArray = [];
+
         $timezone = $this->shipperDataHelper->getConfigValue('general/locale/timezone');
         $configSetttings = $this->configSettingsFactory->create([
             'hideNotifications' => $this->shipperDataHelper->getConfigFlag('carriers/shipper/hide_notify'),
@@ -661,7 +686,7 @@ class Shipper
 
         $splitCarrierGroupDetail = [];
         foreach ($carrierGroups as $carrierGroup) {
-            $carrierGroupDetail = $this->shipperRateHelper->extractCarrierGroupDetail($carrierGroup, $transactionId);
+            $carrierGroupDetail = $this->shipperRateHelper->extractCarrierGroupDetail($carrierGroup, $transactionId, $configSetttings);
             $this->setCarriergroupOnItems($carrierGroupDetail, $carrierGroup->products);
             //Pass off each carrier group to helper to decide best fit to process it.
             //Push result back into our array
@@ -669,6 +694,9 @@ class Shipper
                 $this->carrierConfigHandler->saveCarrierResponseDetails($carrierRate, $carrierGroupDetail, false);
                 $carrierResultWithRates = $this->shipperRateHelper->extractShipperHQRates($carrierRate, $carrierGroupDetail, $configSetttings, $splitCarrierGroupDetail);
                 $ratesArray[] = $carrierResultWithRates;
+                //push out event so other modules can save their data
+                $this->eventManager->dispatch('shipperhq_carrier_rate_response_received',
+                    ['carrier_rate_response' => $carrierRate, 'carrier_group_detail'=> $carrierGroupDetail]);
             }
         }
 

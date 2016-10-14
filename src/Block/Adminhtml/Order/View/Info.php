@@ -48,6 +48,8 @@ class Info extends AbstractOrder
 
     protected $cgInfo = null;
 
+    protected $defaultDateFormat = 'm/d/y';
+
     /**
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magento\Framework\Registry $registry
@@ -118,5 +120,19 @@ class Info extends AbstractOrder
             $result = $this->getOrder()->getData($fieldName);
         }
         return $result;
+    }
+
+    public function getFormattedDate($date, $carrierGroupDetail)
+    {
+        $detail = $this->shipperDataHelper->decodeShippingDetails($carrierGroupDetail);
+        $format = isset($detail[0]['display_date_format']) ? $detail[0]['display_date_format'] : $this->defaultDateFormat;
+        $formattedDate = date($format, strtotime($date));
+        return $formattedDate;
+    }
+
+    public function getFormattedTimeSlot($timeSlot)
+    {
+        $formattedTimeSlot = str_replace('_', ' - ', $timeSlot);
+        return $formattedTimeSlot;
     }
 }

@@ -435,6 +435,12 @@ class UpgradeData implements UpgradeDataInterface
         $attribute->setData('used_in_forms', ['adminhtml_customer_address']);
         $attribute->save();
 
+        //1.0.7
+        $dispatchDateAttr = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DATE, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Address Type'];
+        $quoteSetup->addAttribute('quote_address_rate' , 'shq_dispatch_date', $dispatchDateAttr);
+        $deliveryDateAttr = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DATE, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Address Type'];
+        $quoteSetup->addAttribute('quote_address_rate' , 'shq_delivery_date', $deliveryDateAttr);
+
         $installer->endSetup();
 
     }

@@ -1,0 +1,62 @@
+.form.methods-shipping .field-tooltip {
+    position:relative !important;
+}
+.form.methods-shipping .field-tooltip .field-tooltip-action:before {
+    font-size:16px;
+}
+
+form.methods-shipping input.shq-input { width: 80% !important;}
+
+.form.methods-shipping select,
+.form.methods-shipping input {
+    font-size: 12px !important;
+    height: 30px !important;
+    border: 1px solid #ddd !important;
+    max-width: 100% !important;
+    float: left;
+    line-height: 30px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.shq-optn-50l,
+.shq-optn-50r,
+.shq-optn-100 {
+    float: left;
+    margin-bottom: 20px;
+    font-size: 12px;
+}
+
+.shq-optn-50l {width: 46%; padding-right: 4%; box-sizing: content-box;}
+.shq-optn-50r {width: 46%; padding-left: 4%; box-sizing: content-box;}
+.shq-optn-100 {width: 100%;}
+
+.form.methods-shipping label.shq-title,
+.form.methods-shipping input.shq-input,
+.form.methods-shipping select.shq-input {
+    padding:0 !important;
+}
+.form.methods-shipping input.shq-input {width: auto; float: left;}
+
+.shq-title,
+.shq-input {
+    float: left;
+    width:100%;
+    font-weight: normal !important;
+    font-size: 12px;
+}
+
+.shq-input {margin-top:5px;}
+
+.shq-datepicker button {
+    float: left;
+    width: 14px;
+    margin: 0 5px 0 0;
+}
+
+@media only screen and (max-width: 480px) {
+
+    .shq-optn-50l {width: 100%; padding-right: 0;}
+    .shq-optn-50r {width: 100%; padding-left: 0;}
+
+}

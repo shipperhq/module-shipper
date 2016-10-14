@@ -115,7 +115,10 @@ class CarrierGroup extends Data
             $update = ['quote_address_id' => $shippingAddress->getId(),
                 'carrier_group_id' => $foundRate->getCarriergroupId(),
                 'carrier_type' => $foundRate->getCarrierType(),
+                'carrier_group' => $foundRate->getCarriergroup(),
                 'carrier_id' => $foundRate->getCarrierId(),
+                'dispatch_date' => $foundRate->getShqDispatchDate(),
+                'delivery_date' => $foundRate->getShqDeliveryDate(),
                 'carrier_group_detail' => $encodedShipDetails,
                 'carrier_group_html' => $this->getCarriergroupShippingHtml(
                     $encodedShipDetails)];
@@ -201,8 +204,9 @@ class CarrierGroup extends Data
         foreach($order->getAllItems() as $orderItem) {
             $quoteItemId =  $orderItem->getQuoteItemId();
             $quoteItemDetail = $this->itemDetailFactory->create()->loadDetailByItemId($quoteItemId);
-            $orderItemDetail = $this->orderItemDetailFactory->create();
             if($quoteItemDetail) {
+                $orderItemDetail = $this->orderItemDetailFactory->create();
+
                 $data = $quoteItemDetail->getData();
                 $data['order_item_id'] = $orderItem->getId();
                 unset($data['quote_item_id']);

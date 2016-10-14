@@ -147,6 +147,12 @@ class ShipperMapper
      * @var StockHandler
      */
     protected $stockHandler;
+
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    protected $checkoutSession;
+
     /**
      * @var  \ShipperHQ\WS\Rate\Request\Checkout\PhysicalBuildingDetailFactory
      */
@@ -174,6 +180,7 @@ class ShipperMapper
                          \Magento\Framework\App\ProductMetadata $productMetadata,
                          \Magento\Backend\Block\Template\Context $context,
                          StockHandler $stockHandler,
+                         \Magento\Checkout\Model\Session $checkoutSession,
                          \ShipperHQ\WS\Rate\Request\Checkout\PhysicalBuildingDetailFactory $physicalBuildingDetailFactory,
                          \ShipperHQ\WS\Rate\Request\Checkout\StockDetailFactory $stockDetailFactory
     )
@@ -199,6 +206,7 @@ class ShipperMapper
         $this->shipDetailsFactory = $shipDetailsFactory;
         $this->stockHandler = $stockHandler;
         $this->physicalBuildingDetailFactory = $physicalBuildingDetailFactory;
+        $this->checkoutSession = $checkoutSession;
         $this->stockDetailFactory = $stockDetailFactory;
     }
 
@@ -217,6 +225,12 @@ class ShipperMapper
             'cartType' => $this->getCartType($magentoRequest),
             'validateAddress' => $this->getValidateAddress($magentoRequest)]);
 
+       // $this->setSessionStuffOnRequest($magentoRequest);
+        if($delDate = $this->getDeliveryDateUTC($magentoRequest)) {
+            $shipperHQRequest->setDeliveryDate(self::getDeliveryDate($magentoRequest));
+            $shipperHQRequest->setDeliveryDateUTC($delDate);
+        }
+
         if ($shipDetails = $this->getShipDetails($magentoRequest)) {
             $shipperHQRequest->setShipDetails($shipDetails);
         }
@@ -232,6 +246,26 @@ class ShipperMapper
         $shipperHQRequest->setSiteDetails($this->getSiteDetails($storeId));
         $shipperHQRequest->setCredentials($this->getCredentials($storeId));
         return $shipperHQRequest;
+    }
+
+    public function setSessionStuffOnRequest($request)
+    {
+        //TODO this should happen before this is passed to shippermapper.
+        $requestData = $this->checkoutSession->getShipperhqData();
+        //need a map so the request always uses the data in known structure
+        $data = $requestData['checkout_selections'];
+        if(!isset($data)) {
+            return;
+        }
+        if($data->getSelectedDate()) {
+            $request->setDeliveryDateSelected($data->getSelectedDate());
+        }
+        if($data->getCarrierGroupId()) {
+            $request->setCarriergroupId($data->getCarrierGroupId());
+        }
+        if($data->getCarrierId()) {
+            $request->setCarrierId($data->getCarrierId());
+        }
     }
 
     /**
@@ -288,7 +322,7 @@ class ShipperMapper
         $edition = $this->productMetadata->getEdition();
         $url = $this->storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_LINK);
         $siteDetails = $this->siteDetailsFactory->create([
-            'ecommerceCart' => 'Magento 2 ' . $edition,
+            'ecommerceCart' => 'Magento ' . $edition,
             'ecommerceVersion' => $this->productMetadata->getVersion(),
             'websiteUrl' => $url,
             'environmentScope' => $this->shipperDataHelper->getConfigValue('carriers/shipper/environment_scope', $storeId),
@@ -356,7 +390,7 @@ class ShipperMapper
     */
     public function getDeliveryDateUTC($request)
     {
-        $timeStamp = $request->getDeliveryDateSelected();
+        $timeStamp = $request->getDeliveryDateTimestamp();
         if (!is_null($timeStamp)) {
             $inMilliseconds = $timeStamp * 1000;
             return $inMilliseconds;
@@ -576,6 +610,9 @@ class ShipperMapper
     {
         $details = [];
         $itemLocationsString = $item->getProduct()->getData(self::$location);
+        if($itemLocationsString == '') {
+            return $details;
+        }
         $itemLocations = explode(',', $itemLocationsString);
         if(is_array($itemLocations)) {
             $product = $item->getProduct();

@@ -64,14 +64,15 @@ class RatePlugin
                 ->setCarriergroupId($rate->getCarriergroupId())
                 ->setCarriergroup($rate->getCarriergroup())
                 ->setCarrierType($rate->getCarrierType())
-                ->setDispatchDate($rate->getDispatchDate())
-                ->setDeliveryDate($rate->getDeliveryDate())
+                ->setShqDispatchDate($rate->getDispatchDate())
+                ->setShqDeliveryDate($rate->getDeliveryDate())
                 ->setCarriergroupShippingDetails($rate->getCarriergroupShippingDetails())
                 ->setCarrierNotice($rate->getCarrierNotice())
                 ->setFreightRate($rate->getFreightRate())
                 ->setCustomDescription($rate->getCustomDescription())
                 ->setCarrierId($rate->getCarrierId())
-                ->setCustomDuties($rate->getCustomDuties());
+                ->setCustomDuties($rate->getCustomDuties())
+                ->setTooltip($rate->getTooltip());
         }
         return $result;
     }

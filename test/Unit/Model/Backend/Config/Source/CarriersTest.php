@@ -63,15 +63,17 @@ class CarriersTest extends \PHPUnit_Framework_TestCase
             '',
             false
         );
-        $carrier->expects(
+
+        $config = $this->getMock('Magento\Shipping\Model\Config', ['getAllCarriers'], [], '', false);
+        $config->expects(
             $this->once()
         )->method(
-                'getConfigData'
-            )->with(
-                'title'
-            )->will(
-                $this->returnValue('configdata')
-            );
+            'getAllCarriers'
+        )->with(
+            null
+        )->will(
+            $this->returnValue(['free' => $carrier])
+        );
 
         $shipHelper = $this->getMock('\ShipperHQ\Shipper\Helper\Data', ['getConfigValue'], [], '', false);
         $shipHelper->expects(
@@ -82,21 +84,12 @@ class CarriersTest extends \PHPUnit_Framework_TestCase
                 $this->returnValue('configValue')
             );
 
-        $config = $this->getMock('Magento\Shipping\Model\Config', ['getAllCarriers'], [], '', false);
-        $config->expects(
-            $this->once()
-        )->method(
-                'getAllCarriers'
-            )->with(
-                null
-            )->will(
-                $this->returnValue(['free' => $carrier])
-            );
+
 
         /** @var 'ShipperHQ\Shipper\Model\Backend\Config\Source\Carriers' $model */
         $model = $helper->getObject(
             'ShipperHQ\Shipper\Model\Backend\Config\Source\Carriers',
-            ['shippingConfig' =>$config]
+            ['shippingConfig' =>$config, 'shipperDataHelper' => $shipHelper]
         );
         $response = [];
         $response[] =  ['value' => false, 'label' => 'No Carrier'];

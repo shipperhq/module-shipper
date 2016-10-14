@@ -51,6 +51,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
         $installer = $setup;
         $installer->startSetup();
 
+        //1.0.6
         if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_quote_address_detail'))) {
             $table = $installer->getConnection()->newTable($installer->getTable('shipperhq_quote_address_detail'));
             $table
@@ -106,13 +107,13 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'Carrier Group Information Formatted'
                 )->addColumn(
                     'dispatch_date',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
                     null,
                     ['nullable' => true],
                     'Dispatch Date'
                 )->addColumn(
                     'delivery_date',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
                     null,
                     ['nullable' => true],
                     'Delivery Date'
@@ -292,13 +293,13 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'Carrier Group Information Formatted'
                 )->addColumn(
                     'dispatch_date',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
                     null,
                     ['nullable' => true],
                     'Dispatch Date'
                 )->addColumn(
                     'delivery_date',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
                     null,
                     ['nullable' => true],
                     'Delivery Date'

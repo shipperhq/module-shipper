@@ -25,5 +25,29 @@
                 <?php echo __('Shipping address validation') .': ' .$block->escapeHtml($validStatus) ?>
             </div>
         <?php endif; ?>
+        <?php if ($order->getShqDeliveryDate()): ?>
+            <div class="order-shipping-additional">
+                <?php echo __('Delivery date') .': ' .$block->escapeHtml($order->getShqDeliveryDate()) ?>
+            </div>
+        <?php endif; ?>
+        <?php foreach($cgInfo as $carrierGroup): ?>
+            <div class="order-shipping-additional">
+                <?php if($carrierGroup['pickup_location'] != ''): ?>
+                    <?php echo __('Location') .': ' .$block->escapeHtml($carrierGroup['pickup_location']) ?>
+                    </br>
+                <?php endif; ?>
+                <?php if($carrierGroup['delivery_date'] != ''): ?>
+                    <?php echo __('Delivery date') .': ' .$block->escapeHtml($block->getFormattedDate($carrierGroup['delivery_date'], $carrierGroup['carrier_group_detail'])) ?>
+                <?php endif; ?>
+                <?php if($carrierGroup['dispatch_date'] != ''): ?>
+                    </br>
+                    <?php echo __('Dispatch date') .': ' .$block->escapeHtml($block->getFormattedDate($carrierGroup['dispatch_date'], $carrierGroup['carrier_group_detail'])) ?>
+                <?php endif; ?>
+                <?php if($carrierGroup['time_slot'] != ''): ?>
+                    </br>
+                    <?php echo __('Time slot') .': ' .$block->escapeHtml($block->getFormattedTimeSlot($carrierGroup['time_slot'])) ?>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
     </div>
 </div>

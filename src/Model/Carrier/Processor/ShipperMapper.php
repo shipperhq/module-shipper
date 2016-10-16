@@ -322,7 +322,7 @@ class ShipperMapper
         $edition = $this->productMetadata->getEdition();
         $url = $this->storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_LINK);
         $siteDetails = $this->siteDetailsFactory->create([
-            'ecommerceCart' => 'Magento ' . $edition,
+            'ecommerceCart' => 'Magento 2 ' . $edition,
             'ecommerceVersion' => $this->productMetadata->getVersion(),
             'websiteUrl' => $url,
             'environmentScope' => $this->shipperDataHelper->getConfigValue('carriers/shipper/environment_scope', $storeId),

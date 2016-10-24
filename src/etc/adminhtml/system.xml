@@ -52,7 +52,7 @@
                ]]>
                 </comment>
                 <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
-                       showInStore="0">
+                       showInStore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
@@ -74,13 +74,13 @@
                     <source_model>ShipperHQ\Shipper\Model\Backend\Config\Source\EnvironmentScope</source_model>
                 </field>
                 <field id="api_key" translate="label" type="obscure" sortOrder="120" showInDefault="1" showInWebsite="1"
-                       showInStore="0">
+                       showInStore="1">
                     <label>API Key</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <comment>Obtain from under Websites in the ShipperHQ Dashboard</comment>
                 </field>
                 <field id="password" translate="label" type="obscure" sortOrder="130" showInDefault="1"
-                       showInWebsite="1" showInStore="0">
+                       showInWebsite="1" showInStore="1">
                     <label>Authentication Code</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <comment>Obtain from under Websites in the ShipperHQ Dashboard</comment>
@@ -114,6 +114,14 @@
                     <comment>
                         Set to no unless advised by ShipperHQ team, used for debugging purposes
                     </comment>
+                </field>
+                <field id="ignore_empty_zip" translate="label" type="select" sortOrder="325" showInDefault="1"
+                       showInWebsite="1" showInStore="0">
+                    <label>Require Zipcode To Request Rates</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <tooltip>
+                        Only request ShipperHQ rates when the zipcode field has been entered
+                    </tooltip>
                 </field>
                 <field id="use_cache" translate="label" type="select" sortOrder="330" showInDefault="1"
                        showInWebsite="1" showInStore="0">

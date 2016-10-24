@@ -82,6 +82,13 @@ class Shipper
     const ACTIVE_FLAG = 'active';
 
     /**
+     * Flag for check carriers for activity
+     *
+     * @var string
+     */
+    const IGNORE_EMPTY_ZIP = 'ignore_empty_zip';
+
+    /**
      * @var Config
      */
     protected $configHelper;
@@ -249,6 +256,13 @@ class Shipper
         if (!$this->getConfigFlag(self::ACTIVE_FLAG)) {
             return false;
         }
+
+        if(is_null($request->getDestPostcode()) && $this->getConfigFlag(self::IGNORE_EMPTY_ZIP)) {
+            $this->shipperLogger->postDebug('Shipperhq_Shipper','Ignoring rate request','Configuration settings are to ignore requests as zipcode is empty');
+            return false;
+
+        }
+
         $initVal = microtime(true);
 
         $this->cacheEnabled = $this->getConfigFlag('use_cache');
@@ -590,7 +604,7 @@ class Shipper
                                 $error =  __('Can\'t convert rate from "%1".',$rateDetails['currency']);
                                 $this->appendError($result, $error, $carrierRate['code'], $carrierRate['title'],
                                     $rateDetails['carriergroup_detail']['carrierGroupId'], $rateDetails['carriergroup_detail']);
-                                $this->shipperLogger->postWarning('Shipperhq_Shipper','Currency Rate Missing',
+                                $this->shipperLogger->postCritical('Shipperhq_Shipper','Currency Rate Missing',
                                     'Currency code in shipping rate is ' .$rateDetails['currency']
                                     .' but there is no currency conversion rate configured so we cannot display this shipping rate');
                                 continue;
@@ -651,7 +665,6 @@ class Shipper
                             $rate->setCarriergroup($carrierGroupDetail['checkoutDescription']);
                         }
                     }
-
                     $result->append($rate);
                 }
                 if(isset($carrierRate['shipments'])) {

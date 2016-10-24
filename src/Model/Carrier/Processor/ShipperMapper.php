@@ -326,7 +326,7 @@ class ShipperMapper
             'ecommerceVersion' => $this->productMetadata->getVersion(),
             'websiteUrl' => $url,
             'environmentScope' => $this->shipperDataHelper->getConfigValue('carriers/shipper/environment_scope', $storeId),
-            'appVersion' =>$this->shipperDataHelper->getConfigValue('carriers/shipper/extension_version')
+            'appVersion' => $this->shipperDataHelper->getConfigValue('carriers/shipper/extension_version')
         ]);
         return $siteDetails;
     }

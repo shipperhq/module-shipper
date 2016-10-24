@@ -798,6 +798,97 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $installer->getConnection()->createTable($table);
         }
 
+        //Version 1.0.8
+        if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_order_detail_grid'))) {
+            $table = $installer->getConnection()->newTable($installer->getTable('shipperhq_order_detail_grid'));
+            $table
+                ->addColumn(
+                    'id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    null,
+                    ['primary' => true,
+                        'nullable' => false,
+                        'unsigned' => true,
+                        'auto_increment' => true ]
+                )->addColumn(
+                    'order_id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    ['nullable' => false],
+                    'Order ID'
+                )->addColumn(
+                    'carrier_group',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    ['nullable' => true],
+                    'Carrier Group(s)'
+                )->addColumn(
+                    'dispatch_date',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
+                    null,
+                    ['nullable' => true],
+                    'Dispatch Date'
+                )->addColumn(
+                    'delivery_date',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
+                    null,
+                    ['nullable' => true],
+                    'Delivery Date'
+                )->addColumn(
+                    'time_slot',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    ['nullable' => true],
+                    'Time Slot'
+                )->addColumn(
+                    'pickup_location',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    ['nullable' => true],
+                    'Pickup Location'
+                )->addColumn(
+                    'delivery_comments',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    ['nullable' => true],
+                    'Delivery Comments'
+                )->addColumn(
+                    'destination_type',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    ['nullable' => true],
+                    'Destination Type'
+                )->addColumn(
+                    'liftgate_required',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    ['nullable' => true],
+                    'Liftgate Required'
+                )->addColumn(
+                    'notify_required',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    ['nullable' => true],
+                    'Notify Required'
+                )->addColumn(
+                    'inside_delivery',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    ['nullable' => true],
+                    'Inside Delivery'
+                )->addColumn(
+                    'address_valid',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    ['nullable' => true],
+                    'Address Valid Status'
+                )->setComment(
+                    'ShipperHQ Order Grid Information'
+                );
+
+            $installer->getConnection()->createTable($table);
+        }
+
         $installer->endSetup();
 
     }

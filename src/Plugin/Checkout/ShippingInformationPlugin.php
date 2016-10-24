@@ -127,12 +127,14 @@ class ShippingInformationPlugin
             }
             $address->save();
             $additionalDetail = new \Magento\Framework\DataObject;
-            $extAttributes = $addressInformation->getExtensionAttributes();
+            $extAttributes = $addressInformation->getShippingAddress()->getExtensionAttributes();
+
             //push out event so other modules can save their data TODO add carrier_group_id
             $this->eventManager->dispatch('shipperhq_additional_detail_checkout',
                 ['address_extn_attributes' => $extAttributes, 'additional_detail'=> $additionalDetail,
                 'carrier_code' => $carrierCode]);
             $additionalDetailArray = $additionalDetail->convertToArray();
+            $this->shipperLogger->postDebug('ShipperHQ Shipper', 'processing additional detail ', $additionalDetail);
             $this->carrierGroupHelper->saveCarrierGroupInformation($address,
                 $shippingMethod, $additionalDetailArray);
 

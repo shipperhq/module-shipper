@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-<!--
+<?php
 /**
  *
  * ShipperHQ Shipping Module
@@ -27,20 +26,24 @@
  * @copyright Copyright (c) 2015 Zowta LLC (http://www.ShipperHQ.com)
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
-*/
+ */
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
--->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
-    <module name="ShipperHQ_Shipper" setup_version="1.0.8" >
-        <sequence>
-            <module name="Magento_Config"/>
-            <module name="Magento_Store"/>
-            <module name="Magento_Sales"/>
-            <module name="Magento_Quote"/>
-            <module name="Magento_SalesRule"/>
-        </sequence>
-    </module>
-</config>
+
+namespace ShipperHQ\Shipper\Model\ResourceModel\Order;
+
+class GridDetail extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
+{
+    /**
+     * Define main table
+     *
+     * @return void
+     */
+    protected function _construct()
+    {
+        $this->_init('shipperhq_order_detail_grid', 'id');
+    }
+
+}

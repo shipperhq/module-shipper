@@ -67,7 +67,10 @@ class InstallData implements InstallDataInterface
      * @var SalesSetupFactory
      */
     protected $salesSetupFactory;
-
+    /**
+     * @var \Magento\Framework\App\Config\Storage\WriterInterface
+     */
+    private $configStorageWriter;
 
     /**
      * Init
@@ -75,15 +78,18 @@ class InstallData implements InstallDataInterface
      * @param CategorySetupFactory $categorySetupFactory
      * @param QuoteSetupFactory $quoteSetupFactory
      * @param SalesSetupFactory $salesSetupFactory
+     * @param \Magento\Framework\App\Config\MutableScopeConfigInterface $mutableConfig
      */
     public function __construct(
         CategorySetupFactory $categorySetupFactory,
         QuoteSetupFactory $quoteSetupFactory,
-        SalesSetupFactory $salesSetupFactory
+        SalesSetupFactory $salesSetupFactory,
+        \Magento\Framework\App\Config\Storage\WriterInterface $configStorageWriter
     ) {
         $this->categorySetupFactory = $categorySetupFactory;
         $this->quoteSetupFactory = $quoteSetupFactory;
         $this->salesSetupFactory = $salesSetupFactory;
+        $this->configStorageWriter = $configStorageWriter;
     }
     
     
@@ -221,5 +227,7 @@ class InstallData implements InstallDataInterface
             $quoteSetup->addAttribute($entity, 'carriergroup_shipping', $carriergroupShipping);
         }
         $salesSetup->addAttribute('order_item', 'carriergroup_shipping', $carriergroupShipping);
+
+        $this->configStorageWriter->save('carriers/shipper/ignore_empty_zip', 1);
     }
 }

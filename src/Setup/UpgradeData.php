@@ -74,8 +74,10 @@ class UpgradeData implements UpgradeDataInterface
     private $customerSetupFactory;
 
     /**
+     * @param CategorySetupFactory $categorySetupFactory
+     * @param QuoteSetupFactory $quoteSetupFactory
      * @param SalesSetupFactory $salesSetupFactory
-     * @param \Magento\Eav\Model\Config $eavConfig
+     * @param CustomerSetupFactory $customerSetupFactory
      */
     public function __construct(
         CategorySetupFactory $categorySetupFactory,

@@ -1,69 +1,104 @@
 # Change Log
 
-## [20.1.0](https://github.com/webshopapps/module-shipper/tree/20.1.0) (2016-10-24)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.26...20.1.0)
+## [20.0.26](https://github.com/shipperhq/module-shipper/tree/20.0.26) (2016-10-16)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.25...20.0.26)
+
+## [20.0.25](https://github.com/shipperhq/module-shipper/tree/20.0.25) (2016-10-14)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.24...20.0.25)
+
+## [20.0.24](https://github.com/shipperhq/module-shipper/tree/20.0.24) (2016-09-19)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.23...20.0.24)
+
+## [20.0.23](https://github.com/shipperhq/module-shipper/tree/20.0.23) (2016-09-06)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.22...20.0.23)
+
+## [20.0.22](https://github.com/shipperhq/module-shipper/tree/20.0.22) (2016-09-05)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.21...20.0.22)
+
+## [20.0.21](https://github.com/shipperhq/module-shipper/tree/20.0.21) (2016-09-02)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.20...20.0.21)
+
+## [20.0.20](https://github.com/shipperhq/module-shipper/tree/20.0.20) (2016-08-19)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.17...20.0.20)
+
+## [20.0.17](https://github.com/shipperhq/module-shipper/tree/20.0.17) (2016-08-04)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.16...20.0.17)
+
+## [20.0.16](https://github.com/shipperhq/module-shipper/tree/20.0.16) (2016-08-02)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.15...20.0.16)
+
+**Closed issues:**
+
+- Error on every page due to invalid etc/events.xml file [\#9](https://github.com/shipperhq/module-shipper/issues/9)
+
+## [20.0.15](https://github.com/shipperhq/module-shipper/tree/20.0.15) (2016-07-27)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.14...20.0.15)
+
+## [20.0.14](https://github.com/shipperhq/module-shipper/tree/20.0.14) (2016-07-26)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.13...20.0.14)
+
+## [20.0.13](https://github.com/shipperhq/module-shipper/tree/20.0.13) (2016-07-05)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.12...20.0.13)
+
+## [20.0.12](https://github.com/shipperhq/module-shipper/tree/20.0.12) (2016-07-04)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.11...20.0.12)
+
+## [20.0.11](https://github.com/shipperhq/module-shipper/tree/20.0.11) (2016-07-04)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.10...20.0.11)
+
+## [20.0.10](https://github.com/shipperhq/module-shipper/tree/20.0.10) (2016-06-27)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.9...20.0.10)
+
+## [20.0.9](https://github.com/shipperhq/module-shipper/tree/20.0.9) (2016-06-23)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.8...20.0.9)
+
+## [20.0.8](https://github.com/shipperhq/module-shipper/tree/20.0.8) (2016-06-16)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.7...20.0.8)
+
+## [20.0.7](https://github.com/shipperhq/module-shipper/tree/20.0.7) (2016-06-09)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.6...20.0.7)
+
+**Closed issues:**
+
+- Array to string conversion on PHP 5.6.x [\#6](https://github.com/shipperhq/module-shipper/issues/6)
+
+## [20.0.6](https://github.com/shipperhq/module-shipper/tree/20.0.6) (2016-06-07)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.5...20.0.6)
+
+**Closed issues:**
+
+- CarriergroupShippingDetails json decode syntax error [\#7](https://github.com/shipperhq/module-shipper/issues/7)
+
+## [20.0.5](https://github.com/shipperhq/module-shipper/tree/20.0.5) (2016-06-01)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.4...20.0.5)
+
+**Closed issues:**
+
+- di:compile Issues [\#5](https://github.com/shipperhq/module-shipper/issues/5)
+
+## [20.0.4](https://github.com/shipperhq/module-shipper/tree/20.0.4) (2016-05-18)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.3...20.0.4)
+
+## [20.0.3](https://github.com/shipperhq/module-shipper/tree/20.0.3) (2016-05-11)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.2...20.0.3)
+
+**Closed issues:**
+
+- composer.json version should match git tag [\#1](https://github.com/shipperhq/module-shipper/issues/1)
 
 **Merged pull requests:**
 
-- Develop [\#3](https://github.com/webshopapps/module-shipper/pull/3) ([wsajason](https://github.com/wsajason))
+- Develop [\#4](https://github.com/shipperhq/module-shipper/pull/4) ([wsagen](https://github.com/wsagen))
+- Use URNs for configuration XSD paths [\#3](https://github.com/shipperhq/module-shipper/pull/3) ([mikeoloughlin](https://github.com/mikeoloughlin))
 
-## [20.0.26](https://github.com/webshopapps/module-shipper/tree/20.0.26) (2016-10-14)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.25...20.0.26)
-
-## [20.0.25](https://github.com/webshopapps/module-shipper/tree/20.0.25) (2016-10-14)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.24...20.0.25)
-
-## [20.0.24](https://github.com/webshopapps/module-shipper/tree/20.0.24) (2016-09-19)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.23...20.0.24)
-
-## [20.0.23](https://github.com/webshopapps/module-shipper/tree/20.0.23) (2016-09-06)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.22...20.0.23)
-
-## [20.0.22](https://github.com/webshopapps/module-shipper/tree/20.0.22) (2016-09-05)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.21...20.0.22)
-
-## [20.0.21](https://github.com/webshopapps/module-shipper/tree/20.0.21) (2016-09-02)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.20...20.0.21)
-
-## [20.0.20](https://github.com/webshopapps/module-shipper/tree/20.0.20) (2016-08-19)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.19...20.0.20)
-
-## [20.0.19](https://github.com/webshopapps/module-shipper/tree/20.0.19) (2016-08-18)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.18...20.0.19)
-
-## [20.0.18](https://github.com/webshopapps/module-shipper/tree/20.0.18) (2016-08-15)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.5...20.0.18)
+## [20.0.2](https://github.com/shipperhq/module-shipper/tree/20.0.2) (2016-05-03)
+[Full Changelog](https://github.com/shipperhq/module-shipper/compare/20.0.1...20.0.2)
 
 **Merged pull requests:**
 
-- SHQ16-1239 Updated ecommerceCart to indicate is magento 2 [\#2](https://github.com/webshopapps/module-shipper/pull/2) ([wsakaren](https://github.com/wsakaren))
-- Dev [\#1](https://github.com/webshopapps/module-shipper/pull/1) ([wsagen](https://github.com/wsagen))
+- SHQ16-856 Removed version from composer as defined by tagged release [\#2](https://github.com/shipperhq/module-shipper/pull/2) ([wsakaren](https://github.com/wsakaren))
 
-## [1.2.5](https://github.com/webshopapps/module-shipper/tree/1.2.5) (2016-04-07)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.3...1.2.5)
-
-## [1.2.3](https://github.com/webshopapps/module-shipper/tree/1.2.3) (2016-03-16)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.4...1.2.3)
-
-## [1.2.4](https://github.com/webshopapps/module-shipper/tree/1.2.4) (2016-03-16)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.1...1.2.4)
-
-## [1.2.1](https://github.com/webshopapps/module-shipper/tree/1.2.1) (2016-03-09)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.2...1.2.1)
-
-## [1.2.2](https://github.com/webshopapps/module-shipper/tree/1.2.2) (2016-03-09)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.0...1.2.2)
-
-## [1.2.0](https://github.com/webshopapps/module-shipper/tree/1.2.0) (2016-03-08)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.1.1...1.2.0)
-
-## [1.1.1](https://github.com/webshopapps/module-shipper/tree/1.1.1) (2016-02-25)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.1.0...1.1.1)
-
-## [1.1.0](https://github.com/webshopapps/module-shipper/tree/1.1.0) (2015-12-11)
-[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.0.0...1.1.0)
-
-## [1.0.0](https://github.com/webshopapps/module-shipper/tree/1.0.0) (2015-11-27)
+## [20.0.1](https://github.com/shipperhq/module-shipper/tree/20.0.1) (2016-04-25)
 
 
 \* *This Change Log was automatically generated by [github_changelog_generator](https://github.com/skywinder/Github-Changelog-Generator)*

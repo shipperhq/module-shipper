@@ -99,7 +99,7 @@ class ItemDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     {
 
         $collection = $this->orderItemDetailCollection
-            ->addItemToFilter($itemId);
+            ->addItemIdToFilter($itemId);
 
         foreach($collection as $object)
         {

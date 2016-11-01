@@ -37,7 +37,7 @@ namespace ShipperHQ\Shipper\Helper;
 /**
  * Carrier Group Processing helper
  */
-class Package extends Data
+class Package extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /*
     * @var \ShipperHQ\Shipper\Model\Quote\PackagesFactory
@@ -61,11 +61,13 @@ class Package extends Data
      * @param Data $shipperHelperData
      * @param CarrierGroup $carrierGroupHelper
      */
-    public function __construct(\ShipperHQ\Shipper\Model\Quote\PackagesFactory $quotePackageFactory,
+    public function __construct(\Magento\Framework\App\Helper\Context $context,
+                                \ShipperHQ\Shipper\Model\Quote\PackagesFactory $quotePackageFactory,
                                 \ShipperHQ\Shipper\Model\Order\PackagesFactory $orderPackageFactory,
                                 Data $shipperDataHelper,
                                 CarrierGroup $carrierGroupHelper)
     {
+        parent::__construct($context);
         $this->quotePackageFactory = $quotePackageFactory;
         $this->orderPackageFactory = $orderPackageFactory;
         $this->shipperDataHelper = $shipperDataHelper;

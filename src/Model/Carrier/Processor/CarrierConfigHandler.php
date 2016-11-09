@@ -116,7 +116,7 @@ class CarrierConfigHandler
         if ($this->shipperDataHelper->getConfigValue($path) != $value) {
             $this->resourceConfig->saveConfig(rtrim($path, '/'), $value, $scope, $scopeId);
             if($refreshRequired) {
-                $this->shipperDataHelper->getQuote()->setConfigUpdated(true);
+                $this->shipperDataHelper->getCheckout()->setConfigUpdated(true);
             }
         }
     }
@@ -124,9 +124,9 @@ class CarrierConfigHandler
 
     public function refreshConfig()
     {
-        if ($this->shipperDataHelper->getQuote()->getConfigUpdated()) {
+        if ($this->shipperDataHelper->getCheckout()->getConfigUpdated()) {
             $this->storeManager->getStore()->resetConfig();
-            $this->shipperDataHelper->getQuote()->setConfigUpdated(false);
+            $this->shipperDataHelper->getCheckout()->setConfigUpdated(false);
         }
     }
 

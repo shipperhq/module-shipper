@@ -69,12 +69,6 @@ class SetCheckoutFlag implements ObserverInterface
      */
     public function execute(EventObserver $observer)
     {
-        $quote = $this->checkoutSession->getQuote();
-        $shipping = $quote->getShippingAddress();
-        $shipping->setIsCheckout(1)
-            ->save();
-        $billing = $quote->getBillingAddress();
-        $billing->setIsCheckout(1)
-            ->save();
+        $this->checkoutSession->setIsCheckout(1);
     }
 }

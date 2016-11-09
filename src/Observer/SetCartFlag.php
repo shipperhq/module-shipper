@@ -67,9 +67,6 @@ class SetCartFlag implements ObserverInterface
      */
     public function execute(EventObserver $observer)
     {
-        $quote = $this->checkoutSession->getQuote();
-        $shipping = $quote->getShippingAddress();
-        $shipping->setIsCheckout(0)
-        ->save();
+        $this->checkoutSession->setIsCheckout(0);
     }
 }

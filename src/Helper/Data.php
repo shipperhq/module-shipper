@@ -218,27 +218,14 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         return $result;
     }
 
-    public function setStandardShipperResponseType()
+    public function isCheckout($quote)
     {
-        $shipping = $this->getQuote()->getShippingAddress();
-        if($shipping->getSplitRates()) {
-            $shipping->setSplitRates(0);
-        }
-    }
 
-    public function isCheckout()
-    {
-        $shipping = $this->getQuote()->getShippingAddress();
-        $isCheckout =  $shipping->getIsCheckout();
-        if($this->getQuote()->getIsMultiShipping()) {
+        $isCheckout =  $this->checkoutSession->getIsCheckout();
+        if($quote->getIsMultiShipping()) {
             return true;
         }
         return $isCheckout;
-    }
-
-    public function isMultiAddressCheckout()
-    {
-        return $this->getQuote()->getIsMultiShipping();
     }
 
     /**
@@ -332,7 +319,23 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getGlobalSettings()
     {
-        return $this->getQuote()->getShipperGlobal();
+        return $this->checkoutSession->getShipperGlobal();
+       // return $this->getQuote()->getShipperGlobal();
+    }
+
+    /*
+     * Retrieve global settings saved to session
+     *
+     * @return array
+     */
+    public function setGlobalSettings($globals)
+    {
+        $this->checkoutSession->setShipperGlobal($globals);
+    }
+
+    public function getCheckout()
+    {
+        return $this->checkoutSession;
     }
 
 

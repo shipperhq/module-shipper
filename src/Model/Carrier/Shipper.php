@@ -50,6 +50,7 @@ use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Quote\Model\Quote\Address\RateResult\Error;
 use Magento\Shipping\Model\Carrier\AbstractCarrier;
 use Magento\Shipping\Model\Rate\Result;
+use Magento\Quote\Model\Quote\Item as QuoteItem;
 
 class Shipper
     extends \Magento\Shipping\Model\Carrier\AbstractCarrier
@@ -172,6 +173,8 @@ class Shipper
      */
     protected $result = null;
 
+    protected $quote;
+
     protected static $shippingOptions = ['liftgate_required', 'notify_required', 'inside_delivery', 'destination_type'];
 
 
@@ -286,13 +289,20 @@ class Shipper
     {
         if (is_array($request->getAllItems())) {
             $item = current($request->getAllItems());
-            if ($item instanceof Mage_Sales_Model_Quote_Item_Abstract) {
+            if ($item instanceof QuoteItem) {
                 $request->setQuote($item->getQuote());
+                $this->quote = $item->getQuote();
             }
         }
+
         //SHQ16-1261 - further detail as values not on shipping address
-        $shippingAddress = $this->shipperDataHelper->getQuote()->getShippingAddress();
+        if(!$this->quote) {
+            $this->quote = $this->shipperDataHelper->getQuote();
+        }
+        $shippingAddress = $this->quote->getShippingAddress();
+
         $key = $this->shipperDataHelper->getAddressKey($shippingAddress);
+
         $existing = $this->checkoutSession->getShipAddressValidation();
         $validate = true;
         if(is_array($existing)) {
@@ -308,9 +318,9 @@ class Shipper
 
         $request->setSelectedOptions($this->getSelectedOptions($shippingAddress));
         
-        $isCheckout = $this->shipperDataHelper->isCheckout();
+        $isCheckout = $this->shipperDataHelper->isCheckout($this->quote);
         $cartType = (!is_null($isCheckout) && $isCheckout != 1) ? "CART" : "STD";
-        if ($this->shipperDataHelper->isMultiAddressCheckout()) {
+        if ($this->quote->getIsMultiShipping()) {
             $cartType = 'MAC';
         }
         $request->setCartType($cartType);
@@ -541,10 +551,11 @@ class Shipper
         $this->registry->register('shipperhq_transaction', $transactionId);
 
         //first check and save globals for display purposes
+        $globals = array();
         if (is_object($shipperResponse) && isset($shipperResponse->globalSettings)) {
             $globals = $this->shipperRateHelper->extractGlobalSettings($shipperResponse);
             $globals['transaction'] = $transactionId;
-            $this->shipperDataHelper->getQuote()->setShipperGlobal($globals);
+            $this->shipperDataHelper->setGlobalSettings($globals);
         }
 
         $result = $this->rateFactory->create();
@@ -563,7 +574,7 @@ class Shipper
         }
 
         if (isset($shipperResponse->carrierGroups)) {
-            $carrierRates = $this->processRatesResponse($shipperResponse, $transactionId);
+            $carrierRates = $this->processRatesResponse($shipperResponse, $transactionId, $globals);
         } else {
             $carrierRates = [];
         }
@@ -680,9 +691,8 @@ class Shipper
      *
      * Build array of rates based on split or merged rates display
      */
-    protected function processRatesResponse($shipperResponse, $transactionId)
+    protected function processRatesResponse($shipperResponse, $transactionId, $globals)
     {
-        $this->shipperDataHelper->setStandardShipperResponseType();
         $carrierGroups = $shipperResponse->carrierGroups;
         $ratesArray = [];
 
@@ -760,7 +770,8 @@ class Shipper
     protected function persistAddressValidation($shipperResponse)
     {
         //we've validated so we need to save
-        $shippingAddress = $this->shipperDataHelper->getQuote()->getShippingAddress();
+        //$shippingAddress = $this->shipperDataHelper->getQuote()->getShippingAddress();
+        $shippingAddress = $this->quote->getShippingAddress();
         $key = $this->shipperDataHelper->getAddressKey($shippingAddress);
 
         $addressType = $this->shipperRateHelper->extractDestinationType($shipperResponse);
@@ -775,7 +786,8 @@ class Shipper
 
     protected function persistShipments($shipmentArray)
     {
-        $shippingAddress = $this->shipperDataHelper->getQuote()->getShippingAddress();
+        //$shippingAddress = $this->shipperDataHelper->getQuote()->getShippingAddress();
+        $shippingAddress = $this->quote->getShippingAddress();
         $addressId = $shippingAddress->getId();
         $this->packageHelper->saveQuotePackages($addressId, $shipmentArray);
     }

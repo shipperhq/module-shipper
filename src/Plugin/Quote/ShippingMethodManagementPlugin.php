@@ -124,6 +124,17 @@ class ShippingMethodManagementPlugin
     {
         $quote = $this->quoteRepository->getActive($cartId);
         $address = $quote->getShippingAddress();
-        $address->save();
+        $region = $address->getRegion();
+        if(!is_null($region) && $region instanceof \Magento\Customer\Model\Data\Region) {
+            $regionString = $region->getRegion();
+            $address->setRegion($regionString);
+        }
+        try {
+            $address->save();
+        }
+        catch(\Exception $e) {
+            $this->shipperLogger->postCritical('Shipperhq_Shipper', 'Exception raised whilst saving shipping address',
+                $e->getMessage());
+        }
     }
 }

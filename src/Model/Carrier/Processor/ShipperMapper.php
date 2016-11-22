@@ -510,7 +510,6 @@ class ShipperMapper
                 'type' => $productType,
                 'items' => [], // child items
                 'attributes' => $options ? array_merge(self::populateAttributes($stdAttributes, $magentoItem), $options) : self::populateAttributes($stdAttributes, $magentoItem),
-                'legacyAttributes' => self::populateAttributes(self::$legacyAttributeNames, $magentoItem),
                 'additionalAttributes' => self::getCustomAttributes($magentoItem),
                 'warehouseDetails'            => $warehouseDetails,
                 'pickupLocationDetails'       => $pickupLocationDetails

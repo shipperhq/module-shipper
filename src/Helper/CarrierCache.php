@@ -90,9 +90,9 @@ class CarrierCache extends \Magento\Framework\App\Helper\AbstractHelper
     public function getCachedQuotes($requestParams, $carrierCode)
     {
         $key = $this->getQuotesCacheKey($requestParams, $carrierCode);
-        return isset(self::$quotesCache[$key]) ? self::$quotesCache[$key] : null;
-   //     $cachedResult = $this->cache->load($key);
-    //    return $cachedResult ? unserialize($cachedResult) : $cachedResult;
+       // return isset(self::$quotesCache[$key]) ? self::$quotesCache[$key] : null;
+        $cachedResult = $this->cache->load($key);
+        return $cachedResult ? unserialize($cachedResult) : $cachedResult;
     }
 
     /**
@@ -105,8 +105,8 @@ class CarrierCache extends \Magento\Framework\App\Helper\AbstractHelper
     public function setCachedQuotes($requestParams, $response, $carrierCode)
     {
         $key = $this->getQuotesCacheKey($requestParams, $carrierCode);
-      //  $this->cache->save(serialize($response), $key, [self::CACHE_TAG]);
-        self::$quotesCache[$key] = $response;
+        $this->cache->save(serialize($response), $key, [self::CACHE_TAG]);
+       // self::$quotesCache[$key] = $response;
         return $this;
     }
 

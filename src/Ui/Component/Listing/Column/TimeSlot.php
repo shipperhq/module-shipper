@@ -80,7 +80,12 @@ class TimeSlot extends Column
                     if($orderDetail->getTimeSlot()) {
                         $timeslot = $orderDetail->getTimeSlot();
                         if($timeslot) {
-                            list($start, $end) = explode( '_', $timeslot, 2);
+                            if(strstr($timeslot, '_')) {
+                                list($start, $end) = explode( '_', $timeslot, 2);
+                            }
+                            else {
+                                $start = $timeslot;
+                            }
                         }
                         else {
                             $start = null;

@@ -65,6 +65,7 @@ class CollectionFactory
                     'entity_id' . '=shipper_order_join.' . 'order_id' ,
                     []
                 );
+
             }
         }
         return $result;

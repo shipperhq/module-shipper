@@ -626,11 +626,19 @@ class Shipper
 
                     $rate = $this->rateMethodFactory->create();
                     $rate->setCarrier($carrierRate['code']);
+                    $lengthCarrierCode = strlen($carrierRate['code']);
 
                     $rate->setCarrierTitle(__($carrierRate['title']));
 
-                    $methodCombineCode = preg_replace('/&|;| /', "_", $rateDetails['methodcode']);
+                    $methodCombineCode = preg_replace('/&|;| /', "", $rateDetails['methodcode']);
+                    //SHQ16-1520 - enforce limit on length of shipping carrier code and method code of less than 35 - M2 hard limit of 40
+                    $lengthMethodCode = strlen($methodCombineCode);
 
+                    if($lengthCarrierCode + $lengthMethodCode > 40) {
+                        $total = $lengthCarrierCode + $lengthMethodCode;
+                        $trim = $total - 35;
+                        $methodCombineCode = substr($methodCombineCode, $trim, $lengthMethodCode);
+                    }
                     $rate->setMethod($methodCombineCode);
 
                     $rate->setMethodTitle(__($rateDetails['method_title']));

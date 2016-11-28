@@ -619,7 +619,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )->setComment(
                     'ShipperHQ Quote Address Package Information'
                 );
-            //TODO when we resolve the enterprise install thing
+            //TODO when we resolve the enterprise install limitations on foreign keys (related to split database architecture)
 //            ->addForeignKey(
 //                $this->getFkName('shipperhq_shipper/quote_packages', 'address_id', 'sales/quote_address', 'address_id'),
 //                'address_id',
@@ -813,13 +813,13 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )->addColumn(
                     'order_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
+                    50,
                     ['nullable' => false],
                     'Order ID'
                 )->addColumn(
                     'carrier_group',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
+                    255,
                     ['nullable' => true],
                     'Carrier Group(s)'
                 )->addColumn(
@@ -882,11 +882,54 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     null,
                     ['nullable' => true],
                     'Address Valid Status'
+                )->addIndex(
+                    $installer->getIdxName('shipperhq_order_detail_grid', ['order_id']),
+                    ['order_id']
+                )->addIndex(
+                    $installer->getIdxName('shipperhq_order_detail_grid', ['carrier_group']),
+                    ['carrier_group']
                 )->setComment(
                     'ShipperHQ Order Grid Information'
                 );
 
             $installer->getConnection()->createTable($table);
+        }
+        else {
+            if (version_compare($context->getVersion(), '1.0.9') < 0) {
+
+                $connection = $installer->getConnection();
+                $connection->modifyColumn(
+                    $setup->getTable('shipperhq_order_detail_grid'),
+                    'order_id',
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'length' => 50,
+                        'nullable' => true,
+                        'default' => '',
+                    ]
+                );
+                $connection->modifyColumn(
+                    $setup->getTable('shipperhq_order_detail_grid'),
+                    'carrier_group',
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'length' => 255,
+                        'nullable' => true,
+                        'default' => '',
+                    ]
+                );
+
+                $connection->addIndex(
+                    $installer->getTable('shipperhq_order_detail_grid'),
+                    $installer->getIdxName('shipperhq_order_detail_grid', ['order_id']),
+                    ['order_id']
+                );
+                $connection->addIndex(
+                    $installer->getTable('shipperhq_order_detail_grid'),
+                    $installer->getIdxName('shipperhq_order_detail_grid', ['carrier_group']),
+                    ['carrier_group']
+                );
+            }
         }
 
         $installer->endSetup();

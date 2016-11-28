@@ -66,8 +66,7 @@ class ShipperMapper
 
     protected static $dim_group = 'shipperhq_dim_group';
     protected static $conditional_dims = ['shipperhq_poss_boxes',
-        'shipperhq_volume_weight', 'ship_box_tolerance', 'ship_separately', 'ship_height', 'ship_width', 'ship_length',
-        'height', 'width', 'length'
+        'shipperhq_volume_weight', 'ship_box_tolerance', 'ship_separately'
     ];
 
     protected static $legacyAttributeNames = [

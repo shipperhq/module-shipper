@@ -279,11 +279,7 @@ class CarrierGroup extends Data
 
         $existingOrderGridDetailCollection = $orderGridDetailModel->loadByOrder($orderId);
         if(count($existingOrderGridDetailCollection) > 0) {
-            foreach($existingOrderGridDetailCollection as $order) {
-                $data = array_merge($data, $order->getData());
-                break;
-
-            }
+           return;
         }
 
         unset($data['quote_address_id']);

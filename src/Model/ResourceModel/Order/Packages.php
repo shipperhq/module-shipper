@@ -51,20 +51,6 @@ class Packages extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $this->_init('shipperhq_order_packages', 'package_id');
     }
 
-    public function loadByOrderId($object, $orderId)
-    {
-        $connection = $this->getConnection();
-        $select = $connection->select()->from(
-            $this->getMainTable()
-        )->where(
-            'order_id = :order_id'
-        );
-        $data = $connection->fetchRow($select, [':order_id' => $orderId]);
-        if ($data) {
-            $object->addData($data);
-        }
-        return $this;
-    }
 
 
     protected function _afterLoad(\Magento\Framework\Model\AbstractModel $object) {

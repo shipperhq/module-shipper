@@ -127,7 +127,8 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                         $packagesColl = $quotePackageModel->loadByCarrier(
                             $shippingAddress->getAddressId(), $carrierGroupId, $carrier_code . '_' . $shippingMethodCode);
                         if (count($packagesColl) < 1) {
-                            $packagesColl = $quotePackageModel->loadByCarrier(
+                            $quotePackageModelToo = $this->quotePackageFactory->create();
+                            $packagesColl = $quotePackageModelToo->loadByCarrier(
                                 $shippingAddress->getAddressId(), $carrierGroupId, $carrier_code);
                         }
                         foreach ($packagesColl as $box) {

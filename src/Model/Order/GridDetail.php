@@ -109,10 +109,6 @@ class GridDetail extends \Magento\Framework\Model\AbstractExtensibleModel
         $collection = $this->orderGridDetailCollection
             ->addOrderIdToFilter($orderId);
 
-        foreach($collection as $object)
-        {
-            //TODO do we need to load to afterLoad is called?
-        }
         return $collection;
 
     }

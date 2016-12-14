@@ -17,12 +17,6 @@
                 sortOrder="10"
                 disabled="false"/>
     </type>
-    <type name="Magento\Quote\Model\ShippingMethodManagement">
-        <plugin name="shipperhq_shipper_plugin_quote_shipping_method_management"
-                type="ShipperHQ\Shipper\Plugin\Quote\ShippingMethodManagementPlugin"
-                sortOrder="10"
-                disabled="false"/>
-    </type>
     <type name="Magento\Shipping\Model\Config\Source\Allmethods">
         <plugin name="shipperhq_shipper_plugin_shipping_config_source_allmethods"
                 type="ShipperHQ\Shipper\Plugin\Shipping\AllmethodsPlugin"

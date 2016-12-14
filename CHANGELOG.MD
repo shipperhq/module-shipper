@@ -1,5 +1,8 @@
 # Change Log
 
+## [20.1.7](https://github.com/webshopapps/module-shipper/tree/20.1.7) (2016-12-14)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.1.6...20.1.7)
+
 ## [20.1.6](https://github.com/webshopapps/module-shipper/tree/20.1.6) (2016-11-29)
 [Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.1.5...20.1.6)
 

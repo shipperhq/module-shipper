@@ -226,7 +226,7 @@ class ShipperMapper
 
        // $this->setSessionStuffOnRequest($magentoRequest);
         if($delDate = $this->getDeliveryDateUTC($magentoRequest)) {
-            $shipperHQRequest->setDeliveryDate(self::getDeliveryDate($magentoRequest));
+            $shipperHQRequest->setDeliveryDate($this->getDeliveryDate($magentoRequest));
             $shipperHQRequest->setDeliveryDateUTC($delDate);
         }
 
@@ -439,7 +439,7 @@ class ShipperMapper
      * @param bool $childItems
      * @return array
      */
-    private function getFormattedItems($request, $magentoItems, $childItems = false)
+    public function getFormattedItems($request, $magentoItems, $childItems = false)
     {
         $formattedItems = [];
         if (empty($magentoItems)) {
@@ -469,7 +469,7 @@ class ShipperMapper
             $id = $magentoItem->getItemId() ? $magentoItem->getItemId() : $magentoItem->getQuoteItemId();
             $productType = $magentoItem->getProductType() ? $magentoItem->getProductType() : $magentoItem->getProduct()->getTypeId();
             $stdAttributes = array_merge($this->getDimensionalAttributes($magentoItem), self::$stdAttributeNames);
-            $options = self::populateCustomOptions($magentoItem);
+            $options = $this->populateCustomOptions($magentoItem);
             $weight = $magentoItem->getWeight();
             if(is_null($weight)) { //SHIPPERHQ-1855
                 if ($productType!= \Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL &&
@@ -508,8 +508,8 @@ class ShipperMapper
                 'taxPercentage' => $taxPercentage,
                 'type' => $productType,
                 'items' => [], // child items
-                'attributes' => $options ? array_merge(self::populateAttributes($stdAttributes, $magentoItem), $options) : self::populateAttributes($stdAttributes, $magentoItem),
-                'additionalAttributes' => self::getCustomAttributes($magentoItem),
+                'attributes' => $options ? array_merge($this->populateAttributes($stdAttributes, $magentoItem), $options) : $this->populateAttributes($stdAttributes, $magentoItem),
+                'additionalAttributes' => $this->getCustomAttributes($magentoItem),
                 'warehouseDetails'            => $warehouseDetails,
                 'pickupLocationDetails'       => $pickupLocationDetails
             ]);
@@ -528,7 +528,7 @@ class ShipperMapper
         return $formattedItems;
     }
 
-    protected function getCustomerGroupId($items)
+    public function getCustomerGroupId($items)
     {
         if (count($items) > 0) {
             return $items[0]->getQuote()->getCustomerGroupId();
@@ -542,11 +542,11 @@ class ShipperMapper
      * @param $request
      * @return array
      */
-    private function getDestination($request)
+    public function getDestination($request)
     {
         $selectedOptions = $this->getSelectedOptions($request);
 
-        if (self::getCartType($request) == "CART") {
+        if ($this->getCartType($request) == "CART") {
             // Don't pass in street for this scenario
             $destination = $this->addressFactory->create([
                     'city' => $request->getDestCity(),
@@ -570,7 +570,7 @@ class ShipperMapper
     }
 
 
-    protected function getWarehouseDetails($item)
+    public function getWarehouseDetails($item)
     {
         $details = [];
         $itemOriginsString = $item->getProduct()->getData(self::$origin);
@@ -604,7 +604,7 @@ class ShipperMapper
         return $details;
     }
 
-    protected function getPickupLocationDetails($item)
+    public function getPickupLocationDetails($item)
     {
         $details = [];
         $itemLocationsString = $item->getProduct()->getData(self::$location);
@@ -635,7 +635,7 @@ class ShipperMapper
         return $details;
     }
 
-    protected function getDefaultWarehouseStockDetail($item)
+    public function getDefaultWarehouseStockDetail($item)
     {
          $product = $item->getProduct();
          $details = $this->stockDetailFactory->create([
@@ -650,7 +650,7 @@ class ShipperMapper
 
     }
 
-    protected function getDimensionalAttributes($item)
+    public function getDimensionalAttributes($item)
     {
         $attributes = [];
         $product = $item->getProduct();
@@ -669,7 +669,7 @@ class ShipperMapper
      * @param $item
      * @return array
      */
-    protected function populateAttributes($reqdAttributeNames, $item)
+    public function populateAttributes($reqdAttributeNames, $item)
     {
         $attributes = [];
         $product = $item->getProduct();
@@ -724,7 +724,7 @@ class ShipperMapper
      * @param $item
      * @return array
      */
-    protected function populateCustomOptions($item)
+    public function populateCustomOptions($item)
     {
         $option_values = [];
         $options = $this->productConfiguration->getCustomOptions($item);
@@ -753,7 +753,7 @@ class ShipperMapper
      * @param $item
      * @return array
      */
-    protected function getCustomAttributes($item)
+    public function getCustomAttributes($item)
     {
         $rawCustomAttributes = explode(',', $this->shipperDataHelper->getConfigValue('carriers/shipper/item_attributes'));
         $customAttributes = [];
@@ -764,11 +764,11 @@ class ShipperMapper
             }
         }
 
-        return self::populateAttributes($customAttributes, $item);
+        return $this->populateAttributes($customAttributes, $item);
 
     }
 
-    protected function getSelectedOptions($request)
+    public function getSelectedOptions($request)
     {
         $shippingOptions = $request->getSelectedOptions();
         return $this->selectedOptionsFactory->create(['options' => $shippingOptions]);
@@ -779,7 +779,7 @@ class ShipperMapper
      * @param $order
      * @return mixed
      */
-    protected function getMagentoOrderNumber($order)
+    public function getMagentoOrderNumber($order)
     {
         return $order->getRealOrderId();
 

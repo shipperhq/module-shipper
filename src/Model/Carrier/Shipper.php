@@ -372,6 +372,10 @@ class Shipper
      */
     public function getAllShippingMethods()
     {
+        $this->carrierConfigHandler->saveConfig(
+            \ShipperHQ\Shipper\Model\System\Message\Credentials::SHIPPERHQ_INVALID_CREDENTIALS_SUPPLIED,
+            0);
+
         $ourCarrierCode = $this->getId();
         $result = [];
         $allowedMethods = [];
@@ -413,6 +417,13 @@ class Shipper
                     $error .= ' ' . $anError->internalErrorMessage;
                 } elseif (isset($anError->externalErrorMessage) && $anError->externalErrorMessage != '') {
                     $error .= ' ' . $anError->externalErrorMessage;
+                }
+
+                //SHQ16-1708
+                if(isset($anError->errorCode) && $anError->errorCode == '3') {
+                    $this->carrierConfigHandler->saveConfig(
+                        \ShipperHQ\Shipper\Model\System\Message\Credentials::SHIPPERHQ_INVALID_CREDENTIALS_SUPPLIED,
+                        1);
                 }
             }
             $result['result'] = false;

@@ -51,12 +51,18 @@ class CarrierCache extends \Magento\Framework\App\Helper\AbstractHelper
      */
     protected static $quotesCache = [];
 
+    protected $useCache = false;
+
     /**
      * @param Context $context
      */
-    public function __construct(\Magento\Framework\App\CacheInterface $cache, \Magento\Framework\App\Helper\Context $context)
+    public function __construct(\Magento\Framework\App\CacheInterface $cache,
+                                \Shipperhq\Shipper\Helper\Data $shipperDataHelper,
+                                \Magento\Framework\App\Helper\Context $context)
     {
         $this->cache = $cache;
+        $this->shipperDataHelper = $shipperDataHelper;
+        $this->useCache = $this->shipperDataHelper->getConfigValue('carriers/shipper/use_cache');
         parent::__construct($context);
     }
 
@@ -90,9 +96,12 @@ class CarrierCache extends \Magento\Framework\App\Helper\AbstractHelper
     public function getCachedQuotes($requestParams, $carrierCode)
     {
         $key = $this->getQuotesCacheKey($requestParams, $carrierCode);
-       // return isset(self::$quotesCache[$key]) ? self::$quotesCache[$key] : null;
-        $cachedResult = $this->cache->load($key);
+        $cachedResult = false;
+        if($this->useCache) {
+            $cachedResult = $this->cache->load($key);
+        }
         return $cachedResult ? unserialize($cachedResult) : $cachedResult;
+
     }
 
     /**
@@ -104,9 +113,10 @@ class CarrierCache extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function setCachedQuotes($requestParams, $response, $carrierCode)
     {
-        $key = $this->getQuotesCacheKey($requestParams, $carrierCode);
-        $this->cache->save(serialize($response), $key, [self::CACHE_TAG]);
-       // self::$quotesCache[$key] = $response;
+        if($this->useCache) {
+            $key = $this->getQuotesCacheKey($requestParams, $carrierCode);
+            $this->cache->save(serialize($response), $key, [self::CACHE_TAG]);
+        }
         return $this;
     }
 

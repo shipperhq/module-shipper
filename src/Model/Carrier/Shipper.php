@@ -303,7 +303,7 @@ class Shipper
 
         $key = $this->shipperDataHelper->getAddressKey($shippingAddress);
 
-        $existing = $this->checkoutSession->getShipAddressValidation();
+        $existing = $this->getExistingValidation($key); //SHQ16-1902
         $validate = true;
         if(is_array($existing)) {
              if(isset($existing['key']) && $existing['key'] == $key) {
@@ -316,7 +316,7 @@ class Shipper
         }
         $request->setValidateAddress($validate);
 
-        $request->setSelectedOptions($this->getSelectedOptions($shippingAddress));
+        $request->setSelectedOptions($this->getSelectedOptions($shippingAddress, $existing));
         
         $isCheckout = $this->shipperDataHelper->isCheckout($this->quote);
         $cartType = (!is_null($isCheckout) && $isCheckout != 1) ? "CART" : "STD";
@@ -797,7 +797,7 @@ class Shipper
         $validationStatus = $this->shipperRateHelper->extractAddressValidationStatus($shipperResponse);
         if($addressType || $validationStatus) {
             $existing = ['key' => $key,
-            'destination_type' => $addressType,
+            'destination_type' => $addressType ? $addressType : '',
             'validation_status' =>$validationStatus ];
             $this->checkoutSession->setShipAddressValidation($existing);
         }
@@ -918,16 +918,30 @@ class Shipper
         return $result;
     }
 
-    protected function  getSelectedOptions($shippingAddress)
+    protected function  getSelectedOptions($shippingAddress, $sessionValues = array())
     {
         $shippingOptions = [];
 
         foreach (self::$shippingOptions as $option) {
-            if ($shippingAddress->getData($option) != '') {
+            if(is_array($sessionValues) && isset($sessionValues[$option])) {
+                $shippingOptions[] = ['name' => $option, 'value' => $sessionValues[$option]];
+            }
+            elseif ($shippingAddress->getData($option) != '') {
                 $shippingOptions[] = ['name' => $option, 'value' => $shippingAddress->getData($option)];
             }
         }
         return $shippingOptions;
+    }
+
+    protected function getExistingValidation($key)
+    {
+        $sessionValues = $this->checkoutSession->getShipAddressValidation();
+        if(is_array($sessionValues)) {
+            if (isset($sessionValues['key']) && $sessionValues['key'] == $key) {
+                return $sessionValues;
+            }
+        }
+        return array();
     }
 
 }

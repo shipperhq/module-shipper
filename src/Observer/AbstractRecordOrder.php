@@ -91,7 +91,7 @@ Abstract class AbstractRecordOrder implements ObserverInterface
         $customOrderId = null;
         //https://github.com/magento/magento2/issues/4233
         $quoteId = $order->getQuoteId();
-        $quote = $this->quoteRepository->get($quoteId);
+        $quote = $this->quoteRepository->get($quoteId, [$order->getStoreId()]);
 
         $shippingAddress = $quote->getShippingAddress();
         $carrierType = $shippingAddress->getCarrierType();

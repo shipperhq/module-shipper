@@ -113,6 +113,7 @@ class ShippingInformationPlugin
             $shippingMethod = $carrierCode . '_' . $methodCode;
             $quote = $this->quoteRepository->getActive($cartId);
             $address = $quote->getShippingAddress();
+
             $validation = $this->checkoutSession->getShipAddressValidation();
             if (is_array($validation) && isset($validation['key'])) {
                 if (isset($validation['validation_status'])) {
@@ -135,6 +136,8 @@ class ShippingInformationPlugin
                 'carrier_code' => $carrierCode]);
             $additionalDetailArray = $additionalDetail->convertToArray();
             $this->shipperLogger->postDebug('ShipperHQ Shipper', 'processing additional detail ', $additionalDetail);
+            $result = $proceed($cartId, $addressInformation);
+
             $this->carrierGroupHelper->saveCarrierGroupInformation($address,
                 $shippingMethod, $additionalDetailArray);
 
@@ -144,7 +147,6 @@ class ShippingInformationPlugin
                 'Exception raised ' .$e->getMessage());
         }
 
-        $result = $proceed($cartId, $addressInformation);
 
         if($address->getCustomerId()) {
             $customerAddresses = $quote->getCustomer()->getAddresses();

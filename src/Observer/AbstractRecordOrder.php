@@ -91,7 +91,8 @@ Abstract class AbstractRecordOrder implements ObserverInterface
         $customOrderId = null;
         //https://github.com/magento/magento2/issues/4233
         $quoteId = $order->getQuoteId();
-        $quote = $this->quoteRepository->get($quoteId);
+        //Merged from pull request https://github.com/shipperhq/module-shipper/pull/20 - credit to vkalchenko
+        $quote = $this->quoteRepository->get($quoteId, [$order->getStoreId()]);
 
         $shippingAddress = $quote->getShippingAddress();
         $carrierType = $shippingAddress->getCarrierType();
@@ -153,8 +154,10 @@ Abstract class AbstractRecordOrder implements ObserverInterface
         $rate = $shippingAddress->getShippingRateByCode($shipping_method);
         if($rate) {
             list($carrierCode, $method) = explode('_', $shipping_method, 2);
+            $carrierType = $rate->getCarrierType();
+            $carrierType = strstr($carrierType, "shqshared_") ? str_replace('shqshared_', '', $carrierType) : $carrierType;
             $magentoCarrierCode = $this->shipperDataHelper->mapToMagentoCarrierCode(
-                $rate->getCarrierType(),$carrierCode);
+                $carrierType,$carrierCode);
             $shipping_method = ($magentoCarrierCode .'_' .$method);
         }
         return $shipping_method;

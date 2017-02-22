@@ -369,7 +369,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                     if ($attribute->code == 'global_settings') {
                         foreach ($attribute->attributes as $globalSetting) {
                             $value = $globalSetting->value == 'true' ? 1 : 0;
-                            if ($this->shipperDataHelper->getConfigValue('carriers/shipper/' . $globalSetting->code) != $value) {
+                            if ($this->shipperDataHelper->getDefaultConfigValue('carriers/shipper/' . $globalSetting->code) != $value) {
                                 $result[] = array('attribute_type' => 'global_setting',
                                     'attribute_code' => $globalSetting->code,
                                     'value' => $value,

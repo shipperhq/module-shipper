@@ -158,6 +158,18 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Get Default Scope Config Value
+     *
+     * @param $configField
+     * @return mixed
+     */
+    public function getDefaultConfigValue($configField)
+    {
+        return $this->scopeConfig->getValue($configField);
+
+    }
+
+    /**
      * Gets a config flag
      *
      * @param $configField
@@ -212,7 +224,7 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
     public function useDefaultCarrierCodes()
     {
         $result = false;
-        if($this->getConfigValue('carriers/shipper/CARRIER_STRIP_CODE')) {
+        if($this->getDefaultConfigValue('carriers/shipper/CARRIER_STRIP_CODE')) {
             $result = true;
         }
         return $result;

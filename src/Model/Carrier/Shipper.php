@@ -317,7 +317,7 @@ class Shipper
         $request->setValidateAddress($validate);
 
         $request->setSelectedOptions($this->getSelectedOptions($shippingAddress, $existing));
-        
+
         $isCheckout = $this->shipperDataHelper->isCheckout($this->quote);
         $cartType = (!is_null($isCheckout) && $isCheckout != 1) ? "CART" : "STD";
         if ($this->quote->getIsMultiShipping()) {
@@ -733,7 +733,7 @@ class Shipper
             //Pass off each carrier group to helper to decide best fit to process it.
             //Push result back into our array
             foreach ($carrierGroup->carrierRates as $carrierRate) {
-                $this->carrierConfigHandler->saveCarrierResponseDetails($carrierRate, $carrierGroupDetail, false);
+                $this->carrierConfigHandler->saveCarrierResponseDetails($carrierRate, $carrierGroupDetail);
                 $carrierResultWithRates = $this->shipperRateHelper->extractShipperHQRates($carrierRate, $carrierGroupDetail, $configSetttings, $splitCarrierGroupDetail);
                 $ratesArray[] = $carrierResultWithRates;
                 //push out event so other modules can save their data
@@ -746,6 +746,7 @@ class Shipper
         if($shipperResponse->mergedRateResponse) {
             $mergedRatesArray = [];
             foreach($shipperResponse->mergedRateResponse->carrierRates as $carrierRate) {
+                $this->carrierConfigHandler->saveCarrierResponseDetails($carrierRate, null);
                 $mergedResultWithRates = $this->shipperRateHelper->extractShipperHQMergedRates($carrierRate, $splitCarrierGroupDetail, $configSetttings, $transactionId);
                 $mergedRatesArray[] = $mergedResultWithRates;
             }

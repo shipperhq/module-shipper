@@ -44,7 +44,7 @@ class ShipperMapper
 
     protected static $ecommerceType = 'magento';
     protected static $stdAttributeNames = [
-        'shipperhq_shipping_group', 'shipperhq_post_shipping_group',
+        'shipperhq_shipping_group', 'shipperhq_post_shipping_group', 'shipperhq_location',
        /* 'shipperhq_warehouse',*/ 'shipperhq_royal_mail_group', 'shipperhq_shipping_qty',
         'shipperhq_shipping_fee', 'shipperhq_additional_price', 'freight_class',
         'shipperhq_nmfc_class', 'shipperhq_nmfc_sub', 'shipperhq_handling_fee', 'shipperhq_carrier_code',

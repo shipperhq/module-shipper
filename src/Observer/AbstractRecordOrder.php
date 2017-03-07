@@ -111,7 +111,7 @@ Abstract class AbstractRecordOrder implements ObserverInterface
             foreach($orderDetailArray as $orderDetail) {
                 $original  = $orderDetail->getCarrierType();
                 $carrierTypeArray = explode('_', $orderDetail->getCarrierType());
-                if(is_array($carrierTypeArray)) {
+                if(is_array($carrierTypeArray) && count($carrierTypeArray) > 1) {
                     $orderDetail->setCarrierType($carrierTypeArray[1]);
                     //SHQ16-1026
                     $currentShipDescription = $order->getShippingDescription();
@@ -131,12 +131,10 @@ Abstract class AbstractRecordOrder implements ObserverInterface
                     $encoded = $this->shipperDataHelper->encode($cgArray);
                     $orderDetail->setCarrierGroupDetail($encoded);
                     $orderDetail->save();
+                    $this->shipperLogger->postInfo('Shipperhq_Shipper',
+                        'Rates displayed as single carrier',
+                        'Resetting carrier type on order to be ' .$carrierTypeArray[1]);
                 }
-
-                $this->shipperLogger->postInfo('Shipperhq_Shipper',
-                    'Rates displayed as single carrier',
-                    'Resetting carrier type on order to be ' .$carrierTypeArray[1]);
-
             }
         }
 

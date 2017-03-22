@@ -87,18 +87,22 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
             return;
         }
         try {
+            $packageModel = $this->quotePackageFactory->create();
             foreach ($shipmentArray as $shipment) {
                 //clean up packages saved - this should be in some kind of package manager - an interface or something as this could be replaced
-                $packageModel = $this->quotePackageFactory->create();
                 $packages = $packageModel->loadByCarrier($shippingAddressId, $shipment['carrier_group_id'], $shipment['carrier_code']);
                 foreach ($packages as $package) {
                     $packageModel->deleteByPackageId($package->getPackageId());
                 }
+            }
 
+            foreach($shipmentArray as $shipment) {
                 $shipment['quote_address_id'] = $shippingAddressId;
                 $packageModel->setData($shipment);
                 $packageModel->save();
+
             }
+
         }
         catch (\Exception $e) {
             //Log exception and move on.

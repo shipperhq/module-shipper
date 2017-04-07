@@ -127,7 +127,7 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
         $this->carrierFactory = $carrierFactory;
         $this->checkoutHelper = $checkoutHelper;
     }
-    
+
     public function isModuleActive() {
         return self::isModuleEnabled("ShipperHQ_Shipper");
     }
@@ -150,10 +150,10 @@ class Data extends  \Magento\Framework\App\Helper\AbstractHelper
      * @param $configField
      * @return mixed
      */
-    public function getConfigValue($configField)
+    public function getConfigValue($configField, $store = null)
     {
         return $this->scopeConfig->getValue($configField,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $store);
 
     }
 

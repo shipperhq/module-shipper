@@ -241,7 +241,7 @@ class ShipperMapper
             $shipperHQRequest->setCarrierId($carrierId);
         }
 
-        $storeId = $magentoRequest->getStore();
+        $storeId = $magentoRequest->getStoreId();
         $shipperHQRequest->setSiteDetails($this->getSiteDetails($storeId));
         $shipperHQRequest->setCredentials($this->getCredentials($storeId));
         return $shipperHQRequest;
@@ -288,8 +288,11 @@ class ShipperMapper
      */
     public function getCredentials($storeId = null)
     {
-        $credentials = $this->credentialsFactory->create(['apiKey' => $this->shipperDataHelper->getConfigValue('carriers/shipper/api_key'),
-            'password' => $this->shipperDataHelper->getConfigValue('carriers/shipper/password', $storeId)]);
+        $credentials = $this->credentialsFactory->create([
+             'apiKey'   => $this->shipperDataHelper->getConfigValue('carriers/shipper/api_key',  $storeId),
+             'password' => $this->shipperDataHelper->getConfigValue('carriers/shipper/password', $storeId)
+        ]);
+
         return $credentials;
     }
 

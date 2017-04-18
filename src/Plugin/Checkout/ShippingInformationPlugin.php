@@ -100,13 +100,15 @@ class ShippingInformationPlugin
      * @param \Magento\Checkout\Model\ShippingInformationManagement $subject
      * @param callable $proceed
      *
-     * @return \Magento\Checkout\Api\Data\PaymentDetailsInterface $paymentDetails
+     * @return \Magento\Checkout\Api\Data\PaymentDetailsInterface $paymentDetails | null
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function aroundSaveAddressInformation(\Magento\Checkout\Model\ShippingInformationManagement $subject, $proceed,
                                                  $cartId,
                                                  \Magento\Checkout\Api\Data\ShippingInformationInterface $addressInformation)
     {
+        $result = null;
+
         try {
             $carrierCode = $addressInformation->getShippingCarrierCode();
             $methodCode = $addressInformation->getShippingMethodCode();

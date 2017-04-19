@@ -100,55 +100,55 @@ class ShippingInformationPlugin
      * @param \Magento\Checkout\Model\ShippingInformationManagement $subject
      * @param callable $proceed
      *
-     * @return \Magento\Checkout\Api\Data\PaymentDetailsInterface $paymentDetails | null
+     * @return \Magento\Checkout\Api\Data\PaymentDetailsInterface $paymentDetails
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function aroundSaveAddressInformation(\Magento\Checkout\Model\ShippingInformationManagement $subject, $proceed,
                                                  $cartId,
                                                  \Magento\Checkout\Api\Data\ShippingInformationInterface $addressInformation)
     {
-        $result = null;
+       // $result = null;
 
+        $carrierCode = $addressInformation->getShippingCarrierCode();
+        $methodCode = $addressInformation->getShippingMethodCode();
+        $shippingMethod = $carrierCode . '_' . $methodCode;
+        $quote = $this->quoteRepository->getActive($cartId);
+        $address = $quote->getShippingAddress();
         try {
-            $carrierCode = $addressInformation->getShippingCarrierCode();
-            $methodCode = $addressInformation->getShippingMethodCode();
-            $shippingMethod = $carrierCode . '_' . $methodCode;
-            $quote = $this->quoteRepository->getActive($cartId);
-            $address = $quote->getShippingAddress();
-
-            $validation = $this->checkoutSession->getShipAddressValidation();
-            if (is_array($validation) && isset($validation['key'])) {
-                if (isset($validation['validation_status'])) {
-                    $additionalDetail['address_valid'] = $validation['validation_status'];
-                    $address->setValidationStatus($validation['validation_status']);
+            if($this->checkoutSession) {
+                $validation = $this->checkoutSession->getShipAddressValidation();
+                if (is_array($validation) && isset($validation['key'])) {
+                    if (isset($validation['validation_status'])) {
+                        $additionalDetail['address_valid'] = $validation['validation_status'];
+                        $address->setValidationStatus($validation['validation_status']);
+                    }
+                    if (isset($validation['destination_type'])) {
+                        $additionalDetail['destination_type'] = $validation['destination_type'];
+                        $address->setDestinationType($validation['destination_type']);
+                    }
+                    $this->checkoutSession->setShipAddressValidation(null);
                 }
-                if (isset($validation['destination_type'])) {
-                    $additionalDetail['destination_type'] = $validation['destination_type'];
-                    $address->setDestinationType($validation['destination_type']);
-                }
-                $this->checkoutSession->setShipAddressValidation(null);
+                $address->save();
             }
-            $address->save();
-            $additionalDetail = new \Magento\Framework\DataObject;
-            $extAttributes = $addressInformation->getShippingAddress()->getExtensionAttributes();
-
-            //push out event so other modules can save their data TODO add carrier_group_id
-            $this->eventManager->dispatch('shipperhq_additional_detail_checkout',
-                ['address_extn_attributes' => $extAttributes, 'additional_detail'=> $additionalDetail,
-                'carrier_code' => $carrierCode]);
-            $additionalDetailArray = $additionalDetail->convertToArray();
-            $this->shipperLogger->postDebug('ShipperHQ Shipper', 'processing additional detail ', $additionalDetail);
-            $result = $proceed($cartId, $addressInformation);
-
-            $this->carrierGroupHelper->saveCarrierGroupInformation($address,
-                $shippingMethod, $additionalDetailArray);
-
         } catch (\Exception $e) {
             $this->shipperLogger->postCritical('Shipperhq_Shipper',
                 'Shipping Information Plugin',
                 'Exception raised ' .$e->getMessage());
         }
 
+        $additionalDetail = new \Magento\Framework\DataObject;
+        $extAttributes = $addressInformation->getShippingAddress()->getExtensionAttributes();
+
+        //push out event so other modules can save their data TODO add carrier_group_id
+        $this->eventManager->dispatch('shipperhq_additional_detail_checkout',
+            ['address_extn_attributes' => $extAttributes, 'additional_detail'=> $additionalDetail,
+                'carrier_code' => $carrierCode]);
+        $additionalDetailArray = $additionalDetail->convertToArray();
+        $this->shipperLogger->postDebug('ShipperHQ Shipper', 'processing additional detail ', $additionalDetail);
+        $result = $proceed($cartId, $addressInformation);
+
+        $this->carrierGroupHelper->saveCarrierGroupInformation($address,
+            $shippingMethod, $additionalDetailArray);
 
         if($address->getCustomerId()) {
             $customerAddresses = $quote->getCustomer()->getAddresses();
@@ -169,7 +169,6 @@ class ShippingInformationPlugin
             }
         }
         return $result;
-
     }
 
 }

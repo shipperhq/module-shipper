@@ -18,7 +18,7 @@ define(
         defaultShippingRatesValidationRules,
         shipperShippingRatesValidator,
         shipperShippingRatesValidationRules
-        ) {
+    ) {
         "use strict";
         defaultShippingRatesValidator.registerValidator('shipper', shipperShippingRatesValidator);
         defaultShippingRatesValidationRules.registerRules('shipper', shipperShippingRatesValidationRules);

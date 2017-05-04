@@ -43,7 +43,10 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
      */
     protected function _construct()
     {
-        $this->_init('ShipperHQ\Shipper\Model\Order\GridDetail', 'ShipperHQ\Shipper\Model\ResourceModel\Order\GridDetail');
+        $this->_init(
+            'ShipperHQ\Shipper\Model\Order\GridDetail',
+            'ShipperHQ\Shipper\Model\ResourceModel\Order\GridDetail'
+        );
     }
 
     public function addOrderIdToFilter($orderId)
@@ -51,5 +54,4 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
         $this->addFieldToFilter('order_id', $orderId);
         return $this;
     }
-
 }

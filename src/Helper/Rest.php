@@ -39,23 +39,25 @@ namespace ShipperHQ\Shipper\Helper;
  */
 class Rest extends Data
 {
-    protected static $wsTimeout;
+    private static $wsTimeout;
 
-    /*
+    /**
      * @var \ShipperHQ\Lib\Helper\Rest
      */
-    protected $restHelper;
-    /*
-     * $var Data $shipperHelperData
+    private $restHelper;
+    /**
+     * @var Data $shipperHelperData
      */
 
     /**
      * @param \ShipperHQ\Lib\Helper\Rest $restHelper
      * @param Data $shipperHelperData
      */
-    public function __construct(\ShipperHQ\Lib\Helper\Rest $restHelper,
-                                Data $shipperHelperData)
-    {
+    public function __construct(
+        \ShipperHQ\Lib\Helper\Rest $restHelper,
+        Data $shipperHelperData
+    ) {
+    
         $this->restHelper = $restHelper;
         $this->shipperHelperData = $shipperHelperData;
         $this->restHelper->setBaseUrl($this->getGatewayUrl());
@@ -77,7 +79,6 @@ class Rest extends Data
     public function getRateGatewayUrl()
     {
         return  $this->restHelper->getRateGatewayUrl();
-
     }
 
     /*
@@ -102,9 +103,9 @@ class Rest extends Data
     public function getWebserviceTimeout()
     {
 
-        if (self::$wsTimeout==NULL) {
+        if (self::$wsTimeout==null) {
             $timeout =  $this->shipperHelperData->getConfigValue('carriers/shipper/ws_timeout');
-            if(!is_numeric($timeout) || $timeout < 30) {
+            if (!is_numeric($timeout) || $timeout < 30) {
                 $timeout = 30;
             }
             self::$wsTimeout = $timeout;
@@ -112,12 +113,11 @@ class Rest extends Data
         return self::$wsTimeout;
     }
 
-
     /**
      * Returns url to use - live if present, otherwise dev
      * @return array
      */
-    protected function getGatewayUrl()
+    private function getGatewayUrl()
     {
         $live = $this->cleanUpUrl($this->shipperHelperData->getConfigValue('carriers/shipper/live_url'));
 
@@ -125,11 +125,11 @@ class Rest extends Data
         return $this->shipperHelperData->getConfigValue('carriers/shipper/sandbox_mode') ? $test : $live;
     }
 
-    protected function cleanUpUrl($urlStart)
+    private function cleanUpUrl($urlStart)
     {
         $url = trim($urlStart);
         $lastChar = substr("abcdef", -1);
-        if($lastChar != '/') {
+        if ($lastChar != '/') {
             $url .= '/';
         }
         return $url;

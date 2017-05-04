@@ -39,7 +39,7 @@ class Packages extends \Magento\Framework\Model\AbstractExtensibleModel
     /**
      * @var /ShipperHQ\Shipper\Model\ResourceModel\Order\Packages\Collection
      */
-    protected $orderPackageCollection;
+    private $orderPackageCollection;
 
     /**
      * @param \ShipperHQ\Shipper\Model\ResourceModel\Quote\Packages\CollectionFactory $quotePackageCollectionFactory
@@ -92,6 +92,4 @@ class Packages extends \Magento\Framework\Model\AbstractExtensibleModel
             ->addOrderIdToFilter($orderId);
         return $collection;
     }
-
-
 }

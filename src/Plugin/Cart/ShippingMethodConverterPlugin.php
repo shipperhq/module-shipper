@@ -38,11 +38,11 @@ class ShippingMethodConverterPlugin
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
      */
-    protected $shipperDataHelper;
+    private $shipperDataHelper;
     /**
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
-    protected $carrierGroupHelper;
+    private $carrierGroupHelper;
 
     /**
      * @var \Magento\Quote\Api\Data\ShippingMethodExtensionFactory
@@ -57,12 +57,10 @@ class ShippingMethodConverterPlugin
         $this->shipperDataHelper = $shipperDataHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->shippingMethodExtensionFactory = $shippingMethodExtensionFactory;
-
-
     }
 
     /**
-     *Set additional information for shipping method
+     * Set additional information for shipping method
      *
      * @param \Magento\Quote\Model\Cart\ShippingMethodConverter $subject
      * @param callable $proceed
@@ -70,22 +68,24 @@ class ShippingMethodConverterPlugin
      * @param \Magento\Quote\Model\Quote\Address\Rate $rateModel The rate model.
      * @return \Magento\Quote\Api\Data\ShippingMethodInterface Shipping method data object
      */
-    public function aroundModelToDataObject(\Magento\Quote\Model\Cart\ShippingMethodConverter $subject,
-                                            $proceed,
-                                            \Magento\Quote\Model\Quote\Address\Rate $rateModel, $quoteCurrencyCode)
-    {
+    public function aroundModelToDataObject(
+        \Magento\Quote\Model\Cart\ShippingMethodConverter $subject,
+        $proceed,
+        \Magento\Quote\Model\Quote\Address\Rate $rateModel,
+        $quoteCurrencyCode
+    ) {
+    
         $resultShippingMethod = $proceed($rateModel, $quoteCurrencyCode);
         $extensionAttributes = $resultShippingMethod->getExtensionAttributes();
         if ($extensionAttributes && $extensionAttributes->getTooltip() || $rateModel->getTooltip() == '') {
             return $resultShippingMethod;
         }
 
-        $shippingMethodExtension = $extensionAttributes ? $extensionAttributes : $this->shippingMethodExtensionFactory->create();
+        $shippingMethodExtension = $extensionAttributes ?
+            $extensionAttributes : $this->shippingMethodExtensionFactory->create();
         $shippingMethodExtension->setTooltip($rateModel->getTooltip());
         $resultShippingMethod->setExtensionAttributes($shippingMethodExtension);
 
         return $resultShippingMethod;
-
     }
-
 }

@@ -65,7 +65,7 @@ class Packages extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             'carrier_code = :carrier_code'
         );
         $params = [':quote_address_id' => $addressId, ':carrier_code' => $carrierCode];
-        if(!is_null($carrierGroupId)) {
+        if ($carrierGroupId !== null) {
             $select->where(
                 'carrier_group_id = :carrier_group_id'
             );
@@ -88,19 +88,21 @@ class Packages extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         return $this;
     }
 
-    protected function _afterLoad(\Magento\Framework\Model\AbstractModel $object) {
+    protected function _afterLoad(\Magento\Framework\Model\AbstractModel $object)
+    {
         parent::_afterLoad($object);
         $connection = $this->getConnection();
         $select = $connection->select()->from($this->getTable('shipperhq_quote_package_items'));
         $select->where('package_id=?', $object->getId());
         $items = $connection->fetchAll($select);
-        if($items) {
+        if ($items) {
             $object->setData('items', $items);
         }
         return $this;
     }
 
-    protected function _afterSave(\Magento\Framework\Model\AbstractModel $object) {
+    protected function _afterSave(\Magento\Framework\Model\AbstractModel $object)
+    {
         parent::_afterSave($object);
 
         // now save the package items

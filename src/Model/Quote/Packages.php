@@ -39,7 +39,7 @@ class Packages extends \Magento\Framework\Model\AbstractExtensibleModel
     /**
      * @var /ShipperHQ\Shipper\Model\ResourceModel\Quote\Packages\Collection
      */
-    protected $quotePackageCollection;
+    private $quotePackageCollection;
 
     /**
      * @param \ShipperHQ\Shipper\Model\ResourceModel\Quote\Packages\CollectionFactory $quotePackageCollectionFactory
@@ -70,7 +70,7 @@ class Packages extends \Magento\Framework\Model\AbstractExtensibleModel
             $resourceCollection,
             $data
         );
-       $this->quotePackageCollection = $quotePackageCollectionFactory->create();
+        $this->quotePackageCollection = $quotePackageCollectionFactory->create();
     }
 
     /**
@@ -94,16 +94,14 @@ class Packages extends \Magento\Framework\Model\AbstractExtensibleModel
         $collection = $this->quotePackageCollection
             ->addAddressToFilter($addressId)
             ->addCarrierCodeToFilter($carrierCode);
-        if(!is_null($carrierGroupId)) {
+        if ($carrierGroupId !== null) {
             $collection->addCarrierGroupToFilter($carrierGroupId);
         }
         return $collection;
-
     }
 
     public function deleteByPackageId($packageId)
     {
         $this->_getResource()->deleteByPackageId($packageId);
     }
-
 }

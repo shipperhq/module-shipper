@@ -34,7 +34,6 @@
 
 namespace ShipperHQ\Shipper\Model\ResourceModel;
 
-
 class Synchronize extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**

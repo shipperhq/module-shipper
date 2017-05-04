@@ -38,7 +38,6 @@ use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
 
-
 /**
  * ShipperHQ Shipper module observer
  */
@@ -47,15 +46,14 @@ class SetCartFlag implements ObserverInterface
     /**
      * @var \Magento\Checkout\Model\Session
      */
-    protected $checkoutSession;
+    private $checkoutSession;
 
     /**
      * @param \Magento\Checkout\Model\Session $checkoutSession
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession
-    )
-    {
+    ) {
         $this->checkoutSession = $checkoutSession;
     }
 

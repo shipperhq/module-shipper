@@ -40,35 +40,33 @@ class CollectionFactory
      */
     private $shipperLogger;
     /** @var \Magento\Framework\App\ResourceConnection */
-    protected $_resource;
+    protected $resource;
 
     public function __construct(
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Magento\Framework\App\ResourceConnection $resource
     ) {
         $this->shipperLogger = $shipperLogger;
-        $this->_resource = $resource;
+        $this->resource = $resource;
     }
 
     public function aroundGetReport(
         \Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory $subject,
         \Closure $proceed,
         $requestName
-    )
-    {
+    ) {
+    
         $result = $proceed($requestName);
         if ($requestName == 'sales_order_grid_data_source') {
             if ($result instanceof \Magento\Sales\Model\ResourceModel\Order\Grid\Collection) {
                 $select = $result->getSelect();
                 $select->joinLeft(
-                    ['shipper_order_join' => $this->_resource->getTableName('shipperhq_order_detail_grid')],
-                    'entity_id' . '=shipper_order_join.' . 'order_id' ,
+                    ['shipper_order_join' => $this->resource->getTableName('shipperhq_order_detail_grid')],
+                    'entity_id' . '=shipper_order_join.' . 'order_id',
                     []
                 );
-
             }
         }
         return $result;
     }
-
 }

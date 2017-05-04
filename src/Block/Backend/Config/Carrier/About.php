@@ -34,19 +34,19 @@
  */
 namespace ShipperHQ\Shipper\Block\Backend\Config\Carrier;
 
-class About extends \Magento\Config\Block\System\Config\Form\Fieldset//\Magento\Config\Block\System\Config\Form\Field
+class About extends \Magento\Config\Block\System\Config\Form\Fieldset
 {
-
-
     /**
+     * @var \ShipperHQ\Shipper\Helper\Data
      */
-    protected $shipperDataHelper;
+    private $shipperDataHelper;
 
     /**
+     * About constructor.
      * @param \Magento\Backend\Block\Context $context
      * @param \Magento\Backend\Model\Auth\Session $authSession
      * @param \Magento\Framework\View\Helper\Js $jsHelper
-     * @param \Magento\Sales\Model\Config\Data
+     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
      * @param array $data
      */
     public function __construct(
@@ -60,7 +60,6 @@ class About extends \Magento\Config\Block\System\Config\Form\Fieldset//\Magento\
         parent::__construct($context, $authSession, $jsHelper, $data);
     }
 
-
     /**
      * Return header comment part of html for fieldset
      *
@@ -71,7 +70,10 @@ class About extends \Magento\Config\Block\System\Config\Form\Fieldset//\Magento\
     {
         $beforeDiv = '<div style="padding:10px;background-color:#fff;border:1px solid #ddd;margin-bottom:7px;">';
         $afterDiv = '</div>';
-        $synch = __('Click here to <a href="%1">Synchronize</a> with ShipperHQ.', $this->getUrl('shipperhq/synchronize/index'));
+        $synch = __(
+            'Click here to <a href="%1">Synchronize</a> with ShipperHQ.',
+            $this->getUrl('shipperhq/synchronize/index')
+        );
         $element->getComment()
             ? $comment =   $element->getComment()
             : $comment =  '';
@@ -95,7 +97,8 @@ class About extends \Magento\Config\Block\System\Config\Form\Fieldset//\Magento\
         return $html;
     }
 
-    protected function getModuleVersion() {
-       return (string) $this->shipperDataHelper->getConfigValue('carriers/shipper/extension_version');
+    private function getModuleVersion()
+    {
+        return (string) $this->shipperDataHelper->getConfigValue('carriers/shipper/extension_version');
     }
 }

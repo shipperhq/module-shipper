@@ -30,11 +30,12 @@
 
 namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
 
-class Carriers {
+class Carriers
+{
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
      */
-    protected $storeManager;
+    private $storeManager;
 
     /**
      * @var \Magento\Shipping\Model\Config
@@ -45,9 +46,10 @@ class Carriers {
      */
     private $shipperDataHelper;
 
-    public function __construct( \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-                                 \Magento\Backend\Block\Template\Context $context,
-                                 \Magento\Shipping\Model\Config $shippingConfig
+    public function __construct(
+        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+        \Magento\Backend\Block\Template\Context $context,
+        \Magento\Shipping\Model\Config $shippingConfig
     ) {
 
         $this->shippingConfig = $shippingConfig;
@@ -55,27 +57,27 @@ class Carriers {
         $this->shipperDataHelper = $shipperDataHelper;
     }
 
-
-    public function toOptionArray() {
+    public function toOptionArray()
+    {
 
         $arr = [];
 
         $carriers = $this->shippingConfig->getAllCarriers($this->storeManager->getStore());
 
-        foreach ($carriers as $carrierCode=>$carrierModel) {
+        foreach ($carriers as $carrierCode => $carrierModel) {
             $carrierTitle = $this->shipperDataHelper->getConfigValue('carriers/' . $carrierCode . '/title');
             if (strpos($carrierCode, 'shipper') === 0 || $carrierTitle == '') {
                 continue;
             }
-            if($this->shipperDataHelper->getConfigValue('carriers/'.$carrierCode.'/model') == 'ShipperHQ\Shipper\Model\Carrier\Shipper') {
+            if ($this->shipperDataHelper->getConfigValue(
+                'carriers/'.$carrierCode.'/model'
+                ) == 'ShipperHQ\Shipper\Model\Carrier\Shipper') {
                 continue;
             }
-           $arr[] = ['value' => $carrierCode, 'label' => $carrierTitle];
+            $arr[] = ['value' => $carrierCode, 'label' => $carrierTitle];
         }
         array_unshift($arr, ['value' => false, 'label' => __('No Carrier')]);
 
         return $arr;
-
     }
-
 }

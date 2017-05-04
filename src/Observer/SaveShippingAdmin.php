@@ -38,7 +38,6 @@ use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
 
-
 /**
  * ShipperHQ Shipper module observer
  */
@@ -47,31 +46,45 @@ class SaveShippingAdmin implements ObserverInterface
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
      */
-    protected $shipperDataHelper;
+    private $shipperDataHelper;
+
     /**
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
-    protected $carrierGroupHelper;
+    private $carrierGroupHelper;
+
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
     private $shipperLogger;
+    /**
+     * @var \Magento\Framework\Registry
+     */
+    private $registry;
+    /*
+     * @var \ShipperHQ\Common\Model\Quote\Service
+     */
+    protected $quoteService;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
      * @param  \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
      * @param  \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
-
+     * @param \Magento\Framework\Registry $registry
+     * @param \ShipperHQ\Common\Model\Quote\Service $quoteService
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
-)
-    {
+        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
+        \Magento\Framework\Registry $registry,
+        \ShipperHQ\Common\Model\Quote\Service $quoteService
+    ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->shipperLogger = $shipperLogger;
+        $this->registry = $registry;
+        $this->quoteService = $quoteService;
     }
     /**
      * Record order shipping information after order is placed
@@ -85,16 +98,42 @@ class SaveShippingAdmin implements ObserverInterface
             $requestData = $observer->getRequestModel()->getPost();
             if (isset($requestData['order'])) {
                 $orderData = $requestData['order'];
+                $quote = $observer->getSession()->getQuote();
+                if (!empty($orderData['shipping_method'])) {
+                    $shippingMethod = $orderData['shipping_method'];
+                    if(!empty($orderData['custom_price'])) {
+                        $this->processAdminShipping($orderData, $quote);
+                    }
+                    $this->carrierGroupHelper->saveCarrierGroupInformation($quote->getShippingAddress(), $shippingMethod);
+                }
             }
-            $quote = $observer->getSession()->getQuote();
-            //if(!empty($orderData['shipping_method_flag']))
-            if (!empty($orderData['shipping_method'])) {
-                $shippingMethod = $orderData['shipping_method'];
-                $this->carrierGroupHelper->saveCarrierGroupInformation($quote->getShippingAddress(), $shippingMethod);
-            }
-            //}
         }
     }
 
-}
+    protected function processAdminShipping($data, $quote)
+    {
+        $found = false;
+        $customCarrierGroupData = array();
+        if (isset($data['custom_price'])) {
+            $adminData  = array('customPrice' => $data['custom_price']);
+            if (isset($data['custom_description'])) {
+                $adminData['customCarrier'] = $data['custom_description'];
+                $found = true;
+            }
+            //use CG id here
+            $customCarrierGroupData[] = $adminData;
+        }
 
+        if ($found) {
+            $shippingAddress =  $quote->getShippingAddress();
+            $this->quoteService->cleanDownRates($shippingAddress, 'shipperadmin', '');
+            $this->registry->register('shqadminship_data', new \Magento\Framework\DataObject($customCarrierGroupData));
+            $storedLimitCarrier = $shippingAddress->getLimitCarrier();
+            $shippingAddress->setLimitCarrier('shipperadmin');
+            $rateFound = $shippingAddress->requestShippingRates();
+            $shippingAddress->setLimitCarrier($storedLimitCarrier);
+        } else {
+            $this->registry->unregister('shqadminship_data');
+        }
+    }
+}

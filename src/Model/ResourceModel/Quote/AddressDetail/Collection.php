@@ -43,7 +43,10 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
      */
     protected function _construct()
     {
-        $this->_init('ShipperHQ\Shipper\Model\Quote\AddressDetail', 'ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail');
+        $this->_init(
+            'ShipperHQ\Shipper\Model\Quote\AddressDetail',
+            'ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail'
+        );
     }
 
     public function addAddressToFilter($addressId)

@@ -10,7 +10,7 @@ define(
         'ko',
         'Magento_Checkout/js/view/shipping'
     ],
-    function(
+    function (
         $,
         ko,
         Component

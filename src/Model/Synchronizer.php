@@ -35,11 +35,7 @@
 namespace ShipperHQ\Shipper\Model;
 
 use ShipperHQ\WS\Client;
-use ShipperHQ\WS\Rate\Response;
-use ShipperHQ\Shipper\Helper\Config;
-use Magento\Catalog\Model\Product\Attribute\OptionManagement;
 use Magento\Framework\App\ResourceConnection;
-
 
 class Synchronizer extends \Magento\Framework\Model\AbstractModel
 {
@@ -49,12 +45,14 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      * @var string
      */
     const ADD_ATTRIBUTE_OPTION = 'Add';
+
     /**
      * Attribute manual delete
      *
      * @var string
      */
     const REMOVE_ATTRIBUTE_OPTION = 'Manual delete required';
+
     /**
      * Attribute delete
      *
@@ -65,36 +63,38 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
      */
-    protected $shipperDataHelper;
-    /*
-    *@var \ShipperHQ\Shipper\Helper\Rest
-    */
-    protected $restHelper;
+    private $shipperDataHelper;
 
     /**
-     * @var \Magento\Framework\Registry
-     */
-    private $registry;
+    *@var \ShipperHQ\Shipper\Helper\Rest
+    */
+    private $restHelper;
+
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
     private $shipperLogger;
+
     /**
-     * @var Client\WebServiceClientFactory
+     * @var Carrier\Processor\ShipperMapper
      */
-    private $shipperWSClientFactory;
+    private $shipperMapper;
+
     /**
      * @var Carrier\Processor\CarrierConfigHandler
      */
     private $carrierConfigHandler;
+
     /**
-     * @var \ShipperHQ\Shipper\Helper\CarrierCache
+     * @var Client\WebServiceClientFactory
      */
-    private $carrierCache;
+    private $shipperWSClientFactory;
+
     /**
      * @var \Magento\Catalog\Model\Product\Attribute\OptionManagement
      */
     private $attributeOptionManagement;
+
     /**
      * @var \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory
      */
@@ -103,63 +103,49 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      * @var \ShipperHQ\Shipper\Model\SynchronizeFactory
      */
     private $synchronizeFactory;
+
     /**
      * Database connection
      *
      * @var \Magento\Framework\DB\Adapter\AdapterInterface
      */
-    protected $connection;
+    private $connection;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
-     * @param \ShipperHQ\Shipper\Helper\CarrierCache $carrierCache
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param \ShipperHQ\Shipper\Helper\Rest $restHelper
      * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
-     * @param \Psr\Log\LoggerInterface $logger
      * @param Carrier\Processor\ShipperMapper $shipperMapper
      * @param Carrier\Processor\CarrierConfigHandler $carrierConfigHandler
-     * @param \Magento\Framework\Registry $registry
      * @param Client\WebServiceClientFactory $shipperWSClientFactory
-     * @param \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory
-     * @param \Magento\Shipping\Model\Rate\ResultFactory $resultFactory
-     * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
      * @param \Magento\Catalog\Model\Product\Attribute\OptionManagement $attributeOptionManagement
      * @param \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory $optionDataFactory,
      * @param SynchronizeFactory $synchronizeFactory
-     * @param array $data
      *
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \ShipperHQ\Shipper\Helper\Rest $restHelper,
-        \ShipperHQ\Shipper\Helper\CarrierCache $carrierCache,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Psr\Log\LoggerInterface $logger,
         Carrier\Processor\ShipperMapper $shipperMapper,
         Carrier\Processor\CarrierConfigHandler $carrierConfigHandler,
-        \Magento\Framework\Registry $registry,
         \ShipperHQ\WS\Client\WebServiceClientFactory $shipperWSClientFactory,
         \Magento\Catalog\Model\Product\Attribute\OptionManagement $attributeOptionManagement,
         \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory $optionDataFactory,
         SynchronizeFactory $synchronizeFactory,
-        ResourceConnection $resource,
-        array $data = []
-    )
-    {
+        ResourceConnection $resource
+    ) {
+
         $this->shipperDataHelper = $shipperDataHelper;
         $this->restHelper = $restHelper;
-        $this->shipperMapper = $shipperMapper;
-        $this->registry = $registry;
         $this->shipperLogger = $shipperLogger;
+        $this->shipperMapper = $shipperMapper;
         $this->shipperWSClientFactory = $shipperWSClientFactory;
         $this->carrierConfigHandler = $carrierConfigHandler;
-        $this->carrierCache = $carrierCache;
         $this->attributeOptionManagement = $attributeOptionManagement;
         $this->optionDataFactory = $optionDataFactory;
         $this->synchronizeFactory = $synchronizeFactory;
         $this->connection = $resource->getConnection();
-
     }
 
     /*
@@ -168,7 +154,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     public function updateSynchronizeData()
     {
         $latestAttributes = $this->getLatestAttributeData();
-        $result = array();
+        $result = [];
         if ($latestAttributes && array_key_exists('error', $latestAttributes)) {
             $result['error'] = $latestAttributes['error'];
         } elseif ($latestAttributes && !empty($latestAttributes)) {
@@ -180,7 +166,6 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         }
 
         return $result;
-
     }
 
     /*
@@ -189,7 +174,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     public function synchronizeData()
     {
         $latestAttributes = $this->getLatestAttributeData();
-        $result = array();
+        $result = [];
         if ($latestAttributes && array_key_exists('error', $latestAttributes)) {
             $result['error'] = $latestAttributes['error'];
         } elseif ($latestAttributes && !empty($latestAttributes)) {
@@ -207,104 +192,131 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     public function checkSynchStatus($saveTime = false)
     {
         if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
-
             $synchCheckUrl = $this->restHelper->getCheckSynchronizedUrl();
             $result = $this->send($synchCheckUrl);
             $synchResult = $result['result'];
-            $debugData = array(
+            $debugData = [
                 'result' => json_decode($result['debug']['response']),
                 'url' => $result['debug']['url']
-            );
+            ];
             $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Check synchronized status', $debugData);
 
             if (!empty($synchResult->errors)) {
-                $this->shipperLogger->postWarning('Shipperhq_Shipper', 'Check synchronized status failed. Error: ',
-                   $synchResult->errors);
+                $this->shipperLogger->postWarning(
+                    'Shipperhq_Shipper',
+                    'Check synchronized status failed. Error: ',
+                    $synchResult->errors
+                );
                 return false;
             }
 
             if (!isset($synchResult->responseSummary) || $synchResult->responseSummary->status != 1) {
-                $this->shipperLogger->postWarning('Shipperhq_Shipper', 'Check Synchronized Status failed with no error. ',
-                    $synchResult);
+                $this->shipperLogger->postWarning(
+                    'Shipperhq_Shipper',
+                    'Check Synchronized Status failed with no error. ',
+                    $synchResult
+                );
                 return false;
             }
             $currentVal = $this->shipperDataHelper->getConfigValue($this->shipperDataHelper->getLastSyncPath());
             $latestSync = $synchResult->lastSynchronization;
             $result = $latestSync == $currentVal ? '1' : "Required";
-            if($saveTime) {
-                $this->carrierConfigHandler->saveConfig($this->shipperDataHelper->getLastSyncPath(), $latestSync, 'default', 0, false);
+            if ($saveTime) {
+                $this->carrierConfigHandler->saveConfig(
+                    $this->shipperDataHelper->getLastSyncPath(),
+                    $latestSync,
+                    'default',
+                    0,
+                    false
+                );
             }
             return $result;
         }
     }
 
-    protected function send($url, $request = null)
+    private function send($url, $request = null)
     {
         $timeout = $this->restHelper->getWebserviceTimeout();
-        if(is_null($request)) {
+        if ($request === null) {
             $request = $this->shipperMapper->getCredentialsTranslation();
         }
-        $this->shipperLogger->postDebug('Shipperhq_Shipper','Synch: Request to ' .$url,
-            $request->siteDetails);
+        $this->shipperLogger->postDebug(
+            'Shipperhq_Shipper',
+            'Synch: Request to ' .$url,
+            $request->siteDetails
+        );
         $result = $this->shipperWSClientFactory->create()->sendAndReceive($request, $url, $timeout);
         return $result;
     }
 
-
-    protected function getLatestAttributeData()
+    private function getLatestAttributeData()
     {
-        $result = array();
+        $result = [];
         $synchronizeUrl = $this->restHelper->getAttributeGatewayUrl();
         $resultSet = $this->send($synchronizeUrl);
 
         $allAttributesResponse = $resultSet['result'];
 
-        $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Latest attributes response',
-            (array)$allAttributesResponse);
+        $this->shipperLogger->postDebug(
+            'Shipperhq_Shipper',
+            'Latest attributes response',
+            (array)$allAttributesResponse
+        );
 
         if (!is_object($allAttributesResponse)) {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper',
+            $this->shipperLogger->postInfo(
+                'Shipperhq_Shipper',
                 'Retrieving attributes: No or invalid response received from Shipper HQ',
-                $allAttributesResponse);
-        } elseif (isset($allAttributesResponse->errors) && count($allAttributesResponse->errors) > 0) {
+                $allAttributesResponse
+            );
+        } elseif (isset($allAttributesResponse->errors) && !empty($allAttributesResponse->errors)) {
             foreach ($allAttributesResponse->errors as $errorDetails) {
                 $errorDetails = (array)$errorDetails;
                 if (array_key_exists('internalErrorMessage', $errorDetails)
                     && $errorDetails['internalErrorMessage'] != ''
                 ) {
                     $result['error'] = $errorDetails['internalErrorMessage'];
-                } else if (array_key_exists('externalErrorMessage', $errorDetails)
+                } elseif (array_key_exists('externalErrorMessage', $errorDetails)
                     && $errorDetails['externalErrorMessage'] != ''
                 ) {
                     $result['error'] = $errorDetails['externalErrorMessage'];
                 }
             }
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ returned error',
-                $allAttributesResponse->errors);
+            $this->shipperLogger->postInfo(
+                'Shipperhq_Shipper',
+                'Shipper HQ returned error',
+                $allAttributesResponse->errors
+            );
         } elseif (!$allAttributesResponse || !isset($allAttributesResponse->responseSummary) ||
             (string)$allAttributesResponse->responseSummary->status != 1 ||
             !$allAttributesResponse->attributeTypes) {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Unable to parse latest attributes response : ' ,
-                $allAttributesResponse);
+            $this->shipperLogger->postInfo(
+                'Shipperhq_Shipper',
+                'Unable to parse latest attributes response : ',
+                $allAttributesResponse
+            );
         } else {
             $result = $allAttributesResponse->attributeTypes;
         }
         return $result;
     }
 
-    protected function compareAttributeData($latestAttributes)
+    private function compareAttributeData($latestAttributes)
     {
-        $result = array();
+        $result = [];
         $productAttributes =$this->shipperDataHelper->getProductAttributes();
 
         foreach ($latestAttributes as $attribute) {
             switch ($attribute->type) {
                 case 'product':
                     try {
-                        $existingAttributeOptions = array();
+                        $existingAttributeOptions = [];
                         if (!in_array($attribute->code, $productAttributes)) {
-                            $this->shipperLogger->postDebug('Shipperhq_Shipper',
-                                'Attribute ' . $attribute->code . ' does not exist.','');
+                            $this->shipperLogger->postDebug(
+                                'Shipperhq_Shipper',
+                                'Attribute ' . $attribute->code . ' does not exist.',
+                                ''
+                            );
                             continue;
                         }
                         $existingAttributeInfo = $this->attributeOptionManagement->getItems($attribute->code);
@@ -313,9 +325,11 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                         }
                     } catch (\Exception $e) {
                         $e->getMessage();
-                        $this->shipperLogger->postDebug('Shipperhq_Shipper',
+                        $this->shipperLogger->postDebug(
+                            'Shipperhq_Shipper',
                             'Unable to find attribute ' . $attribute->code,
-                            'Error: ' . $e->getMessage());
+                            'Error: ' . $e->getMessage()
+                        );
                         $result = false;
                         break;
                     }
@@ -330,38 +344,41 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                             }
                         }
                         if (!$found) {
-                            $result[] = array('attribute_type' => $attribute->type,
+                            $result[] = ['attribute_type' => $attribute->type,
                                 'attribute_code' => $attribute->code,
                                 'value' => $latestValue->name,
-                                //      'label'         => $latestValue['description'];
                                 'status' => self::ADD_ATTRIBUTE_OPTION,
                                 'date_added' => date('Y-m-d H:i:s')
 
-                            );
+                            ];
                         }
-
                     }
-                    if (count($trackValues) > 0) {
-                        //TODO add store selector in here
+                    if (!empty($trackValues)) {
+                        // add store selector in here
                         $storeId = '';
                         foreach ($trackValues as $key => $option) {
-                            if(ctype_space($option->getLabel()) || $option->getLabel() == '') {
+                            if (ctype_space($option->getLabel()) || $option->getLabel() == '') {
                                 unset($trackValues[$key]);
                                 continue;
                             }
-                            $isAssigned = $this->getIsAttributeValueUsed($attribute->code, $option->getValue(), $storeId, true);
+                            $isAssigned = $this->getIsAttributeValueUsed(
+                                $attribute->code,
+                                $option->getValue(),
+                                $storeId,
+                                true
+                            );
                             $deleteFlag = self::AUTO_REMOVE_ATTRIBUTE_OPTION;
-                            if($isAssigned) {
+                            if ($isAssigned) {
                                 $deleteFlag = self::REMOVE_ATTRIBUTE_OPTION;
                             }
 
-                            $result[] = array('attribute_type' => $attribute->type,
+                            $result[] = ['attribute_type' => $attribute->type,
                                 'attribute_code' => $attribute->code,
                                 'value' => $option->getLabel(),
                                 'option_id' => $option->getValue(),
                                 'status' => $deleteFlag,
                                 'date_added' => date('Y-m-d H:i:s')
-                            );
+                            ];
                         }
                     }
                     break;
@@ -369,43 +386,52 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                     if ($attribute->code == 'global_settings') {
                         foreach ($attribute->attributes as $globalSetting) {
                             $value = $globalSetting->value == 'true' ? 1 : 0;
-                            if ($this->shipperDataHelper->getDefaultConfigValue('carriers/shipper/' . $globalSetting->code) != $value) {
-                                $result[] = array('attribute_type' => 'global_setting',
+                            $configValue = $this->shipperDataHelper->getDefaultConfigValue(
+                                'carriers/shipper/'.$globalSetting->code
+                            );
+                            if ($configValue != $value) {
+                                $result[] = ['attribute_type' => 'global_setting',
                                     'attribute_code' => $globalSetting->code,
                                     'value' => $value,
                                     'option_id' => '',
                                     'status' => self::ADD_ATTRIBUTE_OPTION,
                                     'date_added' => date('Y-m-d H:i:s')
-                                );
+                                ];
                             }
                         }
                     }
+                    break;
                 case 'customer':
                     //compare customer groups
                     break;
-                default :
+                default:
                     break;
             }
-
         }
         $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Compare attributes result: ', $result);
         return $result;
     }
 
-    protected function saveSynchData($data)
+    private function saveSynchData($data)
     {
         $result = 0;
         try {
             $this->synchronizeFactory->create()->deleteAllSynchData();
         } catch (\Exception $e) {
             $result = false;
-            $this->shipperLogger->postDebug('Shipperhq_Shipper',
-                'Unable to remove existing attribute update data', $e->getMessage());
+            $this->shipperLogger->postDebug(
+                'Shipperhq_Shipper',
+                'Unable to remove existing attribute update data',
+                $e->getMessage()
+            );
         }
         if (empty($data)) {
-            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Saving synch data',
-                'No attribute changes required, 0 rows saved');
-           return $result;
+            $this->shipperLogger->postDebug(
+                'Shipperhq_Shipper',
+                'Saving synch data',
+                'No attribute changes required, 0 rows saved'
+            );
+            return $result;
         }
 
         foreach ($data as $update) {
@@ -415,14 +441,13 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
             $result++;
         }
         return $result;
-
     }
 
     /*
      * Add new option values to attributes
      *
      */
-    protected function updateAll($updateData)
+    private function updateAll($updateData)
     {
         $result = 0;
 
@@ -437,23 +462,34 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                         $this->attributeOptionManagement->add($attributeUpdate['attribute_code'], $optionToAdd);
                         $result++;
                     } catch (\Exception $e) {
-                        $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Unable to add attribute option',
-                            'Error: ' . $e->getMessage());
+                        $this->shipperLogger->postInfo(
+                            'Shipperhq_Shipper',
+                            'Unable to add attribute option',
+                            'Error: ' . $e->getMessage()
+                        );
                         $result = false;
                     }
-                } else if ($attributeUpdate['status'] == self::AUTO_REMOVE_ATTRIBUTE_OPTION) {
+                } elseif ($attributeUpdate['status'] == self::AUTO_REMOVE_ATTRIBUTE_OPTION) {
                     try {
-                        $this->attributeOptionManagement->delete($attributeUpdate['attribute_code'], $attributeUpdate['option_id']);
+                        $this->attributeOptionManagement->delete(
+                            $attributeUpdate['attribute_code'],
+                            $attributeUpdate['option_id']
+                        );
                         $result++;
                     } catch (\Exception $e) {
-                        $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Unable to remove attribute option',
-                            'Error: ' . $e->getMessage());
+                        $this->shipperLogger->postInfo(
+                            'Shipperhq_Shipper',
+                            'Unable to remove attribute option',
+                            'Error: ' . $e->getMessage()
+                        );
                         $result = false;
                     }
                 }
             } elseif ($attributeUpdate['attribute_type'] == 'global_setting') {
-                $this->carrierConfigHandler->saveConfig('carriers/shipper/' . $attributeUpdate['attribute_code'],
-                    $attributeUpdate['value']);
+                $this->carrierConfigHandler->saveConfig(
+                    'carriers/shipper/' . $attributeUpdate['attribute_code'],
+                    $attributeUpdate['value']
+                );
             }
         }
 
@@ -463,40 +499,37 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         return $result;
     }
 
-    protected function getIsAttributeValueUsed($attribute_code, $value, $storeId, $isSelect = false)
+    private function getIsAttributeValueUsed($attribute_code, $value, $storeId, $isSelect = false)
     {
         $attributeModel = $this->shipperDataHelper->getAttribute($attribute_code, $storeId);
 
         $select = $this->connection->select()->distinct(
             true
         )->from(
-                $attributeModel->getBackend()->getTable(),
-                ['value']
-            )->where(
-                'attribute_id=?',
-                $attributeModel->getId()
-            )->where(
-                'value!=?',
-                ''
-            );
+            $attributeModel->getBackend()->getTable(),
+            ['value']
+        )->where(
+            'attribute_id=?',
+            $attributeModel->getId()
+        )->where(
+            'value!=?',
+            ''
+        );
 
         $usedAttributeValues = $this->connection->fetchCol($select);
 
-        if($isSelect) {
+        if ($isSelect) {
             //account for multiselect values
-            $separated = array();
-            foreach($usedAttributeValues as $key => $aValue) {
-                if(strstr($aValue, ',')) {
+            $separated = [];
+            foreach ($usedAttributeValues as $key => $aValue) {
+                if (strstr($aValue, ',')) {
                     $values = explode(',', $aValue);
-                    $separated = array_merge($separated,$values);
+                    $separated = array_merge($separated, $values);
                     unset($usedAttributeValues[$key]);
                 }
             }
             $usedAttributeValues = array_merge($usedAttributeValues, $separated);
-
         }
         return in_array($value, $usedAttributeValues);
     }
-
-
 }

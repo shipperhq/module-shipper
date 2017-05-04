@@ -36,18 +36,7 @@ namespace ShipperHQ\Shipper\Plugin\Adminhtml;
 class DefaultRendererPlugin
 {
     /**
-     * @var \ShipperHQ\Shipper\Helper\Data
-     */
-    protected $shipperDataHelper;
-
-    public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
-    ) {
-        $this->shipperDataHelper = $shipperDataHelper;
-    }
-
-    /**
-     *Set additional columns for items
+     * Set additional columns for items
      *
      * @param \Magento\Sales\Block\Adminhtml\Order\View\Items\Renderer\DefaultRenderer $subject
      * @param \Magento\Framework\View\LayoutInterface $result
@@ -55,14 +44,14 @@ class DefaultRendererPlugin
      * @return \Magento\Checkout\Api\Data\PaymentDetailsInterface $paymentDetails
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function afterGetColumns(\Magento\Sales\Block\Adminhtml\Order\View\Items\Renderer\DefaultRenderer $subject, $result)
-    {
-        if(count($result) > 0) {
+    public function afterGetColumns(
+        \Magento\Sales\Block\Adminhtml\Order\View\Items\Renderer\DefaultRenderer $subject,
+        $result
+    ) {
+        if (!empty($result)) {
             $extra = ['carriergroup' => 'col-carriergroup', 'carriergroup_shipping' => 'col-carriergroup_shipping'];
             $result = array_merge($result, $extra);
         }
         return $result;
-
     }
-
 }

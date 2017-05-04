@@ -56,5 +56,4 @@ class Synchronize extends AbstractModel
         $this->_getResource()->deleteAllSynchData();
         return $this;
     }
-
 }

@@ -34,7 +34,7 @@ class BackupCarrier
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
      */
-    protected $storeManager;
+    private $storeManager;
 
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
@@ -50,16 +50,18 @@ class BackupCarrier
     private $mutableConfig;
 
     /**
-     * @param Config $configHelper
-     *
+     * BackupCarrier constructor.
+     * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
+     * @param \Magento\Backend\Block\Template\Context $context
+     * @param \Magento\Framework\App\Config\MutableScopeConfigInterface $mutableConfig
+     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\App\Config\MutableScopeConfigInterface $mutableConfig,
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper)
-    {
-
+        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+    ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->storeManager = $context->getStoreManager();
         $this->shipperLogger = $shipperLogger;
@@ -76,7 +78,7 @@ class BackupCarrier
         $storeId = $rawRequest->getStoreId();
         $tempEnabledCarrier = $this->tempSetCarrierEnabled($carrierCode, true, $storeId);
 
-        $carrier = $this->shipperDataHelper->getCarrierByCode($carrierCode, $storeId );
+        $carrier = $this->shipperDataHelper->getCarrierByCode($carrierCode, $storeId);
 
         if (!$carrier) {
             $this->tempSetCarrierEnabled($carrierCode, false, $storeId);
@@ -85,9 +87,11 @@ class BackupCarrier
         }
 
         $result = $carrier->collectRates($rawRequest);
-        $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Backup carrier result: ',
-            'returned ' .count($result) .' results');
-
+        $this->shipperLogger->postInfo(
+            'Shipperhq_Shipper',
+            'Backup carrier result: ',
+            'returned ' .count($result) .' results'
+        );
 
         if ($tempEnabledCarrier) {
             $this->tempSetCarrierEnabled($carrierCode, false, $storeId);
@@ -99,35 +103,37 @@ class BackupCarrier
      * Enable or disable carrier
      * @return boolean
      */
-    protected function tempSetCarrierEnabled($carrierCode, $enabled, $storeId)
+    private function tempSetCarrierEnabled($carrierCode, $enabled, $storeId)
     {
         $carrierPath = 'carriers/' . $carrierCode . '/active';
         $tempEnabledCarrier = false;
-
-        if (!$this->shipperDataHelper->getConfigFlag($carrierPath) || !$enabled) { // if $enabled set to false was previously enabled!
+        // if $enabled set to false was previously enabled!
+        if (!$this->shipperDataHelper->getConfigFlag($carrierPath) || !$enabled) {
             $this->mutableConfig->setValue($carrierPath, $enabled, 'store', $storeId);
             $tempEnabledCarrier = true;
         }
-
         return $tempEnabledCarrier;
-
     }
 
     /**
      * Get backup carrier if configured
      * @return mixed
      */
-    protected function retrieveBackupCarrier($backupCarrierDetails)
+    private function retrieveBackupCarrier($backupCarrierDetails)
     {
-        $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Unable to establish connection with ShipperHQ',
-            'Attempting to use backup carrier: ' . $backupCarrierDetails);
+        $this->shipperLogger->postInfo(
+            'Shipperhq_Shipper',
+            'Unable to establish connection with ShipperHQ',
+            'Attempting to use backup carrier: ' . $backupCarrierDetails
+        );
         if (!$backupCarrierDetails) {
-            $this->shipperLogger->postDebug('Shipperhq_Shipper','Backup carrier: ',
-                'No backup carrier is configured');
+            $this->shipperLogger->postDebug(
+                'Shipperhq_Shipper',
+                'Backup carrier: ',
+                'No backup carrier is configured'
+            );
             return false;
         }
         return $backupCarrierDetails;
     }
-
-
 }

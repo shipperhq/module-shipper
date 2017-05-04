@@ -35,9 +35,6 @@ namespace ShipperHQ\Shipper\Model\ResourceModel\Synchronize;
 
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
-
-    protected $_storeId = 0;
-
     /**
      *  Define resource model
      *
@@ -48,5 +45,4 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
         parent::_construct();
         $this->_init('ShipperHQ\Shipper\Model\Synchronize', 'ShipperHQ\Shipper\Model\ResourceModel\Synchronize');
     }
-
 }

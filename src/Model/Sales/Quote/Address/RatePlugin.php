@@ -35,13 +35,8 @@ namespace ShipperHQ\Shipper\Model\Sales\Quote\Address;
 
 class RatePlugin
 {
-
-    public function __construct() {
-
-    }
-
     /**
-     *Set additional information on shipping rate
+     * Set additional information on shipping rate
      *
      * @param \Magento\Quote\Model\Quote\Address\Rate $subject
      * @param callable $proceed
@@ -49,9 +44,11 @@ class RatePlugin
      * @return \Magento\Quote\Model\Quote\Address\Rate
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function aroundImportShippingRate(\Magento\Quote\Model\Quote\Address\Rate $subject, $proceed,
-                                             \Magento\Quote\Model\Quote\Address\RateResult\AbstractResult $rate)
-    {
+    public function aroundImportShippingRate(
+        \Magento\Quote\Model\Quote\Address\Rate $subject,
+        $proceed,
+        \Magento\Quote\Model\Quote\Address\RateResult\AbstractResult $rate
+    ) {
 
         $result = $proceed($rate);
         if ($rate instanceof \Magento\Quote\Model\Quote\Address\RateResult\Error) {

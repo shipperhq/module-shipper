@@ -45,49 +45,53 @@ class InstallSchema implements InstallSchemaInterface
         $installer->startSetup();
         if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_synchronize'))) {
             $table = $installer->getConnection()->newTable($installer->getTable('shipperhq_synchronize'));
-            $table
-            ->addColumn(
-                    'synch_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    null,
-                    ['primary' => true,
+            $table->addColumn(
+                'synch_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                null,
+                [
+                    'primary' => true,
                     'nullable' => false,
                     'unsigned' => true,
-                    'auto_increment' => true ],
-                    'Synch ID'
-                )->addColumn(
-                    'attribute_code',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
-                    'Attribute code'
-                )->addColumn(
-                    'attribute_type',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
-                    'Type of synch data'
-                )->addColumn(
-                    'value',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => true],
-                    'Synchronize data value'
-                )->addColumn(
-                    'status',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
-                    'Synch status'
-                )->addColumn(
-                    'date_added',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_DATETIME,
-                    null,
-                    ['nullable' => false],
-                    'Synch entry date stamp'
-                )->setComment(
-                    'ShipperHQ Synchronize data table'
-                );
+                    'auto_increment' => true
+                ],
+                'Synch ID'
+            )->addColumn(
+                'attribute_code',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                ['nullable' => false],
+                'Attribute code'
+            )->addColumn(
+                'attribute_type',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                ['nullable' => false],
+                'Type of synch data'
+            )->addColumn(
+                'value',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                ['nullable' => true],
+                'Synchronize data value'
+            )->addColumn(
+                'status',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                ['nullable' => false],
+                'Synch status'
+            )->addColumn(
+                'date_added',
+                \Magento\Framework\DB\Ddl\Table::TYPE_DATETIME,
+                null,
+                ['nullable' => false],
+                'Synch entry date stamp'
+            )->addIndex(
+                $installer->getIdxName('shipperhq_synchronize', ['synch_id']),
+                ['synch_id']
+            )->setComment(
+                'ShipperHQ Synchronize data table'
+            );
 
             $installer->getConnection()->createTable($table);
         }

@@ -46,7 +46,7 @@ class RecordMultiOrder extends AbstractRecordOrder implements ObserverInterface
     /**
      * @var \Magento\Sales\Model\OrderFactory
      */
-    protected $orderFactory;
+    private $orderFactory;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
@@ -57,14 +57,14 @@ class RecordMultiOrder extends AbstractRecordOrder implements ObserverInterface
      * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
      */
     public function __construct(
+        \Magento\Sales\Model\OrderFactory $orderFactory,
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
-    )
-    {
+    ) {
+    
         $this->orderFactory = $orderFactory;
         parent::__construct($shipperDataHelper, $quoteRepository, $shipperLogger, $packageHelper, $carrierGroupHelper);
     }
@@ -90,6 +90,4 @@ class RecordMultiOrder extends AbstractRecordOrder implements ObserverInterface
             }
         }
     }
-
 }
-

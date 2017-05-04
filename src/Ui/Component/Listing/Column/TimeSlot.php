@@ -45,7 +45,7 @@ class TimeSlot extends Column
     /**
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
-    protected $carrierGroupHelper;
+    private $carrierGroupHelper;
 
     /**
      * @param ContextInterface $context
@@ -76,22 +76,18 @@ class TimeSlot extends Column
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as & $item) {
                 $orderGridDetails = $this->carrierGroupHelper->loadOrderGridDetailByOrderId($item["entity_id"]);
-                foreach($orderGridDetails as $orderDetail) {
-                    if($orderDetail->getTimeSlot()) {
+                foreach ($orderGridDetails as $orderDetail) {
+                    if ($orderDetail->getTimeSlot()) {
                         $timeslot = $orderDetail->getTimeSlot();
-                        if($timeslot) {
-                            if(strstr($timeslot, '_')) {
-                                list($start, $end) = explode( '_', $timeslot, 2);
-                            }
-                            else {
-                                $start = $timeslot;
-                            }
+                        if (strstr($timeslot, '_')) {
+                            list($start, $end) = explode('_', $timeslot, 2);
+                        } else {
+                            $start = $timeslot;
                         }
-                        else {
-                            $start = null;
-                        }
-                        $item[$this->getData('name')] = $start;
+                    } else {
+                        $start = null;
                     }
+                    $item[$this->getData('name')] = $start;
                 }
             }
         }

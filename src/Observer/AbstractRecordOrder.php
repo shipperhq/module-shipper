@@ -37,11 +37,10 @@ namespace ShipperHQ\Shipper\Observer;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 
-
 /**
  * ShipperHQ Shipper module observer
  */
-Abstract class AbstractRecordOrder implements ObserverInterface
+abstract class AbstractRecordOrder implements ObserverInterface
 {
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
@@ -77,8 +76,8 @@ Abstract class AbstractRecordOrder implements ObserverInterface
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
-    )
-    {
+    ) {
+    
         $this->shipperDataHelper = $shipperDataHelper;
         $this->quoteRepository = $quoteRepository;
         $this->shipperLogger = $shipperLogger;
@@ -86,7 +85,7 @@ Abstract class AbstractRecordOrder implements ObserverInterface
         $this->carrierGroupHelper = $carrierGroupHelper;
     }
 
-    protected function recordOrder($order)
+    public function recordOrder($order)
     {
         $customOrderId = null;
         //https://github.com/magento/magento2/issues/4233
@@ -95,9 +94,7 @@ Abstract class AbstractRecordOrder implements ObserverInterface
         $quote = $this->quoteRepository->get($quoteId, [$order->getStoreId()]);
 
         $shippingAddress = $quote->getShippingAddress();
-        $carrierType = $shippingAddress->getCarrierType();
 
-        //  $order->setCarrierType($carrierType);
         $order->setDestinationType($shippingAddress->getDestinationType());
         $order->setValidationStatus($shippingAddress->getValidationStatus());
 
@@ -105,23 +102,23 @@ Abstract class AbstractRecordOrder implements ObserverInterface
         $this->carrierGroupHelper->recordOrderItems($order);
         $this->packageHelper->saveOrderPackages($order, $shippingAddress);
 
-        if(strstr($order->getShippingMethod(), 'shqshared_')) {
+        if (strstr($order->getShippingMethod(), 'shqshared_')) {
             $orderDetailArray = $this->carrierGroupHelper->loadOrderDetailByOrderId($order->getId());
             //SHQ16- Review for splits
-            foreach($orderDetailArray as $orderDetail) {
+            foreach ($orderDetailArray as $orderDetail) {
                 $original  = $orderDetail->getCarrierType();
                 $carrierTypeArray = explode('_', $orderDetail->getCarrierType());
-                if(is_array($carrierTypeArray) && count($carrierTypeArray) > 1) {
+                if (is_array($carrierTypeArray) && isset($carrierTypeArray[1])) {
                     $orderDetail->setCarrierType($carrierTypeArray[1]);
                     //SHQ16-1026
                     $currentShipDescription = $order->getShippingDescription();
                     $shipDescriptionArray = explode('-', $currentShipDescription);
                     $cgArray = $this->shipperDataHelper->decodeShippingDetails($orderDetail->getCarrierGroupDetail());
-                    foreach($cgArray as $key => $cgDetail) {
-                        if(isset($cgDetail['carrierType']) && $cgDetail['carrierType'] == $original) {
+                    foreach ($cgArray as $key => $cgDetail) {
+                        if (isset($cgDetail['carrierType']) && $cgDetail['carrierType'] == $original) {
                             $cgDetail['carrierType'] = $carrierTypeArray[1];
                         }
-                        if(is_array($shipDescriptionArray) && isset($cgDetail['carrierTitle'])) {
+                        if (is_array($shipDescriptionArray) && isset($cgDetail['carrierTitle'])) {
                             $shipDescriptionArray[0] = $cgDetail['carrierTitle'] .' ';
                             $newShipDescription = implode('-', $shipDescriptionArray);
                             $order->setShippingDescription($newShipDescription);
@@ -131,35 +128,37 @@ Abstract class AbstractRecordOrder implements ObserverInterface
                     $encoded = $this->shipperDataHelper->encode($cgArray);
                     $orderDetail->setCarrierGroupDetail($encoded);
                     $orderDetail->save();
-                    $this->shipperLogger->postInfo('Shipperhq_Shipper',
+                    $this->shipperLogger->postInfo(
+                        'Shipperhq_Shipper',
                         'Rates displayed as single carrier',
-                        'Resetting carrier type on order to be ' .$carrierTypeArray[1]);
+                        'Resetting carrier type on order to be ' .$carrierTypeArray[1]
+                    );
                 }
             }
         }
 
-        if($this->shipperDataHelper->useDefaultCarrierCodes()) {
+        if ($this->shipperDataHelper->useDefaultCarrierCodes()) {
             $order->setShippingMethod($this->getDefaultCarrierShipMethod($order, $shippingAddress));
         }
 
         $order->save();
-
     }
 
-    protected function getDefaultCarrierShipMethod($order, $shippingAddress)
+    private function getDefaultCarrierShipMethod($order, $shippingAddress)
     {
         $shipping_method = $order->getShippingMethod();
         $rate = $shippingAddress->getShippingRateByCode($shipping_method);
-        if($rate) {
+        if ($rate) {
             list($carrierCode, $method) = explode('_', $shipping_method, 2);
             $carrierType = $rate->getCarrierType();
-            $carrierType = strstr($carrierType, "shqshared_") ? str_replace('shqshared_', '', $carrierType) : $carrierType;
+            $carrierType = strstr($carrierType, "shqshared_") ?
+                str_replace('shqshared_', '', $carrierType) : $carrierType;
             $magentoCarrierCode = $this->shipperDataHelper->mapToMagentoCarrierCode(
-                $carrierType,$carrierCode);
+                $carrierType,
+                $carrierCode
+            );
             $shipping_method = ($magentoCarrierCode .'_' .$method);
         }
         return $shipping_method;
     }
-
 }
-

@@ -39,18 +39,22 @@ class AllmethodsPlugin
      * Ignore carrier codes
      */
     protected $ignoreCarrierCodes = ['multicarrier', 'shipper', 'calendar', 'pickup'];
+
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
      */
     protected $shipperDataHelper;
+
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
     protected $shipperLogger;
+
     /*
      * @var \Magento\Shipping\Model\Config
      */
     protected $shippingConfig;
+
     /**
      * Core store config
      *
@@ -77,8 +81,11 @@ class AllmethodsPlugin
      * @param bool $isActiveOnlyFlag
      * @return array
      */
-    public function aroundToOptionArray(\Magento\Shipping\Model\Config\Source\Allmethods $subject, \Closure $proceed, $isActiveOnlyFlag = false )
-    {
+    public function aroundToOptionArray(
+        \Magento\Shipping\Model\Config\Source\Allmethods $subject,
+        \Closure $proceed,
+        $isActiveOnlyFlag = false
+    ) {
         $result = $proceed();
 
         $methods = [['value' => '', 'label' => '']];
@@ -88,10 +95,9 @@ class AllmethodsPlugin
                 in_array($carrierCode, $this->ignoreCarrierCodes)) {
                 continue;
             }
-            if(strstr($carrierCode, 'shq') && $carrierModel instanceof \ShipperHQ\Shipper\Model\Carrier\Shipper) {
+            if (strstr($carrierCode, 'shq') && $carrierModel instanceof \ShipperHQ\Shipper\Model\Carrier\Shipper) {
                 $carrierMethods = $carrierModel->getAllowedMethodsByCode($carrierCode);
-            }
-            else {
+            } else {
                 $carrierMethods = $carrierModel->getAllowedMethods();
             }
             if (!$carrierMethods) {
@@ -112,7 +118,5 @@ class AllmethodsPlugin
 
         $this->shipperLogger->postDebug('ShipperHQ', 'Modifying shipping all methods response', '');
         return $methods;
-
     }
-
 }

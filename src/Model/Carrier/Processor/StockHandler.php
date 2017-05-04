@@ -32,9 +32,9 @@ namespace ShipperHQ\Shipper\Model\Carrier\Processor;
 
 class StockHandler
 {
-    protected static $origin = 'shipperhq_warehouse';
-    protected static $location = 'shipperhq_location';
-    protected static $available_date = 'shipperhq_availability_date';
+    private static $origin = 'shipperhq_warehouse';
+    private static $location = 'shipperhq_location';
+    private static $available_date = 'shipperhq_availability_date';
 
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
@@ -44,12 +44,13 @@ class StockHandler
     /**
      * @var \Magento\CatalogInventory\Api\StockRegistryInterface
      */
-    protected $stockRegistry;
+    private $stockRegistry;
 
-    function __construct(\ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-                         \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry
-    )
-    {
+    public function __construct(
+        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
+        \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry
+    ) {
+    
         $this->shipperLogger = $shipperLogger;
         $this->stockRegistry = $stockRegistry;
     }
@@ -59,15 +60,15 @@ class StockHandler
         return $this->getInstock($item, $product);
     }
 
-   public function getOriginInventoryCount($origin, $item, $product)
-   {
-       $this->getInventoryCount($item, $product);
-   }
+    public function getOriginInventoryCount($origin, $item, $product)
+    {
+        $this->getInventoryCount($item, $product);
+    }
 
-   public function getOriginAvailabilityDate($origin, $item, $product)
-   {
-       return $this->getAvailabilityDate($item, $product);
-   }
+    public function getOriginAvailabilityDate($origin, $item, $product)
+    {
+        return $this->getAvailabilityDate($item, $product);
+    }
 
     public function getLocationInstock($origin, $item, $product)
     {
@@ -87,10 +88,10 @@ class StockHandler
     public function getInstock($item, $product)
     {
         $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
-        if(!$stockItem->getManageStock()) {
+        if (!$stockItem->getManageStock()) {
             return true;
         }
-        $inStock = !is_null($stockItem->getQty()) ? $stockItem->getQty() >= $item->getQty() : true;
+        $inStock = $stockItem->getQty() !== null ? $stockItem->getQty() >= $item->getQty() : true;
         return $inStock;
     }
 
@@ -104,5 +105,4 @@ class StockHandler
     {
         return $product->getData(self::$available_date);
     }
-
 }

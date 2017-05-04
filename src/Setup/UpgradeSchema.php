@@ -66,7 +66,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )->addColumn(
                     'quote_address_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
+                    50,
                     ['nullable' => false],
                     'address id'
                 )->addColumn(
@@ -231,11 +231,29 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     null,
                     ['nullable' => true],
                     'Address Valid Status'
+                )->addIndex(
+                    $installer->getIdxName('shipperhq_quote_address_detail', ['quote_address_id']),
+                    ['quote_address_id']
                 )->setComment(
                     'ShipperHQ Quote Carrier Group Information'
                 );
             //Foreign key to quote address table - if permitted
             $installer->getConnection()->createTable($table);
+        }
+
+        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+            $connection = $installer->getConnection();
+            $connection->modifyColumn(
+                $setup->getTable('shipperhq_quote_address_detail'),
+                'quote_address_id',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'length' => 50,
+                    'nullable' => false,
+                    'default' => '',
+                ]
+            );
+            $this->addIndexToTable($installer, 'shipperhq_quote_address_detail', ['quote_address_id']);
         }
 
         if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_order_detail'))) {
@@ -252,8 +270,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )->addColumn(
                     'order_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
+                    50,
+                    ['nullable' => false, 'default' => ''],
                     'Order ID'
                 )->addColumn(
                     'carrier_group_id',
@@ -411,11 +429,27 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     null,
                     ['nullable' => true],
                     'Address Valid Status'
+                )->addIndex(
+                    $installer->getIdxName('shipperhq_order_detail', ['order_id']),
+                    ['order_id']
                 )->setComment(
                     'ShipperHQ Order Carrier Group Information'
                 );
-
             $installer->getConnection()->createTable($table);
+        }
+        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+            $connection = $installer->getConnection();
+            $connection->modifyColumn(
+                $setup->getTable('shipperhq_order_detail'),
+                'order_id',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'length' => 50,
+                    'nullable' => false,
+                    'default' => '',
+                ]
+            );
+            $this->addIndexToTable($installer, 'shipperhq_order_detail', ['order_id']);
         }
 
         if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_quote_item_detail'))) {
@@ -432,8 +466,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )->addColumn(
                     'quote_item_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
+                    50,
+                    ['nullable' => false, 'default' => ''],
                     'Quote Item ID'
                 )->addColumn(
                     'carrier_group_id',
@@ -453,11 +487,29 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     null,
                     ['nullable' => true],
                     'Shipping Details'
+                )->addIndex(
+                    $installer->getIdxName('shipperhq_quote_item_detail', ['quote_item_id']),
+                    ['quote_item_id']
                 )->setComment(
                     'ShipperHQ Quote Item Carrier Group Information'
                 );
 
             $installer->getConnection()->createTable($table);
+        }
+
+        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+            $connection = $installer->getConnection();
+            $connection->modifyColumn(
+                $setup->getTable('shipperhq_quote_item_detail'),
+                'quote_item_id',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'length' => 50,
+                    'nullable' => false,
+                    'default' => '',
+                ]
+            );
+            $this->addIndexToTable($installer, 'shipperhq_quote_item_detail', ['quote_item_id']);
         }
 
         if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_quote_address_item_detail'))) {
@@ -474,8 +526,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )->addColumn(
                     'quote_address_item_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
+                    50,
+                    ['nullable' => false, 'default' => ''],
                     'Quote Address Item ID'
                 )->addColumn(
                     'carrier_group_id',
@@ -495,11 +547,28 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     null,
                     ['nullable' => true],
                     'Shipping Details'
+                )->addIndex(
+                    $installer->getIdxName('shipperhq_quote_address_item_detail', ['quote_address_item_id']),
+                    ['quote_address_item_id']
                 )->setComment(
                     'ShipperHQ Quote Address Item Carrier Group Information'
                 );
 
             $installer->getConnection()->createTable($table);
+        }
+
+        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+            $installer->getConnection()->modifyColumn(
+                $setup->getTable('shipperhq_quote_address_item_detail'),
+                'quote_address_item_id',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'length' => 50,
+                    'nullable' => false,
+                    'default' => '',
+                ]
+            );
+            $this->addIndexToTable($installer, 'shipperhq_quote_address_item_detail', ['quote_address_item_id']);
         }
 
         if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_order_item_detail'))) {
@@ -516,8 +585,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )->addColumn(
                     'order_item_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
+                    50,
+                    ['nullable' => false, 'default' => ''],
                     'Order Item ID'
                 )->addColumn(
                     'carrier_group_id',
@@ -537,11 +606,27 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     null,
                     ['nullable' => true],
                     'Shipping Details'
+                )->addIndex(
+                    $installer->getIdxName('shipperhq_order_item_detail', ['order_item_id']),
+                    ['order_item_id']
                 )->setComment(
                     'ShipperHQ Order Item Carrier Group Information'
                 );
 
             $installer->getConnection()->createTable($table);
+        }
+        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+            $installer->getConnection()->modifyColumn(
+                $setup->getTable('shipperhq_order_item_detail'),
+                'order_item_id',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'length' => 50,
+                    'nullable' => false,
+                    'default' => '',
+                ]
+            );
+            $this->addIndexToTable($installer, 'shipperhq_order_item_detail', ['order_item_id']);
         }
 
         if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_quote_packages'))) {
@@ -559,8 +644,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )->addColumn(
                     'quote_address_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
+                    50,
+                    ['nullable' => false, 'default' => ''],
                     'address id'
                 )->addColumn(
                     'carrier_group_id',
@@ -616,59 +701,89 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     null,
                     ['nullable' => true],
                     'Surcharge price'
+                )->addIndex(
+                    $installer->getIdxName('shipperhq_quote_packages', ['quote_address_id']),
+                    ['quote_address_id']
                 )->setComment(
                     'ShipperHQ Quote Address Package Information'
                 );
-            //TODO when we resolve the enterprise install limitations on foreign keys (related to split database architecture)
-//            ->addForeignKey(
-//                $this->getFkName('shipperhq_shipper/quote_packages', 'address_id', 'sales/quote_address', 'address_id'),
-//                'address_id',
-//                $this->getTable('sales/quote_address'),
-//                'address_id',
-//                Varien_Db_Adapter_Interface::FK_ACTION_CASCADE
-//            )
-
             $installer->getConnection()->createTable($table);
+        }
+
+        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+            $installer->getConnection()->modifyColumn(
+                $setup->getTable('shipperhq_quote_packages'),
+                'quote_address_id',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'length' => 50,
+                    'nullable' => false,
+                    'default' => '',
+                ]
+            );
+            $this->addIndexToTable($installer, 'shipperhq_quote_packages', ['quote_address_id']);
         }
 
         if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_quote_package_items'))) {
             $table = $installer->getConnection()->newTable($installer->getTable('shipperhq_quote_package_items'));
 
             $table
-            ->addColumn(
-                'package_id',
-                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                null,
-                ['nullable' => false,
-                    'unsigned' => true]
-            )->addColumn(
-                'sku',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                null,
-                ['nullable' => false],
-                'SKU'
-            )->addColumn(
-                'qty_packed',
-                \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                null,
-                ['nullable' => true],
-                'Qty packed'
-            )->addColumn(
-                'weight_packed',
-                \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                null,
-                ['nullable' => true],
-                'Weight packed'
-            )->setComment(
-                'ShipperHQ Quote Address Package Items Information'
-            )->addForeignKey(
-                $installer->getFkName('shipperhq_quote_package_items', 'package_id', 'shipperhq_quote_packages', 'package_id'),
-                'package_id',
-                $installer->getTable('shipperhq_quote_packages'),
-                'package_id',
-                \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
-            );
+                ->addColumn(
+                    'package_id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    50,
+                    ['nullable' => false, 'default' => 0, 'unsigned' => true]
+                )->addColumn(
+                    'sku',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    ['nullable' => false],
+                    'SKU'
+                )->addColumn(
+                    'qty_packed',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
+                    null,
+                    ['nullable' => true],
+                    'Qty packed'
+                )->addColumn(
+                    'weight_packed',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
+                    null,
+                    ['nullable' => true],
+                    'Weight packed'
+                )->addIndex(
+                    $installer->getIdxName('shipperhq_quote_package_items', ['package_id']),
+                    ['package_id']
+                )->setComment(
+                    'ShipperHQ Quote Address Package Items Information'
+                )->addForeignKey(
+                    $installer->getFkName(
+                        'shipperhq_quote_package_items',
+                        'package_id',
+                        'shipperhq_quote_packages',
+                        'package_id'
+                    ),
+                    'package_id',
+                    $installer->getTable('shipperhq_quote_packages'),
+                    'package_id',
+                    \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+                );
             $installer->getConnection()->createTable($table);
+        }
+
+        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+            $installer->getConnection()->modifyColumn(
+                $setup->getTable('shipperhq_quote_package_items'),
+                'package_id',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    'length' => 50,
+                    'nullable' => false,
+                    'default' => 0,
+                    'unsigned' => true
+                ]
+            );
+            $this->addIndexToTable($installer, 'shipperhq_quote_package_items', ['package_id']);
         }
 
         if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_order_packages'))) {
@@ -686,8 +801,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )->addColumn(
                     'order_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
+                    50,
+                    ['nullable' => false, 'default' => ''],
                     'Order ID'
                 )->addColumn(
                     'carrier_group_id',
@@ -743,19 +858,27 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     null,
                     ['nullable' => true],
                     'Surcharge price'
+                )->addIndex(
+                    $installer->getIdxName('shipperhq_order_packages', ['order_id']),
+                    ['order_id']
                 )->setComment(
                     'ShipperHQ Quote Address Package Information'
                 );
-            //TODO when we resolve the enterprise install thing
-//            ->addForeignKey(
-//                $this->getFkName('shipperhq_shipper/order_packages', 'order_id', 'sales/order', 'entity_id'),
-//                'order_id',
-//                $this->getTable('sales/order'),
-//                'entity_id',
-//                Varien_Db_Adapter_Interface::FK_ACTION_CASCADE
-//            )
             $installer->getConnection()->createTable($table);
+        }
 
+        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+            $installer->getConnection()->modifyColumn(
+                $setup->getTable('shipperhq_order_packages'),
+                'order_id',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'length' => 50,
+                    'nullable' => false,
+                    'default' => '',
+                ]
+            );
+            $this->addIndexToTable($installer, 'shipperhq_order_packages', ['order_id']);
         }
 
         if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_order_package_items'))) {
@@ -766,8 +889,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'package_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['nullable' => false,
-                        'unsigned' => true]
+                    ['nullable' => false, 'default' => 0, 'unsigned' => true]
                 )->addColumn(
                     'sku',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -786,16 +908,38 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     null,
                     ['nullable' => true],
                     'Weight packed'
+                )->addIndex(
+                    $installer->getIdxName('shipperhq_order_package_items', ['package_id']),
+                    ['package_id']
                 )->setComment(
                     'ShipperHQ Quote Address Package Items Information'
                 )->addForeignKey(
-                $installer->getFkName('shipperhq_order_package_items', 'package_id', 'shipperhq_order_packages', 'package_id'),
-                'package_id',
-                $installer->getTable('shipperhq_order_packages'),
-                'package_id',
+                    $installer->getFkName(
+                        'shipperhq_order_package_items',
+                        'package_id',
+                        'shipperhq_order_packages',
+                        'package_id'
+                    ),
+                    'package_id',
+                    $installer->getTable('shipperhq_order_packages'),
+                    'package_id',
                     \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
             $installer->getConnection()->createTable($table);
+        }
+        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+            $installer->getConnection()->modifyColumn(
+                $setup->getTable('shipperhq_quote_package_items'),
+                'package_id',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    'length' => 50,
+                    'nullable' => false,
+                    'default' => 0,
+                    'unsigned' => true
+                ]
+            );
+            $this->addIndexToTable($installer, 'shipperhq_order_package_items', ['package_id']);
         }
 
         //Version 1.0.8
@@ -893,10 +1037,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 );
 
             $installer->getConnection()->createTable($table);
-        }
-        else {
+        } else {
             if (version_compare($context->getVersion(), '1.0.9') < 0) {
-
                 $connection = $installer->getConnection();
                 $connection->modifyColumn(
                     $setup->getTable('shipperhq_order_detail_grid'),
@@ -933,6 +1075,20 @@ class UpgradeSchema implements UpgradeSchemaInterface
         }
 
         $installer->endSetup();
+    }
 
+    /**
+     * @param SchemaSetupInterface $setup
+     * @param String $tableName
+     * @param array $columns
+     * @return void
+     */
+    public function addIndexToTable(SchemaSetupInterface $setup, $tableName, array $columns)
+    {
+        $setup->getConnection()->addIndex(
+            $setup->getTable($tableName),
+            $setup->getIdxName($tableName, $columns),
+            $columns
+        );
     }
 }

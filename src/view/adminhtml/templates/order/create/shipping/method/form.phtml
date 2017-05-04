@@ -1,0 +1,143 @@
+<?php
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+<?php /** @var $block \Magento\Sales\Block\Adminhtml\Order\Create\Shipping\Method\Form */ ?>
+<?php $_shippingRateGroups = $block->getShippingRates(); ?>
+<?php $helper = $this->helper('ShipperHQ\Shipper\Helper\Data'); ?>
+<span><?php /* @escapeNotVerified */ echo __('Our Template REMOVE') ?></span>
+<?php if ($_shippingRateGroups): ?>
+    <div id="order-shipping-method-choose" style="display:none">
+        <dl class="admin__order-shipment-methods">
+            <?php foreach ($_shippingRateGroups as $code => $_rates): ?>
+                <dt class="admin__order-shipment-methods-title"><?php echo $block->escapeHtml($block->getCarrierName($code)) ?></dt>
+                <dd class="admin__order-shipment-methods-options">
+                    <ul class="admin__order-shipment-methods-options-list">
+                        <?php foreach ($_rates as $_rate): ?>
+                            <?php $_radioProperty = 'name="order[shipping_method]" type="radio" onclick="order.setShippingMethod(this.value)"' ?>
+                            <?php $_code = $_rate->getCode() ?>
+                            <li class="admin__field-option">
+                                <?php if ($_rate->getErrorMessage()): ?>
+                                    <div class="messages">
+                                        <div class="message message-error error">
+                                            <div><?php echo $block->escapeHtml($_rate->getErrorMessage()) ?></div>
+                                        </div>
+                                    </div>
+                                <?php else: ?>
+                                    <?php $_checked = $block->isMethodActive($_code) ? 'checked="checked"' : '' ?>
+                                    <input <?php /* @escapeNotVerified */ echo $_radioProperty ?> value="<?php /* @escapeNotVerified */ echo $_code ?>"
+                                                                                                  id="s_method_<?php /* @escapeNotVerified */ echo $_code ?>" <?php /* @escapeNotVerified */ echo $_checked ?>
+                                                                                                  class="admin__control-radio"/>
+                                    <label class="admin__field-label" for="s_method_<?php /* @escapeNotVerified */ echo $_code ?>">
+                                        <?php echo $block->escapeHtml($_rate->getMethodTitle() ? $_rate->getMethodTitle() : $_rate->getMethodDescription()) ?> -
+                                        <strong>
+                                            <?php $_excl = $block->getShippingPrice($_rate->getPrice(), $this->helper('Magento\Tax\Helper\Data')->displayShippingPriceIncludingTax()); ?>
+                                            <?php $_incl = $block->getShippingPrice($_rate->getPrice(), true); ?>
+
+                                            <?php /* @escapeNotVerified */ echo $_excl; ?>
+                                            <?php if ($this->helper('Magento\Tax\Helper\Data')->displayShippingBothPrices() && $_incl != $_excl): ?>
+                                                (<?php /* @escapeNotVerified */ echo __('Incl. Tax'); ?> <?php /* @escapeNotVerified */ echo $_incl; ?>)
+                                            <?php endif; ?>
+                                        </strong>
+                                    </label>
+                                <?php endif ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </dd>
+            <?php endforeach; ?>
+        </dl>
+        <?php if($helper->adminShippingEnabled()): ?>
+            <dt class="admin__order-shipment-methods-title"><?php echo 'Custom Shipping'; ?></dt>
+            <div class="admin__field">
+                <label for="customCarrier" class=""><?php echo 'Description'; ?></label>
+                <input name="customCarrier" type="text" id="customCarrier" size="15" class="admin__control-text"/>
+            </div>
+            <div class="admin__field">
+                <label for="customPrice" class=""><?php echo 'Price'; ?></label>
+                <input name="customPrice" type="text" class="customPrice validate-zero-or-greater" id="customPrice" size="5" class="admin__control-text"/>
+            </div>
+            <div class="admin__field">
+                <button type="button" title="<?php /* @escapeNotVerified */ echo __('Add custom shipping') ?>" class="action-default scalable action-secondary" onclick="order.setAdminShippingMethod(this.value, customCarrier.value, customPrice.value)" value="<?php /* @escapeNotVerified */ echo "shipperadmin_adminshipping" ?>">
+                    <span><?php /* @escapeNotVerified */ echo __('Add custom shipping') ?></span>
+                </button>
+            </div>
+        <?php endif; ?>
+    </div>
+    <?php if ($_rate = $block->getActiveMethodRate()): ?>
+        <div id="order-shipping-method-info" class="order-shipping-method-info">
+            <dl class="admin__order-shipment-methods">
+                <dt class="admin__order-shipment-methods-title">
+                    <?php echo $block->escapeHtml($block->getCarrierName($_rate->getCarrier())) ?>
+                </dt>
+                <dd class="admin__order-shipment-methods-options">
+                    <?php echo $block->escapeHtml($_rate->getMethodTitle() ? $_rate->getMethodTitle() : $_rate->getMethodDescription()) ?> -
+                    <strong>
+                        <?php $_excl = $block->getShippingPrice($_rate->getPrice(), $this->helper('Magento\Tax\Helper\Data')->displayShippingPriceIncludingTax()); ?>
+                        <?php $_incl = $block->getShippingPrice($_rate->getPrice(), true); ?>
+
+                        <?php /* @escapeNotVerified */ echo $_excl; ?>
+                        <?php if ($this->helper('Magento\Tax\Helper\Data')->displayShippingBothPrices() && $_incl != $_excl): ?>
+                            (<?php /* @escapeNotVerified */ echo __('Incl. Tax'); ?> <?php /* @escapeNotVerified */ echo $_incl; ?>)
+                        <?php endif; ?>
+                    </strong>
+                </dd>
+            </dl>
+            <a href="#"
+               onclick="$('order-shipping-method-info').hide();$('order-shipping-method-choose').show();return false"
+               class="action-default">
+                <span><?php /* @escapeNotVerified */ echo __('Click to change shipping method') ?></span>
+            </a>
+        </div>
+    <?php else: ?>
+        <script>
+            require(['prototype'], function(){
+                $('order-shipping-method-choose').show();
+            });
+        </script>
+    <?php endif; ?>
+<?php elseif ($block->getIsRateRequest()): ?>
+    <div class="order-shipping-method-summary">
+        <strong class="order-shipping-method-not-available"><?php /* @escapeNotVerified */ echo __('Sorry, no quotes are available for this order.') ?></strong>
+    </div>
+<?php else: ?>
+    <div id="order-shipping-method-summary" class="order-shipping-method-summary">
+        <a href="#" onclick="order.loadShippingRates();return false" class="action-default">
+            <span><?php /* @escapeNotVerified */ echo __('Get shipping methods and rates') ?></span>
+        </a>
+        <input type="hidden" name="order[has_shipping]" value="" class="required-entry" />
+    </div>
+<?php endif; ?>
+<div style="display: none;" id="shipping-method-overlay" class="order-methods-overlay">
+    <span><?php /* @escapeNotVerified */ echo __('You don\'t need to select a shipping method.') ?></span>
+</div>
+<script>
+    require(["Magento_Sales/order/create/form"], function(){
+
+        order.overlay('shipping-method-overlay', <?php if ($block->getQuote()->isVirtual()): ?>false<?php else: ?>true<?php endif; ?>);
+        order.overlay('address-shipping-overlay', <?php if ($block->getQuote()->isVirtual()): ?>false<?php else: ?>true<?php endif; ?>);
+
+        <?php if ($block->getQuote()->isVirtual()): ?>
+        order.isOnlyVirtualProduct = true;
+        <?php endif; ?>
+
+        AdminOrder.prototype.setAdminShippingMethod=function(method, description, price){
+            var data = {};
+            data['order[shipping_method]'] = method;
+            data['order[custom_description]'] = description;
+            data['order[custom_price]'] = price;
+            var decimalOnly = /^\s*-?[0-9]\d*(\.\d{1,2})?\s*$/;
+            if(!decimalOnly.test(price)){
+                alert('Custom shipping price field can only contain price data');
+                return false;
+            }
+            this.loadArea(['shipping_method', 'totals', 'billing_method'], true, data);
+        }
+
+    });
+</script>

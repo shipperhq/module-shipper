@@ -38,21 +38,25 @@ class ShippingInformationPlugin
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
      */
-    protected $shipperDataHelper;
+    private $shipperDataHelper;
+
     /**
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
-    protected $carrierGroupHelper;
+    private $carrierGroupHelper;
+
     /**
      * Quote repository.
      *
      * @var \Magento\Quote\Api\CartRepositoryInterface
      */
-    protected $quoteRepository;
+    private $quoteRepository;
+
     /**
      * @var \Magento\Checkout\Model\Session
      */
     private $checkoutSession;
+
     /**
      * @var \Magento\Customer\Api\AddressRepositoryInterface
      */
@@ -62,16 +66,18 @@ class ShippingInformationPlugin
      * @var \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory
      */
     private $addressDetailFactory;
+
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
     private $shipperLogger;
+
     /**
      * Application Event Dispatcher
      *
      * @var \Magento\Framework\Event\ManagerInterface
      */
-    protected $eventManager;
+    private $eventManager;
 
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
@@ -91,11 +97,10 @@ class ShippingInformationPlugin
         $this->addressDetailFactory = $addressDetailFactory;
         $this->shipperLogger = $shipperLogger;
         $this->eventManager = $eventManager;
-
     }
 
     /**
-     *Set additional information for shipping address
+     * Set additional information for shipping address
      *
      * @param \Magento\Checkout\Model\ShippingInformationManagement $subject
      * @param callable $proceed
@@ -103,10 +108,13 @@ class ShippingInformationPlugin
      * @return \Magento\Checkout\Api\Data\PaymentDetailsInterface $paymentDetails
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function aroundSaveAddressInformation(\Magento\Checkout\Model\ShippingInformationManagement $subject, $proceed,
-                                                 $cartId,
-                                                 \Magento\Checkout\Api\Data\ShippingInformationInterface $addressInformation)
-    {
+    public function aroundSaveAddressInformation(
+        \Magento\Checkout\Model\ShippingInformationManagement $subject,
+        $proceed,
+        $cartId,
+        \Magento\Checkout\Api\Data\ShippingInformationInterface $addressInformation
+    ) {
+    
         $carrierCode = $addressInformation->getShippingCarrierCode();
         $methodCode = $addressInformation->getShippingMethodCode();
         $shippingMethod = $carrierCode . '_' . $methodCode;
@@ -114,7 +122,7 @@ class ShippingInformationPlugin
         $address = $quote->getShippingAddress();
 
         try {
-            if($this->checkoutSession) {
+            if ($this->checkoutSession) {
                 $validation = $this->checkoutSession->getShipAddressValidation();
                 if (is_array($validation) && isset($validation['key'])) {
                     if (isset($validation['validation_status'])) {
@@ -130,45 +138,47 @@ class ShippingInformationPlugin
             }
             $address->save();
         } catch (\Exception $e) {
-            $this->shipperLogger->postCritical('Shipperhq_Shipper',
+            $this->shipperLogger->postCritical(
+                'Shipperhq_Shipper',
                 'Shipping Information Plugin',
-                'Exception raised ' .$e->getMessage());
+                'Exception raised ' .$e->getMessage()
+            );
         }
 
         $additionalDetail = new \Magento\Framework\DataObject;
         $extAttributes = $addressInformation->getShippingAddress()->getExtensionAttributes();
 
-        //push out event so other modules can save their data TODO add carrier_group_id
-        $this->eventManager->dispatch('shipperhq_additional_detail_checkout',
+        //push out event so other modules can save their data - in future add carrier_group_id
+        $this->eventManager->dispatch(
+            'shipperhq_additional_detail_checkout',
             ['address_extn_attributes' => $extAttributes, 'additional_detail'=> $additionalDetail,
-                'carrier_code' => $carrierCode]);
+            'carrier_code' => $carrierCode]
+        );
         $additionalDetailArray = $additionalDetail->convertToArray();
         $this->shipperLogger->postDebug('ShipperHQ Shipper', 'processing additional detail ', $additionalDetail);
         $result = $proceed($cartId, $addressInformation);
 
-        $this->carrierGroupHelper->saveCarrierGroupInformation($address,
-            $shippingMethod, $additionalDetailArray);
+        $this->carrierGroupHelper->saveCarrierGroupInformation(
+            $address,
+            $shippingMethod,
+            $additionalDetailArray
+        );
 
-        if($address->getCustomerId()) {
+        if ($address->getCustomerId()) {
             $customerAddresses = $quote->getCustomer()->getAddresses();
-            foreach($customerAddresses as $oneAddress) {
-
+            foreach ($customerAddresses as $oneAddress) {
                 if ($oneAddress->getId() == $address->getCustomerAddressId()) {
-
-                    if($address->getValidationStatus()) {
+                    if ($address->getValidationStatus()) {
                         $oneAddress->setCustomAttribute('validation_status', $address->getValidationStatus());
                     }
 
-                    if($address->getDestinationType()) {
-                        $oneAddress->setCustomAttribute('destination_type',$address->getDestinationType());
+                    if ($address->getDestinationType()) {
+                        $oneAddress->setCustomAttribute('destination_type', $address->getDestinationType());
                     }
                     $this->addressRepository->save($oneAddress);
-
                 }
             }
         }
         return $result;
-
     }
-
 }

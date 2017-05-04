@@ -46,25 +46,33 @@ class DeliveryDate extends Date
     /**
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
-    protected $carrierGroupHelper;
+    private $carrierGroupHelper;
+
+    /*
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime
+     */
+    private $date;
 
     /**
+     * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
      * @param ContextInterface $context
      * @param UiComponentFactory $uiComponentFactory
      * @param TimezoneInterface $timezone
-     * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
      * @param array $components
      * @param array $data
      */
     public function __construct(
+        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
+        \Magento\Framework\Stdlib\DateTime\DateTime $date,
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
         TimezoneInterface $timezone,
-        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         array $components = [],
         array $data = []
     ) {
         $this->carrierGroupHelper = $carrierGroupHelper;
+        $this->date = $date;
         parent::__construct($context, $uiComponentFactory, $timezone, $components, $data);
     }
 
@@ -78,19 +86,18 @@ class DeliveryDate extends Date
     {
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as & $item) {
-                $item[$this->getData('name')]  = NULL;
+                $item[$this->getData('name')]  = null;
                 $orderGridDetails = $this->carrierGroupHelper->loadOrderGridDetailByOrderId($item["entity_id"]);
-                foreach($orderGridDetails as $orderDetail) {
-                   if($orderDetail->getDeliveryDate() != '') {
+                foreach ($orderGridDetails as $orderDetail) {
+                    if ($orderDetail->getDeliveryDate() != '') {
                         $deliveryDate = $orderDetail->getDeliveryDate();
-                        $date = $this->timezone->date(new \DateTime($deliveryDate));
+                        $date = $this->timezone->date($this->date->timestamp($deliveryDate), null, false);
                         if (isset($this->getConfiguration()['timezone']) && !$this->getConfiguration()['timezone']) {
-                            $date = new \DateTime($deliveryDate);
+                            $date = $this->timezone->date($this->date->timestamp($deliveryDate), null, false);
                         }
                         $item[$this->getData('name')] = $date->format('Y-m-d H:i:s');
-                   }
+                    }
                 }
-
             }
         }
 

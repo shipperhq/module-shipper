@@ -68,7 +68,7 @@ class Detail extends \Magento\Framework\Model\AbstractExtensibleModel
     /**
      * @var /ShipperHQ\Shipper\Model\ResourceModel\Order\Detail\Collection
      */
-    protected $orderDetailCollection;
+    private $orderDetailCollection;
 
     /**
      * @param \ShipperHQ\Shipper\Model\ResourceModel\Order\Detail\CollectionFactory $orderDetailCollectionFactory
@@ -100,7 +100,6 @@ class Detail extends \Magento\Framework\Model\AbstractExtensibleModel
             $data
         );
         $this->orderDetailCollection = $orderDetailCollectionFactory->create();
-
     }
 
     /**
@@ -125,12 +124,10 @@ class Detail extends \Magento\Framework\Model\AbstractExtensibleModel
             ->addOrderIdToFilter($orderId)
             ->addCarrierGroupToFilter($carrierGroupId);
 
-        foreach($collection as $object)
-        {
+        foreach ($collection as $object) {
             return $object;
         }
         return false;
-
     }
 
     /**
@@ -144,7 +141,6 @@ class Detail extends \Magento\Framework\Model\AbstractExtensibleModel
         $collection = $this->orderDetailCollection
             ->addOrderIdToFilter($orderId);
         return $collection;
-
     }
 
     //@codeCoverageIgnoreStart
@@ -563,7 +559,4 @@ class Detail extends \Magento\Framework\Model\AbstractExtensibleModel
     {
         return $this->setData(self::ADDRESS_VALID, $addressValid);
     }
-
-
-
 }

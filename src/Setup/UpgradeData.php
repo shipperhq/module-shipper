@@ -119,11 +119,9 @@ class UpgradeData implements UpgradeDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false
         ]);
-
-
 
         /* ------ shipperhq_handling_fee -------- */
         $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_handling_fee', [
@@ -141,7 +139,7 @@ class UpgradeData implements UpgradeDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false
         ]);
 
@@ -160,7 +158,7 @@ class UpgradeData implements UpgradeDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false,
             'note'                     => 'This value is only used in conjunction with shipping filters'
         ]);
@@ -181,7 +179,7 @@ class UpgradeData implements UpgradeDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false,
             'note'                     => 'The deemed cost of this product for customs & insurance purposes'
         ]);
@@ -201,7 +199,7 @@ class UpgradeData implements UpgradeDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false
         ]);
 
@@ -222,7 +220,7 @@ class UpgradeData implements UpgradeDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false
             ]);
         /* ------ ship_length -------- */
@@ -240,7 +238,7 @@ class UpgradeData implements UpgradeDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false
         ]);
 
@@ -259,7 +257,7 @@ class UpgradeData implements UpgradeDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false
         ]);
 
@@ -278,7 +276,7 @@ class UpgradeData implements UpgradeDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false
         ]);
 
@@ -298,7 +296,7 @@ class UpgradeData implements UpgradeDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false
         ]);
 
@@ -317,9 +315,9 @@ class UpgradeData implements UpgradeDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false,
-            'note'                     => 'Ignore if unsure. Indicates the product dimensions can be adjusted to fit box',
+            'note'               => 'Ignore if unsure. Indicates the product dimensions can be adjusted to fit box',
         ]);
 
         /* ------ shipperhq_master_boxes -------- */
@@ -338,7 +336,7 @@ class UpgradeData implements UpgradeDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false
         ]);
 
@@ -353,20 +351,26 @@ class UpgradeData implements UpgradeDataInterface
             'ship_height' => '12',
             'shipperhq_poss_boxes' => '20'];
 
-
         foreach ($attributeSetArr as $attributeSetId) {
-
             $catalogSetup->addAttributeGroup($entityTypeId, $attributeSetId, 'Dimensional Shipping', '100');
 
-            $attributeGroupId = $catalogSetup->getAttributeGroupId($entityTypeId, $attributeSetId, 'Dimensional Shipping');
+            $attributeGroupId = $catalogSetup->getAttributeGroupId(
+                $entityTypeId,
+                $attributeSetId,
+                'Dimensional Shipping'
+            );
 
-            foreach($dimAttributeCodes as $code => $sort) {
+            foreach ($dimAttributeCodes as $code => $sort) {
                 $attributeId = $catalogSetup->getAttributeId($entityTypeId, $code);
-                $catalogSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $attributeGroupId, $attributeId, $sort);
+                $catalogSetup->addAttributeToGroup(
+                    $entityTypeId,
+                    $attributeSetId,
+                    $attributeGroupId,
+                    $attributeId,
+                    $sort
+                );
             }
-
         };
-
 
         $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_availability_date', [
             'type'                     => 'datetime',
@@ -383,7 +387,7 @@ class UpgradeData implements UpgradeDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false
         ]);
 
@@ -392,8 +396,13 @@ class UpgradeData implements UpgradeDataInterface
         $salesSetup = $this->salesSetupFactory->create(['setup' => $setup]);
         $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
 
-        $destinationTypeAttr = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Address Type'];
-        $quoteSetup->addAttribute('quote_address' , 'destination_type', $destinationTypeAttr);
+        $destinationTypeAttr = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            'visible' => false,
+            'required' => false,
+            'comment' => 'ShipperHQ Address Type'
+        ];
+        $quoteSetup->addAttribute('quote_address', 'destination_type', $destinationTypeAttr);
         $salesSetup->addAttribute('order', 'destination_type', $destinationTypeAttr);
 
         $destinationTypeAddressAttr = [
@@ -409,15 +418,18 @@ class UpgradeData implements UpgradeDataInterface
         ];
         $customerSetup->addAttribute('customer_address', 'destination_type', $destinationTypeAddressAttr);
 
-
-        $addressValiationStatus = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Address Validation Status'];
-        $quoteSetup->addAttribute('quote_address' , 'validation_status', $addressValiationStatus);
+        $addressValiationStatus = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            'visible' => false,
+            'required' => false,
+            'comment' => 'ShipperHQ Address Validation Status'
+        ];
+        $quoteSetup->addAttribute('quote_address', 'validation_status', $addressValiationStatus);
         $salesSetup->addAttribute('order', 'validation_status', $addressValiationStatus);
 
         $validationStatusAddressAttr = [
             'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
             'label' => 'Address Validation',
-
             'system' => 0, // <-- important, otherwise values aren't saved.
             // @see Magento\Customer\Model\Metadata\AddressMetadata::getCustomAttributesMetadata()
 //            'visible' => false,
@@ -438,12 +450,21 @@ class UpgradeData implements UpgradeDataInterface
         $attribute->save();
 
         //1.0.7
-        $dispatchDateAttr = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DATE, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Address Type'];
-        $quoteSetup->addAttribute('quote_address_rate' , 'shq_dispatch_date', $dispatchDateAttr);
-        $deliveryDateAttr = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_DATE, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Address Type'];
-        $quoteSetup->addAttribute('quote_address_rate' , 'shq_delivery_date', $deliveryDateAttr);
+        $dispatchDateAttr = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
+            'visible' => false,
+            'required' => false,
+            'comment' => 'ShipperHQ Address Type'
+        ];
+        $quoteSetup->addAttribute('quote_address_rate', 'shq_dispatch_date', $dispatchDateAttr);
+        $deliveryDateAttr = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
+            'visible' => false,
+            'required' => false,
+            'comment' => 'ShipperHQ Address Type'
+        ];
+        $quoteSetup->addAttribute('quote_address_rate', 'shq_delivery_date', $deliveryDateAttr);
 
         $installer->endSetup();
-
     }
 }

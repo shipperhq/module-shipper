@@ -45,7 +45,6 @@ use Magento\Sales\Setup\SalesSetupFactory;
  * @codeCoverageIgnore
  */
 class InstallData implements InstallDataInterface
-
 {
     /**
      * Category setup factory
@@ -91,8 +90,7 @@ class InstallData implements InstallDataInterface
         $this->salesSetupFactory = $salesSetupFactory;
         $this->configStorageWriter = $configStorageWriter;
     }
-    
-    
+
     /**
      * {@inheritdoc}
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
@@ -122,7 +120,7 @@ class InstallData implements InstallDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false
         ]);
 
@@ -142,86 +140,139 @@ class InstallData implements InstallDataInterface
             'comparable'               => false,
             'is_configurable'          => false,
             'unique'                   => false,
-            'user_defined'			   => true,
+            'user_defined'             => true,
             'used_in_product_listing'  => false
         ]);
-
 
         $entityTypeId = $catalogSetup->getEntityTypeId(\Magento\Catalog\Model\Product::ENTITY);
 
         $attributeSetArr = $catalogSetup->getAllAttributeSetIds($entityTypeId);
 
-
         $stdAttributeCodes = ['shipperhq_shipping_group' => '1',  'shipperhq_warehouse' => '10'];
 
-
         foreach ($attributeSetArr as $attributeSetId) {
-
             $catalogSetup->addAttributeGroup($entityTypeId, $attributeSetId, 'Shipping', '99');
 
             $attributeGroupId = $catalogSetup->getAttributeGroupId($entityTypeId, $attributeSetId, 'Shipping');
 
-            foreach($stdAttributeCodes as $code => $sort) {
+            foreach ($stdAttributeCodes as $code => $sort) {
                 $attributeId = $catalogSetup->getAttributeId($entityTypeId, $code);
-                $catalogSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $attributeGroupId, $attributeId, $sort);
+                $catalogSetup->addAttributeToGroup(
+                    $entityTypeId,
+                    $attributeSetId,
+                    $attributeGroupId,
+                    $attributeId,
+                    $sort
+                );
             }
-
         };
 
         /** @var \Magento\Quote\Setup\QuoteSetup $quoteSetup */
         $quoteSetup = $this->quoteSetupFactory->create(['setup' => $setup]);
         $salesSetup = $this->salesSetupFactory->create(['setup' => $setup]);
 
-
-        $carrier_type = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Carrier Type'];
+        $carrier_type = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            'visible' => false,
+            'required' => false,
+            'comment' => 'ShipperHQ Carrier Type'
+        ];
         $entities = ['quote_address', 'quote_address_rate'];
         foreach ($entities as $entity) {
             $quoteSetup->addAttribute($entity, 'carrier_type', $carrier_type);
         }
         $salesSetup->addAttribute('order', 'carrier_type', $carrier_type);
 
-        $carrier_id = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Carrier ID'];
+        $carrier_id = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            'visible' => false,
+            'required' => false,
+            'comment' => 'ShipperHQ Carrier ID'
+        ];
         $entities = ['quote_address_rate', 'quote_address'];
         foreach ($entities as $entity) {
             $quoteSetup->addAttribute($entity, 'carrier_id', $carrier_id);
         }
         $salesSetup->addAttribute('order', 'carrier_id', $carrier_id);
 
-        $carrier_group_id = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'Carrier Group ID'];
+        $carrier_group_id = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            'visible' => false,
+            'required' => false,
+            'comment' => 'Carrier Group ID'
+        ];
         $entities = ['quote_address_rate', 'quote_item', 'quote_address_item' ];
         foreach ($entities as $entity) {
             $quoteSetup->addAttribute($entity, 'carriergroup_id', $carrier_group_id);
         }
         $salesSetup->addAttribute('order_item', 'carriergroup_id', $carrier_group_id);
 
-        $carrier_group = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Carrier Group'];
+        $carrier_group = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            'visible' => false,
+            'required' => false,
+            'comment' => 'ShipperHQ Carrier Group'
+        ];
         $entities = ['quote_address_rate', 'quote_item', 'quote_address_item' ];
         foreach ($entities as $entity) {
             $quoteSetup->addAttribute($entity, 'carriergroup', $carrier_group);
         }
         $salesSetup->addAttribute('order_item', 'carriergroup', $carrier_group);
 
-        $carrierGroupDetails = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Carrier Group Details'];
+        $carrierGroupDetails = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            'visible' => false,
+            'required' => false,
+            'comment' => 'ShipperHQ Carrier Group Details'
+        ];
         $entities = ['quote_address_rate','quote_address' ];
         foreach ($entities as $entity) {
             $quoteSetup->addAttribute($entity, 'carriergroup_shipping_details', $carrierGroupDetails);
         }
         $salesSetup->addAttribute('order', 'carriergroup_shipping_details', $carrierGroupDetails);
 
-        $isCheckout = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT, 'visible' => false, 'required' => true, 'default' => 0, 'comment' => 'ShipperHQ Checkout Flag'];
+        $isCheckout = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+            'visible' => false,
+            'required' => true,
+            'default' => 0,
+            'comment' => 'ShipperHQ Checkout Flag'
+        ];
         $quoteSetup->addAttribute('quote_address', 'is_checkout', $isCheckout);
 
-        $splitRates = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT, 'visible' => false, 'required' => true, 'default' => 0, 'comment' => 'ShipperHQ Split Rates Flag'];
+        $splitRates = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+            'visible' => false,
+            'required' => true,
+            'default' => 0,
+            'comment' => 'ShipperHQ Split Rates Flag'
+        ];
         $quoteSetup->addAttribute('quote_address', 'split_rates', $splitRates);
 
-        $displayMerged = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT, 'visible' => false, 'required' => true, 'default' => 1, 'comment' => 'ShipperHQ Checkout Display Type'];
+        $displayMerged = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+            'visible' => false,
+            'required' => true,
+            'default' => 1,
+            'comment' => 'ShipperHQ Checkout Display Type'
+        ];
         $quoteSetup->addAttribute('quote_address', 'checkout_display_merged', $displayMerged);
 
-        $carriergroupHtml = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Carrier Group HTML'];
-        $quoteSetup->addAttribute('quote_address' , 'carriergroup_shipping_html', $carriergroupHtml);
+        $carriergroupHtml = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            'visible' => false,
+            'required' => false,
+            'comment' => 'ShipperHQ Carrier Group HTML'
+        ];
+        $quoteSetup->addAttribute('quote_address', 'carriergroup_shipping_html', $carriergroupHtml);
         $salesSetup->addAttribute('order', 'carriergroup_shipping_html', $carriergroupHtml);
 
-        $carriergroupShipping = ['type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'visible' => false, 'required' => false, 'comment' => 'ShipperHQ Shipping Description'];
+        $carriergroupShipping = [
+            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+            'visible' => false,
+            'required' => false,
+            'comment' => 'ShipperHQ Shipping Description'
+        ];
         $entities = ['quote_item', 'quote_address_item' ];
         foreach ($entities as $entity) {
             $quoteSetup->addAttribute($entity, 'carriergroup_shipping', $carriergroupShipping);

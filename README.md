@@ -42,12 +42,21 @@ Alternatively you can contact us via email at support@shipperhq.com or via our w
 
 Magento Issues Impacting ShipperHQ
 -------
-1. "Malformed Request" error when saving configuration or attempting to synchronize - environment is PHP 7
+1. Magento v2.1.3 - Website specific shipping rates or configuration are not working
+    - Github Issue: https://github.com/magento/magento2/issues/7840
+    - Related Issue: https://github.com/magento/magento2/issues/7943
+    - Code change required to fix: https://github.com/magento/magento2/issues/7943#issuecomment-269508822
+2. "Malformed Request" error when saving configuration or attempting to synchronize - environment is PHP 7
     - Github Issue: https://github.com/magento/magento2/issues/2984
-    - Code change required to fix: https://github.com/magento/magento2/commit/32ca5c97304a1bd84cfbee7cec3d57c9307da9a6
-2. Only country, region and postcode are included in shipping request at checkout - you may not see correct rates returned if filtering on city or PO box addresses
+    - Code change required to fix: https://github.com/magento/magento2/issues/7943#issuecomment-269508822
+3. Only country, region and postcode are included in shipping request at checkout - you may not see correct rates returned if filtering on city or PO box addresses
     - Github Issue: https://github.com/magento/magento2/issues/3789
-    - Resolved in Magento 2.1 and above
+    - Resolved in Magento 2.1 and above for Guest checkout, logged in customers will still only see region/state, postcode and country
+4. Error thrown when using Elastic search and Magento Enterprise " error: MapperParsingException[No handler for type [array] declared on field [shipperhq_master_boxes]]"
+    - Magento issue number/patch reference: MDVA-791 - contact Enterprise support for patch
+5. Error thrown when placing an order with some shipping methods. Root cause is that some shipping methods have shipping method codes longer than the column length on quote for shipping_method field. Field is truncating the code and order cannot be placed. 
+   - Github Issue: https://github.com/magento/magento2/issues/6475
+   
 
 Contribution
 ------------

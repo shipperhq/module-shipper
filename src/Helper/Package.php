@@ -39,34 +39,39 @@ namespace ShipperHQ\Shipper\Helper;
  */
 class Package extends \Magento\Framework\App\Helper\AbstractHelper
 {
-    /*
-    * @var \ShipperHQ\Shipper\Model\Quote\PackagesFactory
-    */
-    protected $quotePackageFactory;
-    /*
-    * @var \ShipperHQ\Shipper\Model\Order\PackagesFactory
-    */
+    /**
+     * @var \ShipperHQ\Shipper\Model\Quote\PackagesFactory
+     */
+    private $quotePackageFactory;
+    /**
+     * @var \ShipperHQ\Shipper\Model\Order\PackagesFactory
+     */
     protected $orderPackageFactory;
-    /*
-    * @var Data
-    */
-    protected $shipperDataHelper;
-    /*
-   * @var CarrierGroup
-   */
-    protected $carrierGroupHelper;
+    /**
+     * @var Data
+     */
+    private $shipperDataHelper;
+    /**
+     * @var CarrierGroup
+     */
+    private $carrierGroupHelper;
 
     /**
-     * @param \ShipperHQ\Lib\Helper\Rest $restHelper
-     * @param Data $shipperHelperData
+     * Package constructor.
+     * @param \Magento\Framework\App\Helper\Context $context
+     * @param \ShipperHQ\Shipper\Model\Quote\PackagesFactory $quotePackageFactory
+     * @param \ShipperHQ\Shipper\Model\Order\PackagesFactory $orderPackageFactory
+     * @param Data $shipperDataHelper
      * @param CarrierGroup $carrierGroupHelper
      */
-    public function __construct(\Magento\Framework\App\Helper\Context $context,
-                                \ShipperHQ\Shipper\Model\Quote\PackagesFactory $quotePackageFactory,
-                                \ShipperHQ\Shipper\Model\Order\PackagesFactory $orderPackageFactory,
-                                Data $shipperDataHelper,
-                                CarrierGroup $carrierGroupHelper)
-    {
+    public function __construct(
+        \Magento\Framework\App\Helper\Context $context,
+        \ShipperHQ\Shipper\Model\Quote\PackagesFactory $quotePackageFactory,
+        \ShipperHQ\Shipper\Model\Order\PackagesFactory $orderPackageFactory,
+        Data $shipperDataHelper,
+        CarrierGroup $carrierGroupHelper
+    ) {
+    
         parent::__construct($context);
         $this->quotePackageFactory = $quotePackageFactory;
         $this->orderPackageFactory = $orderPackageFactory;
@@ -83,28 +88,29 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function saveQuotePackages($shippingAddressId, $shipmentArray)
     {
-        if(is_null($shippingAddressId)) {
+        if ($shippingAddressId === null) {
             return;
         }
         try {
             $packageModel = $this->quotePackageFactory->create();
             foreach ($shipmentArray as $shipment) {
                 //clean up packages saved - this should be in some kind of package manager - an interface or something as this could be replaced
-                $packages = $packageModel->loadByCarrier($shippingAddressId, $shipment['carrier_group_id'], $shipment['carrier_code']);
+                $packages = $packageModel->loadByCarrier(
+                    $shippingAddressId,
+                    $shipment['carrier_group_id'],
+                    $shipment['carrier_code']
+                );
                 foreach ($packages as $package) {
                     $packageModel->deleteByPackageId($package->getPackageId());
                 }
             }
 
-            foreach($shipmentArray as $shipment) {
+            foreach ($shipmentArray as $shipment) {
                 $shipment['quote_address_id'] = $shippingAddressId;
                 $packageModel->setData($shipment);
                 $packageModel->save();
-
             }
-
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             //Log exception and move on.
             $this->_logger->critical('ShipperHQ save quote package error: ' .$e->getMessage());
         }
@@ -115,10 +121,11 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
         $orderId = $order->getId();
         $packagesColl = [];
         $addressDetail = $this->carrierGroupHelper->loadAddressDetailByShippingAddress($shippingAddress->getAddressId());
-        foreach($addressDetail as $detail) {
+        foreach ($addressDetail as $detail) {
             try {
                 $carrierGroupDetail = $this->shipperDataHelper->decodeShippingDetails(
-                    $detail->getCarrierGroupDetail());
+                    $detail->getCarrierGroupDetail()
+                );
                 if (is_array($carrierGroupDetail)) {
                     foreach ($carrierGroupDetail as $carrier_group) {
                         if (!isset($carrier_group['carrierGroupId'])) {
@@ -129,11 +136,17 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                         $shippingMethodCode = $carrier_group['code'];
                         $quotePackageModel = $this->quotePackageFactory->create();
                         $packagesColl = $quotePackageModel->loadByCarrier(
-                            $shippingAddress->getAddressId(), $carrierGroupId, $carrier_code . '_' . $shippingMethodCode);
-                        if (count($packagesColl) < 1) {
+                            $shippingAddress->getAddressId(),
+                            $carrierGroupId,
+                            $carrier_code . '_' . $shippingMethodCode
+                        );
+                        if ($packagesColl->getSize() < 1) {
                             $quotePackageModelToo = $this->quotePackageFactory->create();
                             $packagesColl = $quotePackageModelToo->loadByCarrier(
-                                $shippingAddress->getAddressId(), $carrierGroupId, $carrier_code);
+                                $shippingAddress->getAddressId(),
+                                $carrierGroupId,
+                                $carrier_code
+                            );
                         }
                         foreach ($packagesColl as $box) {
                             $package = $this->orderPackageFactory->create();
@@ -151,15 +164,17 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                             $package->save();
                         }
 
-                        if (count($packagesColl) > 0) {
-                            $boxText = $this->shipperDataHelper->getPackageBreakdownText($packagesColl, $carrier_group['name']);
+                        if (!empty($packagesColl)) {
+                            $boxText = $this->shipperDataHelper->getPackageBreakdownText(
+                                $packagesColl,
+                                $carrier_group['name']
+                            );
                             $boxText .= __('Transaction ID: ') . $carrier_group['transaction'];
                             $order->addStatusToHistory($order->getStatus(), $boxText, false);
                         }
                     }
-
                 }
-            }catch (\Exception $e) {
+            } catch (\Exception $e) {
                 //Log exception and move on.
                 $this->_logger->critical('ShipperHQ save order package error: ' .$e->getMessage());
             }
@@ -168,5 +183,4 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
 
         //record without carrier group details?
     }
-
 }

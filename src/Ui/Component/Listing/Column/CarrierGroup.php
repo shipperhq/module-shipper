@@ -45,7 +45,7 @@ class CarrierGroup extends Column
     /**
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
-    protected $carrierGroupHelper;
+    private $carrierGroupHelper;
 
     /**
      * @param ContextInterface $context
@@ -76,12 +76,11 @@ class CarrierGroup extends Column
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as & $item) {
                 $orderGridDetails = $this->carrierGroupHelper->loadOrderGridDetailByOrderId($item["entity_id"]);
-                foreach($orderGridDetails as $orderDetail) {
-                    if($orderDetail->getCarrierGroup()) {
+                foreach ($orderGridDetails as $orderDetail) {
+                    if ($orderDetail->getCarrierGroup()) {
                         $item[$this->getData('name')] = $orderDetail->getCarrierGroup();
                     }
                 }
-
             }
         }
 

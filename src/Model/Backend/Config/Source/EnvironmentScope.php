@@ -38,7 +38,8 @@ namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
 
 use ShipperHQ\WS\Shared\SiteDetails as SiteDetails;
 
-class EnvironmentScope implements \Magento\Framework\Option\ArrayInterface{
+class EnvironmentScope implements \Magento\Framework\Option\ArrayInterface
+{
 
     public function toOptionArray()
     {

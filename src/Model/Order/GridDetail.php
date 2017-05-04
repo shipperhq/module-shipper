@@ -53,7 +53,7 @@ class GridDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     /**
      * @var /ShipperHQ\Shipper\Model\ResourceModel\Order\GridDetail\Collection
      */
-    protected $orderGridDetailCollection;
+    private $orderGridDetailCollection;
 
     /**
      * @param \ShipperHQ\Shipper\Model\ResourceModel\Order\GridDetail\CollectionFactory $orderDetailCollectionFactory
@@ -85,7 +85,6 @@ class GridDetail extends \Magento\Framework\Model\AbstractExtensibleModel
             $data
         );
         $this->orderGridDetailCollection = $orderGridDetailCollectionFactory->create();
-
     }
 
     /**
@@ -110,7 +109,6 @@ class GridDetail extends \Magento\Framework\Model\AbstractExtensibleModel
             ->addOrderIdToFilter($orderId);
 
         return $collection;
-
     }
 
     //@codeCoverageIgnoreStart
@@ -297,7 +295,4 @@ class GridDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     {
         return $this->setData(self::ADDRESS_VALID, $addressValid);
     }
-
-
-
 }

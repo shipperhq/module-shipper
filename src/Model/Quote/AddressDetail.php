@@ -68,7 +68,7 @@ class AddressDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     /**
      * @var \ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail\Collection
      */
-    protected $quoteAddressDetailCollection;
+    private $quoteAddressDetailCollection;
 
     /**
      * @param \ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail\CollectionFactory $quoteAddressDetailCollectionFactory
@@ -100,7 +100,6 @@ class AddressDetail extends \Magento\Framework\Model\AbstractExtensibleModel
             $data
         );
         $this->quoteAddressDetailCollection = $quoteAddressDetailCollectionFactory->create();
-
     }
 
     /**
@@ -125,12 +124,10 @@ class AddressDetail extends \Magento\Framework\Model\AbstractExtensibleModel
             ->addAddressToFilter($addressId)
             ->addCarrierGroupToFilter($carrierGroupId);
 
-        foreach($collection as $object)
-        {
+        foreach ($collection as $object) {
             return $object;
         }
         return false;
-
     }
 
     /**
@@ -142,16 +139,10 @@ class AddressDetail extends \Magento\Framework\Model\AbstractExtensibleModel
      */
     public function loadByAddress($addressId)
     {
-
         $collection = $this->quoteAddressDetailCollection
             ->addAddressToFilter($addressId);
 
-        foreach($collection as $object)
-        {
-           // return $object;
-        }
         return $collection;
-
     }
 
     //@codeCoverageIgnoreStart
@@ -570,5 +561,4 @@ class AddressDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     {
         return $this->setData(self::ADDRESS_VALID, $addressValid);
     }
-
 }

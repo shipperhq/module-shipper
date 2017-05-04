@@ -52,10 +52,9 @@ class RecordAdminOrder extends AbstractRecordOrder implements ObserverInterface
     {
         if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
             $order = $observer->getEvent()->getData('order');
-            if($order->getIncrementId()) {
+            if ($order->getIncrementId()) {
                 $this->recordOrder($order);
             }
         }
     }
 }
-

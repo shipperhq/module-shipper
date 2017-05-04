@@ -29,9 +29,10 @@
 "ShipperHQ was unable to verify a connection, please contact support.","ShipperHQ was unable to verify a connection, please contact support."
 "Updated %1 attribute values from ShipperHQ.","Updated %1 attribute values from ShipperHQ."
 "No Carrier","No Carrier"
-Live,Live
-Development,Development
-Test,Test
-Integration,Integration
+"Live","Live"
+"Development","Development"
+"Test","Test"
+"Integration","Integration"
 "Can\'t convert rate from "%1".","Can\'t convert rate from "%1"."
+"Your ShipperHQ credentials saved in Magento are invalid. You will no longer receive shipping rates until this is rectified.","Your ShipperHQ credentials saved in Magento are invalid. You will no longer receive shipping rates until this is rectified."
 

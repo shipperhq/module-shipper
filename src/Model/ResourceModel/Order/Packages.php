@@ -51,21 +51,21 @@ class Packages extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $this->_init('shipperhq_order_packages', 'package_id');
     }
 
-
-
-    protected function _afterLoad(\Magento\Framework\Model\AbstractModel $object) {
+    protected function _afterLoad(\Magento\Framework\Model\AbstractModel $object)
+    {
         parent::_afterLoad($object);
         $connection = $this->getConnection();
         $select = $connection->select()->from($this->getTable('shipperhq_order_package_items'));
         $select->where('package_id=?', $object->getId());
         $items = $connection->fetchAll($select);
-        if($items) {
+        if ($items) {
             $object->setData('items', $items);
         }
         return $this;
     }
 
-    protected function _afterSave(\Magento\Framework\Model\AbstractModel $object) {
+    protected function _afterSave(\Magento\Framework\Model\AbstractModel $object)
+    {
         parent::_afterSave($object);
 
         // now save the package items
@@ -74,7 +74,7 @@ class Packages extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             ['package_id = ?' => $object->getId()]
         );
         foreach ((array)$object->getData('items') as $item) {
-            if(is_object($item)) {
+            if (is_object($item)) {
                 $item = (array)$item;
             }
             $itemArray = [

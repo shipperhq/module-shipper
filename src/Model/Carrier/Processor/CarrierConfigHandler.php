@@ -36,6 +36,7 @@ class CarrierConfigHandler
      * @var \ShipperHQ\Shipper\Helper\Data
      */
     private $shipperDataHelper;
+
     /**
      * @var \Magento\Config\Model\ResourceModel\Config
      */
@@ -48,9 +49,8 @@ class CarrierConfigHandler
     public function __construct(
         \Magento\Config\Model\ResourceModel\Config $resourceConfig,
         \Magento\Backend\Block\Template\Context $context,
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper)
-    {
-
+        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+    ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->storeManager = $context->getStoreManager();
         $this->resourceConfig = $resourceConfig;
@@ -65,7 +65,6 @@ class CarrierConfigHandler
         $this->populateCarrierLevelDetails((array)$carrierRate, $carrierGroupDetail);
     }
 
-
     public function populateCarrierLevelDetails($carrierRate, &$carrierGroupDetail)
     {
         $carrierGroupDetail['carrierType'] = $carrierRate['carrierType'];
@@ -74,8 +73,7 @@ class CarrierConfigHandler
         $carrierGroupDetail['carrierName'] = $carrierRate['carrierName'];
     }
 
-
-    protected function dynamicCarrierConfig($carrierCode, $carrierTitle, $sortOrder = null)
+    private function dynamicCarrierConfig($carrierCode, $carrierTitle, $sortOrder = null)
     {
         $modelPath = 'carriers/' . $carrierCode . '/model';
         if (!$this->shipperDataHelper->getConfigValue($modelPath)) {
@@ -85,11 +83,10 @@ class CarrierConfigHandler
         }
         $this->saveCarrierTitle($carrierCode, $carrierTitle);
 
-        if (!is_null($sortOrder)) {
+        if ($sortOrder !== null) {
             $this->saveConfig('carriers/' . $carrierCode . '/sort_order', $sortOrder);
         }
     }
-
 
     /**
      * Saves the carrier title to core_config_data
@@ -102,7 +99,6 @@ class CarrierConfigHandler
         $this->saveConfig('carriers/' . $carrierCode . '/title', $carrierTitle);
     }
 
-
     /**
      * Save config value to db
      * @param $path
@@ -111,16 +107,15 @@ class CarrierConfigHandler
      * @param int $scopeId
      * @return $this
      */
-    public function saveConfig($path, $value, $scope = 'default', $scopeId = 0,  $refreshRequired = true)
+    public function saveConfig($path, $value, $scope = 'default', $scopeId = 0, $refreshRequired = true)
     {
         if ($this->shipperDataHelper->getConfigValue($path) != $value) {
             $this->resourceConfig->saveConfig(rtrim($path, '/'), $value, $scope, $scopeId);
-            if($refreshRequired) {
+            if ($refreshRequired) {
                 $this->shipperDataHelper->getCheckout()->setConfigUpdated(true);
             }
         }
     }
-
 
     public function refreshConfig()
     {
@@ -129,7 +124,6 @@ class CarrierConfigHandler
             $this->shipperDataHelper->getCheckout()->setConfigUpdated(false);
         }
     }
-
 
     /*
      * This dynamically updates the carrier titles from ShipperHQ
@@ -143,10 +137,5 @@ class CarrierConfigHandler
                 $this->saveConfig('carriers/' . $carrierCode . '/sort_order', $config['sortOrder']);
             }
         }
-
     }
-
-
-
-
 }

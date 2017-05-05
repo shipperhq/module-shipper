@@ -10,7 +10,6 @@
 <?php /** @var $block \Magento\Sales\Block\Adminhtml\Order\Create\Shipping\Method\Form */ ?>
 <?php $_shippingRateGroups = $block->getShippingRates(); ?>
 <?php $helper = $this->helper('ShipperHQ\Shipper\Helper\Data'); ?>
-<span><?php /* @escapeNotVerified */ echo __('Our Template REMOVE') ?></span>
 <?php if ($_shippingRateGroups): ?>
     <div id="order-shipping-method-choose" style="display:none">
         <dl class="admin__order-shipment-methods">

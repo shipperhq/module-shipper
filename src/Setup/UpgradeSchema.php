@@ -231,6 +231,12 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     null,
                     ['nullable' => true],
                     'Address Valid Status'
+                )->addColumn(
+                    'limited_delivery',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    10,
+                    ['nullable' => true],
+                    'Limited Delivery'
                 )->addIndex(
                     $installer->getIdxName('shipperhq_quote_address_detail', ['quote_address_id']),
                     ['quote_address_id']
@@ -254,6 +260,27 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 ]
             );
             $this->addIndexToTable($installer, 'shipperhq_quote_address_detail', ['quote_address_id']);
+        }
+
+        //1.0.11 - SHQ16-1967
+        if (version_compare($context->getVersion(), '1.0.11', '<')) {
+            if (!$installer->getConnection()->tableColumnExists(
+                $installer->getTable('shipperhq_quote_address_detail'),
+                'limited_delivery'
+            )) {
+                $installer->getConnection()
+                    ->addColumn(
+                        $installer->getTable('shipperhq_quote_address_detail'),
+                        'limited_delivery',
+                        [
+                            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                            'default' => null,
+                            'length' => 10,
+                            'nullable' => true,
+                            'comment' => 'Limited Delivery',
+                        ]
+                    );
+            }
         }
 
         if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_order_detail'))) {
@@ -429,6 +456,12 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     null,
                     ['nullable' => true],
                     'Address Valid Status'
+                )->addColumn(
+                    'limited_delivery',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    10,
+                    ['nullable' => true],
+                    'Limited Delivery'
                 )->addIndex(
                     $installer->getIdxName('shipperhq_order_detail', ['order_id']),
                     ['order_id']
@@ -437,6 +470,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 );
             $installer->getConnection()->createTable($table);
         }
+
         if (version_compare($context->getVersion(), '1.0.10', '<')) {
             $connection = $installer->getConnection();
             $connection->modifyColumn(
@@ -450,6 +484,27 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 ]
             );
             $this->addIndexToTable($installer, 'shipperhq_order_detail', ['order_id']);
+        }
+
+        //1.0.11 - SHQ16-1967
+        if (version_compare($context->getVersion(), '1.0.11', '<')) {
+            if (!$installer->getConnection()->tableColumnExists(
+                $installer->getTable('shipperhq_order_detail'),
+                'limited_delivery'
+            )) {
+                $installer->getConnection()
+                    ->addColumn(
+                        $installer->getTable('shipperhq_order_detail'),
+                        'limited_delivery',
+                        [
+                            'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                            'default' => null,
+                            'length' => 10,
+                            'nullable' => true,
+                            'comment' => 'Limited Delivery',
+                        ]
+                    );
+            }
         }
 
         if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_quote_item_detail'))) {
@@ -1073,6 +1128,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 );
             }
         }
+
+
 
         $installer->endSetup();
     }

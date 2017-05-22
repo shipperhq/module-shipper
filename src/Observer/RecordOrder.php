@@ -91,6 +91,8 @@ class RecordOrder extends AbstractRecordOrder implements ObserverInterface
             );
             if ($order->getIncrementId()) {
                 $this->recordOrder($order);
+                //SHQ16-1967 reset all checkout data
+                $this->checkoutSession->setShipperhqData([]);
             }
         }
     }

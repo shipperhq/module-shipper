@@ -47,6 +47,22 @@
                     </br>
                     <?php echo __('Time slot') .': ' .$block->escapeHtml($block->getFormattedTimeSlot($carrierGroup['time_slot'])) ?>
                 <?php endif; ?>
+                <?php if($carrierGroup['liftgate_required'] === '1'): ?>
+                    <?php echo __('Liftgate required'); ?>
+                    </br>
+                <?php endif; ?>
+                <?php if($carrierGroup['inside_delivery'] === '1'): ?>
+                    <?php echo __('Inside Delivery'); ?>
+                    </br>
+                <?php endif; ?>
+                <?php if($carrierGroup['limited_delivery'] === '1'): ?>
+                    <?php echo __('Limited Access Delivery'); ?>
+                    </br>
+                <?php endif; ?>
+                <?php if($carrierGroup['notify_required'] === '1'): ?>
+                    <?php echo __('Scheduled Appointment'); ?>
+                    </br>
+                <?php endif; ?>
             </div>
         <?php endforeach; ?>
     </div>

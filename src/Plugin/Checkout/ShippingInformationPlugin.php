@@ -152,10 +152,14 @@ class ShippingInformationPlugin
         $this->eventManager->dispatch(
             'shipperhq_additional_detail_checkout',
             ['address_extn_attributes' => $extAttributes, 'additional_detail'=> $additionalDetail,
-            'carrier_code' => $carrierCode]
+            'carrier_code' => $carrierCode, 'address' => $address]
         );
         $additionalDetailArray = $additionalDetail->convertToArray();
-        $this->shipperLogger->postDebug('ShipperHQ Shipper', 'processing additional detail ', $additionalDetail);
+        $this->shipperLogger->postDebug(
+            'ShipperHQ Shipper',
+            'Processed the following extra fields from checkout ',
+            $additionalDetail
+        );
         $result = $proceed($cartId, $addressInformation);
 
         $this->carrierGroupHelper->saveCarrierGroupInformation(

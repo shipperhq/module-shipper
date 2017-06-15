@@ -296,9 +296,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         'auto_increment' => true ]
                 )->addColumn(
                     'order_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    50,
-                    ['nullable' => false, 'default' => ''],
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    10,
+                    ['nullable' => false,
+                     'default' => '0',
+                     'unsigned' => true],
                     'Order ID'
                 )->addColumn(
                     'carrier_group_id',
@@ -471,21 +473,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $installer->getConnection()->createTable($table);
         }
 
-        if (version_compare($context->getVersion(), '1.0.10', '<')) {
-            $connection = $installer->getConnection();
-            $connection->modifyColumn(
-                $setup->getTable('shipperhq_order_detail'),
-                'order_id',
-                [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    'length' => 50,
-                    'nullable' => false,
-                    'default' => '',
-                ]
-            );
-            $this->addIndexToTable($installer, 'shipperhq_order_detail', ['order_id']);
-        }
-
         //1.0.11 - SHQ16-1967
         if (version_compare($context->getVersion(), '1.0.11', '<')) {
             if (!$installer->getConnection()->tableColumnExists(
@@ -505,6 +492,21 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         ]
                     );
             }
+        }
+
+        if (version_compare($context->getVersion(), '1.0.13', '<')) {
+            $connection = $installer->getConnection();
+            $connection->modifyColumn(
+                $setup->getTable('shipperhq_order_detail'),
+                'order_id', [
+                'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                'length'   => 10,
+                'nullable' => false,
+                'default'  => '0',
+                'unsigned' => true
+                ]
+            );
+            $this->addIndexToTable($installer, 'shipperhq_order_detail', ['order_id']);
         }
 
         if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_quote_item_detail'))) {
@@ -855,10 +857,12 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         'auto_increment' => true]
                 )->addColumn(
                     'order_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    50,
-                    ['nullable' => false, 'default' => ''],
-                    'Order ID'
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    10,
+                    ['nullable' => false,
+                     'default' => '0',
+                     'unsigned' => true],
+                     'Order ID'
                 )->addColumn(
                     'carrier_group_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -922,17 +926,18 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $installer->getConnection()->createTable($table);
         }
 
-        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+        if (version_compare($context->getVersion(), '1.0.13', '<')) {
             $installer->getConnection()->modifyColumn(
                 $setup->getTable('shipperhq_order_packages'),
-                'order_id',
-                [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    'length' => 50,
+                'order_id', [
+                    'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    'length'   => 10,
                     'nullable' => false,
-                    'default' => '',
+                    'default'  => '0',
+                    'unsigned' => true
                 ]
             );
+
             $this->addIndexToTable($installer, 'shipperhq_order_packages', ['order_id']);
         }
 
@@ -1011,10 +1016,12 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         'auto_increment' => true ]
                 )->addColumn(
                     'order_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    50,
-                    ['nullable' => false],
-                    'Order ID'
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    10,
+                    ['nullable' => false,
+                     'default' => '0',
+                     'unsigned' => true],
+                     'Order ID'
                 )->addColumn(
                     'carrier_group',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -1095,16 +1102,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
         } else {
             if (version_compare($context->getVersion(), '1.0.9') < 0) {
                 $connection = $installer->getConnection();
-                $connection->modifyColumn(
-                    $setup->getTable('shipperhq_order_detail_grid'),
-                    'order_id',
-                    [
-                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                        'length' => 50,
-                        'nullable' => true,
-                        'default' => '',
-                    ]
-                );
+
                 $connection->modifyColumn(
                     $setup->getTable('shipperhq_order_detail_grid'),
                     'carrier_group',
@@ -1118,13 +1116,29 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
                 $connection->addIndex(
                     $installer->getTable('shipperhq_order_detail_grid'),
-                    $installer->getIdxName('shipperhq_order_detail_grid', ['order_id']),
-                    ['order_id']
-                );
-                $connection->addIndex(
-                    $installer->getTable('shipperhq_order_detail_grid'),
                     $installer->getIdxName('shipperhq_order_detail_grid', ['carrier_group']),
                     ['carrier_group']
+                );
+            }
+
+            if (version_compare($context->getVersion(), '1.0.13') < 0) {
+                $connection = $installer->getConnection();
+                $connection->modifyColumn(
+                    $setup->getTable('shipperhq_order_detail_grid'),
+                    'order_id',
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                        'length' => 10,
+                        'nullable' => false,
+                        'default' => '0',
+                        'unsigned' => true
+                    ]
+                );
+
+                $connection->addIndex(
+                    $installer->getTable('shipperhq_order_detail_grid'),
+                    $installer->getIdxName('shipperhq_order_detail_grid', ['order_id']),
+                    ['order_id']
                 );
             }
         }

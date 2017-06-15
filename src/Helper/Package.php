@@ -71,7 +71,7 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
         Data $shipperDataHelper,
         CarrierGroup $carrierGroupHelper
     ) {
-    
+
         parent::__construct($context);
         $this->quotePackageFactory = $quotePackageFactory;
         $this->orderPackageFactory = $orderPackageFactory;
@@ -121,6 +121,7 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
         $orderId = $order->getId();
         $packagesColl = [];
         $addressDetail = $this->carrierGroupHelper->loadAddressDetailByShippingAddress($shippingAddress->getAddressId());
+        $savePackagesAsOrderComment = $this->shipperDataHelper->getStoreDimComments();
         foreach ($addressDetail as $detail) {
             try {
                 $carrierGroupDetail = $this->shipperDataHelper->decodeShippingDetails(
@@ -164,12 +165,15 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                             $package->save();
                         }
 
-                        if (!empty($packagesColl)) {
+                        if (!empty($packagesColl) && $savePackagesAsOrderComment) {
                             $boxText = $this->shipperDataHelper->getPackageBreakdownText(
                                 $packagesColl,
                                 $carrier_group['name']
                             );
                             $boxText .= __('Transaction ID: ') . $carrier_group['transaction'];
+                            $order->addStatusToHistory($order->getStatus(), $boxText, false);
+                        } else {
+                            $boxText = __('Transaction ID: ') . $carrier_group['transaction'];
                             $order->addStatusToHistory($order->getStatus(), $boxText, false);
                         }
                     }

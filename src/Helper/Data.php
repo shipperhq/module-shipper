@@ -235,6 +235,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $result;
     }
 
+    public function getStoreDimComments()
+    {
+        $result = false;
+        if ($this->getDefaultConfigValue('carriers/shipper/STORE_DIM_COMMENTS')) {
+            $result = true;
+        }
+        return $result;
+    }
+
     public function isCheckout($quote)
     {
 

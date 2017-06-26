@@ -130,6 +130,7 @@ class Shipperadmin
                     "price" => $rateInfo['customPrice'],
                     "cost" => $rateInfo['customPrice'],
                     "code" => 'adminshipping',
+                    "transaction" => ''
                 );
                 $method = $this->rateMethodFactory->create();
                 $method->setCarrier($this->_code);

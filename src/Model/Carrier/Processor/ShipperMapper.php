@@ -565,21 +565,27 @@ class ShipperMapper
     {
         $selectedOptions = $this->getSelectedOptions($request);
 
+        $region = $request->getDestRegionCode();
+
+        if ($region === null) { //SHQ16-2098
+            $region = "";
+        }
+
         if ($this->getCartType($request) == "CART") {
             // Don't pass in street for this scenario
             $destination = $this->addressFactory->create([
-                    'city' => $request->getDestCity(),
-                    'country' => $request->getDestCountryId(),
-                    'region' => $request->getDestRegionCode(),
-                    'zipcode' => $request->getDestPostcode(),
+                    'city'            => $request->getDestCity(),
+                    'country'         => $request->getDestCountryId(),
+                    'region'          => $region,
+                    'zipcode'         => $request->getDestPostcode(),
                     'selectedOptions' => $selectedOptions]);
         } else {
             $destination = $this->addressFactory->create([
-                    'city' => $request->getDestCity(),
-                    'country' => $request->getDestCountryId(),
-                    'region' => $request->getDestRegionCode(),
-                    'street' => $request->getDestStreet(),
-                    'zipcode' => $request->getDestPostcode(),
+                    'city'            => $request->getDestCity(),
+                    'country'         => $request->getDestCountryId(),
+                    'region'          => $region,
+                    'street'          => $request->getDestStreet(),
+                    'zipcode'         => $request->getDestPostcode(),
                     'selectedOptions' => $selectedOptions]);
         }
 

@@ -1,5 +1,14 @@
 # Change Log
 
+## [20.3.7](https://github.com/webshopapps/module-shipper/tree/20.3.7) (2017-06-26)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.3.6...20.3.7)
+
+**Merged pull requests:**
+
+- SHQ16-2117 resolved issue with Authorize.net and custom admin shipping [\#33](https://github.com/webshopapps/module-shipper/pull/33) ([wsagen](https://github.com/wsagen))
+- Develop [\#32](https://github.com/webshopapps/module-shipper/pull/32) ([wsajosh](https://github.com/wsajosh))
+- SHQ16-2098 Fix for region being null in request [\#31](https://github.com/webshopapps/module-shipper/pull/31) ([wsajosh](https://github.com/wsajosh))
+
 ## [20.3.6](https://github.com/webshopapps/module-shipper/tree/20.3.6) (2017-06-15)
 [Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.3.3...20.3.6)
 

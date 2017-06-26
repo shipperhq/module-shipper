@@ -105,6 +105,9 @@ class SaveShippingAdmin implements ObserverInterface
                         $this->processAdminShipping($orderData, $quote);
                     }
                     $this->carrierGroupHelper->saveCarrierGroupInformation($quote->getShippingAddress(), $shippingMethod);
+                    if(strstr($shippingMethod, 'shipperadmin') && $requestData['collect_shipping_rates'] === 1) {
+                        $observer->getRequestModel()->setPostValue('collect_shipping_rates', 0);
+                    }
                 }
             }
         }

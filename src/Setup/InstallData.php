@@ -151,6 +151,9 @@ class InstallData implements InstallDataInterface
         $stdAttributeCodes = ['shipperhq_shipping_group' => '1',  'shipperhq_warehouse' => '10'];
 
         foreach ($attributeSetArr as $attributeSetId) {
+            //SHQ16-2123 handle migrated instances from M1 to M2
+            $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-shipping');
+
             $catalogSetup->addAttributeGroup($entityTypeId, $attributeSetId, 'Shipping', '99');
 
             $attributeGroupId = $catalogSetup->getAttributeGroupId($entityTypeId, $attributeSetId, 'Shipping');

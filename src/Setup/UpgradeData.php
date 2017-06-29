@@ -467,6 +467,9 @@ class UpgradeData implements UpgradeDataInterface
             'shipperhq_poss_boxes' => '20'];
 
         foreach ($attributeSetArr as $attributeSetId) {
+            //SHQ16-2123 handle migrated instances from M1 to M2
+            $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-dimensional-shipping');
+
             $attributeGroupId = $catalogSetup->getAttributeGroup(
                 $entityTypeId,
                 $attributeSetId,
@@ -583,6 +586,9 @@ class UpgradeData implements UpgradeDataInterface
         ];
 
         foreach ($attributeSetArr as $attributeSetId) {
+            //SHQ16-2123 handle migrated instances from M1 to M2
+            $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-freight-shipping');
+
             $attributeGroupId = $catalogSetup->getAttributeGroup(
                 $entityTypeId,
                 $attributeSetId,

@@ -209,7 +209,7 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         //1.0.12
-        if ($context->getVersion() && version_compare($context->getVersion(), '1.0.12') < 0) {
+        if (version_compare($context->getVersion(), '1.0.12') < 0) {
             $this->installFreightAttributes($catalogSetup);
         }
 
@@ -468,7 +468,14 @@ class UpgradeData implements UpgradeDataInterface
 
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
-            $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-dimensional-shipping');
+            $migrated = $catalogSetup->getAttributeGroup(
+                $entityTypeId,
+                $attributeSetId,
+                'migration-dimensional-shipping'
+            );
+            if($migrated !== false) {
+                $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-dimensional-shipping');
+            }
 
             $attributeGroupId = $catalogSetup->getAttributeGroup(
                 $entityTypeId,
@@ -587,7 +594,10 @@ class UpgradeData implements UpgradeDataInterface
 
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
-            $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-freight-shipping');
+            $migrated = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId, 'migration-freight-shipping');
+            if ($migrated !== false) {
+                $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-freight-shipping');
+            }
 
             $attributeGroupId = $catalogSetup->getAttributeGroup(
                 $entityTypeId,

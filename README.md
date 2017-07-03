@@ -56,6 +56,8 @@ Magento Issues Impacting ShipperHQ
     - Magento issue number/patch reference: MDVA-791 - contact Enterprise support for patch
 5. Error thrown when placing an order with some shipping methods. Root cause is that some shipping methods have shipping method codes longer than the column length on quote for shipping_method field. Field is truncating the code and order cannot be placed. 
    - Github Issue: https://github.com/magento/magento2/issues/6475
+6. Free shipping via cart rules are never removed once they have been applied, even if conditions are no longer met
+   - Github Issue: https://github.com/magento/magento2/issues/7388
    
 
 Contribution

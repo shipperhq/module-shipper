@@ -152,7 +152,10 @@ class InstallData implements InstallDataInterface
 
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
-            $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-shipping');
+            $migrated = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId, 'migration-shipping');
+            if ($migrated !== false) {
+                $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-shipping');
+            }
 
             $catalogSetup->addAttributeGroup($entityTypeId, $attributeSetId, 'Shipping', '99');
 

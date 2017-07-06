@@ -55,11 +55,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $quote;
 
     public $magentoCarrierCodes =
-        ['ups' => 'ups',
-            'fedEx' => 'fedex',
-            'usps' => 'usps',
-            'dhl' => 'dhl',
-            'dhlint' => 'dhlint'
+        [
+            'ups'        => 'ups',
+            'fedEx'      => 'fedex',
+            'usps'       => 'usps',
+            'dhl'        => 'dhl',
+            'dhlint'     => 'dhlint',
+            'upsFreight' => 'upsfreight'
         ];
 
     const SHIPPERHQ_SHIPPER_CARRIERGROUP_DESC_PATH = 'carriers/shipper/carriergroup_describer';

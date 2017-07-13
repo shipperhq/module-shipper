@@ -1143,7 +1143,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
             }
         }
 
-
+        if(version_compare($context->getVersion(), '1.0.14') < 0) {
+            $this->cleanOrderGridTable($installer);
+        }
 
         $installer->endSetup();
     }
@@ -1161,5 +1163,22 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $setup->getIdxName($tableName, $columns),
             $columns
         );
+    }
+
+    /**
+     * @param SchemaSetupInterface $setup
+     * @return void
+     */
+    private function cleanOrderGridTable(SchemaSetupInterface $setup)
+    {
+        $shqOrderGridTable = $setup->getTable('shipperhq_order_detail_grid');
+
+        $select = $setup->getConnection()->select()->from($shqOrderGridTable)->group('order_id')->having('count(*) >1');
+
+        $duplicateShqOrderGrids = $setup->getConnection()->fetchAll($select);
+        foreach ($duplicateShqOrderGrids as $shqOrderGridEntry) {
+            $condition = ['id =?' => $shqOrderGridEntry['id']];
+            $setup->getConnection()->delete($shqOrderGridTable, $condition);
+        }
     }
 }

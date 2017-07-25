@@ -648,6 +648,7 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
             );
             return $result;
         }
+
         foreach ($carrierRates as $carrierRate) {
             if (isset($carrierRate['error'])) {
                 $carriergroupId = null;
@@ -956,11 +957,6 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
             ) {
                 $errorMessage = $errorDetails['internalErrorMessage'];
             } elseif (array_key_exists('externalErrorMessage', $errorDetails)
-                && $errorDetails['externalErrorMessage'] != ''
-            ) {
-                $errorMessage = $errorDetails['externalErrorMessage'];
-            }
-            if (array_key_exists('externalErrorMessage', $errorDetails)
                 && $errorDetails['externalErrorMessage'] != ''
             ) {
                 $errorMessage = $errorDetails['externalErrorMessage'];

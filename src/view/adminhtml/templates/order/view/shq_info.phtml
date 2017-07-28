@@ -34,34 +34,34 @@
             <div class="order-shipping-additional">
                 <?php if($carrierGroup['pickup_location'] != ''): ?>
                     <?php echo __('Location') .': ' .$block->escapeHtml($carrierGroup['pickup_location']) ?>
-                    </br>
+                    <br/>
                 <?php endif; ?>
                 <?php if($carrierGroup['delivery_date'] != ''): ?>
                     <?php echo __('Delivery date') .': ' .$block->escapeHtml($block->getFormattedDate($carrierGroup['delivery_date'], $carrierGroup['carrier_group_detail'])) ?>
                 <?php endif; ?>
                 <?php if($carrierGroup['dispatch_date'] != ''): ?>
-                    </br>
+                    <br/>
                     <?php echo __('Dispatch date') .': ' .$block->escapeHtml($block->getFormattedDate($carrierGroup['dispatch_date'], $carrierGroup['carrier_group_detail'])) ?>
                 <?php endif; ?>
                 <?php if($carrierGroup['time_slot'] != ''): ?>
-                    </br>
+                    <br/>
                     <?php echo __('Time slot') .': ' .$block->escapeHtml($block->getFormattedTimeSlot($carrierGroup['time_slot'])) ?>
                 <?php endif; ?>
                 <?php if($carrierGroup['liftgate_required'] === '1'): ?>
                     <?php echo __('Liftgate required'); ?>
-                    </br>
+                    <br/>
                 <?php endif; ?>
                 <?php if($carrierGroup['inside_delivery'] === '1'): ?>
                     <?php echo __('Inside Delivery'); ?>
-                    </br>
+                    <br/>
                 <?php endif; ?>
                 <?php if($carrierGroup['limited_delivery'] === '1'): ?>
                     <?php echo __('Limited Access Delivery'); ?>
-                    </br>
+                    <br/>
                 <?php endif; ?>
                 <?php if($carrierGroup['notify_required'] === '1'): ?>
                     <?php echo __('Scheduled Appointment'); ?>
-                    </br>
+                    <br/>
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>

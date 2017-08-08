@@ -948,6 +948,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 ->addColumn(
                     'package_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    50,
                     null,
                     ['nullable' => false, 'default' => 0, 'unsigned' => true]
                 )->addColumn(
@@ -987,9 +988,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 );
             $installer->getConnection()->createTable($table);
         }
+
         if (version_compare($context->getVersion(), '1.0.10', '<')) {
             $installer->getConnection()->modifyColumn(
-                $setup->getTable('shipperhq_quote_package_items'),
+                $setup->getTable('shipperhq_order_package_items'),
                 'package_id',
                 [
                     'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,

@@ -887,15 +887,22 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
         //we've validated so we need to save
         $shippingAddress = $this->quote->getShippingAddress();
         $key = $this->shipperDataHelper->getAddressKey($shippingAddress);
-
+        $existing = [];
         $addressType = $this->shipperRateHelper->extractDestinationType($shipperResponse);
         $validationStatus = $this->shipperRateHelper->extractAddressValidationStatus($shipperResponse);
-        if ($addressType || $validationStatus) {
-            $existing = ['key' => $key,
-            'destination_type' => $addressType ? $addressType : '',
-            'validation_status' =>$validationStatus ];
+        if ($validationStatus) {
+            $existing[ 'validation_status'] = $validationStatus;
+        }
+
+        if ($addressType) {
+            $existing['destination_type'] = $addressType;
+        }
+
+        if(count($existing) > 0) {
+            $existing['key'] = $key;
             $this->checkoutSession->setShipAddressValidation($existing);
         }
+
     }
 
     private function persistShipments($shipmentArray)

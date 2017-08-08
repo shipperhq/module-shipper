@@ -21,4 +21,7 @@
     <event name="multishipping_checkout_controller_success_action">
         <observer name="shipperhq_record_order_multi" instance="ShipperHQ\Shipper\Observer\RecordMultiOrder" />
     </event>
+    <event name="controller_action_postdispatch_customer_address_formpost">
+        <observer name="shipperhq_reset_address_validation" instance="ShipperHQ\Shipper\Observer\CustomerAddressEdit" />
+    </event>
 </config>

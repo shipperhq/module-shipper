@@ -120,7 +120,7 @@ class ShippingInformationPlugin
         $shippingMethod = $carrierCode . '_' . $methodCode;
         $quote = $this->quoteRepository->getActive($cartId);
         $address = $quote->getShippingAddress();
-
+        $validation = false;
         try {
             if ($this->checkoutSession) {
                 $validation = $this->checkoutSession->getShipAddressValidation();
@@ -171,13 +171,12 @@ class ShippingInformationPlugin
         if ($address->getCustomerId()) {
             $customerAddresses = $quote->getCustomer()->getAddresses();
             foreach ($customerAddresses as $oneAddress) {
-                if ($oneAddress->getId() == $address->getCustomerAddressId()) {
-                    if ($address->getValidationStatus()) {
-                        $oneAddress->setCustomAttribute('validation_status', $address->getValidationStatus());
+                if ($oneAddress->getId() == $address->getCustomerAddressId() && is_array($validation) && isset($validation['key'])) {
+                    if (isset($validation['validation_status'])) {
+                        $oneAddress->setCustomAttribute('validation_status', $validation['validation_status']);
                     }
-
-                    if ($address->getDestinationType()) {
-                        $oneAddress->setCustomAttribute('destination_type', $address->getDestinationType());
+                    if (isset($validation['destination_type'])) {
+                        $oneAddress->setCustomAttribute('destination_type', $validation['destination_type']);
                     }
                     $this->addressRepository->save($oneAddress);
                 }

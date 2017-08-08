@@ -35,4 +35,6 @@
 "Integration","Integration"
 "Can\'t convert rate from "%1".","Can\'t convert rate from "%1"."
 "Your ShipperHQ credentials saved in Magento are invalid. You will no longer receive shipping rates until this is rectified.","Your ShipperHQ credentials saved in Magento are invalid. You will no longer receive shipping rates until this is rectified."
+"Residential","Residential"
+"Business","Business"
 

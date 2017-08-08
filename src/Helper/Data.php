@@ -430,7 +430,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $boxText .= ' Value='.$box['declaredValue']. ':';
                 $boxText .= $this->getProductBreakdownText($box);
             }
-            $boxText .= '</br>';
+            $boxText .= '<br/>';
         }
         return $boxText;
     }

@@ -108,7 +108,7 @@ class UpgradeData implements UpgradeDataInterface
             $this->installAttributes($catalogSetup);
         }
         //v 1.0.3
-        if ($context->getVersion() && version_compare($context->getVersion(), '1.0.3') < 0) {
+        if (version_compare($context->getVersion(), '1.0.3') < 0) {
             $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_availability_date', [
                 'type' => 'datetime',
                 'backend' => 'Magento\Eav\Model\Entity\Attribute\Backend\Datetime',
@@ -134,7 +134,7 @@ class UpgradeData implements UpgradeDataInterface
         $salesSetup = $this->salesSetupFactory->create(['setup' => $setup]);
         $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
 
-        if ($context->getVersion() && version_compare($context->getVersion(), '1.0.5') < 0) {
+        if (version_compare($context->getVersion(), '1.0.5') < 0) {
 
             $destinationTypeAttr = [
                 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -192,7 +192,7 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         //1.0.7
-        if ($context->getVersion() && version_compare($context->getVersion(), '1.0.7') < 0) {
+        if (version_compare($context->getVersion(), '1.0.7') < 0) {
             $dispatchDateAttr = [
                 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
                 'visible' => false,

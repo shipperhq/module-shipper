@@ -70,4 +70,10 @@
             <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
         </arguments>
     </type>
+    <type name="Magento\Quote\Model\ShippingMethodManagement">
+        <plugin name="shipperhq_shipper_plugin_quote_shipping_method_management"
+                type="ShipperHQ\Shipper\Plugin\Quote\ShippingMethodManagementPlugin"
+                sortOrder="10"
+                disabled="false"/>
+    </type>
 </config>

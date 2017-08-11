@@ -149,6 +149,7 @@ class ShippingInformationPlugin
         $extAttributes = $addressInformation->getShippingAddress()->getExtensionAttributes();
 
         //push out event so other modules can save their data - in future add carrier_group_id
+        //Observers add to additionalDetail object
         $this->eventManager->dispatch(
             'shipperhq_additional_detail_checkout',
             ['address_extn_attributes' => $extAttributes, 'additional_detail'=> $additionalDetail,

@@ -319,7 +319,7 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
 
         $existing = $this->getExistingValidation($key); //SHQ16-1902
         $validate = true;
-        if (is_array($existing)) {
+        if (is_array($existing) && count($existing) > 0) {
             if (isset($existing['key']) && $existing['key'] == $key) {
                 $validate = false;
             }

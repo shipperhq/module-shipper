@@ -571,21 +571,22 @@ class ShipperMapper
             $region = "";
         }
 
+        //SHQ16-2238 prevent sending null in the address
         if ($this->getCartType($request) == "CART") {
             // Don't pass in street for this scenario
             $destination = $this->addressFactory->create([
-                    'city'            => $request->getDestCity(),
-                    'country'         => $request->getDestCountryId(),
+                    'city'            => $request->getDestCity() === null ? '' : $request->getDestCity(),
+                    'country'         => $request->getDestCountryId() === null ? '' : $request->getDestCountryId(),
                     'region'          => $region,
-                    'zipcode'         => $request->getDestPostcode(),
+                    'zipcode'         => $request->getDestPostcode() === null ? '' : $request->getDestPostcode(),
                     'selectedOptions' => $selectedOptions]);
         } else {
             $destination = $this->addressFactory->create([
-                    'city'            => $request->getDestCity(),
-                    'country'         => $request->getDestCountryId(),
+                    'city'            => $request->getDestCity() === null ? '' : $request->getDestCity(),
+                    'country'         => $request->getDestCountryId() === null ? '' : $request->getDestCountryId(),
                     'region'          => $region,
-                    'street'          => $request->getDestStreet(),
-                    'zipcode'         => $request->getDestPostcode(),
+                    'street'          => $request->getDestStreet() === null ? '' : $request->getDestStreet(),
+                    'zipcode'         => $request->getDestPostcode() === null ? '' : $request->getDestPostcode(),
                     'selectedOptions' => $selectedOptions]);
         }
 

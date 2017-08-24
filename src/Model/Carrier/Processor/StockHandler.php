@@ -39,12 +39,12 @@ class StockHandler
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
-    private $shipperLogger;
+    public $shipperLogger;
 
     /**
      * @var \Magento\CatalogInventory\Api\StockRegistryInterface
      */
-    private $stockRegistry;
+    public $stockRegistry;
 
     public function __construct(
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,

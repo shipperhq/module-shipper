@@ -209,6 +209,7 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
      * @param \ShipperHQ\Lib\Rate\Helper $shipperWSRateHelper
      * @param \ShipperHQ\Lib\Rate\ConfigSettingsFactory $configSettingsFactory
+     * @param \Magento\Framework\Event\ManagerInterface $eventManager
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \ShipperHQ\Shipper\Helper\Package $packageHelper
      * @param array $data

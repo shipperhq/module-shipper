@@ -53,5 +53,9 @@
         <attribute name="width"/>
         <attribute name="height"/>
         <attribute name="shipperhq_availability_date"/>
+        <attribute name="freight_class"/>
+        <attribute name="shipperhq_nmfc_class"/>
+        <attribute name="must_ship_freight"/>
+        <attribute name="shipperhq_nmfc_sub"/>
     </group>
 </config>

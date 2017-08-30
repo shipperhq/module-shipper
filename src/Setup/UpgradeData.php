@@ -134,7 +134,9 @@ class UpgradeData implements UpgradeDataInterface
         $salesSetup = $this->salesSetupFactory->create(['setup' => $setup]);
         $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
 
-        if (version_compare($context->getVersion(), '1.0.5') < 0) {
+        $custDestTypeAttribute = $customerSetup->getAttribute('customer_address', 'destination_type');
+
+        if (version_compare($context->getVersion(), '1.0.5') < 0 || !$custDestTypeAttribute) {
 
             $destinationTypeAttr = [
                 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -144,12 +146,11 @@ class UpgradeData implements UpgradeDataInterface
             ];
             $quoteSetup->addAttribute('quote_address', 'destination_type', $destinationTypeAttr);
             $salesSetup->addAttribute('order', 'destination_type', $destinationTypeAttr);
-
             $destinationTypeAddressAttr = [
                 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                 'label' => 'Address Type',
                 'input' => 'select',
-                'source_model' => 'ShipperHQ\Shipper\Model\Customer\Attribute\Source\AddressType',
+                'source' => 'ShipperHQ\Shipper\Model\Customer\Attribute\Source\AddressType',
                 'system' => 0, // <-- important, otherwise values aren't saved.
                 // @see Magento\Customer\Model\Metadata\AddressMetadata::getCustomAttributesMetadata()
                 //            'visible' => false,
@@ -214,8 +215,8 @@ class UpgradeData implements UpgradeDataInterface
             $this->installFreightAttributes($catalogSetup);
         }
 
-        //1.0.15
-        if (version_compare($context->getVersion(), '1.0.15') < 0) {
+        //1.0.16
+        if (version_compare($context->getVersion(), '1.0.16') < 0) {
             $customerSetup->updateAttribute(
                 'customer_address',
                 'destination_type',

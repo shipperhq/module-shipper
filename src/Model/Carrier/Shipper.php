@@ -506,7 +506,7 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
         );
 
         $allowed = $this->shipperDataHelper->decode($allowedConfigValue);
-        if ($allowed !== null) {
+        if ($allowed === null) {
             $this->shipperLogger->postDebug(
                 'Shipperhq_Shipper',
                 'Allowed methods config is empty',

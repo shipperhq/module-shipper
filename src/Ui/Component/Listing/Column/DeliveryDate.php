@@ -65,7 +65,6 @@ class DeliveryDate extends Date
      * @param ContextInterface $context
      * @param UiComponentFactory $uiComponentFactory
      * @param TimezoneInterface $timezone
-     * @param BooleanUtils $booleanUtils
      * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
      * @param array $components
      * @param array $data
@@ -76,7 +75,6 @@ class DeliveryDate extends Date
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
         TimezoneInterface $timezone,
-        BooleanUtils $booleanUtils,
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
         array $components = [],
         array $data = []
@@ -84,13 +82,14 @@ class DeliveryDate extends Date
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->date = $date;
         $this->productMetadata = $productMetadata;
+        parent::__construct($context, $uiComponentFactory, $timezone, $components, $data);
 
         //SHQ16-2205 account for differences in constructor arguments
-        if(version_compare($this->productMetadata->getVersion(), '2.2', '>')) {
-            parent::__construct($context, $uiComponentFactory, $timezone, $booleanUtils, $components, $data);
-        } else {
-            parent::__construct($context, $uiComponentFactory, $timezone, $components, $data);
-        }
+        // temporary fix until we resolve how to handle backwards compatability
+        //   if(version_compare($this->productMetadata->getVersion(), '2.2', '>')) {
+        //       parent::__construct($context, $uiComponentFactory, $timezone, $booleanUtils, $components, $data);
+        //  } else {
+        //  }
     }
 
     /**

@@ -471,7 +471,7 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
             $allowedMethods
         );
 
-        $this->shipperLogger->postDebug(
+       $this->shipperLogger->postDebug(
             'Shipperhq_Shipper',
             'Allowed methods parsed result ',
             $allowedMethods

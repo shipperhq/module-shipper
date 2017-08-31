@@ -1,5 +1,5 @@
 <listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
-    <columns>
+    <columns name="sales_order_columns">
         <column name="carrier_group" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\CarrierGroup">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">

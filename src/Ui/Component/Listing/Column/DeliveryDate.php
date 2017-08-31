@@ -37,6 +37,7 @@ use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Ui\Component\Listing\Columns\Date;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
+use Magento\Framework\Stdlib\BooleanUtils;
 
 /**
  * Class Address
@@ -53,12 +54,19 @@ class DeliveryDate extends Date
      */
     private $date;
 
+    /*
+     *  \Magento\Framework\App\ProductMetadataInterface
+     */
+    private $productMetadata;
+
     /**
      * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
      * @param ContextInterface $context
      * @param UiComponentFactory $uiComponentFactory
      * @param TimezoneInterface $timezone
+     * @param BooleanUtils $booleanUtils
+     * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
      * @param array $components
      * @param array $data
      */
@@ -68,12 +76,21 @@ class DeliveryDate extends Date
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
         TimezoneInterface $timezone,
+        BooleanUtils $booleanUtils,
+        \Magento\Framework\App\ProductMetadataInterface $productMetadata,
         array $components = [],
         array $data = []
     ) {
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->date = $date;
-        parent::__construct($context, $uiComponentFactory, $timezone, $components, $data);
+        $this->productMetadata = $productMetadata;
+
+        //SHQ16-2205 account for differences in constructor arguments
+        if(version_compare($this->productMetadata->getVersion(), '2.2', '>')) {
+            parent::__construct($context, $uiComponentFactory, $timezone, $booleanUtils, $components, $data);
+        } else {
+            parent::__construct($context, $uiComponentFactory, $timezone, $components, $data);
+        }
     }
 
     /**

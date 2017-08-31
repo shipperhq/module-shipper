@@ -76,4 +76,10 @@
                 sortOrder="10"
                 disabled="false"/>
     </type>
+    <type name="Magento\Shipping\Model\Shipping">
+        <plugin name="shipperhq_shipper_plugin_shipping_model_shipping"
+                type="ShipperHQ\Shipper\Plugin\Shipping\ShippingPlugin"
+                sortOrder="10"
+                disabled="false"/>
+    </type>
 </config>

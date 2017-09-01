@@ -34,7 +34,7 @@
 namespace ShipperHQ\Shipper\Ui\Component\Listing\Column;
 
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
-use Magento\Ui\Component\Listing\Columns\Date;
+use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Framework\Stdlib\BooleanUtils;
@@ -42,7 +42,7 @@ use Magento\Framework\Stdlib\BooleanUtils;
 /**
  * Class Address
  */
-class DeliveryDate extends Date
+class DeliveryDate extends Column
 {
     /**
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
@@ -58,6 +58,10 @@ class DeliveryDate extends Date
      *  \Magento\Framework\App\ProductMetadataInterface
      */
     private $productMetadata;
+    /**
+     * @var TimezoneInterface
+     */
+    protected $timezone;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
@@ -82,14 +86,8 @@ class DeliveryDate extends Date
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->date = $date;
         $this->productMetadata = $productMetadata;
-        parent::__construct($context, $uiComponentFactory, $timezone, $components, $data);
-
-        //SHQ16-2205 account for differences in constructor arguments
-        // temporary fix until we resolve how to handle backwards compatability
-        //   if(version_compare($this->productMetadata->getVersion(), '2.2', '>')) {
-        //       parent::__construct($context, $uiComponentFactory, $timezone, $booleanUtils, $components, $data);
-        //  } else {
-        //  }
+        $this->timezone = $timezone;
+        parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
     /**

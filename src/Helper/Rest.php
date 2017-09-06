@@ -105,7 +105,7 @@ class Rest extends Data
 
         if (self::$wsTimeout==null) {
             $timeout =  $this->shipperHelperData->getConfigValue('carriers/shipper/ws_timeout');
-            if (!is_numeric($timeout) || $timeout < 30) {
+            if (!is_numeric($timeout)) {
                 $timeout = 30;
             }
             self::$wsTimeout = $timeout;

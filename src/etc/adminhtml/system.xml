@@ -129,6 +129,11 @@
                         Enable to reduce number of requests to ShipperHQ for duplicate rate requests.
                     </tooltip>
                 </field>
+                <field id="ws_timeout" translate="label" type="text" sortOrder="335" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Timeout (seconds)</label>
+                    <tooltip>Time allowed for ShipperHQ to respond before using backup carrier rates.</tooltip>
+                </field>
                 <field id="url" translate="label" type="text" sortOrder="340" showInDefault="1" showInWebsite="1"
                        showInStore="1">
                     <label>Sandbox URL</label>

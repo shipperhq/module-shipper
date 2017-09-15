@@ -105,6 +105,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     private $checkoutHelper;
 
+    /**
+     * @var \Magento\Framework\App\Config\MutableScopeConfigInterface
+     */
+    private $mutableConfig;
+
     public function __construct(
         Config $shipperConfig,
         \Magento\Eav\Model\Config $eavConfig,
@@ -116,7 +121,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\Checkout\Model\Session $checkoutSession,
         StoreManagerInterface $storeManager,
-        \Magento\Checkout\Helper\Data $checkoutHelper
+        \Magento\Checkout\Helper\Data $checkoutHelper,
+        \Magento\Framework\App\Config\MutableScopeConfigInterface $mutableConfig
     ) {
          parent::__construct($context);
         $this->shipperConfig = $shipperConfig;
@@ -129,6 +135,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->dirCurrencyFactory = $dirCurrencyFactory;
         $this->carrierFactory = $carrierFactory;
         $this->checkoutHelper = $checkoutHelper;
+        $this->mutableConfig = $mutableConfig;
     }
 
     public function isModuleActive()
@@ -516,10 +523,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getCarrierByCode($carrierCode, $storeId = null)
     {
-        if (!$this->scopeConfig->getValue('carriers/'.$carrierCode.'/active', 'store', $storeId)) {
+        if (!$this->mutableConfig->getValue('carriers/'.$carrierCode.'/active', 'store', $storeId)) {
             return false;
         }
-        $className = $this->scopeConfig->getValue('carriers/'.$carrierCode.'/model', 'store', $storeId);
+        $className = $this->mutableConfig->getValue('carriers/'.$carrierCode.'/model', 'store', $storeId);
         if (!$className) {
             return false;
         }

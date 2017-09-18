@@ -1025,8 +1025,10 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
 
         foreach (self::$shippingOptions as $option) {
             if (is_array($sessionValues) && isset($sessionValues[$option])) {
+                $this->shipperLogger->postDebug('ShipperHQ Shipper', 'Using Session value for setting option ' .$option, $sessionValues[$option]);
                 $shipOptions[] = ['name' => $option, 'value' => $sessionValues[$option]];
             } elseif ($shippingAddress->getData($option) != '') {
+                $this->shipperLogger->postDebug('ShipperHQ Shipper', 'Using Shipping Address value for setting option ' .$option,  $shippingAddress->getData($option));
                 $shipOptions[] = ['name' => $option, 'value' => $shippingAddress->getData($option)];
             }
         }

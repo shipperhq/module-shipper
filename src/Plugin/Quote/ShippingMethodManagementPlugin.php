@@ -33,6 +33,8 @@
  */
 namespace ShipperHQ\Shipper\Plugin\Quote;
 
+use \Magento\Quote\Api\Data\AddressInterface;
+
 class ShippingMethodManagementPlugin
 {
     /**
@@ -51,16 +53,27 @@ class ShippingMethodManagementPlugin
      * @var \Magento\Customer\Api\AddressRepositoryInterface
      */
     private $addressRepository;
+    /**
+     * @var \Magento\Customer\Model\Session
+     */
+    protected $customerSession;
+    /**
+     * @var \Magento\Customer\Api\CustomerRepositoryInterface
+     */
+    protected $customerRepository;
 
     public function __construct(
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
+        \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
     ) {
         $this->quoteRepository = $quoteRepository;
         $this->shipperLogger = $shipperLogger;
         $this->addressRepository = $addressRepository;
-
+        $this->customerSession = $customerSession;
+        $this->customerRepository = $customerRepository;
     }
 
     /**
@@ -95,5 +108,36 @@ class ShippingMethodManagementPlugin
         }
 
         return $proceed($cartId, $addressId);
+    }
+
+    public function aroundEstimateByExtendedAddress(
+        \Magento\Quote\Model\ShippingMethodManagement $subject,
+        $proceed,
+        $cartId,
+        \Magento\Quote\Api\Data\AddressInterface $address)
+    {
+        /** @var \Magento\Quote\Model\Quote $quote */
+        $quote = $this->quoteRepository->getActive($cartId);
+
+        // no methods applicable for empty carts or carts with virtual products
+        if ($quote->isVirtual() || 0 == $quote->getItemsCount()) {
+            return $proceed($cartId, $address);
+        }
+        //if logged in, get the default address and apply address type to address
+        if ($this->customerSession->isLoggedIn()) {
+            $customer = $this->customerRepository->getById($this->customerSession->getCustomerId());
+            if ($defaultShipping = $customer->getDefaultShipping()) {
+                $defaultAddress = $this->addressRepository->getById($defaultShipping);
+                if($custom = $defaultAddress->getCustomAttributes()) {
+                    foreach ($custom as $custom_attribute) {
+                        if($custom_attribute->getAttributeCode() == 'destination_type') {
+                            $quote->getShippingAddress()->setData('destination_type', $custom_attribute->getValue());
+                        }
+                    }
+                }
+            }
+        }
+
+        return $proceed($cartId, $address);
     }
 }

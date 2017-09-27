@@ -240,12 +240,8 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         if ($request === null) {
             $request = $this->shipperMapper->getCredentialsTranslation();
         }
-        $this->shipperLogger->postDebug(
-            'Shipperhq_Shipper',
-            'Synch: Request to ' .$url,
-            $request->siteDetails
-        );
         $result = $this->shipperWSClientFactory->create()->sendAndReceive($request, $url, $timeout);
+        $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Synch request and response', $result['debug']);
         return $result;
     }
 

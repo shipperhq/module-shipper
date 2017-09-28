@@ -86,7 +86,11 @@ Corrected version number display
 
 ## 20.5.2
 SHQ16-2117 resolved issue with Authorize.net and custom admin shipping
-## 20.7.7
-SHQ16-2298 set address type when request being made from cart on logged in customer
+## 20.8.0
+SHQ16-2231 support for customer account carrier
+
+
+## 20.8.0
+SHQ16-2231 support for customer account carrier
 
 

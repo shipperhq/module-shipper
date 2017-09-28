@@ -17,7 +17,8 @@ Once installed, you can configure with your ShipperHQ platform credentials to pr
 
 Compatibility
 -------------
-- Magento >= 2.0
+- Magento 2.0 -> 2.1
+- Magento 2.2 is currently being tested.
 
 Installation Instructions
 -------------------------

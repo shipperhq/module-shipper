@@ -155,7 +155,7 @@ class CarrierConfigHandler
                 $carrierConfig['model'] == 'ShipperHQ\Shipper\Model\Carrier\Shipper') {
                 foreach ($carrierConfig as $item => $value) {
                     $path = 'carriers/' .$carrierCode .'/'.$item ;
-                    $this->resourceConfig->deleteConfig($path,  \Magento\Store\Model\ScopeInterface::SCOPE_STORE, null);
+                    $this->resourceConfig->deleteConfig($path, \Magento\Framework\App\Config\ScopeConfigInterface::SCOPE_TYPE_DEFAULT, 0);
                 }
             }
         }

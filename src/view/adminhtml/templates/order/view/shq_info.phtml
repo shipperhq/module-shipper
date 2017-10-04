@@ -63,6 +63,18 @@
                     <?php echo __('Scheduled Appointment'); ?>
                     <br/>
                 <?php endif; ?>
+                <?php if(array_key_exists('customer_carrier', $carrierGroup) && $carrierGroup['customer_carrier'] != ''): ?>
+                    <?php echo __('Customer Carrier') .': ' .$block->escapeHtml($carrierGroup['customer_carrier']) ?>
+                    <br/>
+                <?php endif; ?>
+                <?php if(array_key_exists('customer_carrier_ph', $carrierGroup) && $carrierGroup['customer_carrier_ph'] != ''): ?>
+                    <?php echo __('Carrier Phone') .': ' .$block->escapeHtml($carrierGroup['customer_carrier_ph']) ?>
+                    <br/>
+                <?php endif; ?>
+                <?php if(array_key_exists('customer_carrier_account', $carrierGroup) && $carrierGroup['customer_carrier_account'] != ''): ?>
+                    <?php echo __('Carrier Account') .': ' .$block->escapeHtml($carrierGroup['customer_carrier_account']) ?>
+                    <br/>
+                <?php endif; ?>
             </div>
         <?php endforeach; ?>
     </div>

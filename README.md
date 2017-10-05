@@ -58,7 +58,7 @@ Magento Issues Impacting ShipperHQ
    - Github Issue: https://github.com/magento/magento2/issues/6475
 6. Free shipping via cart rules are never removed once they have been applied, even if conditions are no longer met
    - Github Issue: https://github.com/magento/magento2/issues/7388
-   
+7. Shipping step of checkout times out and returns multiple blank radio buttons. Specific to PHP5.x. Ensure you have set always_populate_raw_post_data to -1 in your php.ini file.   
 
 Contribution
 ------------

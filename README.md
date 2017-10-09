@@ -17,7 +17,7 @@ Once installed, you can configure with your ShipperHQ platform credentials to pr
 
 Compatibility
 -------------
-- Magento >= 2.0
+- Magento >= 2.0 (Incl 2.2)
 
 Installation Instructions
 -------------------------
@@ -54,11 +54,12 @@ Magento Issues Impacting ShipperHQ
     - Resolved in Magento 2.1 and above for Guest checkout, logged in customers will still only see region/state, postcode and country
 4. Error thrown when using Elastic search and Magento Enterprise " error: MapperParsingException[No handler for type [array] declared on field [shipperhq_master_boxes]]"
     - Magento issue number/patch reference: MDVA-791 - contact Enterprise support for patch
-5. Error thrown when placing an order with some shipping methods. Root cause is that some shipping methods have shipping method codes longer than the column length on quote for shipping_method field. Field is truncating the code and order cannot be placed. 
+5. Error thrown when placing an order with some shipping methods. Root cause is that some shipping methods have shipping method codes longer than the column length on quote for shipping_method field. Field is truncating the code and order cannot be placed.
    - Github Issue: https://github.com/magento/magento2/issues/6475
 6. Free shipping via cart rules are never removed once they have been applied, even if conditions are no longer met
    - Github Issue: https://github.com/magento/magento2/issues/7388
-7. Shipping step of checkout times out and returns multiple blank radio buttons. Specific to PHP5.x. Ensure you have set always_populate_raw_post_data to -1 in your php.ini file.   
+7. Shipping step of checkout times out and returns multiple blank radio buttons. Specific to PHP5.x. Ensure you have set always_populate_raw_post_data to -1 in your php.ini file
+
 
 Contribution
 ------------

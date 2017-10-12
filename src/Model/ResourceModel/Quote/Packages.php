@@ -37,20 +37,6 @@ namespace ShipperHQ\Shipper\Model\ResourceModel\Quote;
 class Packages extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**
-     * @var \ShipperHQ\Shipper\Helper\LogAssist
-     */
-    private $shipperLogger;
-
-    public function __construct(
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Magento\Framework\Model\ResourceModel\Db\Context $context
-    ) {
-        $this->shipperLogger = $shipperLogger;
-        parent::__construct($context);
-    }
-
-
-    /**
      * Define main table
      *
      * @return void
@@ -120,44 +106,29 @@ class Packages extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         parent::_afterSave($object);
 
         $connection = $this->getConnection();
-        $itemArray = [];
+        $itemsTable = $this->getTable('shipperhq_quote_package_items');
+        $packageId = $object->getId();
 
-        $success = false;
-        $retries = 3;
-
-        while(!$success && $retries > 0) {
-            try {
-                // now save the package items
-                $connection->beginTransaction();
-
-                $connection->delete($this->getTable('shipperhq_quote_package_items'), ['package_id = ?' => $object->getId()]);
-
-                foreach ((array)$object->getData('items') as $item) {
-                    $itemArray[] = [
-                        'package_id'    => $object->getId(),
-                        'sku'           => $item->sku,
-                        'weight_packed' => $item->weightPacked,
-                        'qty_packed'    => $item->qtyPacked
-                    ];
-                }
-
-                if (count($itemArray) > 0) {
-                    $connection->insertMultiple($this->getTable('shipperhq_quote_package_items'), $itemArray);
-                }
-
-                $connection->commit();
-                $success = true;
-            } catch (\Exception $e) {
-                $retries--;
-
-                $this->shipperLogger->postWarning(
-                    'Shipperhq_Shipper',
-                    'ShipperHQ save quote package error. Retrying '.$retries.' more times',
-                    $e->getMessage());
-
-                $connection->rollBack();
-            }
+        // Delete existing package items, if any
+        $select = $connection->select()
+            ->from($itemsTable, 'COUNT(*)')
+            ->where('package_id = ?', $packageId);
+        $itemCount = (int)$connection->fetchOne($select);
+        if ($itemCount) {
+            $connection->delete($itemsTable, ['package_id = ?' => $packageId]);
         }
+
+        // Add new package items
+        $items = [];
+        foreach ((array)$object->getData('items') as $item) {
+            $items[] = [
+                'package_id'    => $packageId,
+                'sku'           => $item->sku,
+                'weight_packed' => $item->weightPacked,
+                'qty_packed'    => $item->qtyPacked
+            ];
+        }
+        $connection->insertMultiple($itemsTable, $items);
 
         return $this;
     }

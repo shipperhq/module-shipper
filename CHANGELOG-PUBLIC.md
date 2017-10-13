@@ -86,15 +86,7 @@ Corrected version number display
 
 ## 20.5.2
 SHQ16-2117 resolved issue with Authorize.net and custom admin shipping
-
 ## 20.8.0
 SHQ16-2231 support for customer account carrier
 
-## 20.8.1
-SHQ16-2300 Fixed issue with deleting old carriers from config
 
-## 20.8.2
-M2-45 Ensure we check array key exists on admin order view, M2-47 Deadlocking issue work
-
-## 20.8.3
-SHQ16-2078 add unit tests for time slot calculations

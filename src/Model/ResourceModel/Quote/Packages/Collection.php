@@ -46,6 +46,27 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
         $this->_init('ShipperHQ\Shipper\Model\Quote\Packages', 'ShipperHQ\Shipper\Model\ResourceModel\Quote\Packages');
     }
 
+    protected function _afterLoad()
+    {
+        $this->performAfterLoad();
+        return parent::_afterLoad();
+
+    }
+
+    protected function performAfterLoad()
+    {
+        $connection = $this->getConnection();
+        foreach ($this as $item) {
+            $packageId = $item->getData('package_id');
+            $select = $connection->select()->from($this->getTable('shipperhq_quote_package_items'));
+            $select->where('package_id=?', $packageId);
+            $items = $connection->fetchAll($select);
+            if ($items) {
+                $item->setData('items', $items);
+            }
+        }
+    }
+
     public function addAddressToFilter($addressId)
     {
         $this->addFieldToFilter('quote_address_id', $addressId);

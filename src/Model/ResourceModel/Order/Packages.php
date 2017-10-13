@@ -68,24 +68,32 @@ class Packages extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     {
         parent::_afterSave($object);
 
-        // now save the package items
-        $this->getConnection()->delete(
-            $this->getTable('shipperhq_order_package_items'),
-            ['package_id = ?' => $object->getId()]
-        );
-        foreach ((array)$object->getData('items') as $item) {
-            if (is_object($item)) {
-                $item = (array)$item;
-            }
-            $itemArray = [
-                'package_id' => $object->getId(),
-                'sku' => $item['sku'],
-                'weight_packed' => $item['weight_packed'],
-                'qty_packed' => $item['qty_packed']
-            ];
-            $this->getConnection()->insert($this->getTable('shipperhq_order_package_items'), $itemArray);
+        $connection = $this->getConnection();
+        $itemsTable = $this->getTable('shipperhq_order_package_items');
+        $packageId = $object->getId();
+
+        // Delete existing package items, if any
+        $select = $connection->select()
+            ->from($itemsTable, 'COUNT(*)')
+            ->where('package_id = ?', $packageId);
+        $itemCount = (int)$connection->fetchOne($select);
+        if ($itemCount) {
+            $connection->delete($itemsTable, ['package_id = ?' => $packageId]);
         }
 
+        // Add new package items
+        $items = [];
+        foreach ((array)$object->getData('items') as $item) {
+            $items[] = [
+                'package_id'    => $packageId,
+                'sku'           => $item['sku'],
+                'weight_packed' => $item['weight_packed'],
+                'qty_packed'    => $item['qty_packed']
+            ];
+        }
+        if(count($items) > 0) {
+            $connection->insertMultiple($itemsTable, $items);
+        }
         return $this;
     }
 }

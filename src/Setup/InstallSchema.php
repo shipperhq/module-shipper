@@ -49,12 +49,7 @@ class InstallSchema implements InstallSchemaInterface
                 'synch_id',
                 \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                 null,
-                [
-                    'primary' => true,
-                    'nullable' => false,
-                    'unsigned' => true,
-                    'auto_increment' => true
-                ],
+                ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true],
                 'Synch ID'
             )->addColumn(
                 'attribute_code',
@@ -103,10 +98,7 @@ class InstallSchema implements InstallSchemaInterface
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true,
-                        'nullable' => false,
-                        'unsigned' => true,
-                        'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
                 )->addColumn(
                     'quote_address_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -298,17 +290,12 @@ class InstallSchema implements InstallSchemaInterface
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true,
-                        'nullable' => false,
-                        'unsigned' => true,
-                        'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
                 )->addColumn(
                     'order_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     10,
-                    ['nullable' => false,
-                        'default' => '0',
-                        'unsigned' => true],
+                    ['nullable' => false, 'default' => '0', 'unsigned' => true],
                     'Order ID'
                 )->addColumn(
                     'carrier_group_id',
@@ -488,10 +475,7 @@ class InstallSchema implements InstallSchemaInterface
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true,
-                        'nullable' => false,
-                        'unsigned' => true,
-                        'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
                 )->addColumn(
                     'quote_item_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -533,10 +517,7 @@ class InstallSchema implements InstallSchemaInterface
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true,
-                        'nullable' => false,
-                        'unsigned' => true,
-                        'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
                 )->addColumn(
                     'quote_address_item_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -578,10 +559,7 @@ class InstallSchema implements InstallSchemaInterface
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true,
-                        'nullable' => false,
-                        'unsigned' => true,
-                        'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
                 )->addColumn(
                     'order_item_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -624,10 +602,7 @@ class InstallSchema implements InstallSchemaInterface
                     'package_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true,
-                        'nullable' => false,
-                        'unsigned' => true,
-                        'auto_increment' => true]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'quote_address_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -752,17 +727,12 @@ class InstallSchema implements InstallSchemaInterface
                     'package_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true,
-                        'nullable' => false,
-                        'unsigned' => true,
-                        'auto_increment' => true]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'order_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     10,
-                    ['nullable' => false,
-                        'default' => '0',
-                        'unsigned' => true],
+                    ['nullable' => false, 'default' => '0', 'unsigned' => true],
                     'Order ID'
                 )->addColumn(
                     'carrier_group_id',
@@ -881,17 +851,12 @@ class InstallSchema implements InstallSchemaInterface
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true,
-                        'nullable' => false,
-                        'unsigned' => true,
-                        'auto_increment' => true]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'order_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     10,
-                    ['nullable' => false,
-                        'default' => '0',
-                        'unsigned' => true],
+                    ['nullable' => false, 'default' => '0', 'unsigned' => true],
                     'Order ID'
                 )->addColumn(
                     'carrier_group',

@@ -409,9 +409,6 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
                 $allowedMethodUrl,
                 $timeout
             );
-            if (is_object($resultSet['result'])) {
-                $this->carrierCache->setCachedQuotes($requestString, $resultSet, $this->getCarrierCode());
-            }
         }
 
         $allowedMethodResponse = $resultSet['result'];
@@ -466,6 +463,8 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
                 'ShipperHQ Warning: No carriers setup, log in to ShipperHQ Dashboard and create carriers';
             return $result;
         }
+        $this->carrierCache->setCachedQuotes($requestString, $resultSet, $this->getCarrierCode());
+
         $carrierConfig = $this->allowedMethodsHelper->extractAllowedMethodsAndCarrierConfig(
             $allowedMethodResponse,
             $allowedMethods
@@ -722,7 +721,7 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
                     // and method code of less than 35 - M2 hard limit of 40
                     $lengthMethodCode = strlen($methodCombineCode);
 
-                    if ($lengthCarrierCode + $lengthMethodCode > 40) {
+                    if ($lengthCarrierCode + $lengthMethodCode > 38) {
                         $total = $lengthCarrierCode + $lengthMethodCode;
                         $trim = $total - 35;
                         $methodCombineCode = substr($methodCombineCode, $trim, $lengthMethodCode);

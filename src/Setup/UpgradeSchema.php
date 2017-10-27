@@ -43,6 +43,14 @@ use Magento\Framework\Setup\UpgradeSchemaInterface;
 class UpgradeSchema implements UpgradeSchemaInterface
 {
     /**
+     * SHQ16-2375
+     * Declare connection name to support split database architecture in EE
+     * connectes to 'sales' database; falls back to default for a standard installation
+     * @var string
+     */
+    private static $connectionName = 'sales';
+
+    /**
      * {@inheritdoc}
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
@@ -52,8 +60,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
         $installer->startSetup();
 
         //1.0.6
-        if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_quote_address_detail'))) {
-            $table = $installer->getConnection()->newTable($installer->getTable('shipperhq_quote_address_detail'));
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_address_detail'))) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_address_detail'));
             $table
                 ->addColumn(
                     'id',
@@ -241,11 +249,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'ShipperHQ Quote Carrier Group Information'
                 );
             //Foreign key to quote address table - if permitted
-            $installer->getConnection()->createTable($table);
+            $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
         if (version_compare($context->getVersion(), '1.0.10', '<')) {
-            $connection = $installer->getConnection();
+            $connection = $installer->getConnection(self::$connectionName);
             $connection->modifyColumn(
                 $setup->getTable('shipperhq_quote_address_detail'),
                 'quote_address_id',
@@ -261,11 +269,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
         //1.0.11 - SHQ16-1967
         if (version_compare($context->getVersion(), '1.0.11', '<')) {
-            if (!$installer->getConnection()->tableColumnExists(
+            if (!$installer->getConnection(self::$connectionName)->tableColumnExists(
                 $installer->getTable('shipperhq_quote_address_detail'),
                 'limited_delivery'
             )) {
-                $installer->getConnection()
+                $installer->getConnection(self::$connectionName)
                     ->addColumn(
                         $installer->getTable('shipperhq_quote_address_detail'),
                         'limited_delivery',
@@ -280,8 +288,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
             }
         }
 
-        if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_order_detail'))) {
-            $table = $installer->getConnection()->newTable($installer->getTable('shipperhq_order_detail'));
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_detail'))) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_detail'));
             $table
                 ->addColumn(
                     'id',
@@ -464,16 +472,16 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )->setComment(
                     'ShipperHQ Order Carrier Group Information'
                 );
-            $installer->getConnection()->createTable($table);
+            $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
         //1.0.11 - SHQ16-1967
         if (version_compare($context->getVersion(), '1.0.11', '<')) {
-            if (!$installer->getConnection()->tableColumnExists(
+            if (!$installer->getConnection(self::$connectionName)->tableColumnExists(
                 $installer->getTable('shipperhq_order_detail'),
                 'limited_delivery'
             )) {
-                $installer->getConnection()
+                $installer->getConnection(self::$connectionName)
                     ->addColumn(
                         $installer->getTable('shipperhq_order_detail'),
                         'limited_delivery',
@@ -489,7 +497,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
         }
 
         if (version_compare($context->getVersion(), '1.0.13', '<')) {
-            $connection = $installer->getConnection();
+            $connection = $installer->getConnection(self::$connectionName);
             $connection->modifyColumn(
                 $setup->getTable('shipperhq_order_detail'),
                 'order_id', [
@@ -503,8 +511,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addIndexToTable($installer, 'shipperhq_order_detail', ['order_id']);
         }
 
-        if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_quote_item_detail'))) {
-            $table = $installer->getConnection()->newTable($installer->getTable('shipperhq_quote_item_detail'));
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_item_detail'))) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_item_detail'));
             $table
                 ->addColumn(
                     'id',
@@ -542,11 +550,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'ShipperHQ Quote Item Carrier Group Information'
                 );
 
-            $installer->getConnection()->createTable($table);
+            $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
         if (version_compare($context->getVersion(), '1.0.10', '<')) {
-            $connection = $installer->getConnection();
+            $connection = $installer->getConnection(self::$connectionName);
             $connection->modifyColumn(
                 $setup->getTable('shipperhq_quote_item_detail'),
                 'quote_item_id',
@@ -560,8 +568,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addIndexToTable($installer, 'shipperhq_quote_item_detail', ['quote_item_id']);
         }
 
-        if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_quote_address_item_detail'))) {
-            $table = $installer->getConnection()->newTable($installer->getTable('shipperhq_quote_address_item_detail'));
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_address_item_detail'))) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_address_item_detail'));
             $table
                 ->addColumn(
                     'id',
@@ -599,11 +607,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'ShipperHQ Quote Address Item Carrier Group Information'
                 );
 
-            $installer->getConnection()->createTable($table);
+            $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
         if (version_compare($context->getVersion(), '1.0.10', '<')) {
-            $installer->getConnection()->modifyColumn(
+            $installer->getConnection(self::$connectionName)->modifyColumn(
                 $setup->getTable('shipperhq_quote_address_item_detail'),
                 'quote_address_item_id',
                 [
@@ -616,8 +624,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addIndexToTable($installer, 'shipperhq_quote_address_item_detail', ['quote_address_item_id']);
         }
 
-        if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_order_item_detail'))) {
-            $table = $installer->getConnection()->newTable($installer->getTable('shipperhq_order_item_detail'));
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_item_detail'))) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_item_detail'));
             $table
                 ->addColumn(
                     'id',
@@ -655,10 +663,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'ShipperHQ Order Item Carrier Group Information'
                 );
 
-            $installer->getConnection()->createTable($table);
+            $installer->getConnection(self::$connectionName)->createTable($table);
         }
         if (version_compare($context->getVersion(), '1.0.10', '<')) {
-            $installer->getConnection()->modifyColumn(
+            $installer->getConnection(self::$connectionName)->modifyColumn(
                 $setup->getTable('shipperhq_order_item_detail'),
                 'order_item_id',
                 [
@@ -671,8 +679,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addIndexToTable($installer, 'shipperhq_order_item_detail', ['order_item_id']);
         }
 
-        if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_quote_packages'))) {
-            $table = $installer->getConnection()->newTable($installer->getTable('shipperhq_quote_packages'));
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_packages'))) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_packages'));
 
             $table
                 ->addColumn(
@@ -746,11 +754,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )->setComment(
                     'ShipperHQ Quote Address Package Information'
                 );
-            $installer->getConnection()->createTable($table);
+            $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
         if (version_compare($context->getVersion(), '1.0.10', '<')) {
-            $installer->getConnection()->modifyColumn(
+            $installer->getConnection(self::$connectionName)->modifyColumn(
                 $setup->getTable('shipperhq_quote_packages'),
                 'quote_address_id',
                 [
@@ -763,8 +771,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addIndexToTable($installer, 'shipperhq_quote_packages', ['quote_address_id']);
         }
 
-        if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_quote_package_items'))) {
-            $table = $installer->getConnection()->newTable($installer->getTable('shipperhq_quote_package_items'));
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_package_items'))) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_package_items'));
 
             $table
                 ->addColumn(
@@ -807,11 +815,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'package_id',
                     \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
-            $installer->getConnection()->createTable($table);
+            $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
         if (version_compare($context->getVersion(), '1.0.10', '<')) {
-            $installer->getConnection()->modifyColumn(
+            $installer->getConnection(self::$connectionName)->modifyColumn(
                 $setup->getTable('shipperhq_quote_package_items'),
                 'package_id',
                 [
@@ -825,8 +833,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addIndexToTable($installer, 'shipperhq_quote_package_items', ['package_id']);
         }
 
-        if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_order_packages'))) {
-            $table = $installer->getConnection()->newTable($installer->getTable('shipperhq_order_packages'));
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_packages'))) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_packages'));
 
             $table
                 ->addColumn(
@@ -900,11 +908,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )->setComment(
                     'ShipperHQ Quote Address Package Information'
                 );
-            $installer->getConnection()->createTable($table);
+            $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
         if (version_compare($context->getVersion(), '1.0.13', '<')) {
-            $installer->getConnection()->modifyColumn(
+            $installer->getConnection(self::$connectionName)->modifyColumn(
                 $setup->getTable('shipperhq_order_packages'),
                 'order_id', [
                     'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
@@ -918,8 +926,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addIndexToTable($installer, 'shipperhq_order_packages', ['order_id']);
         }
 
-        if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_order_package_items'))) {
-            $table = $installer->getConnection()->newTable($installer->getTable('shipperhq_order_package_items'));
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_package_items'))) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_package_items'));
 
             $table
                 ->addColumn(
@@ -962,11 +970,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'package_id',
                     \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
-            $installer->getConnection()->createTable($table);
+            $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
         if (version_compare($context->getVersion(), '1.0.10', '<')) {
-            $installer->getConnection()->modifyColumn(
+            $installer->getConnection(self::$connectionName)->modifyColumn(
                 $setup->getTable('shipperhq_order_package_items'),
                 'package_id',
                 [
@@ -981,8 +989,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
         }
 
         //Version 1.0.8
-        if (!$installer->getConnection()->isTableExists($installer->getTable('shipperhq_order_detail_grid'))) {
-            $table = $installer->getConnection()->newTable($installer->getTable('shipperhq_order_detail_grid'));
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_detail_grid'))) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_detail_grid'));
             $table
                 ->addColumn(
                     'id',
@@ -1071,10 +1079,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'ShipperHQ Order Grid Information'
                 );
 
-            $installer->getConnection()->createTable($table);
+            $installer->getConnection(self::$connectionName)->createTable($table);
         } else {
             if (version_compare($context->getVersion(), '1.0.9') < 0) {
-                $connection = $installer->getConnection();
+                $connection = $installer->getConnection(self::$connectionName);
 
                 $connection->modifyColumn(
                     $setup->getTable('shipperhq_order_detail_grid'),
@@ -1095,7 +1103,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             }
 
             if (version_compare($context->getVersion(), '1.0.13') < 0) {
-                $connection = $installer->getConnection();
+                $connection = $installer->getConnection(self::$connectionName);
                 $connection->modifyColumn(
                     $setup->getTable('shipperhq_order_detail_grid'),
                     'order_id',
@@ -1131,7 +1139,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
      */
     public function addIndexToTable(SchemaSetupInterface $setup, $tableName, array $columns)
     {
-        $setup->getConnection()->addIndex(
+        $setup->getConnection(self::$connectionName)->addIndex(
             $setup->getTable($tableName),
             $setup->getIdxName($tableName, $columns),
             $columns
@@ -1146,12 +1154,13 @@ class UpgradeSchema implements UpgradeSchemaInterface
     {
         $shqOrderGridTable = $setup->getTable('shipperhq_order_detail_grid');
 
-        $select = $setup->getConnection()->select()->from($shqOrderGridTable)->group('order_id')->having('count(*) >1');
+        $select = $setup->getConnection(self::$connectionName)->select()->from($shqOrderGridTable)->group('order_id')->having('count(*) >1');
 
-        $duplicateShqOrderGrids = $setup->getConnection()->fetchAll($select);
+        $duplicateShqOrderGrids = $setup->getConnection(self::$connectionName)->fetchAll($select);
         foreach ($duplicateShqOrderGrids as $shqOrderGridEntry) {
             $condition = ['id =?' => $shqOrderGridEntry['id']];
-            $setup->getConnection()->delete($shqOrderGridTable, $condition);
+            $setup->getConnection(self::$connectionName)->delete($shqOrderGridTable, $condition);
         }
     }
+
 }

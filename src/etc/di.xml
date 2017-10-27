@@ -82,4 +82,44 @@
                 sortOrder="10"
                 disabled="false"/>
     </type>
+    <!--
+    /**
+     * SHQ16-2375 specify connection name of sales to support split database, otherwise uses default
+     */
+     -->
+    <type name="ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">sales</argument>
+         </arguments>
+        </type>
+    <type name="ShipperHQ\Shipper\Model\ResourceModel\Order\Detail">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">sales</argument>
+        </arguments>
+    </type>
+    <type name="ShipperHQ\Shipper\Model\ResourceModel\Quote\ItemDetail">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">sales</argument>
+        </arguments>
+    </type>
+    <type name="ShipperHQ\Shipper\Model\ResourceModel\Order\ItemDetail">
+        <arguments>
+           <argument name="connectionName" xsi:type="string">sales</argument>
+        </arguments>
+    </type>
+    <type name="ShipperHQ\Shipper\Model\ResourceModel\Quote\Packages">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">sales</argument>
+        </arguments>
+    </type>
+    <type name="ShipperHQ\Shipper\Model\ResourceModel\Order\Packages">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">sales</argument>
+        </arguments>
+    </type>
+    <type name="ShipperHQ\Shipper\Model\ResourceModel\Order\GridDetail">
+        <arguments>
+            <argument name="connectionName" xsi:type="string">sales</argument>
+        </arguments>
+    </type>
 </config>

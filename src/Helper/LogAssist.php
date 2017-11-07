@@ -65,9 +65,8 @@ class LogAssist extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function postDebug($module, $message, $data, array $context = [])
     {
-        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/debug')) {
-            $this->logger->debug($this->getMessage($module, $message, $data), $context);
-        }
+        $this->logger->debug($this->getMessage($module, $message, $data), $context);
+
     }
 
     /**
@@ -77,9 +76,7 @@ class LogAssist extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function postInfo($module, $message, $data, array $context = [])
     {
-        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/debug')) {
-            $this->logger->info($this->getMessage($module, $message, $data), $context);
-        }
+        $this->logger->info($this->getMessage($module, $message, $data), $context);
     }
 
     /**
@@ -89,9 +86,7 @@ class LogAssist extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function postWarning($module, $message, $data, array $context = [])
     {
-        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/debug')) {
-            $this->logger->warning($this->getMessage($module, $message, $data), $context);
-        }
+        $this->logger->warning($this->getMessage($module, $message, $data), $context);
     }
 
     /**
@@ -101,9 +96,7 @@ class LogAssist extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function postCritical($module, $message, $data, array $context = [])
     {
-        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/debug')) {
-            $this->logger->warning($this->getMessage($module, $message, $data), $context);
-        }
+        $this->logger->warning($this->getMessage($module, $message, $data), $context);
     }
 
     /**

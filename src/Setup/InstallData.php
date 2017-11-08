@@ -739,7 +739,8 @@ class InstallData implements InstallDataInterface
             'is_configurable' => false,
             'unique' => false,
             'user_defined' => true,
-            'used_in_product_listing' => false
+            'used_in_product_listing' => false,
+            'note' => 'Can be overridden at Carrier level within ShipperHQ'
         ]);
         /* ------ shipperhq_nmfc_sub -------- */
         $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_nmfc_sub', [

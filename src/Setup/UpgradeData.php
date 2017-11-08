@@ -225,6 +225,15 @@ class UpgradeData implements UpgradeDataInterface
             );
         }
 
+        //1.1.17
+        if (version_compare($context->getVersion(), '1.1.17') < 0) {
+            $catalogSetup->updateAttribute(
+                'catalog_product',
+                'must_ship_freight',
+                ['note'=> 'Can be overridden at Carrier level within ShipperHQ']
+            );
+        }
+
         $installer->endSetup();
     }
 
@@ -573,7 +582,8 @@ class UpgradeData implements UpgradeDataInterface
             'is_configurable' => false,
             'unique' => false,
             'user_defined' => true,
-            'used_in_product_listing' => false
+            'used_in_product_listing' => false,
+            'note' => 'Can be overridden at Carrier level within ShipperHQ'
         ]);
         /* ------ shipperhq_nmfc_sub -------- */
         $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_nmfc_sub', [

@@ -90,7 +90,7 @@ SHQ16-2117 resolved issue with Authorize.net and custom admin shipping
 SHQ16-2231 support for customer account carrier
 
 
-## 20.8.9
-SHQ16-2346 Updated must_ship_freight with a note to say it can be overriden at carrier level
+## 20.9.0
+SHQ16-2417 ignore time zone when reformating dates
 
 

@@ -50,6 +50,7 @@
                     </ul>
                 </dd>
             <?php endforeach; ?>
+            <?php echo $block->getChildHtml('shipperhq.extra', false); ?>
         </dl>
         <?php if($helper->adminShippingEnabled()): ?>
             <dt class="admin__order-shipment-methods-title"><?php echo 'Custom Shipping'; ?></dt>
@@ -68,38 +69,11 @@
             </div>
         <?php endif; ?>
     </div>
-    <?php if ($_rate = $block->getActiveMethodRate()): ?>
-        <div id="order-shipping-method-info" class="order-shipping-method-info">
-            <dl class="admin__order-shipment-methods">
-                <dt class="admin__order-shipment-methods-title">
-                    <?php echo $block->escapeHtml($block->getCarrierName($_rate->getCarrier())) ?>
-                </dt>
-                <dd class="admin__order-shipment-methods-options">
-                    <?php echo $block->escapeHtml($_rate->getMethodTitle() ? $_rate->getMethodTitle() : $_rate->getMethodDescription()) ?> -
-                    <strong>
-                        <?php $_excl = $block->getShippingPrice($_rate->getPrice(), $this->helper('Magento\Tax\Helper\Data')->displayShippingPriceIncludingTax()); ?>
-                        <?php $_incl = $block->getShippingPrice($_rate->getPrice(), true); ?>
-
-                        <?php /* @escapeNotVerified */ echo $_excl; ?>
-                        <?php if ($this->helper('Magento\Tax\Helper\Data')->displayShippingBothPrices() && $_incl != $_excl): ?>
-                            (<?php /* @escapeNotVerified */ echo __('Incl. Tax'); ?> <?php /* @escapeNotVerified */ echo $_incl; ?>)
-                        <?php endif; ?>
-                    </strong>
-                </dd>
-            </dl>
-            <a href="#"
-               onclick="$('order-shipping-method-info').hide();$('order-shipping-method-choose').show();return false"
-               class="action-default">
-                <span><?php /* @escapeNotVerified */ echo __('Click to change shipping method') ?></span>
-            </a>
-        </div>
-    <?php else: ?>
-        <script>
-            require(['prototype'], function(){
-                $('order-shipping-method-choose').show();
-            });
-        </script>
-    <?php endif; ?>
+    <script>
+        require(['prototype'], function(){
+            $('order-shipping-method-choose').show();
+        });
+    </script>
 <?php elseif ($block->getIsRateRequest()): ?>
     <div class="order-shipping-method-summary">
         <strong class="order-shipping-method-not-available"><?php /* @escapeNotVerified */ echo __('Sorry, no quotes are available for this order.') ?></strong>

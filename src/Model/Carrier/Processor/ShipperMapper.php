@@ -500,8 +500,8 @@ class ShipperMapper
                 'rowTotal' => $magentoItem->getRowTotal(),
                 'basePrice' => $magentoItem->getBasePrice(),
                 'baseRowTotal' => $magentoItem->getBaseRowTotal(),
-                'discountAmount' => $magentoItem->getDiscountAmount(),
-                'discountPercent' => $magentoItem->getDiscountPercent(),
+                'discountAmount' => (float)$magentoItem->getDiscountAmount(),
+                'discountPercent' => (float)$magentoItem->getDiscountPercent(),
                 'discountedBasePrice' => $magentoItem->getBasePrice() -
                     ($magentoItem->getBaseDiscountAmount() / $magentoItem->getQty()),
                 'discountedStorePrice' => $magentoItem->getPrice() -
@@ -748,7 +748,7 @@ class ShipperMapper
         $options = $this->productConfiguration->getCustomOptions($item);
         $value = '';
         foreach ($options as $customOption) {
-            $value .= $customOption['value'];
+            $value .= strip_tags(html_entity_decode($customOption['value'])); //SHQ16-2435
         }
         if ($value != '') {
             $option_values[] = [

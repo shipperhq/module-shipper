@@ -65,6 +65,12 @@ class SaveShippingAdmin implements ObserverInterface
      * @var \ShipperHQ\Common\Model\Quote\Service
      */
     protected $quoteService;
+    /**
+     * Application Event Dispatcher
+     *
+     * @var \Magento\Framework\Event\ManagerInterface
+     */
+    private $eventManager;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
@@ -72,19 +78,22 @@ class SaveShippingAdmin implements ObserverInterface
      * @param  \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param \Magento\Framework\Registry $registry
      * @param \ShipperHQ\Common\Model\Quote\Service $quoteService
+     * @param \Magento\Framework\Event\ManagerInterface $eventManager
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Magento\Framework\Registry $registry,
-        \ShipperHQ\Common\Model\Quote\Service $quoteService
+        \ShipperHQ\Common\Model\Quote\Service $quoteService,
+        \Magento\Framework\Event\ManagerInterface $eventManager
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->shipperLogger = $shipperLogger;
         $this->registry = $registry;
         $this->quoteService = $quoteService;
+        $this->eventManager = $eventManager;
     }
     /**
      * Record order shipping information after order is placed
@@ -100,11 +109,21 @@ class SaveShippingAdmin implements ObserverInterface
                 $orderData = $requestData['order'];
                 $quote = $observer->getSession()->getQuote();
                 if (!empty($orderData['shipping_method'])) {
+                    $additionalDetail = new \Magento\Framework\DataObject; //objects passed by reference
+                    $this->eventManager->dispatch(
+                        'shipperhq_additional_detail_admin',
+                        ['order_data' => $orderData,
+                            'additional_detail'=> $additionalDetail,
+                            'shipping_address' => $quote->getShippingAddress()
+                        ]
+                    );
+                    $this->shipperLogger->postDebug('ShipperHQ Shipper', 'Persisting admin shipping details', $additionalDetail);
                     $shippingMethod = $orderData['shipping_method'];
                     if(!empty($orderData['custom_price'])) {
                         $this->processAdminShipping($orderData, $quote);
                     }
-                    $this->carrierGroupHelper->saveCarrierGroupInformation($quote->getShippingAddress(), $shippingMethod);
+                    $additionalDetailArray = $additionalDetail->convertToArray();
+                    $this->carrierGroupHelper->saveCarrierGroupInformation($quote->getShippingAddress(), $shippingMethod, $additionalDetailArray);
                     if(strstr($shippingMethod, 'shipperadmin') && $requestData['collect_shipping_rates'] === 1) {
                         $observer->getRequestModel()->setPostValue('collect_shipping_rates', 0);
                     }

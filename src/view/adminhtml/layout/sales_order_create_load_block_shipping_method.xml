@@ -5,6 +5,7 @@
             <action method="setTemplate">
                 <argument name="template" xsi:type="string">ShipperHQ_Shipper::order/create/shipping/method/form.phtml</argument>
             </action>
+            <block name="shipperhq.extra" class="Magento\Backend\Block\Template" template="ShipperHQ_Shipper::order/create/shipping/method/extra.phtml"/>
         </referenceBlock>
     </body>
 </page>

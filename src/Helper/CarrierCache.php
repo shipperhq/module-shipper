@@ -64,7 +64,7 @@ class CarrierCache extends \Magento\Framework\App\Helper\AbstractHelper
     
         $this->cache = $cache;
         $this->shipperDataHelper = $shipperDataHelper;
-        $this->useCache = $this->shipperDataHelper->getConfigValue('carriers/shipper/use_cache');
+        $this->useCache = $this->shipperDataHelper->getConfigValue('carriers/shipper/always_use_cache');
         parent::__construct($context);
     }
 
@@ -82,6 +82,10 @@ class CarrierCache extends \Magento\Framework\App\Helper\AbstractHelper
                 array_merge([$carrierCode], array_keys($requestParams), $requestParams)
             );
         }
+        //SHQ16-2419 remove item id from key so rates can be cached across requests
+        $start = '"id";s:3:"';
+        $end = '";s:3:"sku"';
+        $requestParams = preg_replace('#('.$start.')(.*)('.$end.')#si', '$1$3', $requestParams);
         return crc32($requestParams);
     }
 

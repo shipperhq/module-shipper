@@ -83,7 +83,7 @@ class RecordMultiOrder extends AbstractRecordOrder implements ObserverInterface
                 return;
             }
             foreach ($orderIds as $orderId) {
-                $order = $this->orderFactory->create()->loadByIncrementId($orderId);
+                $order = $this->orderFactory->create()->load($orderId);
                 if ($order->getIncrementId()) {
                     $this->recordOrder($order);
                 }

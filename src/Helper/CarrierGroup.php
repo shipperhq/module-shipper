@@ -261,6 +261,13 @@ class CarrierGroup extends Data
         return $orderGridDetailCollection;
     }
 
+    public function loadOrderItemDetailByOrderItemId($orderItemId)
+    {
+        $orderItemDetailModel = $this->orderItemDetailFactory->create();
+        $orderItemDetailCollection = $orderItemDetailModel->loadDetailByItemId($orderItemId);
+        return $orderItemDetailCollection;
+    }
+
     private function saveOrderGridDetail($quoteDetailCollection, $orderId)
     {
         $orderGridDetailModel = $this->orderGridDetailFactory->create();

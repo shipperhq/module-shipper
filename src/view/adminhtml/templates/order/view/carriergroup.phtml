@@ -35,10 +35,9 @@
 // @codingStandardsIgnoreFile
 
 ?>
-
 <?php if ($_item = $block->getItem()): ?>
     <div id="order_item_<?php /* @escapeNotVerified */ echo $_item->getId() ?>_carriergroup"
          class="product-title">
-        <?php echo $block->escapeHtml($_item->getCarriergroup()) ?>
+        <?php echo $block->escapeHtml($block->getCarrierGroup($_item->getId())) ?>
     </div>
 <?php endif; ?>

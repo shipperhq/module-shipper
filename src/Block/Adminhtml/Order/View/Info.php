@@ -45,6 +45,10 @@ class Info extends AbstractOrder
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
     private $carrierGroupHelper;
+    /**
+     * @var \ShipperHQ\Shipper\Helper\Package
+     */
+    private $packageHelper;
 
     private $cgInfo = null;
 
@@ -59,6 +63,7 @@ class Info extends AbstractOrder
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
+        \ShipperHQ\Shipper\Helper\Package $packageHelper,
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\Registry $registry,
         \Magento\Sales\Helper\Admin $adminHelper,
@@ -66,23 +71,52 @@ class Info extends AbstractOrder
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
+        $this->packageHelper = $packageHelper;
         $this->_adminHelper = $adminHelper;
         $this->_coreRegistry = $registry;
         parent::__construct($context, $registry, $adminHelper, $data);
     }
 
+    public function getCarrierGroupTitle()
+    {
+        $describer = $this->shipperDataHelper->getConfigValue($this->shipperDataHelper->getCarrierGroupDescPath());
+        if($describer) {
+            $heading = $describer;
+        } else {
+            $heading = __('Origin');
+        }
+        $heading = $heading .' ' .__("Shipping Information");
+        return $heading;
+    }
+
+    public function getCarrierGroupBreakdownText()
+    {
+        $cginfo = $this->shipperDataHelper->decodeShippingDetails($this->getFieldValue('carrier_group_detail'));
+        $result = $this->carrierGroupHelper->getCarrierGroupText($cginfo, $this->getOrder());
+        return $result;
+    }
+
     public function getCarriergroupInfo()
     {
         $order = $this->getOrder();
+
         if ($this->cgInfo === null) {
             $this->cgInfo = $this->carrierGroupHelper->getOrderCarrierGroupInfo($order->getId());
-
             if (empty($this->cgInfo)) {
                 //retrieve using quote shipping address ID from carrier group helper
                 //legacy
-                $this->cgInfo = $this->shipperDataHelper->decodeShippingDetails(
-                    $order->getCarriergroupShippingDetails()
-                );
+                if($order->getCarriergroupShippingDetails() != '') {
+                    $this->cgInfo = $this->shipperDataHelper->decodeShippingDetails(
+
+                    );
+                } else {
+                    //if we have no information, check for flag if we've checked already
+                    $canLookupQuote = $this->carrierGroupHelper->canCheckForQuoteInformation($order);
+                    if ($canLookupQuote) {
+                        $this->cgInfo = $this->carrierGroupHelper->recoverOrderInfoFromQuote($order);
+                        $this->packageHelper->recoverOrderPackageDetail($order);
+                    }
+                }
             }
         }
 
@@ -121,10 +155,8 @@ class Info extends AbstractOrder
         return $result;
     }
 
-    public function getFormattedDate($date, $carrierGroupDetail)
+    public function getFormattedDate($date, $format)
     {
-        $detail = $this->shipperDataHelper->decodeShippingDetails($carrierGroupDetail);
-        $format = isset($detail[0]['display_date_format']) ? $detail[0]['display_date_format'] : $this->defaultDateFormat;
         $formattedDate = date($format, strtotime($date));
         return $formattedDate;
     }

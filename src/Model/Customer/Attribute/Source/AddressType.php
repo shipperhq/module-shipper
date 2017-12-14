@@ -41,11 +41,10 @@ class AddressType extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSou
     const SHQ_ADDRESS_TYPE_RESIDENTIAL = 'RESIDENTIAL';
     const SHQ_ADDRESS_TYPE_BUSINESS = 'BUSINESS';
 
-
     /**
      * @var \Magento\Eav\Model\ResourceModel\Entity\Attribute\OptionFactory
      */
-    protected $_attrOptionFactory;
+    private $attrOptionFactory;
 
     /**
      * @param \Magento\Eav\Model\ResourceModel\Entity\Attribute\OptionFactory $attrOptionFactory
@@ -54,7 +53,7 @@ class AddressType extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSou
     public function __construct(
         \Magento\Eav\Model\ResourceModel\Entity\Attribute\OptionFactory $attrOptionFactory
     ) {
-        $this->_attrOptionFactory = $attrOptionFactory;
+        $this->attrOptionFactory = $attrOptionFactory;
     }
 
     public function toOptionArray()

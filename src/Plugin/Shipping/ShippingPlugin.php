@@ -35,7 +35,7 @@ namespace ShipperHQ\Shipper\Plugin\Shipping;
 
 class ShippingPlugin
 {
-    /*
+    /**
      * Ignore carrier codes
      */
     protected $ignoreCarrierCodes = ['multicarrier', 'shipper', 'calendar', 'pickup'];
@@ -43,35 +43,19 @@ class ShippingPlugin
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
      */
-    protected $shipperDataHelper;
+    private $shipperDataHelper;
 
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
-    protected $shipperLogger;
-
-    /*
-     * @var \Magento\Shipping\Model\Config
-     */
-    protected $shippingConfig;
-
-    /**
-     * Core store config
-     *
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
-     */
-    protected $scopeConfig;
+    private $shipperLogger;
 
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Magento\Shipping\Model\Config $shippingConfig,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->shipperLogger = $shipperLogger;
-        $this->shippingConfig = $shippingConfig;
-        $this->scopeConfig = $scopeConfig;
     }
 
     /**
@@ -91,7 +75,10 @@ class ShippingPlugin
         $limitCarrier = $request->getLimitCarrier();
         $path = 'carriers/'.$carrierCode.'/model';
         $carrierModel = $this->shipperDataHelper->getConfigValue($path);
-        if($limitCarrier === null && $carrierModel == 'ShipperHQ\Shipper\Model\Carrier\Shipper'  && $carrierCode !== 'shipper') {
+        if ($limitCarrier === null &&
+            $carrierModel == 'ShipperHQ\Shipper\Model\Carrier\Shipper' &&
+            $carrierCode !== 'shipper'
+        ) {
             return $subject;
         }
         $result = $proceed($carrierCode, $request);

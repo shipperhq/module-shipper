@@ -33,9 +33,9 @@
  */
 namespace ShipperHQ\Shipper\Model\System\Message;
 
-class Credentials implements \Magento\Framework\Notification\MessageInterface
+class ModuleAlert implements \Magento\Framework\Notification\MessageInterface
 {
-    const SHIPPERHQ_INVALID_CREDENTIALS_SUPPLIED = 'carriers/shipper/invalid_credentials_supplied';
+    const MODULES_MISSING = 'carriers/shipper/modules_missing';
     /**
      * @var \Magento\Framework\UrlInterface
      */
@@ -45,6 +45,10 @@ class Credentials implements \Magento\Framework\Notification\MessageInterface
      * @var \ShipperHQ\Shipper\Helper\Data
      */
     private $shipperDataHelper;
+    /**
+     * @var \ShipperHQ\Shipper\Model\Carrier\Processor\CarrierConfigHandler
+     */
+    private $carrierConfigHandler;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
@@ -53,10 +57,12 @@ class Credentials implements \Magento\Framework\Notification\MessageInterface
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \Magento\Framework\UrlInterface $urlBuilder
+        \Magento\Framework\UrlInterface $urlBuilder,
+        \ShipperHQ\Shipper\Model\Carrier\Processor\CarrierConfigHandler $carrierConfigHandler
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->urlBuilder = $urlBuilder;
+        $this->carrierConfigHandler = $carrierConfigHandler;
     }
 
     /**
@@ -66,7 +72,7 @@ class Credentials implements \Magento\Framework\Notification\MessageInterface
      */
     public function getIdentity()
     {
-        return md5('SHIPPERHQ_CREDENTIALS_INVALID');
+        return md5('SHIPPERHQ_FEATURE_MODULE_ALERT');
     }
 
     /**
@@ -77,7 +83,9 @@ class Credentials implements \Magento\Framework\Notification\MessageInterface
     public function isDisplayed()
     {
         if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
-            if ($this->shipperDataHelper->getConfigValue(self::SHIPPERHQ_INVALID_CREDENTIALS_SUPPLIED)) {
+
+            $moduleMissing = $this->shipperDataHelper->getConfigValue(self::MODULES_MISSING);
+            if ($moduleMissing != '') {
                 return true;
             }
         }
@@ -92,25 +100,11 @@ class Credentials implements \Magento\Framework\Notification\MessageInterface
     public function getText()
     {
         $message = __(
-            'Your ShipperHQ credentials saved in Magento are invalid.'
-            .' You will no longer receive shipping rates until this is rectified.'
-        ) . ' ';
-        $url = $this->urlBuilder->getUrl('adminhtml/system_config/edit/section/carriers');
-        $message .= __(
-            'Click here to go to <a href="%1">Shipping Method Configuration</a> and enter correct credentials.',
-            $url
-        );
+                'Your ShipperHQ installation may be missing some modules: ').
+                $this->shipperDataHelper->getConfigValue(self::MODULES_MISSING) .
+            __('. Please verify with ShipperHQ if these are required'
+            ) . ' ';
         return $message;
-    }
-
-    /**
-     * Retrieve problem management url
-     *
-     * @return string|null
-     */
-    public function getLink()
-    {
-        return $this->urlBuilder->getUrl('adminhtml/system_config/edit/section/carriers');
     }
 
     /**
@@ -120,6 +114,6 @@ class Credentials implements \Magento\Framework\Notification\MessageInterface
      */
     public function getSeverity()
     {
-        return \Magento\Framework\Notification\MessageInterface::SEVERITY_CRITICAL;
+        return \Magento\Framework\Notification\MessageInterface::SEVERITY_MAJOR;
     }
 }

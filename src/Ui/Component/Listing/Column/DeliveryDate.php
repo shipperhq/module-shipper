@@ -49,19 +49,19 @@ class DeliveryDate extends Column
      */
     private $carrierGroupHelper;
 
-    /*
+    /**
      * @var \Magento\Framework\Stdlib\DateTime\DateTime
      */
     private $date;
 
-    /*
+    /**
      *  \Magento\Framework\App\ProductMetadataInterface
      */
     private $productMetadata;
     /**
      * @var TimezoneInterface
      */
-    protected $timezone;
+    private $timezone;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper

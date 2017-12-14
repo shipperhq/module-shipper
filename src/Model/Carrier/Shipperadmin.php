@@ -46,9 +46,7 @@ use Magento\Shipping\Model\Carrier\AbstractCarrier;
 use Magento\Shipping\Model\Rate\Result;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
 
-class Shipperadmin
-    extends \Magento\Shipping\Model\Carrier\AbstractCarrier
-    implements \Magento\Shipping\Model\Carrier\CarrierInterface
+class Shipperadmin extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements \Magento\Shipping\Model\Carrier\CarrierInterface
 {
     /**
      * @var string
@@ -96,8 +94,8 @@ class Shipperadmin
         \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory,
         \Psr\Log\LoggerInterface $logger,
         array $data = []
-    )
-    {
+    ) {
+    
         $this->shipperDataHelper = $shipperDataHelper;
         $this->shipperLogger = $shipperLogger;
         $this->registry = $registry;
@@ -118,7 +116,7 @@ class Shipperadmin
 
         if ($shipData = $this->registry->registry('shqadminship_data')) {
             foreach ($shipData->getData() as $carrierGroupId => $rateInfo) {
-                $carrierGroupShippingDetail = array(
+                $carrierGroupShippingDetail = [
                     "checkoutDescription" => '',//$rateInfo['carriergroup'],
                     "name" => '',//$rateInfo['carriergroup'],
                     "carrierGroupId" => '',//$carrierGroupId,
@@ -131,7 +129,7 @@ class Shipperadmin
                     "cost" => $rateInfo['customPrice'],
                     "code" => 'adminshipping',
                     "transaction" => ''
-                );
+                ];
                 $method = $this->rateMethodFactory->create();
                 $method->setCarrier($this->_code);
                 $method->setPrice($rateInfo['customPrice']);
@@ -140,14 +138,18 @@ class Shipperadmin
                 $method->setMethodTitle($rateInfo['customCarrier']);
                 $method->setCarriergroupId($carrierGroupId);
                 $method->setCarriergroupShippingDetails(
-                    $this->shipperDataHelper->encode($carrierGroupShippingDetail));
+                    $this->shipperDataHelper->encode($carrierGroupShippingDetail)
+                );
                 $result->append($method);
             }
-            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'ShipperHQ Admin - created custom shipping rate ', $shipData);
+            $this->shipperLogger->postDebug(
+                'Shipperhq_Shipper',
+                'ShipperHQ Admin - created custom shipping rate ',
+                $shipData
+            );
         }
 
         return $result;
-
     }
 
     /**
@@ -156,9 +158,6 @@ class Shipperadmin
      */
     public function getAllowedMethods()
     {
-        return array('adminshipping'=>'adminshipping');
-
+        return ['adminshipping'=>'adminshipping'];
     }
-
 }
-

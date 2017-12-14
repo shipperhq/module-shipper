@@ -99,7 +99,6 @@ class InstallData implements InstallDataInterface
         $this->salesSetupFactory = $salesSetupFactory;
         $this->configStorageWriter = $configStorageWriter;
         $this->customerSetupFactory = $customerSetupFactory;
-
     }
 
     /**
@@ -632,7 +631,7 @@ class InstallData implements InstallDataInterface
                 $attributeSetId,
                 'migration-dimensional-shipping'
             );
-            if($migrated !== false) {
+            if ($migrated !== false) {
                 $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-dimensional-shipping');
             }
 

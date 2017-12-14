@@ -127,7 +127,6 @@ class UpgradeData implements UpgradeDataInterface
                 'user_defined' => true,
                 'used_in_product_listing' => false
             ]);
-
         }
         /** @var \Magento\Quote\Setup\QuoteSetup $quoteSetup */
         $quoteSetup = $this->quoteSetupFactory->create(['setup' => $setup]);
@@ -137,7 +136,6 @@ class UpgradeData implements UpgradeDataInterface
         $custDestTypeAttribute = $customerSetup->getAttribute('customer_address', 'destination_type');
 
         if (version_compare($context->getVersion(), '1.0.5') < 0 || !$custDestTypeAttribute) {
-
             $destinationTypeAttr = [
                 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                 'visible' => false,
@@ -494,7 +492,7 @@ class UpgradeData implements UpgradeDataInterface
                 $attributeSetId,
                 'migration-dimensional-shipping'
             );
-            if($migrated !== false) {
+            if ($migrated !== false) {
                 $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-dimensional-shipping');
             }
 

@@ -63,6 +63,22 @@ class CarrierGroup extends Data
     * @var Data
     */
     private $shipperDataHelper;
+    /**
+     * @var \Magento\Quote\Api\CartRepositoryInterface
+     */
+    private $quoteRepository;
+
+    private $allNamedOptions = array(
+        'liftgate_required' => 'Liftgate Required',
+        'inside_delivery' => 'Inside Delivery',
+        'destination_type' => 'Destination Type',
+        'notify_required' => 'Notify Required',
+        'customer_carrier' => 'Customer Carrier',
+        'customer_carrier_ph' => 'Customer Carrier Phone',
+        'customer_carrier_account' => 'Customer Carrier Account Number',
+        'limited_delivery' => 'Limited Access for Delivery');
+
+    const NO_SHIPPERHQ_DETAIL_AVAILABLE = 'ShipperHQ Notice';
 
     /**
      * @param \ShipperHQ\Lib\Helper\Rest $restHelper
@@ -74,7 +90,8 @@ class CarrierGroup extends Data
         \ShipperHQ\Shipper\Model\Order\DetailFactory $orderDetailFactory,
         \ShipperHQ\Shipper\Model\Order\ItemDetailFactory $orderItemDetailFactory,
         \ShipperHQ\Shipper\Model\Order\GridDetailFactory $orderGridDetailFactory,
-        Data $shipperDataHelper
+        Data $shipperDataHelper,
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
     ) {
     
         $this->addressDetailFactory = $addressDetailFactory;
@@ -83,6 +100,7 @@ class CarrierGroup extends Data
         $this->orderItemDetailFactory = $orderItemDetailFactory;
         $this->orderGridDetailFactory = $orderGridDetailFactory;
         $this->shipperDataHelper = $shipperDataHelper;
+        $this->quoteRepository = $quoteRepository;
     }
 
     /**
@@ -129,7 +147,7 @@ class CarrierGroup extends Data
                 'carrier_group' => $foundRate->getCarriergroup(),
                 'carrier_id' => $foundRate->getCarrierId(),
                 'dispatch_date' =>$foundRate->getShqDispatchDate() ? date('Y-m-d', strtotime($foundRate->getShqDispatchDate())): '',
-                'delivery_date' => $foundRate->getShqDeliveryDate() ?  date('Y-m-d', strtotime($foundRate->getShqDeliveryDate())): '',
+                'delivery_date' => $foundRate->getShqDeliveryDate() ? date('Y-m-d', strtotime($foundRate->getShqDeliveryDate())): '',
                 'carrier_group_detail' => $encodedShipDetails,
                 'carrier_group_html' => $this->getCarriergroupShippingHtml($encodedShipDetails)
             ];
@@ -167,8 +185,8 @@ class CarrierGroup extends Data
 
     public function setShippingOnItems($shippingDetails, $shippingAddress)
     {
-        $itemDetail = $this->itemDetailFactory->create();
         foreach ($shippingAddress->getAllItems() as $item) {
+            $itemDetail = $this->itemDetailFactory->create();
             $itemRecord = $itemDetail->loadDetailByItemId($item->getItemId());
             if ($itemRecord) {
                 foreach ($shippingDetails as $carrierGroupDetail) {
@@ -268,6 +286,41 @@ class CarrierGroup extends Data
         return $orderItemDetailCollection;
     }
 
+    public function getQuoteShippingAddressFromOrder($order)
+    {
+        $shippingAddress = $this->quoteRepository->get($order->getQuoteId())->getShippingAddress();
+        return $shippingAddress;
+    }
+    public function recoverOrderInfoFromQuote($order)
+    {
+        $shippingAddress = $this->getQuoteShippingAddressFromOrder($order);
+        $this->saveOrderDetail($order, $shippingAddress);
+        //attempt to recover item detail
+        foreach ($order->getAllItems() as $item) {
+            $itemDetail = $this->loadOrderItemDetailByOrderItemId($item->getId());
+            if (!$itemDetail) {
+                $this->recordOrderItems($order);
+            }
+            break;
+        }
+        $cgInfo = $this->getOrderCarrierGroupInfo($order->getId());
+        if(empty($cgInfo)) {
+            $order->addStatusToHistory($order->getStatus(), self::NO_SHIPPERHQ_DETAIL_AVAILABLE .__(': No detailed shipping information recorded'), false);
+            $order->save();
+        }
+        return $cgInfo;
+    }
+
+    public function canCheckForQuoteInformation($order)
+    {
+        foreach ($order->getAllStatusHistory() as $orderComment) {
+            if(strstr($orderComment->getComment(),self::NO_SHIPPERHQ_DETAIL_AVAILABLE)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private function saveOrderGridDetail($quoteDetailCollection, $orderId)
     {
         $orderGridDetailModel = $this->orderGridDetailFactory->create();
@@ -295,5 +348,68 @@ class CarrierGroup extends Data
         $data['order_id'] = $orderId;
         $orderGridDetailModel->setData($data)
             ->save();
+    }
+
+
+    public function getCarrierGroupText($cginfo, $order)
+    {
+        $displayValues = array('destination_type', 'customer_carrier', 'customer_carrier_ph', 'customer_carrier_account');
+
+        $carriergroupText = '';
+        foreach ($cginfo as $cgrp) {
+            if (is_array($cgrp)) {
+                $carriergroupText .= '<div class="shq-oinfo">';
+                $carriergroupText .= '<div class="shq-oinfo-origin">' .$cgrp['name'] .'</div>';
+                $carriergroupText .= '<div class="shq-oinfo-method">' . $cgrp['carrierTitle'] ;
+                $carriergroupText .= ' - ' . $cgrp['methodTitle'];
+                $price = $order->formatPrice($cgrp['price']);
+                $carriergroupText .= ' ' . $price .'</div>';
+                $carriergroupText .= '<div class="shq-oinfo-carrier">';
+                if ((array_key_exists('carrierName', $cgrp) && $cgrp['carrierName'] != '')) {
+                    $carriergroupText .= 'Carrier: ';
+                    $carriergroupText .= '' . strtoupper($cgrp['carrierName']);
+                }
+
+                if ((array_key_exists('pickup_date', $cgrp) && $cgrp['pickup_date'] != '')) {
+                    $carriergroupText .= '<br/> Pickup : ';
+                    if (array_key_exists('location_name', $cgrp)) {
+                        $carriergroupText .= '' . $cgrp['location_name'];
+                    }
+                    $carriergroupText .= ' ' . $cgrp['pickup_date'];
+                    if (array_key_exists('pickup_slot', $cgrp)) {
+                        $displayTimeSlot = str_replace('_', ' - ', $cgrp['pickup_slot']);
+                        $carriergroupText .= ' ' . $displayTimeSlot . ' ';
+                    }
+                }
+                if (array_key_exists('dispatch_date', $cgrp) && $cgrp['dispatch_date'] != '') {
+                    $carriergroupText .= '<br/>' . __('Dispatch Date') . ' : ' . $cgrp['dispatch_date'];
+                }
+
+                if (array_key_exists('delivery_date', $cgrp) && $cgrp['delivery_date'] != '') {
+                    $carriergroupText .= '<br/>' . __('Delivery Date') . ' : ' . $cgrp['delivery_date'];
+                    if (array_key_exists('del_slot', $cgrp)) {
+                        $displayTimeSlot = str_replace('_', ' - ', $cgrp['del_slot']);
+                        $carriergroupText .= ' ' . $displayTimeSlot . ' ';
+                    }
+                }
+                foreach ($this->allNamedOptions as $code => $name) {
+                    $value = false;
+                    if (array_key_exists($code, $cgrp) && $cgrp[$code] != '') {
+                        $value = $cgrp[$code];
+                    }
+                    if ($value) {
+                        $carriergroupText .= '<br/>' . $name;
+                        if (in_array($code, $displayValues)) {
+                            $carriergroupText .= ': ' . $value;
+                        }
+                    }
+                }
+                if (array_key_exists('freightQuoteId', $cgrp) && $cgrp['freightQuoteId'] != '') {
+                    $carriergroupText .= ' Quote Id: ' . $cgrp['freightQuoteId'];
+                }
+                $carriergroupText .= '</div></div>';
+            }
+        }
+        return $carriergroupText;
     }
 }

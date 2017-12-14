@@ -38,29 +38,29 @@ class AllmethodsPlugin
     /*
      * Ignore carrier codes
      */
-    protected $ignoreCarrierCodes = ['multicarrier', 'shipper', 'calendar', 'pickup'];
+    private $ignoreCarrierCodes = ['multicarrier', 'shipper', 'calendar', 'pickup'];
 
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
      */
-    protected $shipperDataHelper;
+    private $shipperDataHelper;
 
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
-    protected $shipperLogger;
+    private $shipperLogger;
 
-    /*
+    /**
      * @var \Magento\Shipping\Model\Config
      */
-    protected $shippingConfig;
+    private $shippingConfig;
 
     /**
      * Core store config
      *
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $scopeConfig;
+    private $scopeConfig;
 
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,

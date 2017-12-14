@@ -79,7 +79,6 @@ class CarrierConfigHandler
         if (!$this->shipperDataHelper->getConfigValue($modelPath)) {
             $model = 'ShipperHQ\Shipper\Model\Carrier\Shipper';
             $this->saveConfig($modelPath, $model);
-//           $this->saveConfig('carriers/' . $carrierCode . '/active', 0);
         }
         $this->saveConfig('carriers/' . $carrierCode . '/active', 1);
         $this->saveCarrierTitle($carrierCode, $carrierTitle);
@@ -132,7 +131,7 @@ class CarrierConfigHandler
      */
     public function setCarrierConfig($carrierConfig)
     {
-        if(count($carrierConfig) > 0) {
+        if (!empty($carrierConfig)) {
             //clean up existing config
             $this->cleanUpCarrierConfig();
         }
@@ -149,13 +148,17 @@ class CarrierConfigHandler
     {
         //SHQ16-
         $carriers = $this->shipperDataHelper->getConfigValue('carriers');
-        foreach ($carriers as  $carrierCode => $carrierConfig) {
+        foreach ($carriers as $carrierCode => $carrierConfig) {
             if ($carrierCode !== 'shipper' &&
                 isset($carrierConfig['model']) &&
                 $carrierConfig['model'] == 'ShipperHQ\Shipper\Model\Carrier\Shipper') {
                 foreach ($carrierConfig as $item => $value) {
                     $path = 'carriers/' .$carrierCode .'/'.$item ;
-                    $this->resourceConfig->deleteConfig($path, \Magento\Framework\App\Config\ScopeConfigInterface::SCOPE_TYPE_DEFAULT, 0);
+                    $this->resourceConfig->deleteConfig(
+                        $path,
+                        \Magento\Framework\App\Config\ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                        0
+                    );
                 }
             }
         }

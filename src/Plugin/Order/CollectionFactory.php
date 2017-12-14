@@ -40,7 +40,7 @@ class CollectionFactory
      */
     private $shipperLogger;
     /** @var \Magento\Framework\App\ResourceConnection */
-    protected $resource;
+    private $resource;
 
     public function __construct(
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,

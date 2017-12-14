@@ -1,11 +1,19 @@
-/*.shq-optn-50l,*/
-/*.shq-optn-50r,*/
-/*.shq-optn-100 {*/
-    /*margin-bottom: 10px;*/
-    /*font-size: 12px;*/
-/*}*/
-
-
 .shq-input {
     margin-top:10px;
+}
+.shq-oinfo {
+    margin-bottom: 25px;
+    border-left: 10px solid #efefef ;
+    padding-left: 10px;
+    font-size: 13px;
+    line-height: 20px;
+}
+
+.shq-oinfo-origin {
+    font-size: 15px;
+    margin-bottom: 3px;
+}
+
+.shq-oinfo-method {
+    font-weight: bold;
 }

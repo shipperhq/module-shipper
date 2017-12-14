@@ -42,7 +42,7 @@ class ShippingMethodManagementPlugin
      *
      * @var \Magento\Quote\Api\CartRepositoryInterface
      */
-    protected $quoteRepository;
+    private $quoteRepository;
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
@@ -56,7 +56,7 @@ class ShippingMethodManagementPlugin
     /**
      * @var \Magento\Customer\Model\Session
      */
-    protected $customerSession;
+    private $customerSession;
     /**
      * @var \Magento\Customer\Api\CustomerRepositoryInterface
      */
@@ -77,7 +77,7 @@ class ShippingMethodManagementPlugin
     }
 
     /**
-     *Add customers address type to shipping address on quote
+     * Add customers address type to shipping address on quote
      *
      * @param \Magento\Quote\Model\ShippingMethodManagement $subject
      * @param callable $proceed
@@ -86,7 +86,11 @@ class ShippingMethodManagementPlugin
      * @return \Magento\Quote\Api\Data\ShippingMethodInterface[]
      *
      */
-    public function aroundEstimateByAddressId(\Magento\Quote\Model\ShippingMethodManagement $subject, $proceed, $cartId, $addressId)
+    public function aroundEstimateByAddressId(
+        \Magento\Quote\Model\ShippingMethodManagement $subject,
+        $proceed,
+        $cartId,
+        $addressId)
     {
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->quoteRepository->getActive($cartId);
@@ -97,9 +101,9 @@ class ShippingMethodManagementPlugin
         }
         $address = $this->addressRepository->getById($addressId);
 
-        if($custom = $address->getCustomAttributes()) {
+        if ($custom = $address->getCustomAttributes()) {
             foreach ($custom as $custom_attribute) {
-                if($custom_attribute->getAttributeCode() == 'destination_type') {
+                if ($custom_attribute->getAttributeCode() == 'destination_type') {
                     $quote->getShippingAddress()->setData('destination_type', $custom_attribute->getValue());
                 } elseif ($custom_attribute->getAttributeCode() == 'validation_status') {
                     $quote->getShippingAddress()->setData('validation_status', $custom_attribute->getValue());
@@ -114,8 +118,9 @@ class ShippingMethodManagementPlugin
         \Magento\Quote\Model\ShippingMethodManagement $subject,
         $proceed,
         $cartId,
-        \Magento\Quote\Api\Data\AddressInterface $address)
-    {
+        \Magento\Quote\Api\Data\AddressInterface $address
+    ) {
+    
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->quoteRepository->getActive($cartId);
 
@@ -128,9 +133,9 @@ class ShippingMethodManagementPlugin
             $customer = $this->customerRepository->getById($this->customerSession->getCustomerId());
             if ($defaultShipping = $customer->getDefaultShipping()) {
                 $defaultAddress = $this->addressRepository->getById($defaultShipping);
-                if($custom = $defaultAddress->getCustomAttributes()) {
+                if ($custom = $defaultAddress->getCustomAttributes()) {
                     foreach ($custom as $custom_attribute) {
-                        if($custom_attribute->getAttributeCode() == 'destination_type') {
+                        if ($custom_attribute->getAttributeCode() == 'destination_type') {
                             $quote->getShippingAddress()->setData('destination_type', $custom_attribute->getValue());
                         }
                     }

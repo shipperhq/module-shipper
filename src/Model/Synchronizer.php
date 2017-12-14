@@ -59,6 +59,14 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      * @var string
      */
     const AUTO_REMOVE_ATTRIBUTE_OPTION = 'Delete';
+    /**
+     * Config setting for features enabled
+     *
+     * @var string
+     */
+    const FEATURES_ENABLED_CONFIG = 'carriers/shipper/features_enabled';
+
+    const MODULES_MISSING = 'carriers/shipper/modules_missing';
 
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
@@ -66,8 +74,8 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     private $shipperDataHelper;
 
     /**
-    *@var \ShipperHQ\Shipper\Helper\Rest
-    */
+     * @var \ShipperHQ\Shipper\Helper\Rest
+     */
     private $restHelper;
 
     /**
@@ -112,6 +120,11 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     private $connection;
 
     /**
+     * @var \ShipperHQ\Shipper\Helper\Module
+     */
+    private $moduleHelper;
+
+    /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
      * @param \ShipperHQ\Shipper\Helper\Rest $restHelper
      * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
@@ -121,6 +134,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      * @param \Magento\Catalog\Model\Product\Attribute\OptionManagement $attributeOptionManagement
      * @param \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory $optionDataFactory,
      * @param SynchronizeFactory $synchronizeFactory
+     * @param \ShipperHQ\Shipper\Helper\Module $moduleHelper
      *
      */
     public function __construct(
@@ -133,7 +147,8 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         \Magento\Catalog\Model\Product\Attribute\OptionManagement $attributeOptionManagement,
         \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory $optionDataFactory,
         SynchronizeFactory $synchronizeFactory,
-        ResourceConnection $resource
+        ResourceConnection $resource,
+        \ShipperHQ\Shipper\Helper\Module $moduleHelper
     ) {
 
         $this->shipperDataHelper = $shipperDataHelper;
@@ -146,6 +161,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         $this->optionDataFactory = $optionDataFactory;
         $this->synchronizeFactory = $synchronizeFactory;
         $this->connection = $resource->getConnection();
+        $this->moduleHelper = $moduleHelper;
     }
 
     /*
@@ -400,6 +416,23 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                 case 'customer':
                     //compare customer groups
                     break;
+                case 'feature':
+                    $configValue = $this->shipperDataHelper->getConfigValue(self::FEATURES_ENABLED_CONFIG);
+                    $neededFeatures = [];
+                    foreach ($attribute->attributes as $featureEnabled) {
+                        $neededFeatures[] = $featureEnabled->code;
+                    }
+                    $neededFeaturesStr = strtolower(implode('|', $neededFeatures));
+                    if ($neededFeaturesStr != $configValue) {
+                        $result[] = ['attribute_type' => 'feature',
+                            'attribute_code' => 'ShipperHQ Features',
+                            'value' => "Needs refresh",
+                            'option_id' => $neededFeaturesStr,
+                            'status' => self::ADD_ATTRIBUTE_OPTION,
+                            'date_added' => date('Y-m-d H:i:s')
+                        ];
+                    }
+                    break;
                 default:
                     break;
             }
@@ -446,6 +479,8 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     private function updateAll($updateData)
     {
         $result = 0;
+        $configValue = $this->shipperDataHelper->getConfigValue(self::FEATURES_ENABLED_CONFIG);
+        $currentFeaturesEnabled = explode('|', $configValue);
 
         foreach ($updateData as $attributeUpdate) {
             if ($attributeUpdate['attribute_type'] == 'product') {
@@ -484,10 +519,47 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
             } elseif ($attributeUpdate['attribute_type'] == 'global_setting') {
                 $this->carrierConfigHandler->saveConfig(
                     'carriers/shipper/' . $attributeUpdate['attribute_code'],
-                    $attributeUpdate['value']
+                    $attributeUpdate['value'],
+                    'default',
+                    0,
+                    true
                 );
+                $result++;
+            } elseif ($attributeUpdate['attribute_type'] == 'feature') {
+                if ($attributeUpdate['status'] == self::ADD_ATTRIBUTE_OPTION) {
+                    $this->carrierConfigHandler->saveConfig(
+                        self::FEATURES_ENABLED_CONFIG,
+                        $attributeUpdate["option_id"],
+                        'default',
+                        0,
+                        true
+                    );
+                    $result++;
+                }
             }
         }
+        $configValue = $this->shipperDataHelper->getConfigValue(self::FEATURES_ENABLED_CONFIG);
+        $missingModules = $this->moduleHelper->checkForMissingModules($configValue);
+        $moduleAlert = '';
+        if (!empty($missingModules)) {
+            $moduleAlert = implode(', ', $missingModules);
+            $this->shipperLogger->postWarning(
+                'ShipperHQ Shipper',
+                'IMPORTANT! You may be missing modules from your ShipperHQ installation. 
+                This could cause missing features or unexpected behaviour. Modules missing could include: ',
+                $missingModules
+            );
+        }
+        //check for missing modules
+        $this->carrierConfigHandler->saveConfig(
+            self::MODULES_MISSING,
+            $moduleAlert,
+            'default',
+            0,
+            true
+        );
+
+        $this->carrierConfigHandler->refreshConfig();
 
         if ($result >= 0) {
             $this->checkSynchStatus(true);

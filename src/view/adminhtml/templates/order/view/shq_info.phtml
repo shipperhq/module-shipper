@@ -7,75 +7,36 @@
 // @codingStandardsIgnoreFile
 
 ?>
-<?php $cgInfo = $this->getCarriergroupInfo(); ?>
+<?php $cgInfo = $this->getCarrierGroupBreakdownText(); ?>
 
 <?php $order = $block->getOrder() ?>
 <?php if ($order->getIsVirtual()) : return '';endif; ?>
 
-<?php /* Shipping Method */ ?>
-<div class="admin__page-section-item order-shipping-method">
-    <div class="admin__page-section-item-content">
-        <?php if ($destType = $this->getFieldValue('destination_type')): ?>
-            <div class="order-shipping-additional">
-                <?php echo __('Destination type') .': ' .$block->escapeHtml($destType) ?>
+<?php if ($cgInfo): ?>
+        <?php /* Shipping Method */ ?>
+        <div class="admin__page-section-item order-shipping-method">
+            <div class="admin__page-section-item-content">
+                    <?php if ($destType = $this->getFieldValue('destination_type')): ?>
+                    <div class="order-shipping-additional">
+                        <?php echo __('Destination type') .': ' .$block->escapeHtml($destType) ?>
+                    </div>
+                <?php endif; ?>
+                <?php if ($validStatus = $this->getAddressValidStatus()): ?>
+                    <div class="order-shipping-additional">
+                        <?php echo __('Shipping address validation') .': ' .$block->escapeHtml($validStatus) ?>
+                    </div>
+                <?php endif; ?>
+                <?php if ($order->getShqDeliveryDate()): ?>
+                    <div class="order-shipping-additional">
+                        <?php echo __('Delivery date') .': ' .$block->escapeHtml($order->getShqDeliveryDate()) ?>
+                    </div>
+                <?php endif; ?>
+                    <br/>
+                    <hr style="height:1px;border:0;background:#ddd;margin-bottom:15px;"/>
+                    <div class="order-shipping-additional">
+                            <div style="margin-bottom:20px;font-weight:bold;"><?php echo $this->getCarrierGroupTitle(); ?></div>
+                        <?php echo $cgInfo; ?>
+                    </div>
             </div>
-        <?php endif; ?>
-        <?php if ($validStatus = $this->getAddressValidStatus()): ?>
-            <div class="order-shipping-additional">
-                <?php echo __('Shipping address validation') .': ' .$block->escapeHtml($validStatus) ?>
-            </div>
-        <?php endif; ?>
-        <?php if ($order->getShqDeliveryDate()): ?>
-            <div class="order-shipping-additional">
-                <?php echo __('Delivery date') .': ' .$block->escapeHtml($order->getShqDeliveryDate()) ?>
-            </div>
-        <?php endif; ?>
-        <?php foreach($cgInfo as $carrierGroup): ?>
-            <div class="order-shipping-additional">
-                <?php if(array_key_exists('pickup_location', $carrierGroup) && $carrierGroup['pickup_location'] != ''): ?>
-                    <?php echo __('Location') .': ' .$block->escapeHtml($carrierGroup['pickup_location']) ?>
-                    <br/>
-                <?php endif; ?>
-                <?php if(array_key_exists('delivery_date', $carrierGroup) && $carrierGroup['delivery_date'] != ''): ?>
-                    <?php echo __('Delivery date') .': ' .$block->escapeHtml($block->getFormattedDate($carrierGroup['delivery_date'], $carrierGroup['carrier_group_detail'])) ?>
-                <?php endif; ?>
-                <?php if(array_key_exists('dispatch_date', $carrierGroup) && $carrierGroup['dispatch_date'] != ''): ?>
-                    <br/>
-                    <?php echo __('Dispatch date') .': ' .$block->escapeHtml($block->getFormattedDate($carrierGroup['dispatch_date'], $carrierGroup['carrier_group_detail'])) ?>
-                <?php endif; ?>
-                <?php if(array_key_exists('time_slot', $carrierGroup) && $carrierGroup['time_slot'] != ''): ?>
-                    <br/>
-                    <?php echo __('Time slot') .': ' .$block->escapeHtml($block->getFormattedTimeSlot($carrierGroup['time_slot'])) ?>
-                <?php endif; ?>
-                <?php if(array_key_exists('liftgate_required', $carrierGroup) && $carrierGroup['liftgate_required'] === '1'): ?>
-                    <?php echo __('Liftgate required'); ?>
-                    <br/>
-                <?php endif; ?>
-                <?php if(array_key_exists('inside_delivery', $carrierGroup) && $carrierGroup['inside_delivery'] === '1'): ?>
-                    <?php echo __('Inside Delivery'); ?>
-                    <br/>
-                <?php endif; ?>
-                <?php if(array_key_exists('limited_delivery', $carrierGroup) && $carrierGroup['limited_delivery'] === '1'): ?>
-                    <?php echo __('Limited Access Delivery'); ?>
-                    <br/>
-                <?php endif; ?>
-                <?php if(array_key_exists('notify_required', $carrierGroup) && $carrierGroup['notify_required'] === '1'): ?>
-                    <?php echo __('Scheduled Appointment'); ?>
-                    <br/>
-                <?php endif; ?>
-                <?php if(array_key_exists('customer_carrier', $carrierGroup) && $carrierGroup['customer_carrier'] != ''): ?>
-                    <?php echo __('Customer Carrier') .': ' .$block->escapeHtml($carrierGroup['customer_carrier']) ?>
-                    <br/>
-                <?php endif; ?>
-                <?php if(array_key_exists('customer_carrier_ph', $carrierGroup) && $carrierGroup['customer_carrier_ph'] != ''): ?>
-                    <?php echo __('Carrier Phone') .': ' .$block->escapeHtml($carrierGroup['customer_carrier_ph']) ?>
-                    <br/>
-                <?php endif; ?>
-                <?php if(array_key_exists('customer_carrier_account', $carrierGroup) && $carrierGroup['customer_carrier_account'] != ''): ?>
-                    <?php echo __('Carrier Account') .': ' .$block->escapeHtml($carrierGroup['customer_carrier_account']) ?>
-                    <br/>
-                <?php endif; ?>
-            </div>
-        <?php endforeach; ?>
-    </div>
-</div>
+        </div>
+<?php endif; ?>

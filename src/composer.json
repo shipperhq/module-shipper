@@ -34,10 +34,10 @@
     ],
     "autoload": {
         "files": [
-            "src/registration.php"
+            "registration.php"
         ],
         "psr-4": {
-	        "ShipperHQ\\Shipper\\": "src/"
+	        "ShipperHQ\\Shipper\\": ""
 			
         }
     },

@@ -37,4 +37,6 @@
 "Your ShipperHQ credentials saved in Magento are invalid. You will no longer receive shipping rates until this is rectified.","Your ShipperHQ credentials saved in Magento are invalid. You will no longer receive shipping rates until this is rectified."
 "Residential","Residential"
 "Business","Business"
+"Your ShipperHQ installation may be missing some modules: ","Your ShipperHQ installation may be missing some modules: "
+". Please verify with ShipperHQ if these are required",". Please verify with ShipperHQ if these are required"
 

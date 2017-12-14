@@ -97,7 +97,7 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
      */
     protected $shipperDataHelper;
 
-    /*
+    /**
      *@var \ShipperHQ\Shipper\Helper\Rest
      */
     protected $restHelper;
@@ -159,7 +159,7 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
      */
     protected $eventManager;
 
-    /*
+    /**
      * @var \ShipperHQ\Lib\AllowedMethods\Helper
      */
     private $allowedMethodsHelper;
@@ -169,7 +169,7 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
      */
     private $checkoutSession;
 
-    /*
+    /**
      *@var \ShipperHQ\Shipper\Helper\Package
      */
     protected $packageHelper;
@@ -320,7 +320,7 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
 
         $existing = $this->getExistingValidation($key); //SHQ16-1902
         $validate = true;
-        if (is_array($existing) && count($existing) > 0) {
+        if (is_array($existing) && !empty($existing)) {
             if (isset($existing['key']) && $existing['key'] == $key) {
                 $validate = false;
             }
@@ -470,7 +470,7 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
             $allowedMethods
         );
 
-       $this->shipperLogger->postDebug(
+        $this->shipperLogger->postDebug(
             'Shipperhq_Shipper',
             'Allowed methods parsed result ',
             $allowedMethods
@@ -898,11 +898,10 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
             $existing['destination_type'] = $addressType;
         }
 
-        if(count($existing) > 0) {
+        if (!empty($existing)) {
             $existing['key'] = $key;
             $this->checkoutSession->setShipAddressValidation($existing);
         }
-
     }
 
     private function persistShipments($shipmentArray)
@@ -1024,10 +1023,18 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
 
         foreach (self::$shippingOptions as $option) {
             if (is_array($sessionValues) && isset($sessionValues[$option])) {
-                $this->shipperLogger->postDebug('ShipperHQ Shipper', 'Using Session value for setting option ' .$option, $sessionValues[$option]);
+                $this->shipperLogger->postDebug(
+                    'ShipperHQ Shipper',
+                    'Using Session value for setting option ' .$option,
+                    $sessionValues[$option]
+                );
                 $shipOptions[] = ['name' => $option, 'value' => $sessionValues[$option]];
             } elseif ($shippingAddress->getData($option) != '') {
-                $this->shipperLogger->postDebug('ShipperHQ Shipper', 'Using Shipping Address value for setting option ' .$option,  $shippingAddress->getData($option));
+                $this->shipperLogger->postDebug(
+                    'ShipperHQ Shipper',
+                    'Using Shipping Address value for setting option ' .$option,
+                    $shippingAddress->getData($option)
+                );
                 $shipOptions[] = ['name' => $option, 'value' => $shippingAddress->getData($option)];
             }
         }

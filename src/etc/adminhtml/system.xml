@@ -173,6 +173,7 @@
                        showInWebsite="1" showInStore="0">
                     <label>Ship to Applicable Countries</label>
                     <frontend_class>shipping-applicable-country</frontend_class>
+                    <frontend_model>ShipperHQ\Shipper\Block\Backend\Config\Carrier\Sallowspecific</frontend_model>
                     <source_model>Magento\Shipping\Model\Config\Source\Allspecificcountries</source_model>
                 </field>
                 <field id="specificcountry" translate="label" type="multiselect" sortOrder="500" showInDefault="1"
@@ -180,6 +181,7 @@
                     <label>Ship to Specific Countries</label>
                     <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
                     <can_be_empty>1</can_be_empty>
+                    <depends><field id="sallowspecific">1</field></depends>
                 </field>
                 <field id="showerrors" translate="label" type="select" sortOrder="510" showInDefault="1"
                        showInWebsite="1" showInStore="0">

@@ -66,7 +66,6 @@ class LogAssist extends \Magento\Framework\App\Helper\AbstractHelper
     public function postDebug($module, $message, $data, array $context = [])
     {
         $this->logger->debug($this->getMessage($module, $message, $data), $context);
-
     }
 
     /**

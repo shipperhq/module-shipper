@@ -49,7 +49,7 @@ class CustomerAddressEdit implements ObserverInterface
     /**
      * @var \Magento\Customer\Api\AddressRepositoryInterface
      */
-    protected $addressRepository;
+    private $addressRepository;
     /**
      * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
@@ -74,12 +74,10 @@ class CustomerAddressEdit implements ObserverInterface
         if ($request) {
             if ($addressId = $request->getParam('id')) {
                 $existingAddress = $this->addressRepository->getById($addressId);
-                foreach($existingAddress->getCustomAttributes() as $customAttribute)
-                {
-                    if($customAttribute->getAttributeCode() == 'destination_type') {
+                foreach ($existingAddress->getCustomAttributes() as $customAttribute) {
+                    if ($customAttribute->getAttributeCode() == 'destination_type') {
                         $existingAddress->setCustomAttribute('destination_type', '');
-                    }
-                    elseif ($customAttribute->getAttributeCode() == 'validation_status') {
+                    } elseif ($customAttribute->getAttributeCode() == 'validation_status') {
                         $existingAddress->setCustomAttribute('validation_status', '');
                     }
                 }

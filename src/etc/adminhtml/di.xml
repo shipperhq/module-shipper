@@ -10,6 +10,7 @@
         <arguments>
             <argument name="messages" xsi:type="array">
                 <item name="shipperhq_credentials_invalid" xsi:type="string">ShipperHQ\Shipper\Model\System\Message\Credentials</item>
+                <item name="shipperhq_feature_module_alert" xsi:type="string">ShipperHQ\Shipper\Model\System\Message\ModuleAlert</item>
             </argument>
         </arguments>
     </type>

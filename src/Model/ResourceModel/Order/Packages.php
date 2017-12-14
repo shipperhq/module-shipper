@@ -91,7 +91,7 @@ class Packages extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
                 'qty_packed'    => $item['qty_packed']
             ];
         }
-        if(count($items) > 0) {
+        if (count($items) > 0) {
             $connection->insertMultiple($itemsTable, $items);
         }
         return $this;

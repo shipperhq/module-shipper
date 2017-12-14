@@ -37,6 +37,7 @@ namespace ShipperHQ\Shipper\Observer;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\DataObject\Factory as DataObjectFactory;
 
 /**
  * ShipperHQ Shipper module observer
@@ -47,7 +48,6 @@ class SaveShippingAdmin implements ObserverInterface
      * @var \ShipperHQ\Shipper\Helper\Data
      */
     private $shipperDataHelper;
-
     /**
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
@@ -61,16 +61,20 @@ class SaveShippingAdmin implements ObserverInterface
      * @var \Magento\Framework\Registry
      */
     private $registry;
-    /*
+    /**
      * @var \ShipperHQ\Common\Model\Quote\Service
      */
-    protected $quoteService;
+    private $quoteService;
     /**
      * Application Event Dispatcher
      *
      * @var \Magento\Framework\Event\ManagerInterface
      */
     private $eventManager;
+    /**
+     * @var DataObjectFactory
+     */
+    private $objectFactory;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
@@ -79,6 +83,7 @@ class SaveShippingAdmin implements ObserverInterface
      * @param \Magento\Framework\Registry $registry
      * @param \ShipperHQ\Common\Model\Quote\Service $quoteService
      * @param \Magento\Framework\Event\ManagerInterface $eventManager
+     * @param  DataObjectFactory $objectFactory
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
@@ -86,7 +91,8 @@ class SaveShippingAdmin implements ObserverInterface
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Magento\Framework\Registry $registry,
         \ShipperHQ\Common\Model\Quote\Service $quoteService,
-        \Magento\Framework\Event\ManagerInterface $eventManager
+        \Magento\Framework\Event\ManagerInterface $eventManager,
+        DataObjectFactory $objectFactory
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
@@ -94,6 +100,7 @@ class SaveShippingAdmin implements ObserverInterface
         $this->registry = $registry;
         $this->quoteService = $quoteService;
         $this->eventManager = $eventManager;
+        $this->objectFactory = $objectFactory;
     }
     /**
      * Record order shipping information after order is placed
@@ -109,7 +116,7 @@ class SaveShippingAdmin implements ObserverInterface
                 $orderData = $requestData['order'];
                 $quote = $observer->getSession()->getQuote();
                 if (!empty($orderData['shipping_method'])) {
-                    $additionalDetail = new \Magento\Framework\DataObject; //objects passed by reference
+                    $additionalDetail = $this->objectFactory->create();
                     $this->eventManager->dispatch(
                         'shipperhq_additional_detail_admin',
                         ['order_data' => $orderData,
@@ -117,14 +124,22 @@ class SaveShippingAdmin implements ObserverInterface
                             'shipping_address' => $quote->getShippingAddress()
                         ]
                     );
-                    $this->shipperLogger->postDebug('ShipperHQ Shipper', 'Persisting admin shipping details', $additionalDetail);
+                    $this->shipperLogger->postDebug(
+                        'ShipperHQ Shipper',
+                        'Persisting admin shipping details',
+                        $additionalDetail
+                    );
                     $shippingMethod = $orderData['shipping_method'];
-                    if(!empty($orderData['custom_price'])) {
+                    if (!empty($orderData['custom_price'])) {
                         $this->processAdminShipping($orderData, $quote);
                     }
                     $additionalDetailArray = $additionalDetail->convertToArray();
-                    $this->carrierGroupHelper->saveCarrierGroupInformation($quote->getShippingAddress(), $shippingMethod, $additionalDetailArray);
-                    if(strstr($shippingMethod, 'shipperadmin') && $requestData['collect_shipping_rates'] === 1) {
+                    $this->carrierGroupHelper->saveCarrierGroupInformation(
+                        $quote->getShippingAddress(),
+                        $shippingMethod,
+                        $additionalDetailArray
+                    );
+                    if (strstr($shippingMethod, 'shipperadmin') && $requestData['collect_shipping_rates'] === 1) {
                         $observer->getRequestModel()->setPostValue('collect_shipping_rates', 0);
                     }
                 }
@@ -132,12 +147,12 @@ class SaveShippingAdmin implements ObserverInterface
         }
     }
 
-    protected function processAdminShipping($data, $quote)
+    private function processAdminShipping($data, $quote)
     {
         $found = false;
-        $customCarrierGroupData = array();
+        $customCarrierGroupData = [];
         if (isset($data['custom_price'])) {
-            $adminData  = array('customPrice' => $data['custom_price']);
+            $adminData  = ['customPrice' => $data['custom_price']];
             if (isset($data['custom_description'])) {
                 $adminData['customCarrier'] = $data['custom_description'];
                 $found = true;
@@ -149,7 +164,9 @@ class SaveShippingAdmin implements ObserverInterface
         if ($found) {
             $shippingAddress =  $quote->getShippingAddress();
             $this->quoteService->cleanDownRates($shippingAddress, 'shipperadmin', '');
-            $this->registry->register('shqadminship_data', new \Magento\Framework\DataObject($customCarrierGroupData));
+            $detail = $this->objectFactory->create();
+            $detail->addData($customCarrierGroupData);
+            $this->registry->register('shqadminship_data', $detail);
             $storedLimitCarrier = $shippingAddress->getLimitCarrier();
             $shippingAddress->setLimitCarrier('shipperadmin');
             $rateFound = $shippingAddress->requestShippingRates();

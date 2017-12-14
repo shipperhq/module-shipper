@@ -56,7 +56,7 @@ class Column extends DefaultColumn
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
-       \Magento\Backend\Block\Template\Context $context,
+        \Magento\Backend\Block\Template\Context $context,
         \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry,
         \Magento\CatalogInventory\Api\StockConfigurationInterface $stockConfiguration,
         \Magento\Framework\Registry $registry,
@@ -81,7 +81,7 @@ class Column extends DefaultColumn
     {
         $result = '';
         $orderItemDetails = $this->getItemDetail($itemId);
-        if($orderItemDetails) {
+        if ($orderItemDetails) {
             foreach ($orderItemDetails as $itemDetail) {
                 if (isset($itemDetail[$detail])) {
                     $result = $itemDetail[$detail];
@@ -93,11 +93,7 @@ class Column extends DefaultColumn
 
     private function getItemDetail($itemId)
     {
-        if(!$this->itemDetail) {
-            $this->itemDetail = $this->carrierGroupHelper->loadOrderItemDetailByOrderItemId($itemId);
-        }
-
+        $this->itemDetail = $this->carrierGroupHelper->loadOrderItemDetailByOrderItemId($itemId);
         return $this->itemDetail;
     }
-
 }

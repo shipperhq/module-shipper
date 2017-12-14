@@ -44,11 +44,12 @@ class ShipperMapper
     private static $ecommerceType = 'magento';
     private static $stdAttributeNames = [
         'shipperhq_shipping_group', 'shipperhq_post_shipping_group', 'shipperhq_location',
-       /* 'shipperhq_warehouse',*/ 'shipperhq_royal_mail_group', 'shipperhq_shipping_qty',
+        'shipperhq_royal_mail_group', 'shipperhq_shipping_qty',
         'shipperhq_shipping_fee', 'shipperhq_additional_price', 'freight_class',
         'shipperhq_nmfc_class', 'shipperhq_nmfc_sub', 'shipperhq_handling_fee', 'shipperhq_carrier_code',
         'shipperhq_volume_weight', 'shipperhq_declared_value', 'ship_separately',
-        'shipperhq_dim_group', 'shipperhq_poss_boxes', 'shipperhq_master_boxes', 'ship_box_tolerance', 'must_ship_freight', 'packing_section_name'
+        'shipperhq_dim_group', 'shipperhq_poss_boxes', 'shipperhq_master_boxes', 'ship_box_tolerance',
+        'must_ship_freight', 'packing_section_name'
     ];
 
     private static $dim_height = 'ship_height';

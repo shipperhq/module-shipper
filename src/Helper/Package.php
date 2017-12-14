@@ -94,7 +94,8 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
         try {
             $packageModel = $this->quotePackageFactory->create();
             foreach ($shipmentArray as $shipment) {
-                //clean up packages saved - this should be in some kind of package manager - an interface or something as this could be replaced
+                //clean up packages saved
+                //this should be in some kind of package manager - an interface or something as this could be replaced
                 $packages = $packageModel->loadByCarrier(
                     $shippingAddressId,
                     $shipment['carrier_group_id'],
@@ -186,5 +187,20 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
         $order->save();
 
         //record without carrier group details?
+    }
+
+    public function recoverOrderPackageDetail($order)
+    {
+        $packages = $this->loadOrderPackagesByOrderId($order->getId());
+        if (empty($packages)) {
+            $this->saveOrderPackages($order, $this->carrierGroupHelper->getQuoteShippingAddressFromOrder($order));
+        }
+    }
+
+    public function loadOrderPackagesByOrderId($orderId)
+    {
+        $packageModel = $this->orderPackageFactory->create();
+        $orderPackageCollection = $packageModel->loadByOrderId($orderId);
+        return $orderPackageCollection;
     }
 }

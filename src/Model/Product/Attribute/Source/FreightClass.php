@@ -33,21 +33,18 @@
  */
 namespace ShipperHQ\Shipper\Model\Product\Attribute\Source;
 
-use Magento\Eav\Model\Entity\Attribute\Source\AbstractSource;
-use Magento\Framework\Data\OptionSourceInterface;
-
-class FreightClass  extends \Magento\Eav\Model\Entity\Attribute\Source\Config //extends AbstractSource implements OptionSourceInterface
+class FreightClass extends \Magento\Eav\Model\Entity\Attribute\Source\Config
 {
     /**
      * Store manager
      *
      * @var \Magento\Store\Model\StoreManagerInterface
      */
-    protected $_storeManager;
+    protected $storeManager;
     /**
      * @var \Magento\Eav\Model\ResourceModel\Entity\Attribute\OptionFactory
      */
-    protected $_optionFactory;
+    protected $optionFactory;
 
     /**
      * Construct
@@ -59,34 +56,34 @@ class FreightClass  extends \Magento\Eav\Model\Entity\Attribute\Source\Config //
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Eav\Model\ResourceModel\Entity\Attribute\OptionFactory $optionFactory
     ) {
-        $this->_storeManager = $storeManager;
-        $this->_optionFactory = $optionFactory;
+        $this->storeManager = $storeManager;
+        $this->optionFactory = $optionFactory;
     }
 
     public function toOptionArray()
     {
         $freight_class = [
-            50 	=> '50',
-            55 	=> '55',
-            60 	=> '60',
-            65 	=> '65',
-            70 	=> '70',
-            77.5 	=> '77.5',
-            85 	=> '85',
-            92.5 	=> '92.5',
-            100 	=> '100',
-            110 	=> '110',
-            125 	=> '125',
-            150 	=> '150',
-            175 	=> '175',
-            200 	=> '200',
-            250 	=> '250',
-            300 	=> '300',
-            400 	=> '400',
-            500 	=> '500',
+            50  => '50',
+            55  => '55',
+            60  => '60',
+            65  => '65',
+            70  => '70',
+            77.5    => '77.5',
+            85  => '85',
+            92.5    => '92.5',
+            100     => '100',
+            110     => '110',
+            125     => '125',
+            150     => '150',
+            175     => '175',
+            200     => '200',
+            250     => '250',
+            300     => '300',
+            400     => '400',
+            500     => '500',
         ];
 
-        foreach ($freight_class as $k=>$v) {
+        foreach ($freight_class as $k => $v) {
             $arr[] = ['value'=>$k, 'label'=>$v];
         }
 
@@ -121,7 +118,7 @@ class FreightClass  extends \Magento\Eav\Model\Entity\Attribute\Source\Config //
     public function getFlatUpdateSelect($store)
     {
         /** @var $option \Magento\Eav\Model\ResourceModel\Entity\Attribute\Option */
-        $option = $this->_optionFactory->create();
+        $option = $this->optionFactory->create();
         return $option->getFlatUpdateSelect($this->getAttribute(), $store, false);
     }
 }

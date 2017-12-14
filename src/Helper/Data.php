@@ -457,43 +457,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return $productText;
     }
-
-    public function setShippingOnItems($shippingDetails, $shippingAddress)
-    {
-        $itemsGrouped = $this->getItemsGroupedByCarrierGroup($shippingAddress->getAllItems());
-        foreach ($shippingDetails as $carrierGroupDetail) {
-            if (is_array($carrierGroupDetail) && array_key_exists('carrierTitle', $carrierGroupDetail)) {
-                $carrierGroupId = $carrierGroupDetail['carrierGroupId'];
-                $shippingText = $carrierGroupDetail['carrierTitle'] .' - ' .$carrierGroupDetail['methodTitle'];
-                if (array_key_exists($carrierGroupId, $itemsGrouped)) {
-                    foreach ($itemsGrouped[$carrierGroupId] as $item) {
-                        $item->setCarriergroupShipping($shippingText);
-                        $item->save();
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Format items based on carrier group
-     *
-     * @return array
-     */
-    public function getItemsGroupedByCarrierGroup($cartItems)
-    {
-        $groupedItems = [];
-        foreach ($cartItems as $item) {
-            if (array_key_exists($item->getCarriergroupId(), $groupedItems)) {
-                $groupedItems[$item->getCarriergroupId()][] = $item;
-            } else {
-                $groupedItems[$item->getCarriergroupId()]= [$item];
-            }
-        }
-
-        return $groupedItems;
-    }
-
+    
     public function getAttribute($attribute_code, $store = null)
     {
 
@@ -516,7 +480,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getCarrierByCode($carrierCode, $storeId = null)
     {
-        if(!$this->getConfigValue('carriers/'.$carrierCode.'/active', $storeId)) {
+        if (!$this->getConfigValue('carriers/'.$carrierCode.'/active', $storeId)) {
             return false;
         }
         $className =  $this->getConfigValue('carriers/'.$carrierCode.'/model', $storeId);

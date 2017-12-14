@@ -500,7 +500,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $connection = $installer->getConnection(self::$connectionName);
             $connection->modifyColumn(
                 $setup->getTable('shipperhq_order_detail'),
-                'order_id', [
+                'order_id',
+                [
                 'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                 'length'   => 10,
                 'nullable' => false,
@@ -914,7 +915,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
         if (version_compare($context->getVersion(), '1.0.13', '<')) {
             $installer->getConnection(self::$connectionName)->modifyColumn(
                 $setup->getTable('shipperhq_order_packages'),
-                'order_id', [
+                'order_id',
+                [
                     'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     'length'   => 10,
                     'nullable' => false,
@@ -1002,7 +1004,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     10,
                     ['nullable' => false, 'default' => '0', 'unsigned' => true],
-                     'Order ID'
+                    'Order ID'
                 )->addColumn(
                     'carrier_group',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -1124,7 +1126,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             }
         }
 
-        if(version_compare($context->getVersion(), '1.0.14') < 0) {
+        if (version_compare($context->getVersion(), '1.0.14') < 0) {
             $this->cleanOrderGridTable($installer);
         }
 
@@ -1162,5 +1164,4 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $setup->getConnection(self::$connectionName)->delete($shqOrderGridTable, $condition);
         }
     }
-
 }

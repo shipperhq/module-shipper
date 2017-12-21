@@ -195,11 +195,3 @@ SHQ16-2255 Support for calendar and pickup in admin orders
 SHQ16-2419 Caching improvements
 M2-55 Modify order recording for MAC
 
-## 20.12.0
-SHQ16-2938 option to not modify carrier, SHQ16-2434 add IP to request, SHQ16-2489 handle empty street
-
-
-## 20.12.0
-SHQ16-2938 option to not modify carrier, SHQ16-2434 add IP to request, SHQ16-2489 handle empty street
-
-

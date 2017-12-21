@@ -341,6 +341,8 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
         }
         $request->setCartType($cartType);
 
+        $remoteIP = $this->quote->getRemoteIp();
+        $request->setIpAddress($remoteIP);
         $this->eventManager->dispatch(
             'shipperhq_carrier_set_request',
             ['request' => $request]

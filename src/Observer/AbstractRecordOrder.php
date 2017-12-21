@@ -121,7 +121,9 @@ abstract class AbstractRecordOrder implements ObserverInterface
                         if (is_array($shipDescriptionArray) && isset($cgDetail['carrierTitle'])) {
                             $shipDescriptionArray[0] = $cgDetail['carrierTitle'] .' ';
                             $newShipDescription = implode('-', $shipDescriptionArray);
-                            $order->setShippingDescription($newShipDescription);
+                            if(!$this->shipperDataHelper->getAlwaysShowSingleCarrierTitle()) {
+                               $order->setShippingDescription($newShipDescription);
+                            }
                         }
                         $cgArray[$key] = $cgDetail;
                     }

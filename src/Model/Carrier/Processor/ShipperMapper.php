@@ -166,6 +166,10 @@ class ShipperMapper
      * @var  \ShipperHQ\WS\Rate\Request\Checkout\StockDetailFactory
      */
     private $stockDetailFactory;
+    /**
+     * @var \Magento\Framework\HTTP\Header
+     */
+    private $httpHeader;
 
     /**
      * ShipperMapper constructor.
@@ -187,7 +191,8 @@ class ShipperMapper
      * @param Request\ShipDetailsFactory $shipDetailsFactory
      * @param StockHandler $stockHandler
      * @param Request\Checkout\PhysicalBuildingDetailFactory $physicalBuildingDetailFactory
-     * @param Request\Checkout\StockDetailFactory $stockDetailFactory
+     * @param Request\Checkout\StockDetailFactory $stockDetailFactory,
+     * @param \Magento\Framework\HTTP\Header $httpHeader
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
@@ -208,7 +213,8 @@ class ShipperMapper
         \ShipperHQ\WS\Rate\Request\ShipDetailsFactory $shipDetailsFactory,
         StockHandler $stockHandler,
         \ShipperHQ\WS\Rate\Request\Checkout\PhysicalBuildingDetailFactory $physicalBuildingDetailFactory,
-        \ShipperHQ\WS\Rate\Request\Checkout\StockDetailFactory $stockDetailFactory
+        \ShipperHQ\WS\Rate\Request\Checkout\StockDetailFactory $stockDetailFactory,
+        \Magento\Framework\HTTP\Header $httpHeader
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->groupFactory = $groupFactory;
@@ -230,6 +236,7 @@ class ShipperMapper
         $this->physicalBuildingDetailFactory = $physicalBuildingDetailFactory;
         $this->stockDetailFactory = $stockDetailFactory;
         self::$prodAttributes = $this->shipperDataHelper->getProductAttributes();
+        $this->httpHeader = $httpHeader;
     }
 
     /**
@@ -264,7 +271,8 @@ class ShipperMapper
         }
 
         $storeId = $magentoRequest->getStoreId();
-        $shipperHQRequest->setSiteDetails($this->getSiteDetails($storeId));
+        $ipAddress = $magentoRequest->getIpAddress();
+        $shipperHQRequest->setSiteDetails($this->getSiteDetails($storeId, $ipAddress));
         $shipperHQRequest->setCredentials($this->getCredentials($storeId));
         return $shipperHQRequest;
     }
@@ -274,11 +282,11 @@ class ShipperMapper
      *
      * @return string
      */
-    public function getCredentialsTranslation($storeId = null)
+    public function getCredentialsTranslation($storeId = null, $ipAddress = null)
     {
         $shipperHQRequest = $this->infoRequestFactory->create();
         $shipperHQRequest->setCredentials($this->getCredentials($storeId));
-        $shipperHQRequest->setSiteDetails($this->getSiteDetails($storeId));
+        $shipperHQRequest->setSiteDetails($this->getSiteDetails($storeId, $ipAddress));
         return $shipperHQRequest;
     }
 
@@ -318,10 +326,11 @@ class ShipperMapper
      *
      * @return array
      */
-    public function getSiteDetails($storeId = null)
+    public function getSiteDetails($storeId = null, $ipAddress = null)
     {
         $edition = $this->productMetadata->getEdition();
         $url = $this->storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_LINK);
+        $mobilePrepend =  $this->shipperDataHelper->isMobile($this->httpHeader->getHttpUserAgent()) ? 'm' : '';
         $siteDetails = $this->siteDetailsFactory->create([
             'ecommerceCart' => 'Magento 2 ' . $edition,
             'ecommerceVersion' => $this->productMetadata->getVersion(),
@@ -330,7 +339,8 @@ class ShipperMapper
                 'carriers/shipper/environment_scope',
                 $storeId
             ),
-            'appVersion' => $this->shipperDataHelper->getConfigValue('carriers/shipper/extension_version')
+            'appVersion' => $this->shipperDataHelper->getConfigValue('carriers/shipper/extension_version'),
+            'ipAddress' => is_null($ipAddress) ? $mobilePrepend : $mobilePrepend .$ipAddress
         ]);
         return $siteDetails;
     }
@@ -582,11 +592,12 @@ class ShipperMapper
                     'zipcode'         => $request->getDestPostcode() === null ? '' : $request->getDestPostcode(),
                     'selectedOptions' => $selectedOptions]);
         } else {
+            $street = $request->getDestStreet();
             $destination = $this->addressFactory->create([
                     'city'            => $request->getDestCity() === null ? '' : $request->getDestCity(),
                     'country'         => $request->getDestCountryId() === null ? '' : $request->getDestCountryId(),
                     'region'          => $region,
-                    'street'          => $request->getDestStreet() === null ? '' : $request->getDestStreet(),
+                    'street'          => $street === null || !is_string($street) ? '' : str_replace("\n", ' ', $street),
                     'zipcode'         => $request->getDestPostcode() === null ? '' : $request->getDestPostcode(),
                     'selectedOptions' => $selectedOptions]);
         }

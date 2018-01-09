@@ -30,10 +30,26 @@
 
 namespace ShipperHQ\Shipper\Block\Backend\Config\Carrier;
 
-
 class Sallowspecific
     extends \Magento\Config\Block\System\Config\Form\Field
 {
+    /**
+     * Retrieve HTML markup for given form element
+     *
+     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @return string
+     */
+    public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+    {
+        $class = $this->isHidden($element) ? "class=\"hidden\"" : "";
+        $out = parent::render($element);
+
+        $search = '<tr id="row_' . $element->getHtmlId() . '">';
+        $replace = '<tr id="row_' . $element->getHtmlId() . '" ' . $class . '>' ;
+        $out = preg_replace($search, $replace, $out);
+        return $out;
+    }
+
     /**
      * We only want to show this option for legacy customers who have already turned the switch on.
      *
@@ -42,21 +58,6 @@ class Sallowspecific
      */
     public function isHidden(\Magento\Framework\Data\Form\Element\AbstractElement $element) {
         // For option values see: Magento\Shipping\Model\Config\Source\Allspecificcountries
-
         return $element->getValue() == 0;
     }
-
-    /**
-     * Decorate field row html
-     *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
-     * @param string $html
-     * @return string
-     */
-    protected function _decorateRowHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element, $html)
-    {
-        $class = $this->isHidden($element) ? "class=\"hidden\"" : "";
-        return '<tr id="row_' . $element->getHtmlId() . '" ' . $class . '>' . $html . '</tr>';
-    }
-
 }

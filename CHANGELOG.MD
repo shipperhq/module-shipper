@@ -1,205 +1,443 @@
 # Change Log
 
-## 20.0.23
-SHQ16-1395 remove references to carrier group factory
+## [20.13.0](https://github.com/webshopapps/module-shipper/tree/20.13.0) (2017-12-28)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.12.0...20.13.0)
 
-## 20.0.24
-SHQ16-1543 belts and braces check on quote item before accessing
+**Merged pull requests:**
 
-## 20.0.25
-SHQ16-1582 display pickup location and time slot in order view
-SHQ16-1682 Changed version to placeholder
+- SHQ16-2492 modified hiding of sallowspecific field [\#94](https://github.com/webshopapps/module-shipper/pull/94) ([wsagen](https://github.com/wsagen))
+- INFRA-55 Added ZIP exclusion to composer.json [\#93](https://github.com/webshopapps/module-shipper/pull/93) ([wsajason](https://github.com/wsajason))
 
-## 20.0.26
-SHQ16-745 eCommerce cart in request corrected
+## [20.12.0](https://github.com/webshopapps/module-shipper/tree/20.12.0) (2017-12-19)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.11.0...20.12.0)
 
-## 20.1.0
-SHQ16-1619 Config flag to ignore requests if zip code blank 
+**Merged pull requests:**
 
-## 20.1.1
-SHQ16-1731 corrected function name
-SHQ16-1730 resolved package helper constructor
-SHQ16-1730 resolved constructor on package helper
+- SHQ16-2489 handle empty array as street in request [\#92](https://github.com/webshopapps/module-shipper/pull/92) ([wsagen](https://github.com/wsagen))
+- SHQ16-2434 add IP Address to request [\#91](https://github.com/webshopapps/module-shipper/pull/91) ([wsagen](https://github.com/wsagen))
+- SHQ16-1938 configuration option to not modify carrier title [\#90](https://github.com/webshopapps/module-shipper/pull/90) ([wsagen](https://github.com/wsagen))
 
-## 20.1.2
-SHQ16-1739 modify usage of checkout session, Updated issue reference in readme
+## [20.11.0](https://github.com/webshopapps/module-shipper/tree/20.11.0) (2017-12-14)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.10.0...20.11.0)
 
-## 20.1.3
-SHQ16-1745 handle exception on addresses without region
+## [20.10.0](https://github.com/webshopapps/module-shipper/tree/20.10.0) (2017-12-14)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.7.0...20.10.0)
 
-## 20.1.4
-SHQ16-992 implemented caching of rates using cache
+**Merged pull requests:**
 
-## 20.1.5
-Updated README with latest github issues
+-  SHQ16-2113 recovery of shipping information if missing on order [\#89](https://github.com/webshopapps/module-shipper/pull/89) ([wsagen](https://github.com/wsagen))
+-  SHQ16-2459 display carrier group breakdown correctly on order [\#88](https://github.com/webshopapps/module-shipper/pull/88) ([wsagen](https://github.com/wsagen))
+- Shq16 1892 [\#87](https://github.com/webshopapps/module-shipper/pull/87) ([wsagen](https://github.com/wsagen))
+- SHQ16-2402 added translation [\#86](https://github.com/webshopapps/module-shipper/pull/86) ([wsagen](https://github.com/wsagen))
+- SHQ16-2053 altered displayed module names [\#85](https://github.com/webshopapps/module-shipper/pull/85) ([wsagen](https://github.com/wsagen))
+-  SHQ16-2053 display module version numbers in M2 [\#84](https://github.com/webshopapps/module-shipper/pull/84) ([wsagen](https://github.com/wsagen))
+-  SHQ16-2402 synchronize enabled features in M2 and show alert if module missing [\#83](https://github.com/webshopapps/module-shipper/pull/83) ([wsagen](https://github.com/wsagen))
+- SHQ16-2456 ensure dispatch date saved to order is correct for calendar rates [\#82](https://github.com/webshopapps/module-shipper/pull/82) ([wsagen](https://github.com/wsagen))
+- SHQ16-2432 Code sniffer changes [\#81](https://github.com/webshopapps/module-shipper/pull/81) ([wsagen](https://github.com/wsagen))
 
-## 20.1.6
-SHQ16-1774 record order packages
+## [20.7.0](https://github.com/webshopapps/module-shipper/tree/20.7.0) (2017-11-28)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.6.9...20.7.0)
 
-## 20.1.7
-SHQ16-1708 display notification when credentials invalid in admin
-SHQ16-1859 allow extension of shipper mapper functions
+**Merged pull requests:**
 
-## 20.1.8
-SHQ16-1851 removed columns from sales order grid until we find a solution
+- SHQ16-2435 Fixed issue with custom options causing a 403 error [\#80](https://github.com/webshopapps/module-shipper/pull/80) ([wsajosh](https://github.com/wsajosh))
+- SHQ16-2255 support for calendar and pickup orders in admin [\#79](https://github.com/webshopapps/module-shipper/pull/79) ([wsagen](https://github.com/wsagen))
+- SHQ16-2419 modified caching of rates - key and config changes [\#78](https://github.com/webshopapps/module-shipper/pull/78) ([wsagen](https://github.com/wsagen))
+- M2-55 amend so we load order using id not increment ID [\#77](https://github.com/webshopapps/module-shipper/pull/77) ([wsagen](https://github.com/wsagen))
+-  SHQ16-2420 Populate origin and shipping order item view columns [\#76](https://github.com/webshopapps/module-shipper/pull/76) ([wsagen](https://github.com/wsagen))
 
-## 20.1.9
-SHQ16-992 implement config switch for caching rates
+## [20.6.9](https://github.com/webshopapps/module-shipper/tree/20.6.9) (2017-11-08)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.6.7...20.6.9)
 
-## 20.2.0
-SHQ16-992 implement config switch for cached rates
+**Merged pull requests:**
 
-## 20.2.1
-SHQ16-1902 use stored address type in subsequent requests
+- SHQ16-2346 Fixed typo [\#75](https://github.com/webshopapps/module-shipper/pull/75) ([wsajosh](https://github.com/wsajosh))
+- SHQ16-2346 Updated must\_ship\_freight with a note to say it can be ove… [\#74](https://github.com/webshopapps/module-shipper/pull/74) ([wsajosh](https://github.com/wsajosh))
 
-## 20.2.2
-SHQ16-1922 save package detail on first pass through checkout, set carrier code when settings are shqshared
-SHQ16-1927 pass store id when retrieving quote
+## [20.6.7](https://github.com/webshopapps/module-shipper/tree/20.6.7) (2017-11-07)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.6.8...20.6.7)
 
-## 20.2.3
-SHQ16-1925 Resolved issue with merged rates not showing
+## [20.6.8](https://github.com/webshopapps/module-shipper/tree/20.6.8) (2017-11-07)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.6.6...20.6.8)
 
-## 20.2.4
-SHQ16-594 populate shipperhq_location in request
+**Merged pull requests:**
 
-## 20.3.0
-SHQ16-1851_A reinstate order grid columns
+- M2-52 remove dependency on debug setting to enable logging [\#73](https://github.com/webshopapps/module-shipper/pull/73) ([wsagen](https://github.com/wsagen))
 
-## 20.3.1
-SHQ16-1851_A reinstate order grid columns
+## [20.6.6](https://github.com/webshopapps/module-shipper/tree/20.6.6) (2017-10-27)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.6.5...20.6.6)
 
-## 20.3.2
-SHQ16-1968 save packages when carrier and name is duplicated
+**Merged pull requests:**
 
-## 20.3.3
-SHQ16-2002 Fixed issue with SHQ using wrong stores API credentials within admin
+- SHQ16-2375 support for split database architecture in EE [\#72](https://github.com/webshopapps/module-shipper/pull/72) ([wsagen](https://github.com/wsagen))
 
-## 20.3.4
-SHQ16-2002 Fixed issue with SHQ using wrong stores API credentials within admin
+## [20.6.5](https://github.com/webshopapps/module-shipper/tree/20.6.5) (2017-10-26)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.6.4...20.6.5)
 
-## 20.3.5
-SHQ16-2004 - custom admin shipping
-SHQ16-2029 - code sniffer changes
+**Merged pull requests:**
 
-## 20.4.0
-SHQ16-2032 and SHQ16-2041 pickup date is used as start when it's today, otherwise use start date
-SHQ16-2041 extended unit tests
-SHQ16-2029 changes from code sniffer review
+- M2-51 reduce the maximum length of carrier and method code combination [\#71](https://github.com/webshopapps/module-shipper/pull/71) ([wsagen](https://github.com/wsagen))
+- SHQ16-2374 move caching of allowedMethods response to only cache if i… [\#70](https://github.com/webshopapps/module-shipper/pull/70) ([wsagen](https://github.com/wsagen))
 
-## 20.5.0
-SHQ16-1967 Accessorials in M2
+## [20.6.4](https://github.com/webshopapps/module-shipper/tree/20.6.4) (2017-10-25)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.6.3...20.6.4)
 
-## 20.5.1
-Corrected version number display
+**Merged pull requests:**
 
-## 20.5.2
-SHQ16-2117 resolved issue with Authorize.net and custom admin shipping
+- SHQ16-2372 Fixed issue in SQL scripts [\#69](https://github.com/webshopapps/module-shipper/pull/69) ([wsajosh](https://github.com/wsajosh))
 
-## 20.5.3
-SHQ16-2123 resolve issue with install and upgrade when database has been migrated from M1 to M2
+## [20.6.3](https://github.com/webshopapps/module-shipper/tree/20.6.3) (2017-10-13)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.6.2...20.6.3)
 
-## 20.5.4
-SHQ16-2123 prevent deleting default attribute group
+**Merged pull requests:**
 
-## 20.5.5
-SHQ16-2141 UPS LTL use carrier code as type
+- M2-47 refactor saving quote and order package items, added fix to record order package items [\#68](https://github.com/webshopapps/module-shipper/pull/68) ([wsagen](https://github.com/wsagen))
 
-## 20.5.6
-SHQ16-2154 clean up step to remove duplicates from shq order grid table
+## [20.6.2](https://github.com/webshopapps/module-shipper/tree/20.6.2) (2017-10-06)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.6.1...20.6.2)
 
-## 20.5.7
-SHQ16-2159 add custom admin shipping when no rates returned
+**Merged pull requests:**
 
-## 20.5.8
-SHQ16-2171 ensure internal error message can be displayed
+- M2-47 Deadlocking issue work [\#67](https://github.com/webshopapps/module-shipper/pull/67) ([wsajosh](https://github.com/wsajosh))
+- M2-45 Ensure we check array key  exists on admin order view [\#66](https://github.com/webshopapps/module-shipper/pull/66) ([wsajosh](https://github.com/wsajosh))
+- M2-44 Updating readme [\#65](https://github.com/webshopapps/module-shipper/pull/65) ([wsajosh](https://github.com/wsajosh))
 
-## 20.5.9
-SHQ16-2178 prevent display of address type and validation result on front end
-SHQ16-2200 Added in master packing boxes attribute to mapping
+## [20.6.1](https://github.com/webshopapps/module-shipper/tree/20.6.1) (2017-10-04)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.6.0...20.6.1)
 
-## 20.6.0
-SHQ16-2178 set address type on new quote
+**Merged pull requests:**
 
-## 20.6.1
-SHQ16-2238 prevent null for city field
-SHQ16-2236 class variables made public to reuse in children
-SHQ16-2235 add freight attributes to catalog attributes xml
-SHQ16-2219 display location selected as pickup at checkout
+- SHQ16-2300 Fixed issue with deleting old carriers from config [\#64](https://github.com/webshopapps/module-shipper/pull/64) ([wsajosh](https://github.com/wsajosh))
 
-## 20.6.2
-SHQ16-2250 add destination_type attribute if not present
+## [20.6.0](https://github.com/webshopapps/module-shipper/tree/20.6.0) (2017-09-28)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.5.7...20.6.0)
 
-## 20.7.0
-SHQ16-2205 - compatibility with release candidate M2.2
+**Merged pull requests:**
 
-## 20.7.1
-SHQ16-2205 - compatibility with release candidate M2.2
+- SHQ16-2231 display customer account carrier details on order view [\#63](https://github.com/webshopapps/module-shipper/pull/63) ([wsagen](https://github.com/wsagen))
 
-## 20.7.2
-SHQ16-2205 DeliveryDate column backwards compatible with 2.2 RC
+## [20.5.7](https://github.com/webshopapps/module-shipper/tree/20.5.7) (2017-09-27)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.5.6...20.5.7)
 
-## 20.7.3
-SHQ16-2258 add config for backup carrier timeout
+**Merged pull requests:**
 
-## 20.7.4
-SHQ16-2281 use mutable config when getting carrier by code
+- SHQ16-2298 set address type when request being  made from cart on log… [\#62](https://github.com/webshopapps/module-shipper/pull/62) ([wsagen](https://github.com/wsagen))
 
-## 20.7.5
-SHQ16-2266 added some debug logging to assist in customer diagnosis
+## [20.5.6](https://github.com/webshopapps/module-shipper/tree/20.5.6) (2017-09-21)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.5.5...20.5.6)
 
-## 20.7.6
-SHQ16-2281 use system config to enable backup carrier temporarily
+**Merged pull requests:**
 
-## 20.7.7
-SHQ16-2298 set address type when request being made from cart on logged in customer
+- SHQ16-2281 use system config to enable backup carrier temporarily [\#61](https://github.com/webshopapps/module-shipper/pull/61) ([wsagen](https://github.com/wsagen))
 
-## 20.8.0
-SHQ16-2231 support for customer account carrier
+## [20.5.5](https://github.com/webshopapps/module-shipper/tree/20.5.5) (2017-09-18)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.5.4...20.5.5)
 
-## 20.8.1
-SHQ16-2300 Fixed issue with deleting old carriers from config
+## [20.5.4](https://github.com/webshopapps/module-shipper/tree/20.5.4) (2017-09-15)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.5.3...20.5.4)
 
-## 20.8.2
-M2-45 Ensure we check array key exists on admin order view
-M2-47 Deadlocking issue work
+**Merged pull requests:**
 
-## 20.8.3
-SHQ16-2078 add unit tests for time slot calculations
+- SHQ16-2281 use mutable config when getting carrier by code [\#60](https://github.com/webshopapps/module-shipper/pull/60) ([wsagen](https://github.com/wsagen))
 
-## 20.8.4
-M2-47 added fix to record order package items
+## [20.5.3](https://github.com/webshopapps/module-shipper/tree/20.5.3) (2017-09-06)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.5.2...20.5.3)
 
-## 20.8.5
-SHQ16-2372 Fixed issue in SQL scripts
+**Merged pull requests:**
 
-## 20.8.6
-M2-51 reduce the maximum length of carrier and method code combination
-SHQ16-2374 move caching of allowedMethods response to only cache if it is successful
+- SHQ16-2258 add config for backup carrier timeout [\#59](https://github.com/webshopapps/module-shipper/pull/59) ([wsagen](https://github.com/wsagen))
 
-## 20.8.7
-SHQ16-2375 support for split database architecture in EE
+## [20.5.2](https://github.com/webshopapps/module-shipper/tree/20.5.2) (2017-09-01)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.5.1...20.5.2)
 
-## 20.8.8
-SHQ16-2392 added comments and refactored unit tests, added tests for calendarDetails default date
-M2-52 remove dependency on debug setting to enable logging
+**Merged pull requests:**
 
-## 20.8.9
-SHQ16-2346 Updated must_ship_freight with a note to say it can be overriden at carrier level
+- SHQ16-2205 Backwards compatible deliverydate UI Component [\#58](https://github.com/webshopapps/module-shipper/pull/58) ([wsagen](https://github.com/wsagen))
 
-## 20.9.0
-SHQ16-2417 ignore time zone when reformating dates
+## [20.5.1](https://github.com/webshopapps/module-shipper/tree/20.5.1) (2017-08-31)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.5.0...20.5.1)
 
-## 20.10.0
-SHQ16-2435 Fixed issue with custom options causing a 403 error
-SHQ16-2255 Support for calendar and pickup in admin orders
-SHQ16-2419 Caching improvements
-M2-55 Modify order recording for MAC
+**Merged pull requests:**
 
-## 20.12.0
-SHQ16-2938 option to not modify carrier, SHQ16-2434 add IP to request, SHQ16-2489 handle empty street
+- SHQ16-2205 remove constructor argument until resolve backwards compat… [\#57](https://github.com/webshopapps/module-shipper/pull/57) ([wsagen](https://github.com/wsagen))
+
+## [20.5.0](https://github.com/webshopapps/module-shipper/tree/20.5.0) (2017-08-31)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.4.7...20.5.0)
+
+**Merged pull requests:**
+
+- SHQ16-2205 compatibility with M2.2 RC [\#56](https://github.com/webshopapps/module-shipper/pull/56) ([wsagen](https://github.com/wsagen))
+
+## [20.4.7](https://github.com/webshopapps/module-shipper/tree/20.4.7) (2017-08-30)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.4.6...20.4.7)
+
+**Merged pull requests:**
+
+- SHQ16-2250 add destination\_type attribute if not present [\#55](https://github.com/webshopapps/module-shipper/pull/55) ([wsagen](https://github.com/wsagen))
+
+## [20.4.6](https://github.com/webshopapps/module-shipper/tree/20.4.6) (2017-08-23)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.4.5...20.4.6)
+
+**Merged pull requests:**
+
+- SHQ16-2238 prevent null for city field [\#54](https://github.com/webshopapps/module-shipper/pull/54) ([wsagen](https://github.com/wsagen))
+- SHQ16-2235 add freight attributes to catalog attributes xml [\#53](https://github.com/webshopapps/module-shipper/pull/53) ([wsagen](https://github.com/wsagen))
+- SHQ16-2219 display location selected as pickup at checkout [\#52](https://github.com/webshopapps/module-shipper/pull/52) ([wsagen](https://github.com/wsagen))
+
+## [20.4.5](https://github.com/webshopapps/module-shipper/tree/20.4.5) (2017-08-11)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.4.4...20.4.5)
+
+**Merged pull requests:**
+
+- SHQ16-2178 existing checkout for 0 [\#51](https://github.com/webshopapps/module-shipper/pull/51) ([wsagen](https://github.com/wsagen))
+- SHQ16-2178 Move set address type on quote address to main ShipperHQ module [\#50](https://github.com/webshopapps/module-shipper/pull/50) ([wsagen](https://github.com/wsagen))
+
+## [20.4.4](https://github.com/webshopapps/module-shipper/tree/20.4.4) (2017-08-08)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.4.3...20.4.4)
+
+**Merged pull requests:**
+
+- Develop [\#49](https://github.com/webshopapps/module-shipper/pull/49) ([wsajosh](https://github.com/wsajosh))
+- SHQ16-2200 Added in master packing boxes attribute to mapping [\#48](https://github.com/webshopapps/module-shipper/pull/48) ([wsajosh](https://github.com/wsajosh))
+- SHQ16-2178 reset validation and address type on customer address if i… [\#47](https://github.com/webshopapps/module-shipper/pull/47) ([wsagen](https://github.com/wsagen))
+- SHQ16-2178 reset session values when not set [\#46](https://github.com/webshopapps/module-shipper/pull/46) ([wsagen](https://github.com/wsagen))
+- SHQ16-2178 Support editable address type on customer address [\#45](https://github.com/webshopapps/module-shipper/pull/45) ([wsagen](https://github.com/wsagen))
+- SHQ16-2190 refresh of about section on config [\#44](https://github.com/webshopapps/module-shipper/pull/44) ([wsagen](https://github.com/wsagen))
+- SHQ16-2190 amend about us section on configuration page [\#43](https://github.com/webshopapps/module-shipper/pull/43) ([wsagen](https://github.com/wsagen))
+- SHQ16-2190 amend about us section on configuration page [\#42](https://github.com/webshopapps/module-shipper/pull/42) ([wsagen](https://github.com/wsagen))
+- SHQ16-2179 correct tags in html [\#41](https://github.com/webshopapps/module-shipper/pull/41) ([wsagen](https://github.com/wsagen))
+
+## [20.4.3](https://github.com/webshopapps/module-shipper/tree/20.4.3) (2017-07-25)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.4.2...20.4.3)
+
+## [20.4.2](https://github.com/webshopapps/module-shipper/tree/20.4.2) (2017-07-18)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.4.1...20.4.2)
+
+**Merged pull requests:**
+
+- SHQ16-2159 add custom admin shipping when o rates returned [\#40](https://github.com/webshopapps/module-shipper/pull/40) ([wsagen](https://github.com/wsagen))
+
+## [20.4.1](https://github.com/webshopapps/module-shipper/tree/20.4.1) (2017-07-13)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.4.0...20.4.1)
+
+**Merged pull requests:**
+
+- SHQ16-2154 clean up step to remove duplicates from shq order grid table [\#39](https://github.com/webshopapps/module-shipper/pull/39) ([wsagen](https://github.com/wsagen))
+
+## [20.4.0](https://github.com/webshopapps/module-shipper/tree/20.4.0) (2017-07-06)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.3.9...20.4.0)
+
+**Merged pull requests:**
+
+- Develop [\#38](https://github.com/webshopapps/module-shipper/pull/38) ([wsajosh](https://github.com/wsajosh))
+- SHQ16-2141 UPS LTL use carrier code as type [\#37](https://github.com/webshopapps/module-shipper/pull/37) ([wsajosh](https://github.com/wsajosh))
+
+## [20.3.9](https://github.com/webshopapps/module-shipper/tree/20.3.9) (2017-07-03)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.3.8...20.3.9)
+
+**Merged pull requests:**
+
+- SHQ16-2123 Upgrade script to remove migration attribute groups [\#36](https://github.com/webshopapps/module-shipper/pull/36) ([wsagen](https://github.com/wsagen))
+
+## [20.3.8](https://github.com/webshopapps/module-shipper/tree/20.3.8) (2017-06-29)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.3.7...20.3.8)
+
+**Merged pull requests:**
+
+- SHQ16-2123 resolve issue with install and upgrade when database has b… [\#34](https://github.com/webshopapps/module-shipper/pull/34) ([wsagen](https://github.com/wsagen))
+
+## [20.3.7](https://github.com/webshopapps/module-shipper/tree/20.3.7) (2017-06-26)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.3.6...20.3.7)
+
+**Merged pull requests:**
+
+- SHQ16-2117 resolved issue with Authorize.net and custom admin shipping [\#33](https://github.com/webshopapps/module-shipper/pull/33) ([wsagen](https://github.com/wsagen))
+- Develop [\#32](https://github.com/webshopapps/module-shipper/pull/32) ([wsajosh](https://github.com/wsajosh))
+- SHQ16-2098 Fix for region being null in request [\#31](https://github.com/webshopapps/module-shipper/pull/31) ([wsajosh](https://github.com/wsajosh))
+
+## [20.3.6](https://github.com/webshopapps/module-shipper/tree/20.3.6) (2017-06-15)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.3.5...20.3.6)
+
+**Merged pull requests:**
+
+- Develop [\#30](https://github.com/webshopapps/module-shipper/pull/30) ([wsajosh](https://github.com/wsajosh))
+- SHQ16-2087 M2 slow sales order grid improvements [\#29](https://github.com/webshopapps/module-shipper/pull/29) ([wsajosh](https://github.com/wsajosh))
+- Develop [\#28](https://github.com/webshopapps/module-shipper/pull/28) ([wsajosh](https://github.com/wsajosh))
+- M2-35 Dim comments always being logged out [\#27](https://github.com/webshopapps/module-shipper/pull/27) ([wsajosh](https://github.com/wsajosh))
+- Bringing Production up to date [\#26](https://github.com/webshopapps/module-shipper/pull/26) ([wsajason](https://github.com/wsajason))
+- SHQ16-1967 Support for accessorials [\#25](https://github.com/webshopapps/module-shipper/pull/25) ([wsagen](https://github.com/wsagen))
+- Develop [\#24](https://github.com/webshopapps/module-shipper/pull/24) ([wsajosh](https://github.com/wsajosh))
+- M2-32 SQL error when re-running the SQL script. [\#23](https://github.com/webshopapps/module-shipper/pull/23) ([wsajosh](https://github.com/wsajosh))
+
+## [20.3.5](https://github.com/webshopapps/module-shipper/tree/20.3.5) (2017-05-05)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.3.3...20.3.5)
+
+## [20.3.3](https://github.com/webshopapps/module-shipper/tree/20.3.3) (2017-05-05)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.3.2...20.3.3)
+
+**Merged pull requests:**
+
+- SHQ16-2004 [\#22](https://github.com/webshopapps/module-shipper/pull/22) ([wsagen](https://github.com/wsagen))
+- SHQ16-2004 Carrier for admin shipping [\#21](https://github.com/webshopapps/module-shipper/pull/21) ([wsagen](https://github.com/wsagen))
+- SHQ16-2029 changes recommended by code sniffer tool [\#20](https://github.com/webshopapps/module-shipper/pull/20) ([wsagen](https://github.com/wsagen))
+- SHQ16-2024 refactored checkout shipping information plugin [\#19](https://github.com/webshopapps/module-shipper/pull/19) ([wsagen](https://github.com/wsagen))
+
+## [20.3.2](https://github.com/webshopapps/module-shipper/tree/20.3.2) (2017-04-07)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.3.1...20.3.2)
+
+**Merged pull requests:**
+
+- Shq16 2002 [\#18](https://github.com/webshopapps/module-shipper/pull/18) ([wsajason](https://github.com/wsajason))
+- SHQ16-2002 Fixed issue with SHQ using wrong stores API credentials wi… [\#16](https://github.com/webshopapps/module-shipper/pull/16) ([wsajosh](https://github.com/wsajosh))
+
+## [20.3.1](https://github.com/webshopapps/module-shipper/tree/20.3.1) (2017-03-22)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.3.0...20.3.1)
+
+**Merged pull requests:**
+
+- SHQ16-1968 save packages when carrier and name is duplicated [\#15](https://github.com/webshopapps/module-shipper/pull/15) ([wsagen](https://github.com/wsagen))
+
+## [20.3.0](https://github.com/webshopapps/module-shipper/tree/20.3.0) (2017-03-09)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.2.4...20.3.0)
+
+**Merged pull requests:**
+
+- SHQ16-1851\_A reinstate order grid columns [\#14](https://github.com/webshopapps/module-shipper/pull/14) ([wsagen](https://github.com/wsagen))
+
+## [20.2.4](https://github.com/webshopapps/module-shipper/tree/20.2.4) (2017-03-07)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.2.3...20.2.4)
+
+**Merged pull requests:**
+
+- SHQ16-594 populate shipperhq\_location in request [\#13](https://github.com/webshopapps/module-shipper/pull/13) ([wsagen](https://github.com/wsagen))
+- SHQ16-1880 handle for pickup [\#12](https://github.com/webshopapps/module-shipper/pull/12) ([wsagen](https://github.com/wsagen))
+
+## [20.2.3](https://github.com/webshopapps/module-shipper/tree/20.2.3) (2017-02-23)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.2.2...20.2.3)
+
+**Merged pull requests:**
+
+- =SHQ16-1925 Resolved issue with merged rates not showing [\#11](https://github.com/webshopapps/module-shipper/pull/11) ([wsajosh](https://github.com/wsajosh))
+- =SHQ16-1925 Resolved issue with merged rates not showing [\#10](https://github.com/webshopapps/module-shipper/pull/10) ([wsajosh](https://github.com/wsajosh))
+
+## [20.2.2](https://github.com/webshopapps/module-shipper/tree/20.2.2) (2017-02-22)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.2.1...20.2.2)
+
+**Merged pull requests:**
+
+- SHQ16-1927 pass store id when retrieving quote [\#9](https://github.com/webshopapps/module-shipper/pull/9) ([wsagen](https://github.com/wsagen))
+- SHQ16-1922 save package detail on first pass through checkout, set ca… [\#8](https://github.com/webshopapps/module-shipper/pull/8) ([wsagen](https://github.com/wsagen))
+
+## [20.2.1](https://github.com/webshopapps/module-shipper/tree/20.2.1) (2017-02-13)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.2.0...20.2.1)
+
+## [20.2.0](https://github.com/webshopapps/module-shipper/tree/20.2.0) (2017-02-13)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.1.9...20.2.0)
+
+**Merged pull requests:**
+
+- SHQ16-1902 use stored address type in subsequent requests [\#7](https://github.com/webshopapps/module-shipper/pull/7) ([wsagen](https://github.com/wsagen))
+
+## [20.1.9](https://github.com/webshopapps/module-shipper/tree/20.1.9) (2017-02-02)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.1.8...20.1.9)
+
+**Merged pull requests:**
+
+- SHQ16-992 implement config switch for caching rates [\#6](https://github.com/webshopapps/module-shipper/pull/6) ([wsagen](https://github.com/wsagen))
+
+## [20.1.8](https://github.com/webshopapps/module-shipper/tree/20.1.8) (2017-01-24)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.1.7...20.1.8)
+
+**Merged pull requests:**
+
+- SHQ16-1851 removed columns from sales order grid until we find a solu… [\#5](https://github.com/webshopapps/module-shipper/pull/5) ([wsagen](https://github.com/wsagen))
+- SHQ16-1859 allow extension of shipper mapper functions [\#4](https://github.com/webshopapps/module-shipper/pull/4) ([wsagen](https://github.com/wsagen))
+
+## [20.1.7](https://github.com/webshopapps/module-shipper/tree/20.1.7) (2016-12-14)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.1.6...20.1.7)
+
+## [20.1.6](https://github.com/webshopapps/module-shipper/tree/20.1.6) (2016-11-29)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.1.5...20.1.6)
+
+## [20.1.5](https://github.com/webshopapps/module-shipper/tree/20.1.5) (2016-11-28)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.1.4...20.1.5)
+
+## [20.1.4](https://github.com/webshopapps/module-shipper/tree/20.1.4) (2016-11-17)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.1.3...20.1.4)
+
+## [20.1.3](https://github.com/webshopapps/module-shipper/tree/20.1.3) (2016-11-15)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.1.2...20.1.3)
+
+## [20.1.2](https://github.com/webshopapps/module-shipper/tree/20.1.2) (2016-11-08)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.1.1...20.1.2)
+
+## [20.1.1](https://github.com/webshopapps/module-shipper/tree/20.1.1) (2016-10-31)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.1.0...20.1.1)
+
+## [20.1.0](https://github.com/webshopapps/module-shipper/tree/20.1.0) (2016-10-24)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.26...20.1.0)
+
+**Merged pull requests:**
+
+- Develop [\#3](https://github.com/webshopapps/module-shipper/pull/3) ([wsajason](https://github.com/wsajason))
+
+## [20.0.26](https://github.com/webshopapps/module-shipper/tree/20.0.26) (2016-10-14)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.25...20.0.26)
+
+## [20.0.25](https://github.com/webshopapps/module-shipper/tree/20.0.25) (2016-10-14)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.24...20.0.25)
+
+## [20.0.24](https://github.com/webshopapps/module-shipper/tree/20.0.24) (2016-09-19)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.23...20.0.24)
+
+## [20.0.23](https://github.com/webshopapps/module-shipper/tree/20.0.23) (2016-09-06)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.22...20.0.23)
+
+## [20.0.22](https://github.com/webshopapps/module-shipper/tree/20.0.22) (2016-09-05)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.21...20.0.22)
+
+## [20.0.21](https://github.com/webshopapps/module-shipper/tree/20.0.21) (2016-09-02)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.20...20.0.21)
+
+## [20.0.20](https://github.com/webshopapps/module-shipper/tree/20.0.20) (2016-08-19)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.19...20.0.20)
+
+## [20.0.19](https://github.com/webshopapps/module-shipper/tree/20.0.19) (2016-08-18)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/20.0.18...20.0.19)
+
+## [20.0.18](https://github.com/webshopapps/module-shipper/tree/20.0.18) (2016-08-15)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.5...20.0.18)
+
+**Merged pull requests:**
+
+- SHQ16-1239 Updated ecommerceCart to indicate is magento 2 [\#2](https://github.com/webshopapps/module-shipper/pull/2) ([wsakaren](https://github.com/wsakaren))
+- Dev [\#1](https://github.com/webshopapps/module-shipper/pull/1) ([wsagen](https://github.com/wsagen))
+
+## [1.2.5](https://github.com/webshopapps/module-shipper/tree/1.2.5) (2016-04-07)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.4...1.2.5)
+
+## [1.2.4](https://github.com/webshopapps/module-shipper/tree/1.2.4) (2016-03-16)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.3...1.2.4)
+
+## [1.2.3](https://github.com/webshopapps/module-shipper/tree/1.2.3) (2016-03-16)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.2...1.2.3)
+
+## [1.2.2](https://github.com/webshopapps/module-shipper/tree/1.2.2) (2016-03-09)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.1...1.2.2)
+
+## [1.2.1](https://github.com/webshopapps/module-shipper/tree/1.2.1) (2016-03-09)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.2.0...1.2.1)
+
+## [1.2.0](https://github.com/webshopapps/module-shipper/tree/1.2.0) (2016-03-08)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.1.1...1.2.0)
+
+## [1.1.1](https://github.com/webshopapps/module-shipper/tree/1.1.1) (2016-02-25)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.1.0...1.1.1)
+
+## [1.1.0](https://github.com/webshopapps/module-shipper/tree/1.1.0) (2015-12-11)
+[Full Changelog](https://github.com/webshopapps/module-shipper/compare/1.0.0...1.1.0)
+
+## [1.0.0](https://github.com/webshopapps/module-shipper/tree/1.0.0) (2015-11-27)
 
 
-## 20.12.0
-SHQ16-2938 option to not modify carrier, SHQ16-2434 add IP to request, SHQ16-2489 handle empty street
-
-
+\* *This Change Log was automatically generated by [github_changelog_generator](https://github.com/skywinder/Github-Changelog-Generator)*

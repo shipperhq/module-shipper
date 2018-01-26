@@ -107,7 +107,7 @@ class Info extends AbstractOrder
                 //legacy
                 if($order->getCarriergroupShippingDetails() != '') {
                     $this->cgInfo = $this->shipperDataHelper->decodeShippingDetails(
-
+                        $order->getCarriergroupShippingDetails()
                     );
                 } else {
                     //if we have no information, check for flag if we've checked already

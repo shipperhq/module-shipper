@@ -193,7 +193,11 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $packages = $this->loadOrderPackagesByOrderId($order->getId());
         if (empty($packages)) {
-            $this->saveOrderPackages($order, $this->carrierGroupHelper->getQuoteShippingAddressFromOrder($order));
+            $quoteShippingAddress = $this->carrierGroupHelper->getQuoteShippingAddressFromOrder($order);
+
+            if($quoteShippingAddress != null) {
+                $this->saveOrderPackages($order, $quoteShippingAddress);
+            }
         }
     }
 

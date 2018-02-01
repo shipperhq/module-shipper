@@ -33,6 +33,7 @@
  */
 
 namespace ShipperHQ\Shipper\Helper;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 
 /**
  * Carrier Group Processing helper
@@ -67,6 +68,10 @@ class CarrierGroup extends Data
      * @var \Magento\Quote\Api\CartRepositoryInterface
      */
     private $quoteRepository;
+    /**
+     * @var \Magento\Framework\Api\SearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
 
     private $allNamedOptions = array(
         'liftgate_required' => 'Liftgate Required',
@@ -81,8 +86,14 @@ class CarrierGroup extends Data
     const NO_SHIPPERHQ_DETAIL_AVAILABLE = 'ShipperHQ Notice';
 
     /**
-     * @param \ShipperHQ\Lib\Helper\Rest $restHelper
-     * @param Data $shipperHelperData
+     * @param \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory $addressDetailFactory
+     * @param \ShipperHQ\Shipper\Model\Quote\ItemDetailFactory $itemDetailFactory
+     * @param \ShipperHQ\Shipper\Model\Order\DetailFactory $orderDetailFactory
+     * @param \ShipperHQ\Shipper\Model\Order\ItemDetailFactory $orderItemDetailFactory
+     * @param \ShipperHQ\Shipper\Model\Order\GridDetailFactory $orderGridDetailFactory
+     * @param Data $shipperDataHelper
+     * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
      */
     public function __construct(
         \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory $addressDetailFactory,
@@ -91,7 +102,8 @@ class CarrierGroup extends Data
         \ShipperHQ\Shipper\Model\Order\ItemDetailFactory $orderItemDetailFactory,
         \ShipperHQ\Shipper\Model\Order\GridDetailFactory $orderGridDetailFactory,
         Data $shipperDataHelper,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
     
         $this->addressDetailFactory = $addressDetailFactory;
@@ -101,6 +113,7 @@ class CarrierGroup extends Data
         $this->orderGridDetailFactory = $orderGridDetailFactory;
         $this->shipperDataHelper = $shipperDataHelper;
         $this->quoteRepository = $quoteRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
     /**
@@ -125,9 +138,7 @@ class CarrierGroup extends Data
             } else {
                 $arrayofShipDetails = $shipDetails;
             }
-
-            $encodedShipDetails = $this->shipperDataHelper->encode($arrayofShipDetails);
-
+            
             $shippingAddress
                 ->setCarrierId($foundRate->getCarrierId())
                 ->setCarrierType($foundRate->getCarrierType())
@@ -141,25 +152,31 @@ class CarrierGroup extends Data
             if (!$thisAddressDetail) {
                 $thisAddressDetail = $addressDetail;
             }
+
             $update = ['quote_address_id' => $shippingAddress->getId(),
                 'carrier_group_id' => $foundRate->getCarriergroupId(),
                 'carrier_type' => $foundRate->getCarrierType(),
                 'carrier_group' => $foundRate->getCarriergroup(),
                 'carrier_id' => $foundRate->getCarrierId(),
                 'dispatch_date' =>$foundRate->getShqDispatchDate() ? date('Y-m-d', strtotime($foundRate->getShqDispatchDate())): '',
-                'delivery_date' => $foundRate->getShqDeliveryDate() ? date('Y-m-d', strtotime($foundRate->getShqDeliveryDate())): '',
-                'carrier_group_detail' => $encodedShipDetails,
-                'carrier_group_html' => $this->getCarriergroupShippingHtml($encodedShipDetails)
+                'delivery_date' => $foundRate->getShqDeliveryDate() ? date('Y-m-d', strtotime($foundRate->getShqDeliveryDate())): ''
             ];
-            foreach ($additionalDetail as $key => $data) {
-                $update[$key] = $data;
-            }
-            foreach ($arrayofShipDetails as $detail) {
+
+            $update = array_merge($update, $additionalDetail);
+
+            foreach ($arrayofShipDetails as $key =>  $detail) {
                 //records destination type returned on rate - not type from address validation or user selection
                 if (isset($detail['destination_type'])) {
                     $update['destination_type'] = $detail['destination_type'];
                 }
+                //SHQ18-69 include additional fields in carrier_group_detail
+                $arrayofShipDetails[$key] = array_merge($detail, $additionalDetail);
             }
+
+            $encodedShipDetails = $this->shipperDataHelper->encode($arrayofShipDetails);
+            $update['carrier_group_detail'] = $encodedShipDetails;
+            $update['carrier_group_html'] = $this->getCarriergroupShippingHtml($encodedShipDetails);
+
             $existing = $thisAddressDetail->getData();
             $data = array_merge($existing, $update);
             $thisAddressDetail->setData($data);
@@ -288,13 +305,29 @@ class CarrierGroup extends Data
 
     public function getQuoteShippingAddressFromOrder($order)
     {
-        $shippingAddress = $this->quoteRepository->get($order->getQuoteId())->getShippingAddress();
+        $shippingAddress = null;
+
+        $searchCriteria = $this->searchCriteriaBuilder->addFilter('entity_id', $order->getQuoteId())->create(); //SHQ18-56
+        $quotes = $this->quoteRepository->getList($searchCriteria);
+
+        if ($quotes->getTotalCount() > 1) {
+            foreach ($quotes as $quote) {
+                $shippingAddress = $quote->getShippingAddress();
+                break;
+            }
+        }
+
         return $shippingAddress;
     }
+
     public function recoverOrderInfoFromQuote($order)
     {
         $shippingAddress = $this->getQuoteShippingAddressFromOrder($order);
-        $this->saveOrderDetail($order, $shippingAddress);
+
+        if($shippingAddress != null) {
+            $this->saveOrderDetail($order, $shippingAddress);
+        }
+
         //attempt to recover item detail
         foreach ($order->getAllItems() as $item) {
             $itemDetail = $this->loadOrderItemDetailByOrderItemId($item->getId());

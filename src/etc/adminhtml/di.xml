@@ -14,4 +14,15 @@
             </argument>
         </arguments>
     </type>
+
+    <virtualType name="Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\Pool">
+        <arguments>
+            <argument name="modifiers" xsi:type="array">
+                <item name="Hidable" xsi:type="array">
+                    <item name="class" xsi:type="string">ShipperHQ\Shipper\Ui\DataProvider\Product\Form\Modifier\Hidable</item>
+                    <item name="sortOrder" xsi:type="number">10</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
 </config>

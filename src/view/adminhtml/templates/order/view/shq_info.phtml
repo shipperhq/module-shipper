@@ -16,7 +16,7 @@
         <?php /* Shipping Method */ ?>
         <div class="admin__page-section-item order-shipping-method">
             <div class="admin__page-section-item-content">
-                    <?php if ($destType = $this->getFieldValue('destination_type')): ?>
+                <?php if ($destType = $this->getFieldValue('destination_type')): ?>
                     <div class="order-shipping-additional">
                         <?php echo __('Destination type') .': ' .$block->escapeHtml($destType) ?>
                     </div>

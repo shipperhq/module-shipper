@@ -202,7 +202,8 @@ SHQ16-2938 option to not modify carrier, SHQ16-2434 add IP to request, SHQ16-248
 SHQ16-2492 modified hiding of sallowspecific field
 
 ## 20.13.1
-INFRA-62 Brought repo up to date## 20.13.2
-SHQ18-97 Update placeholder in config.xml
+INFRA-62 Brought repo up to date
 
+## 20.13.2
+SHQ18-97 Update placeholder in config.xml
 

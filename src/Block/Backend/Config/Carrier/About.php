@@ -100,10 +100,19 @@ class About extends \Magento\Config\Block\System\Config\Form\Fieldset
     {
         $output = '';
         $additionalModules = $this->moduleHelper->getInstalledModules(true);
-        foreach ($additionalModules as $moduleName => $version) {
+        foreach ($additionalModules as $moduleName => $info) {
+            if (!$info['installed']) {
+                continue;
+            }
             $output .= '<div style="margin-bottom:6px;"><strong>'.$moduleName.'</strong>';
-            if ($version !== '') {
-                $output .= ': '.$version.'';
+            if ($info['version'] !== false) {
+                $output .= ": {$info['version']}";
+            }
+            if (!$info['enabled']) {
+                $output .= " - <strong>Disabled</strong>";
+            }
+            elseif (!$info['output_enabled']) {
+                $output .= " - <strong>Muted</strong>";
             }
             $output.= '</div>';
         }

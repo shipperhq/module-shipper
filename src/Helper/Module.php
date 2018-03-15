@@ -34,44 +34,70 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
+use \Magento\Framework\Component\ComponentRegistrarInterface;
+use \Magento\Framework\Filesystem\Directory\ReadFactory;
+use \Magento\Framework\Module\Manager AS ModuleManager;
+
 /**
  * Mapper for a data arrays tranformation
  */
 class Module extends \Magento\Framework\App\Helper\AbstractHelper
 {
+    const INSTALLED = "installed";
+    const VERSION = "version";
+    const ENABLED = "enabled";
+    const OUTPUT_ENABLED = "output_enabled";
 
     private $feature_set = [
-      //  'dimship' => '',
+        //  'dimship' => '',
         'ltl_freight' => 'ShipperHQ_Option',
-       // 'validation' => '',
+        // 'validation' => '',
         'storepickup' => 'ShipperHQ_Pickup',
-     //   'dropship' => '',
+        //   'dropship' => '',
         'residential' => 'ShipperHQ_Option',
         'shipcal' => 'ShipperHQ_Calendar'
     ];
 
-     private $modules = [
+    private $modules = [
         'ShipperHQ' => 'ShipperHQ_Shipper',
         'Freight Options' => 'ShipperHQ_Option',
         'Date & Calendar' => 'ShipperHQ_Calendar',
         'In-store Pickup' => 'ShipperHQ_Pickup'
-     ];
+    ];
 
     const MODULES_MISSING = 'carriers/shipper/modules_missing';
-    /**
-     * @var  \Magento\Framework\Module\PackageInfoFactory
-     */
-    private $packageInfoFactory;
 
     /**
-     * @param \Magento\Framework\Module\PackageInfoFactory $packageInfoFactory
+     * @var ComponentRegistrarInterface
+     */
+    protected $componentRegistrar;
+
+    /**
+     * @var ReadFactory
+     */
+    protected $readFactory;
+
+    /**
+     * @var ModuleManager
+     */
+    protected $moduleManager;
+
+    /**
+     * Module constructor.
+     * @param ComponentRegistrarInterface $componentRegistrar
+     * @param ReadFactory $readFactory
+     * @param ModuleManager $moduleManager
      * @param \Magento\Framework\App\Helper\Context $context
      */
     public function __construct(
-        \Magento\Framework\Module\PackageInfoFactory $packageInfoFactory,
+        ComponentRegistrarInterface $componentRegistrar,
+        ReadFactory $readFactory,
+        ModuleManager $moduleManager,
         \Magento\Framework\App\Helper\Context $context
     ) {
-        $this->packageInfoFactory = $packageInfoFactory;
+        $this->componentRegistrar = $componentRegistrar;
+        $this->readFactory = $readFactory;
+        $this->moduleManager = $moduleManager;
         parent::__construct($context);
     }
 
@@ -91,7 +117,7 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
             if (isset($this->feature_set[$feature])) {
                 $moduleRequired = $this->feature_set[$feature];
                 //check module is present
-                if (!in_array($moduleRequired, $modules))  {
+                if (!isset($modules[$moduleRequired]))  {
                     $target[] = $moduleRequired;
                 }
             }
@@ -100,16 +126,50 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
         return array_unique($target);
     }
 
+    /**
+     * @param bool $forDisplay
+     * @return array
+     */
     public function getInstalledModules($forDisplay = false)
     {
-         $foundModules = [];
-         $packageInfo = $this->packageInfoFactory->create();
-         foreach ($this->modules as $displayModuleName => $moduleName) {
-             if($name = $packageInfo->getPackageName($moduleName)) {
-                 $name = $forDisplay ? $displayModuleName : $moduleName;
-                 $foundModules[$name] = $packageInfo->getVersion($moduleName);
-             }
+        $foundModules = [];
+        foreach ($this->modules as $displayModuleName => $moduleName) {
+            if ($moduleInfo = $this->getModuleInfo($moduleName)) {
+                $name = $forDisplay ? $displayModuleName : $moduleName;
+                $foundModules[$name] = $moduleInfo;
+            }
         }
-         return $foundModules;
-     }
+        return $foundModules;
+    }
+
+    /**
+     * Get module information
+     *
+     * @param $moduleName
+     * @return array|false
+     */
+    protected function getModuleInfo($moduleName)
+    {
+        $path = $this->componentRegistrar->getPath(
+            \Magento\Framework\Component\ComponentRegistrar::MODULE,
+            $moduleName
+        );
+        $data = false;
+        if ($path) {
+            $directoryRead = $this->readFactory->create($path);
+            try {
+                $composerJsonData = $directoryRead->readFile('composer.json');
+                $data = json_decode($composerJsonData);
+            } catch (\Exception $e) {
+                $data = false;
+            }
+        }
+
+        $info[self::INSTALLED] = $data !== false;
+        $info[self::VERSION] = ($data && !empty($data->version)) ? $data->version : false;
+        $info[self::ENABLED] = $this->moduleManager->isEnabled($moduleName);
+        $info[self::OUTPUT_ENABLED] = $this->moduleManager->isOutputEnabled($moduleName);
+
+        return $info;
+    }
 }

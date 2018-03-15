@@ -1,6 +1,6 @@
 <listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <columns name="sales_order_columns">
-        <column name="carrier_group" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\CarrierGroup">
+        <column name="shipperhq.carrier_group" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\CarrierGroup">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
@@ -10,7 +10,7 @@
                 </item>
             </argument>
         </column>
-        <column name="delivery_date" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\DeliveryDate">
+        <column name="shipperhq.delivery_date" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\DeliveryDate">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Delivery Date</item>
@@ -23,7 +23,7 @@
                 </item>
             </argument>
         </column>
-        <column name="time_slot" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\TimeSlot">
+        <column name="shipperhq.time_slot" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\TimeSlot">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
@@ -33,8 +33,8 @@
                 </item>
             </argument>
         </column>
-        <column name="pickup_location" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\PickupLocation">
-            <argument name="data" xsi:type="array">
+        <column name="shipperhq.pickup_location" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\PickupLocation">
+        <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
                     <item name="label" xsi:type="string" translate="true">Pickup Location</item>

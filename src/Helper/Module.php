@@ -36,7 +36,7 @@ namespace ShipperHQ\Shipper\Helper;
 
 use \Magento\Framework\Component\ComponentRegistrarInterface;
 use \Magento\Framework\Filesystem\Directory\ReadFactory;
-use \Magento\Framework\Module\Manager AS ModuleManager;
+//use \Magento\Framework\Module\Manager AS ModuleManager; // Inherited from AbstractHelper's dependencies
 
 /**
  * Mapper for a data arrays tranformation
@@ -77,27 +77,27 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
      */
     protected $readFactory;
 
-    /**
-     * @var ModuleManager
-     */
-    protected $moduleManager;
+//    /**
+//     * @var ModuleManager
+//     */
+//    protected $moduleManager;
 
     /**
      * Module constructor.
      * @param ComponentRegistrarInterface $componentRegistrar
      * @param ReadFactory $readFactory
-     * @param ModuleManager $moduleManager
+//     * @param ModuleManager $moduleManager
      * @param \Magento\Framework\App\Helper\Context $context
      */
     public function __construct(
         ComponentRegistrarInterface $componentRegistrar,
         ReadFactory $readFactory,
-        ModuleManager $moduleManager,
+//        ModuleManager $moduleManager,
         \Magento\Framework\App\Helper\Context $context
     ) {
         $this->componentRegistrar = $componentRegistrar;
         $this->readFactory = $readFactory;
-        $this->moduleManager = $moduleManager;
+//        $this->moduleManager = $moduleManager;
         parent::__construct($context);
     }
 
@@ -167,8 +167,8 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
 
         $info[self::INSTALLED] = $data !== false;
         $info[self::VERSION] = ($data && !empty($data->version)) ? $data->version : false;
-        $info[self::ENABLED] = $this->moduleManager->isEnabled($moduleName);
-        $info[self::OUTPUT_ENABLED] = $this->moduleManager->isOutputEnabled($moduleName);
+        $info[self::ENABLED] = $this->_moduleManager->isEnabled($moduleName);
+        $info[self::OUTPUT_ENABLED] = $this->_moduleManager->isOutputEnabled($moduleName);
 
         return $info;
     }

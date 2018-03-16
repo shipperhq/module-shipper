@@ -202,7 +202,17 @@ SHQ16-2938 option to not modify carrier, SHQ16-2434 add IP to request, SHQ16-248
 SHQ16-2492 modified hiding of sallowspecific field
 
 ## 20.13.1
-INFRA-62 Brought repo up to date## 20.14.1
-SHQ18-142 Remove redundant dependency from Helper/Modules
+INFRA-62 Brought repo up to date
 
+## 20.13.2
+SHQ18-97 Update placeholder in config.xml
+
+## 20.13.3
+SHQ18-57 re-request of rates is for all carriers, so need to clean down all rates
+
+## 20.14.0
+SHQ18-58 Improve compatability with other extns, SHQ18-118/SHQ18-121 Improve module lookup, SHQ18-104 Fix timeslots ending at midnight
+
+## 20.14.1
+SHQ18-142 Remove redundant dependency from Helper/Modules
 

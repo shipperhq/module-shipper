@@ -317,7 +317,6 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
         $shippingAddress = $this->quote->getShippingAddress();
 
         $key = $this->shipperDataHelper->getAddressKey($shippingAddress);
-
         $existing = $this->getExistingValidation($key); //SHQ16-1902
         $validate = true;
         if (is_array($existing) && !empty($existing)) {
@@ -640,7 +639,9 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
             $carrierRates = [];
         }
 
-        $this->persistAddressValidation($shipperResponse);
+        if ($this->rawRequest->getValidateAddress()) { //SHQ18-141 only persist address validation if we have validated
+            $this->persistAddressValidation($shipperResponse);
+        }
 
         if (count($carrierRates) == 0) {
             $this->shipperLogger->postInfo(
@@ -892,12 +893,23 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
         $existing = [];
         $addressType = $this->shipperRateHelper->extractDestinationType($shipperResponse);
         $validationStatus = $this->shipperRateHelper->extractAddressValidationStatus($shipperResponse);
+        $validatedAddress = $this->shipperRateHelper->extractValidatedAddress($shipperResponse);
         if ($validationStatus) {
             $existing[ 'validation_status'] = $validationStatus;
         }
 
         if ($addressType) {
             $existing['destination_type'] = $addressType;
+        }
+
+        if ($validatedAddress) {
+           foreach ($validatedAddress as $field => $value) {
+               if ($field == 'addressType') continue;
+               if($field == 'zipcode') { // handle where it's returning zipcode instead of postcode
+                   $field == 'postcode';
+               }
+               $existing['validated_shipping_' .$field] = $value;
+           }
         }
 
         if (!empty($existing)) {

@@ -134,11 +134,9 @@ class ShippingInformationPlugin
                 $validation = $this->checkoutSession->getShipAddressValidation();
                 if (is_array($validation) && isset($validation['key'])) {
                     if (isset($validation['validation_status'])) {
-                        $additionalDetail['address_valid'] = $validation['validation_status'];
                         $address->setValidationStatus($validation['validation_status']);
                     }
                     if (isset($validation['destination_type'])) {
-                        $additionalDetail['destination_type'] = $validation['destination_type'];
                         $address->setDestinationType($validation['destination_type']);
                     }
                     $this->checkoutSession->setShipAddressValidation(null);
@@ -164,6 +162,8 @@ class ShippingInformationPlugin
             'carrier_code' => $carrierCode, 'address' => $address, 'shipping_method' => $shippingMethod]
         );
         $additionalDetailArray = $additionalDetail->convertToArray();
+        //SHQ18-141 record validation status, address type and validated address
+        $additionalDetailArray = array_merge($validation, $additionalDetailArray);
         $this->shipperLogger->postDebug(
             'ShipperHQ Shipper',
             'Processed the following extra fields from checkout ',

@@ -282,6 +282,42 @@ class InstallSchema implements InstallSchemaInterface
                     10,
                     ['nullable' => true],
                     'Limited Delivery'
+                )->addColumn(
+                    'validated_shipping_street',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    ['nullable' => true],
+                    'Validated Shipping Street'
+                )->addColumn(
+                    'validated_shipping_street2',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    ['nullable' => true],
+                    'Validated Shipping Street 2'
+                )->addColumn(
+                    'validated_shipping_city',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    40,
+                    ['nullable' => true],
+                    'Validated Shipping City'
+                )->addColumn(
+                    'validated_shipping_postcode',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    20,
+                    ['nullable' => true],
+                    'Validated Shipping Postcode'
+                )->addColumn(
+                    'validated_shipping_region',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    40,
+                    ['nullable' => true],
+                    'Validated Shipping Region'
+                )->addColumn(
+                    'validated_shipping_country',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    30,
+                    ['nullable' => true],
+                    'Validated Shipping Country'
                 )->addIndex(
                     $installer->getIdxName('shipperhq_quote_address_detail', ['quote_address_id']),
                     ['quote_address_id']
@@ -468,6 +504,42 @@ class InstallSchema implements InstallSchemaInterface
                     10,
                     ['nullable' => true],
                     'Limited Delivery'
+                )->addColumn(
+                    'validated_shipping_street',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    ['nullable' => true],
+                    'Validated Shipping Street'
+                )->addColumn(
+                    'validated_shipping_street2',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    ['nullable' => true],
+                    'Validated Shipping Street 2'
+                )->addColumn(
+                    'validated_shipping_city',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    40,
+                    ['nullable' => true],
+                    'Validated Shipping City'
+                )->addColumn(
+                    'validated_shipping_postcode',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    20,
+                    ['nullable' => true],
+                    'Validated Shipping Postcode'
+                )->addColumn(
+                    'validated_shipping_region',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    40,
+                    ['nullable' => true],
+                    'Validated Shipping Region'
+                )->addColumn(
+                    'validated_shipping_country',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    30,
+                    ['nullable' => true],
+                    'Validated Shipping Country'
                 )->addIndex(
                     $installer->getIdxName('shipperhq_order_detail', ['order_id']),
                     ['order_id']

@@ -1130,7 +1130,84 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->cleanOrderGridTable($installer);
         }
 
+        if (version_compare($context->getVersion(), '1.1.18') < 0) {
+            $this->addValidatedAddressColumns($installer, 'shipperhq_quote_address_detail');
+            $this->addValidatedAddressColumns($installer,'shipperhq_order_detail');
+        }
+
         $installer->endSetup();
+    }
+
+    public function addValidatedAddressColumns(SchemaSetupInterface $installer, $tableName)
+    {
+        $connection = $installer->getConnection(self::$connectionName);
+        $table = $installer->getTable($tableName);
+        $connection->addColumn(
+            $table,
+            'validated_shipping_street',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'length' => 255,
+                'nullable' => true,
+                'default' => '',
+                'comment' => 'Validated Shipping Street'
+            ]
+        );
+        $connection->addColumn(
+            $table,
+            'validated_shipping_street2',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'length' => 255,
+                'nullable' => true,
+                'default' => '',
+                'comment' => 'Validated Shipping Street 2'
+            ]
+        );
+        $connection->addColumn(
+            $table,
+            'validated_shipping_city',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'length' => 40,
+                'nullable' => true,
+                'default' => '',
+                'comment' => 'Validated Shipping City'
+            ]
+        );
+        $connection->addColumn(
+            $table,
+            'validated_shipping_postcode',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'length' => 20,
+                'nullable' => true,
+                'default' => '',
+                'comment' => 'Validated Shipping Postcode'
+            ]
+        );
+        $connection->addColumn(
+            $table,
+            'validated_shipping_region',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'length' => 40,
+                'nullable' => true,
+                'default' => '',
+                'comment' => 'Validated Shipping Region'
+            ]
+        );
+        $connection->addColumn(
+            $table,
+            'validated_shipping_country',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'length' => 30,
+                'nullable' => true,
+                'default' => '',
+                'comment' => 'Validated Shipping Country'
+            ]
+        );
     }
 
     /**

@@ -163,7 +163,10 @@ class ShippingInformationPlugin
         );
         $additionalDetailArray = $additionalDetail->convertToArray();
         //SHQ18-141 record validation status, address type and validated address
-        $additionalDetailArray = array_merge($validation, $additionalDetailArray);
+        if (is_array($validation)) {
+            $additionalDetailArray = array_merge($validation, $additionalDetailArray);
+        }
+
         $this->shipperLogger->postDebug(
             'ShipperHQ Shipper',
             'Processed the following extra fields from checkout ',

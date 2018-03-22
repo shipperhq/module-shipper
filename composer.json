@@ -21,9 +21,9 @@
         "documentation": "http://docs.shipperhq.com"
     },
     "require": {
-        "shipperhq/library-ws": "*",
-        "shipperhq/library-shipper": "*",
-        "shipperhq/module-common": "*",
+        "shipperhq/library-ws": "20.3.*",
+        "shipperhq/library-shipper": "20.6.*",
+        "shipperhq/module-common": "20.5.*",
         "shipperhq/module-logger": "*"
     },
     "repositories": [

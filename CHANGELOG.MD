@@ -231,7 +231,7 @@ SHQ18-147 specify version constraints for required modules
 ## 20.17.1
 SHQ18-147 specify version constraints for required modules
 
-## 19.0.0
+## 20.17.2
 SHQ18-170 Fix composer requirement for M 2.2+
 
 

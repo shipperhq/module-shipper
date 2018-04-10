@@ -62,7 +62,7 @@ class CollectionFactory
                 $select = $result->getSelect();
                 $select->joinLeft(
                     ['shipper_order_join' => $this->resource->getTableName('shipperhq_order_detail_grid')],
-                    'entity_id' . '=shipper_order_join.' . 'order_id',
+                    'main_table.entity_id' . '=shipper_order_join.' . 'order_id',
                     []
                 );
             }

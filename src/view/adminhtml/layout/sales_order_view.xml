@@ -23,12 +23,12 @@
             <!-- using plugin instead due to following issue -->
             <!--https://github.com/magento/magento2/issues/3724 -->
             <!--<referenceBlock name="default">-->
-                <!--<arguments>-->
-                    <!--<argument name="columns" xsi:type="array">-->
-                        <!--<item name="carriergroup" xsi:type="string" translate="false">col-carriergroup</item>-->
-                        <!--<item name="carriergroup_shipping" xsi:type="string" translate="false">col-carriergroup_shipping</item>-->
-                    <!--</argument>-->
-                <!--</arguments>-->
+            <!--<arguments>-->
+            <!--<argument name="columns" xsi:type="array">-->
+            <!--<item name="carriergroup" xsi:type="string" translate="false">col-carriergroup</item>-->
+            <!--<item name="carriergroup_shipping" xsi:type="string" translate="false">col-carriergroup_shipping</item>-->
+            <!--</argument>-->
+            <!--</arguments>-->
             <!--</referenceBlock>-->
         </referenceBlock>
     </body>

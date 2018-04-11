@@ -27,10 +27,12 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Plugin\Shipping;
 
 class AllmethodsPlugin
@@ -39,11 +41,6 @@ class AllmethodsPlugin
      * Ignore carrier codes
      */
     private $ignoreCarrierCodes = ['multicarrier', 'shipper', 'calendar', 'pickup'];
-
-    /**
-     * @var \ShipperHQ\Shipper\Helper\Data
-     */
-    private $shipperDataHelper;
 
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
@@ -63,12 +60,10 @@ class AllmethodsPlugin
     private $scopeConfig;
 
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Magento\Shipping\Model\Config $shippingConfig,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
-        $this->shipperDataHelper = $shipperDataHelper;
         $this->shipperLogger = $shipperLogger;
         $this->shippingConfig = $shippingConfig;
         $this->scopeConfig = $scopeConfig;
@@ -80,6 +75,7 @@ class AllmethodsPlugin
      *
      * @param bool $isActiveOnlyFlag
      * @return array
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function aroundToOptionArray(
         \Magento\Shipping\Model\Config\Source\Allmethods $subject,

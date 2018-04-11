@@ -65,14 +65,6 @@ class CarrierConfigHandler
         $this->populateCarrierLevelDetails((array)$carrierRate, $carrierGroupDetail);
     }
 
-    public function populateCarrierLevelDetails($carrierRate, &$carrierGroupDetail)
-    {
-        $carrierGroupDetail['carrierType'] = $carrierRate['carrierType'];
-        $carrierGroupDetail['carrierTitle'] = $carrierRate['carrierTitle'];
-        $carrierGroupDetail['carrier_code'] = $carrierRate['carrierCode'];
-        $carrierGroupDetail['carrierName'] = $carrierRate['carrierName'];
-    }
-
     private function dynamicCarrierConfig($carrierCode, $carrierTitle, $sortOrder = null)
     {
         $modelPath = 'carriers/' . $carrierCode . '/model';
@@ -86,17 +78,6 @@ class CarrierConfigHandler
         if ($sortOrder !== null) {
             $this->saveConfig('carriers/' . $carrierCode . '/sort_order', $sortOrder);
         }
-    }
-
-    /**
-     * Saves the carrier title to core_config_data
-     * Need to do this as doesnt read from the shipping rate quote table!
-     * @param $carrierCode
-     * @param $carrierTitle
-     */
-    public function saveCarrierTitle($carrierCode, $carrierTitle)
-    {
-        $this->saveConfig('carriers/' . $carrierCode . '/title', $carrierTitle);
     }
 
     /**
@@ -115,6 +96,25 @@ class CarrierConfigHandler
                 $this->shipperDataHelper->getCheckout()->setConfigUpdated(true);
             }
         }
+    }
+
+    /**
+     * Saves the carrier title to core_config_data
+     * Need to do this as doesnt read from the shipping rate quote table!
+     * @param $carrierCode
+     * @param $carrierTitle
+     */
+    public function saveCarrierTitle($carrierCode, $carrierTitle)
+    {
+        $this->saveConfig('carriers/' . $carrierCode . '/title', $carrierTitle);
+    }
+
+    public function populateCarrierLevelDetails($carrierRate, &$carrierGroupDetail)
+    {
+        $carrierGroupDetail['carrierType'] = $carrierRate['carrierType'];
+        $carrierGroupDetail['carrierTitle'] = $carrierRate['carrierTitle'];
+        $carrierGroupDetail['carrier_code'] = $carrierRate['carrierCode'];
+        $carrierGroupDetail['carrierName'] = $carrierRate['carrierName'];
     }
 
     public function refreshConfig()
@@ -152,8 +152,9 @@ class CarrierConfigHandler
             if ($carrierCode !== 'shipper' &&
                 isset($carrierConfig['model']) &&
                 $carrierConfig['model'] == 'ShipperHQ\Shipper\Model\Carrier\Shipper') {
-                foreach ($carrierConfig as $item => $value) {
-                    $path = 'carriers/' .$carrierCode .'/'.$item ;
+                $carrierConfig = array_keys($carrierConfig);
+                foreach ($carrierConfig as $item) {
+                    $path = 'carriers/' . $carrierCode . '/' . $item;
                     $this->resourceConfig->deleteConfig(
                         $path,
                         \Magento\Framework\App\Config\ScopeConfigInterface::SCOPE_TYPE_DEFAULT,

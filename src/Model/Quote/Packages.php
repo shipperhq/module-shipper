@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -74,14 +75,6 @@ class Packages extends \Magento\Framework\Model\AbstractExtensibleModel
     }
 
     /**
-     * Define resource model
-     */
-    protected function _construct()
-    {
-        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\Quote\Packages');
-    }
-
-    /**
      * Loads data by carrier specific parameters
      *
      * @param string $addressId
@@ -103,5 +96,13 @@ class Packages extends \Magento\Framework\Model\AbstractExtensibleModel
     public function deleteByPackageId($packageId)
     {
         $this->_getResource()->deleteByPackageId($packageId);
+    }
+
+    /**
+     * Define resource model
+     */
+    protected function _construct()
+    {
+        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\Quote\Packages');
     }
 }

@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -34,9 +35,11 @@
 
 namespace ShipperHQ\Shipper\Observer;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * ShipperHQ Shipper module observer
@@ -44,34 +47,31 @@ use Magento\Framework\Message\ManagerInterface;
 class RefreshCarriers implements ObserverInterface
 {
     /**
-     * @var \ShipperHQ\Shipper\Helper\Data
-     */
-    private $shipperDataHelper;
-
-    /**
      * @var \ShipperHQ\Shipper\Model\Carrier\Shipper
      */
     private $shipperCarrier;
-
     /**
      * @var ManagerInterface
      */
     private $messageManager;
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $config;
 
     /**
-     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+     * @param ScopeConfigInterface $config
      * @param  \ShipperHQ\Shipper\Model\Carrier\Shipper $carrier
      * @param ManagerInterface $messageManager
      */
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+        ScopeConfigInterface $config,
         \ShipperHQ\Shipper\Model\Carrier\Shipper $carrier,
         ManagerInterface $messageManager
     ) {
-    
-        $this->shipperDataHelper = $shipperDataHelper;
         $this->shipperCarrier = $carrier;
         $this->messageManager = $messageManager;
+        $this->config = $config;
     }
 
     /**
@@ -79,10 +79,11 @@ class RefreshCarriers implements ObserverInterface
      *
      * @param EventObserver $observer
      * @return void
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function execute(EventObserver $observer)
     {
-        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
+        if ($this->config->isSetFlag('carriers/shipper/active', ScopeInterface::SCOPE_STORES)) {
             $refreshResult = $this->shipperCarrier->refreshCarriers();
             if (array_key_exists('error', $refreshResult)) {
                 $message = __($refreshResult['error']);

@@ -13,15 +13,15 @@
         <observer name="shipperhq_set_checkout" instance="ShipperHQ\Shipper\Observer\SetCheckoutFlag"/>
     </event>
     <event name="checkout_controller_multishipping_shipping_post">
-        <observer name="shipperhq_multiaddress_save_shipping" instance="ShipperHQ\Shipper\Observer\SaveShippingMulti" />
+        <observer name="shipperhq_multiaddress_save_shipping" instance="ShipperHQ\Shipper\Observer\SaveShippingMulti"/>
     </event>
     <event name="checkout_onepage_controller_success_action">
-        <observer name="shipperhq_record_order" instance="ShipperHQ\Shipper\Observer\RecordOrder" />
+        <observer name="shipperhq_record_order" instance="ShipperHQ\Shipper\Observer\RecordOrder"/>
     </event>
     <event name="multishipping_checkout_controller_success_action">
-        <observer name="shipperhq_record_order_multi" instance="ShipperHQ\Shipper\Observer\RecordMultiOrder" />
+        <observer name="shipperhq_record_order_multi" instance="ShipperHQ\Shipper\Observer\RecordMultiOrder"/>
     </event>
     <event name="controller_action_postdispatch_customer_address_formpost">
-        <observer name="shipperhq_reset_address_validation" instance="ShipperHQ\Shipper\Observer\CustomerAddressEdit" />
+        <observer name="shipperhq_reset_address_validation" instance="ShipperHQ\Shipper\Observer\CustomerAddressEdit"/>
     </event>
 </config>

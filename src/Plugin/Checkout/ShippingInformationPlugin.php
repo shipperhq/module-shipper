@@ -27,21 +27,18 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Plugin\Checkout;
 
 use Magento\Framework\DataObject\Factory as DataObjectFactory;
 
 class ShippingInformationPlugin
 {
-    /**
-     * @var \ShipperHQ\Shipper\Helper\Data
-     */
-    private $shipperDataHelper;
-
     /**
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
@@ -65,11 +62,6 @@ class ShippingInformationPlugin
     private $addressRepository;
 
     /**
-     * @var \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory
-     */
-    private $addressDetailFactory;
-
-    /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
     private $shipperLogger;
@@ -86,22 +78,18 @@ class ShippingInformationPlugin
     private $objectFactory;
 
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
-        \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory $addressDetailFactory,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Magento\Framework\Event\ManagerInterface $eventManager,
         DataObjectFactory $objectFactory
     ) {
-        $this->shipperDataHelper = $shipperDataHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->quoteRepository = $quoteRepository;
         $this->checkoutSession = $checkoutSession;
         $this->addressRepository = $addressRepository;
-        $this->addressDetailFactory = $addressDetailFactory;
         $this->shipperLogger = $shipperLogger;
         $this->eventManager = $eventManager;
         $this->objectFactory = $objectFactory;
@@ -115,6 +103,7 @@ class ShippingInformationPlugin
      *
      * @return \Magento\Checkout\Api\Data\PaymentDetailsInterface $paymentDetails
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function aroundSaveAddressInformation(
         \Magento\Checkout\Model\ShippingInformationManagement $subject,
@@ -122,7 +111,7 @@ class ShippingInformationPlugin
         $cartId,
         \Magento\Checkout\Api\Data\ShippingInformationInterface $addressInformation
     ) {
-    
+
         $carrierCode = $addressInformation->getShippingCarrierCode();
         $methodCode = $addressInformation->getShippingMethodCode();
         $shippingMethod = $carrierCode . '_' . $methodCode;
@@ -141,13 +130,14 @@ class ShippingInformationPlugin
                     }
                     $this->checkoutSession->setShipAddressValidation(null);
                 }
+                $this->checkoutSession->setShipAddressValidation(null);
+                $address->save();
             }
-            $address->save();
         } catch (\Exception $e) {
             $this->shipperLogger->postCritical(
                 'Shipperhq_Shipper',
                 'Shipping Information Plugin',
-                'Exception raised ' .$e->getMessage()
+                'Exception raised ' . $e->getMessage()
             );
         }
 
@@ -158,8 +148,13 @@ class ShippingInformationPlugin
         //Observers add to additionalDetail object
         $this->eventManager->dispatch(
             'shipperhq_additional_detail_checkout',
-            ['address_extn_attributes' => $extAttributes, 'additional_detail'=> $additionalDetail,
-            'carrier_code' => $carrierCode, 'address' => $address, 'shipping_method' => $shippingMethod]
+            [
+                'address_extn_attributes' => $extAttributes,
+                'additional_detail' => $additionalDetail,
+                'carrier_code' => $carrierCode,
+                'address' => $address,
+                'shipping_method' => $shippingMethod
+            ]
         );
         $additionalDetailArray = $additionalDetail->convertToArray();
         //SHQ18-141 record validation status, address type and validated address
@@ -199,8 +194,13 @@ class ShippingInformationPlugin
         //SHQ16-2456
         $this->eventManager->dispatch(
             'shipperhq_additional_detail_checkout_post',
-            ['address_extn_attributes' => $extAttributes, 'additional_detail'=> $additionalDetail,
-                'carrier_code' => $carrierCode, 'address' => $address, 'shipping_method' => $shippingMethod]
+            [
+                'address_extn_attributes' => $extAttributes,
+                'additional_detail' => $additionalDetail,
+                'carrier_code' => $carrierCode,
+                'address' => $address,
+                'shipping_method' => $shippingMethod
+            ]
         );
         return $result;
     }

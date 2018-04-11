@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -34,10 +35,8 @@
 
 namespace ShipperHQ\Shipper\Setup;
 
-use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
-
 use Magento\Framework\Setup\UpgradeSchemaInterface;
 
 class UpgradeSchema implements UpgradeSchemaInterface
@@ -60,14 +59,15 @@ class UpgradeSchema implements UpgradeSchemaInterface
         $installer->startSetup();
 
         //1.0.6
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_address_detail'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_address_detail'));
+        $addressDetailTable = $installer->getTable('shipperhq_quote_address_detail');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($addressDetailTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($addressDetailTable);
             $table
                 ->addColumn(
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'quote_address_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -270,12 +270,12 @@ class UpgradeSchema implements UpgradeSchemaInterface
         //1.0.11 - SHQ16-1967
         if (version_compare($context->getVersion(), '1.0.11', '<')) {
             if (!$installer->getConnection(self::$connectionName)->tableColumnExists(
-                $installer->getTable('shipperhq_quote_address_detail'),
+                $addressDetailTable,
                 'limited_delivery'
             )) {
                 $installer->getConnection(self::$connectionName)
                     ->addColumn(
-                        $installer->getTable('shipperhq_quote_address_detail'),
+                        $addressDetailTable,
                         'limited_delivery',
                         [
                             'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -288,21 +288,24 @@ class UpgradeSchema implements UpgradeSchemaInterface
             }
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_detail'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_detail'));
+        $orderDetailTable = $installer->getTable('shipperhq_order_detail');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($orderDetailTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($orderDetailTable);
             $table
                 ->addColumn(
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'order_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     10,
-                    ['nullable' => false,
-                     'default' => '0',
-                     'unsigned' => true],
+                    [
+                        'nullable' => false,
+                        'default' => '0',
+                        'unsigned' => true
+                    ],
                     'Order ID'
                 )->addColumn(
                     'carrier_group_id',
@@ -478,12 +481,12 @@ class UpgradeSchema implements UpgradeSchemaInterface
         //1.0.11 - SHQ16-1967
         if (version_compare($context->getVersion(), '1.0.11', '<')) {
             if (!$installer->getConnection(self::$connectionName)->tableColumnExists(
-                $installer->getTable('shipperhq_order_detail'),
+                $orderDetailTable,
                 'limited_delivery'
             )) {
                 $installer->getConnection(self::$connectionName)
                     ->addColumn(
-                        $installer->getTable('shipperhq_order_detail'),
+                        $orderDetailTable,
                         'limited_delivery',
                         [
                             'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -502,24 +505,25 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 $setup->getTable('shipperhq_order_detail'),
                 'order_id',
                 [
-                'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                'length'   => 10,
-                'nullable' => false,
-                'default'  => '0',
-                'unsigned' => true
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    'length' => 10,
+                    'nullable' => false,
+                    'default' => '0',
+                    'unsigned' => true
                 ]
             );
             $this->addIndexToTable($installer, 'shipperhq_order_detail', ['order_id']);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_item_detail'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_item_detail'));
+        $itemDetailTable = $installer->getTable('shipperhq_quote_item_detail');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($itemDetailTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($itemDetailTable);
             $table
                 ->addColumn(
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'quote_item_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -569,14 +573,15 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addIndexToTable($installer, 'shipperhq_quote_item_detail', ['quote_item_id']);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_address_item_detail'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_address_item_detail'));
+        $addressItemDetailTable = $installer->getTable('shipperhq_quote_address_item_detail');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($addressItemDetailTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($addressItemDetailTable);
             $table
                 ->addColumn(
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'quote_address_item_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -625,14 +630,15 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addIndexToTable($installer, 'shipperhq_quote_address_item_detail', ['quote_address_item_id']);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_item_detail'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_item_detail'));
+        $orderItemDetailTable = $installer->getTable('shipperhq_order_item_detail');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($orderItemDetailTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($orderItemDetailTable);
             $table
                 ->addColumn(
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'order_item_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -680,8 +686,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addIndexToTable($installer, 'shipperhq_order_item_detail', ['order_item_id']);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_packages'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_packages'));
+        $packagesTable = $installer->getTable('shipperhq_quote_packages');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($packagesTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($packagesTable);
 
             $table
                 ->addColumn(
@@ -772,8 +779,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addIndexToTable($installer, 'shipperhq_quote_packages', ['quote_address_id']);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_package_items'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_package_items'));
+        $packageItemsTable = $installer->getTable('shipperhq_quote_package_items');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($packageItemsTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($packageItemsTable);
 
             $table
                 ->addColumn(
@@ -812,7 +820,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         'package_id'
                     ),
                     'package_id',
-                    $installer->getTable('shipperhq_quote_packages'),
+                    $packagesTable,
                     'package_id',
                     \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
@@ -834,8 +842,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addIndexToTable($installer, 'shipperhq_quote_package_items', ['package_id']);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_packages'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_packages'));
+        $orderPackagesTable = $installer->getTable('shipperhq_order_packages');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($orderPackagesTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($orderPackagesTable);
 
             $table
                 ->addColumn(
@@ -917,10 +926,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 $setup->getTable('shipperhq_order_packages'),
                 'order_id',
                 [
-                    'type'     => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    'length'   => 10,
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    'length' => 10,
                     'nullable' => false,
-                    'default'  => '0',
+                    'default' => '0',
                     'unsigned' => true
                 ]
             );
@@ -928,8 +937,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addIndexToTable($installer, 'shipperhq_order_packages', ['order_id']);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_package_items'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_package_items'));
+        $orderPackageItemsTable = $installer->getTable('shipperhq_order_package_items');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($orderPackageItemsTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($orderPackageItemsTable);
 
             $table
                 ->addColumn(
@@ -968,7 +978,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         'package_id'
                     ),
                     'package_id',
-                    $installer->getTable('shipperhq_order_packages'),
+                    $orderPackagesTable,
                     'package_id',
                     \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
@@ -991,14 +1001,15 @@ class UpgradeSchema implements UpgradeSchemaInterface
         }
 
         //Version 1.0.8
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_detail_grid'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_detail_grid'));
+        $orderDetailGridTable = $installer->getTable('shipperhq_order_detail_grid');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($orderDetailGridTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($orderDetailGridTable);
             $table
                 ->addColumn(
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'order_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
@@ -1098,7 +1109,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 );
 
                 $connection->addIndex(
-                    $installer->getTable('shipperhq_order_detail_grid'),
+                    $orderDetailGridTable,
                     $installer->getIdxName('shipperhq_order_detail_grid', ['carrier_group']),
                     ['carrier_group']
                 );
@@ -1119,7 +1130,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 );
 
                 $connection->addIndex(
-                    $installer->getTable('shipperhq_order_detail_grid'),
+                    $orderDetailGridTable,
                     $installer->getIdxName('shipperhq_order_detail_grid', ['order_id']),
                     ['order_id']
                 );
@@ -1233,7 +1244,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
     {
         $shqOrderGridTable = $setup->getTable('shipperhq_order_detail_grid');
 
-        $select = $setup->getConnection(self::$connectionName)->select()->from($shqOrderGridTable)->group('order_id')->having('count(*) >1');
+        $select = $setup->getConnection(self::$connectionName)
+            ->select()
+            ->from($shqOrderGridTable)
+            ->group('order_id')
+            ->having('count(*) >1');
 
         $duplicateShqOrderGrids = $setup->getConnection(self::$connectionName)->fetchAll($select);
         foreach ($duplicateShqOrderGrids as $shqOrderGridEntry) {

@@ -27,27 +27,20 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Controller\Adminhtml;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\Registry;
 use Magento\Framework\View\Result\PageFactory;
 
 abstract class Synchronize extends Action
 {
-
-    /**
-     * Core registry
-     *
-     * @var \Magento\Framework\Registry
-     */
-    protected $coreRegistry;
-
     /**
      * Result page factory
      *
@@ -64,17 +57,15 @@ abstract class Synchronize extends Action
 
     /**
      * @param Context $context
-     * @param Registry $coreRegistry
      * @param PageFactory $resultPageFactory
+     * @param \ShipperHQ\Shipper\Model\SynchronizerFactory $synchronizerFactory
      */
     public function __construct(
         Context $context,
-        Registry $coreRegistry,
         PageFactory $resultPageFactory,
         \ShipperHQ\Shipper\Model\SynchronizerFactory $synchronizerFactory
     ) {
         parent::__construct($context);
-        $this->coreRegistry = $coreRegistry;
         $this->resultPageFactory = $resultPageFactory;
         $this->sychronizerFactory = $synchronizerFactory;
     }

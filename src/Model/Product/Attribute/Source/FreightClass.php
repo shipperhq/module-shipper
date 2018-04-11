@@ -27,10 +27,12 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Model\Product\Attribute\Source;
 
 class FreightClass extends \Magento\Eav\Model\Entity\Attribute\Source\Config
@@ -60,35 +62,6 @@ class FreightClass extends \Magento\Eav\Model\Entity\Attribute\Source\Config
         $this->optionFactory = $optionFactory;
     }
 
-    public function toOptionArray()
-    {
-        $freight_class = [
-            50  => '50',
-            55  => '55',
-            60  => '60',
-            65  => '65',
-            70  => '70',
-            77.5    => '77.5',
-            85  => '85',
-            92.5    => '92.5',
-            100     => '100',
-            110     => '110',
-            125     => '125',
-            150     => '150',
-            175     => '175',
-            200     => '200',
-            250     => '250',
-            300     => '300',
-            400     => '400',
-            500     => '500',
-        ];
-
-        foreach ($freight_class as $k => $v) {
-            $arr[] = ['value'=>$k, 'label'=>$v];
-        }
-
-        return $arr;
-    }
     /**
      * Retrieve All options
      *
@@ -97,7 +70,37 @@ class FreightClass extends \Magento\Eav\Model\Entity\Attribute\Source\Config
     public function getAllOptions()
     {
         $arr = $this->toOptionArray();
-        array_unshift($arr, ['value'=>'', 'label'=>__('--- Use Default ---')]);
+        array_unshift($arr, ['value' => '', 'label' => __('--- Use Default ---')]);
+        return $arr;
+    }
+
+    public function toOptionArray()
+    {
+        $freight_class = [
+            50 => '50',
+            55 => '55',
+            60 => '60',
+            65 => '65',
+            70 => '70',
+            77.5 => '77.5',
+            85 => '85',
+            92.5 => '92.5',
+            100 => '100',
+            110 => '110',
+            125 => '125',
+            150 => '150',
+            175 => '175',
+            200 => '200',
+            250 => '250',
+            300 => '300',
+            400 => '400',
+            500 => '500',
+        ];
+
+        foreach ($freight_class as $k => $v) {
+            $arr[] = ['value' => $k, 'label' => $v];
+        }
+
         return $arr;
     }
 
@@ -105,11 +108,11 @@ class FreightClass extends \Magento\Eav\Model\Entity\Attribute\Source\Config
     {
         $columns = [
             $this->getAttribute()->getAttributeCode() => [
-                'type'      => 'int',
-                'unsigned'  => false,
-                'is_null'   => true,
-                'default'   => null,
-                'extra'     => null
+                'type' => 'int',
+                'unsigned' => false,
+                'is_null' => true,
+                'default' => null,
+                'extra' => null
             ]
         ];
         return $columns;

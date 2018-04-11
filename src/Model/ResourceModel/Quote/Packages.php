@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -36,16 +37,6 @@ namespace ShipperHQ\Shipper\Model\ResourceModel\Quote;
 
 class Packages extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
-    /**
-     * Define main table
-     *
-     * @return void
-     */
-    protected function _construct()
-    {
-        $this->_init('shipperhq_quote_packages', 'package_id');
-    }
-
     /**
      * Loads data by carrier specific parameters
      *
@@ -88,6 +79,16 @@ class Packages extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         return $this;
     }
 
+    /**
+     * Define main table
+     *
+     * @return void
+     */
+    protected function _construct()
+    {
+        $this->_init('shipperhq_quote_packages', 'package_id');
+    }
+
     protected function _afterLoad(\Magento\Framework\Model\AbstractModel $object)
     {
         parent::_afterLoad($object);
@@ -122,10 +123,10 @@ class Packages extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $items = [];
         foreach ((array)$object->getData('items') as $item) {
             $items[] = [
-                'package_id'    => $packageId,
-                'sku'           => $item->sku,
+                'package_id' => $packageId,
+                'sku' => $item->sku,
                 'weight_packed' => $item->weightPacked,
-                'qty_packed'    => $item->qtyPacked
+                'qty_packed' => $item->qtyPacked
             ];
         }
         $connection->insertMultiple($itemsTable, $items);

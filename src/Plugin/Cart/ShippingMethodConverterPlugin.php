@@ -27,35 +27,24 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Plugin\Cart;
 
 class ShippingMethodConverterPlugin
 {
-    /**
-     * @var \ShipperHQ\Shipper\Helper\Data
-     */
-    private $shipperDataHelper;
-    /**
-     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
-     */
-    private $carrierGroupHelper;
-
     /**
      * @var \Magento\Quote\Api\Data\ShippingMethodExtensionFactory
      */
     private $shippingMethodExtensionFactory;
 
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \Magento\Quote\Api\Data\ShippingMethodExtensionFactory $shippingMethodExtensionFactory
     ) {
-        $this->shipperDataHelper = $shipperDataHelper;
-        $this->carrierGroupHelper = $carrierGroupHelper;
         $this->shippingMethodExtensionFactory = $shippingMethodExtensionFactory;
     }
 
@@ -67,6 +56,7 @@ class ShippingMethodConverterPlugin
      * @param string $quoteCurrencyCode The quote currency code.
      * @param \Magento\Quote\Model\Quote\Address\Rate $rateModel The rate model.
      * @return \Magento\Quote\Api\Data\ShippingMethodInterface Shipping method data object
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function aroundModelToDataObject(
         \Magento\Quote\Model\Cart\ShippingMethodConverter $subject,
@@ -74,7 +64,7 @@ class ShippingMethodConverterPlugin
         \Magento\Quote\Model\Quote\Address\Rate $rateModel,
         $quoteCurrencyCode
     ) {
-    
+
         $resultShippingMethod = $proceed($rateModel, $quoteCurrencyCode);
         $extensionAttributes = $resultShippingMethod->getExtensionAttributes();
         if ($extensionAttributes && $extensionAttributes->getTooltip() || $rateModel->getTooltip() == '') {

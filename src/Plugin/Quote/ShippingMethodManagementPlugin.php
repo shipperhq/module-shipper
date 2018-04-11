@@ -27,26 +27,28 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Plugin\Quote;
 
-use \Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\AddressInterface;
 
 class ShippingMethodManagementPlugin
 {
+    /**
+     * @var \Magento\Customer\Api\CustomerRepositoryInterface
+     */
+    protected $customerRepository;
     /**
      * Quote repository.
      *
      * @var \Magento\Quote\Api\CartRepositoryInterface
      */
     private $quoteRepository;
-    /**
-     * @var \ShipperHQ\Shipper\Helper\LogAssist
-     */
-    private $shipperLogger;
     /**
      * Customer Address repository
      *
@@ -57,20 +59,14 @@ class ShippingMethodManagementPlugin
      * @var \Magento\Customer\Model\Session
      */
     private $customerSession;
-    /**
-     * @var \Magento\Customer\Api\CustomerRepositoryInterface
-     */
-    protected $customerRepository;
 
     public function __construct(
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
     ) {
         $this->quoteRepository = $quoteRepository;
-        $this->shipperLogger = $shipperLogger;
         $this->addressRepository = $addressRepository;
         $this->customerSession = $customerSession;
         $this->customerRepository = $customerRepository;
@@ -80,24 +76,22 @@ class ShippingMethodManagementPlugin
      * Add customers address type to shipping address on quote
      *
      * @param \Magento\Quote\Model\ShippingMethodManagement $subject
-     * @param callable $proceed
      * @param $cartId
      * @param int $addressId
      * @return \Magento\Quote\Api\Data\ShippingMethodInterface[]
-     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function aroundEstimateByAddressId(
+    public function beforeEstimateByAddressId(
         \Magento\Quote\Model\ShippingMethodManagement $subject,
-        $proceed,
         $cartId,
-        $addressId)
-    {
+        $addressId
+    ) {
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->quoteRepository->getActive($cartId);
 
         // no methods applicable for empty carts or carts with virtual products
         if ($quote->isVirtual() || 0 == $quote->getItemsCount()) {
-            return $proceed($cartId, $addressId);
+            return [$cartId, $addressId];
         }
         $address = $this->addressRepository->getById($addressId);
 
@@ -111,22 +105,28 @@ class ShippingMethodManagementPlugin
             }
         }
 
-        return $proceed($cartId, $addressId);
+        return [$cartId, $addressId];
     }
 
-    public function aroundEstimateByExtendedAddress(
+    /**
+     * @param \Magento\Quote\Model\ShippingMethodManagement $subject
+     * @param $cartId
+     * @param AddressInterface $address
+     * @return mixed
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function beforeEstimateByExtendedAddress(
         \Magento\Quote\Model\ShippingMethodManagement $subject,
-        $proceed,
         $cartId,
         \Magento\Quote\Api\Data\AddressInterface $address
     ) {
-    
+
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->quoteRepository->getActive($cartId);
 
         // no methods applicable for empty carts or carts with virtual products
         if ($quote->isVirtual() || 0 == $quote->getItemsCount()) {
-            return $proceed($cartId, $address);
+            return [$cartId, $address];
         }
         //if logged in, get the default address and apply address type to address
         if ($this->customerSession->isLoggedIn()) {
@@ -143,6 +143,6 @@ class ShippingMethodManagementPlugin
             }
         }
 
-        return $proceed($cartId, $address);
+        return [$cartId, $address];
     }
 }

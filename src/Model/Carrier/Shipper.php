@@ -27,10 +27,12 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Model\Carrier;
 
 /**
@@ -40,38 +42,17 @@ namespace ShipperHQ\Shipper\Model\Carrier;
  * @package ShipperHQ_Shipper
  */
 
-use ShipperHQ\WS\Client;
-use ShipperHQ\WS\Rate\Response;
-use ShipperHQ\Lib\Rate\Helper;
-use ShipperHQ\Lib\Rate\ConfigSettings;
-
-use ShipperHQ\Shipper\Helper\Config;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Quote\Model\Quote\Address\RateResult\Error;
-use Magento\Shipping\Model\Carrier\AbstractCarrier;
-use Magento\Shipping\Model\Rate\Result;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
+use Magento\Shipping\Model\Carrier\AbstractCarrier;
+use Magento\Shipping\Model\Carrier\CarrierInterface;
+use Magento\Shipping\Model\Rate\Result;
+use ShipperHQ\Shipper\Helper\Config;
+use ShipperHQ\WS\Client;
 
-class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements \Magento\Shipping\Model\Carrier\CarrierInterface
+class Shipper extends AbstractCarrier implements CarrierInterface
 {
-
-    /**
-     * @var string
-     */
-    protected $_code = 'shipper';
-
-    /*
-     * Rate request object
-     * @var \ShipperHQ\WS\Rate\Request\RateRequest
-     */
-    protected $shipperRequest = null;
-
-    /**
-     * Raw rate request data
-     *
-     * @var Varien_Object|null
-     */
-    protected $rawRequest = null;
 
     /**
      * Flag for check carriers for activity
@@ -80,116 +61,110 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
      */
     const ACTIVE_FLAG = 'active';
 
+    /*
+     * Rate request object
+     * @var \ShipperHQ\WS\Rate\Request\RateRequest
+     */
     /**
      * Flag for check carriers for activity
      *
      * @var string
      */
     const IGNORE_EMPTY_ZIP = 'ignore_empty_zip';
-
+    private static $shippingOptions = ['liftgate_required', 'notify_required', 'inside_delivery', 'destination_type'];
+    /**
+     * @var string
+     */
+    protected $_code = 'shipper';
+    protected $shipperRequest = null;
+    /**
+     * Raw rate request data
+     *
+     * @var Varien_Object|null
+     */
+    protected $rawRequest = null;
     /**
      * @var Config
      */
     protected $configHelper;
-
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
      */
     protected $shipperDataHelper;
-
     /**
-     *@var \ShipperHQ\Shipper\Helper\Rest
+     * @var \ShipperHQ\Shipper\Helper\Rest
      */
     protected $restHelper;
-
     /**
      * @var \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory
      */
     protected $rateMethodFactory;
-
     /**
      * @var \Magento\Shipping\Model\Rate\ResultFactory
      */
     protected $rateFactory;
-
-    /**
-     * @var \Magento\Framework\Registry
-     */
-    private $registry;
-
-    /**
-     * @var \ShipperHQ\Shipper\Helper\LogAssist
-     */
-    private $shipperLogger;
-
-    /**
-     * @var Client\WebServiceClientFactory
-     */
-    private $shipperWSClientFactory;
-
-    /**
-     * @var Processor\CarrierConfigHandler
-     */
-    private $carrierConfigHandler;
-
-    /**
-     * @var \ShipperHQ\Shipper\Helper\CarrierCache
-     */
-    private $carrierCache;
-
-    /**
-     * @var Processor\BackupCarrier
-     */
-    private $backupCarrier;
-
-    /**
-     * @var \ShipperHQ\Lib\Rate\Helper
-     */
-    private $shipperRateHelper;
-
-    /**
-     * @var \ShipperHQ\Lib\Rate\ConfigSettingsFactory
-     */
-    private $configSettingsFactory;
-
     /**
      * Application Event Dispatcher
      *
      * @var \Magento\Framework\Event\ManagerInterface
      */
     protected $eventManager;
-
     /**
-     * @var \ShipperHQ\Lib\AllowedMethods\Helper
-     */
-    private $allowedMethodsHelper;
-
-    /**
-     * @var \Magento\Checkout\Model\Session
-     */
-    private $checkoutSession;
-
-    /**
-     *@var \ShipperHQ\Shipper\Helper\Package
+     * @var \ShipperHQ\Shipper\Helper\Package
      */
     protected $packageHelper;
-
     /**
      *
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
     protected $carrierGroupHelper;
-
     /**
      * Rate result data
      *
      * @var Mage_Shipping_Model_Rate_Result|null
      */
     protected $result = null;
-
     protected $quote;
-
-    private static $shippingOptions = ['liftgate_required', 'notify_required', 'inside_delivery', 'destination_type'];
+    /**
+     * @var \Magento\Framework\Registry
+     */
+    private $registry;
+    /**
+     * @var \ShipperHQ\Shipper\Helper\LogAssist
+     */
+    private $shipperLogger;
+    /**
+     * @var Client\WebServiceClientFactory
+     */
+    private $shipperWSClientFactory;
+    /**
+     * @var Processor\CarrierConfigHandler
+     */
+    private $carrierConfigHandler;
+    /**
+     * @var \ShipperHQ\Shipper\Helper\CarrierCache
+     */
+    private $carrierCache;
+    /**
+     * @var Processor\BackupCarrier
+     */
+    private $backupCarrier;
+    /**
+     * @var \ShipperHQ\Lib\Rate\Helper
+     */
+    private $shipperRateHelper;
+    /**
+     * @var \ShipperHQ\Lib\Rate\ConfigSettingsFactory
+     */
+    private $configSettingsFactory;
+    /**
+     * @var \ShipperHQ\Lib\AllowedMethods\Helper
+     */
+    private $allowedMethodsHelper;
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    private $checkoutSession;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
@@ -239,7 +214,7 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
         array $data = []
     ) {
-    
+
         $this->shipperDataHelper = $shipperDataHelper;
         $this->restHelper = $restHelper;
         $this->configHelper = $configHelper;
@@ -352,6 +327,501 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
         return $this;
     }
 
+    private function getExistingValidation($key)
+    {
+        $sessionValues = $this->checkoutSession->getShipAddressValidation();
+        if (is_array($sessionValues)) {
+            if (isset($sessionValues['key']) && $sessionValues['key'] == $key) {
+                return $sessionValues;
+            }
+        }
+        return [];
+    }
+
+    private function getSelectedOptions($shippingAddress, $sessionValues = [])
+    {
+        $shipOptions = [];
+
+        foreach (self::$shippingOptions as $option) {
+            if (is_array($sessionValues) && isset($sessionValues[$option])) {
+                $this->shipperLogger->postDebug(
+                    'ShipperHQ Shipper',
+                    'Using Session value for setting option ' . $option,
+                    $sessionValues[$option]
+                );
+                $shipOptions[] = ['name' => $option, 'value' => $sessionValues[$option]];
+            } elseif ($shippingAddress->getData($option) != '') {
+                $this->shipperLogger->postDebug(
+                    'ShipperHQ Shipper',
+                    'Using Shipping Address value for setting option ' . $option,
+                    $shippingAddress->getData($option)
+                );
+                $shipOptions[] = ['name' => $option, 'value' => $shippingAddress->getData($option)];
+            }
+        }
+        return $shipOptions;
+    }
+
+    /**
+     * Do remote request for and handle errors
+     *
+     * @return Mage_Shipping_Model_Rate_Result
+     */
+    private function getQuotes()
+    {
+        $requestString = serialize($this->shipperRequest);
+        $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
+        $timeout = $this->restHelper->getWebserviceTimeout();
+        if (!$resultSet) {
+            $initVal = microtime(true);
+            $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive(
+                $this->shipperRequest,
+                $this->restHelper->getRateGatewayUrl(),
+                $timeout
+            );
+            $elapsed = microtime(true) - $initVal;
+            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Short lapse', $elapsed);
+
+            if (!$resultSet['result']) {
+                $backupRates = $this->backupCarrier->getBackupCarrierRates(
+                    $this->rawRequest,
+                    $this->getConfigData("backup_carrier")
+                );
+                if ($backupRates) {
+                    return $backupRates;
+                }
+            }
+            $this->carrierCache->setCachedQuotes($requestString, $resultSet, $this->getCarrierCode());
+        }
+        $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Rate request and result', $resultSet['debug']);
+        return $this->parseShipperResponse($resultSet['result']);
+    }
+
+    /**
+     * @param $shipperResponse
+     * @return Mage_Shipping_Model_Rate_Result
+     */
+    private function parseShipperResponse($shipperResponse)
+    {
+        $debugRequest = $this->shipperRequest;
+
+        $debugData = ['request' => json_encode($debugRequest, JSON_PRETTY_PRINT), 'response' => $shipperResponse];
+        if (!is_object($shipperResponse)) {
+            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ did not return a response', $debugData);
+
+            return $this->returnGeneralError(
+                'Shipper HQ did not return a response - could not contact ShipperHQ. Please review your settings'
+            );
+        }
+        $transactionId = $this->shipperRateHelper->extractTransactionId($shipperResponse);
+        $this->registry->unregister('shipperhq_transaction');
+
+        $this->registry->register('shipperhq_transaction', $transactionId);
+
+        //first check and save globals for display purposes
+        $globals = [];
+        if (is_object($shipperResponse) && isset($shipperResponse->globalSettings)) {
+            $globals = $this->shipperRateHelper->extractGlobalSettings($shipperResponse);
+            $globals['transaction'] = $transactionId;
+            $this->shipperDataHelper->setGlobalSettings($globals);
+        }
+
+        $result = $this->rateFactory->create();
+
+        // If no rates are found return error message
+        if (!empty($shipperResponse->errors)) {
+            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ returned an error', $debugData);
+            if (isset($shipperResponse->errors)) {
+                foreach ($shipperResponse->errors as $error) {
+                    $this->appendError($result, $error, $this->_code, $this->getConfigData('title'));
+                }
+            }
+            return $result;
+        }
+
+        if (isset($shipperResponse->carrierGroups)) {
+            $carrierRates = $this->processRatesResponse($shipperResponse, $transactionId);
+        } else {
+            $carrierRates = [];
+        }
+
+        if ($this->rawRequest->getValidateAddress()) { //SHQ18-141 only persist address validation if we have validated
+            $this->persistAddressValidation($shipperResponse);
+        }
+
+        if (count($carrierRates) == 0) {
+            $this->shipperLogger->postInfo(
+                'Shipperhq_Shipper',
+                'Shipper HQ did not return any carrier rates',
+                $debugData
+            );
+            return $result;
+        }
+
+        foreach ($carrierRates as $carrierRate) {
+            if (isset($carrierRate['error'])) {
+                $carriergroupId = null;
+                $carrierGroupDetail = null;
+                if (array_key_exists('carriergroup_detail', $carrierRate)
+                    && isset($carrierRate['carriergroup_detail'])
+                ) {
+                    if (array_key_exists('carrierGroupId', $carrierRate['carriergroup_detail'])) {
+                        $carriergroupId = $carrierRate['carriergroup_detail']['carrierGroupId'];
+                    }
+                    $carrierGroupDetail = $carrierRate['carriergroup_detail'];
+                }
+                $this->appendError(
+                    $result,
+                    $carrierRate['error'],
+                    $carrierRate['code'],
+                    $carrierRate['title'],
+                    $carriergroupId,
+                    $carrierGroupDetail
+                );
+                continue;
+            }
+
+            if (!array_key_exists('rates', $carrierRate)) {
+                $this->shipperLogger->postInfo(
+                    'Shipperhq_Shipper',
+                    'Shipper HQ did not return any rates for '
+                    . $carrierRate['code']
+                    . ' '
+                    . $carrierRate['title'],
+                    $debugData
+                );
+            } else {
+                $baseRate = 1;
+                $baseCurrencyCode = $this->shipperDataHelper->getBaseCurrencyCode();
+                foreach ($carrierRate['rates'] as $rateDetails) {
+                    if (isset($rateDetails['currency'])) {
+                        if ($rateDetails['currency'] != $baseCurrencyCode || $baseRate != 1) {
+                            $baseRate = $this->shipperDataHelper->getBaseCurrencyRate($rateDetails['currency']);
+                            if (!$baseRate) {
+                                $error = __('Can\'t convert rate from "%1".', $rateDetails['currency']);
+                                $this->appendError(
+                                    $result,
+                                    $error,
+                                    $carrierRate['code'],
+                                    $carrierRate['title'],
+                                    $rateDetails['carriergroup_detail']['carrierGroupId'],
+                                    $rateDetails['carriergroup_detail']
+                                );
+                                $this->shipperLogger->postCritical(
+                                    'Shipperhq_Shipper',
+                                    'Currency Rate Missing',
+                                    'Currency code in shipping rate is ' . $rateDetails['currency']
+                                    . ' but there is no currency conversion rate configured'
+                                    . ' so we cannot display this shipping rate'
+                                );
+                                continue;
+                            }
+                        }
+                    }
+
+                    $rate = $this->rateMethodFactory->create();
+                    $rate->setCarrier($carrierRate['code']);
+                    $lengthCarrierCode = strlen($carrierRate['code']);
+
+                    $rate->setCarrierTitle(__($carrierRate['title']));
+
+                    $methodCombineCode = preg_replace('/&|;| /', "", $rateDetails['methodcode']);
+                    //SHQ16-1520 - enforce limit on length of shipping carrier code
+                    // and method code of less than 35 - M2 hard limit of 40
+                    $lengthMethodCode = strlen($methodCombineCode);
+
+                    if ($lengthCarrierCode + $lengthMethodCode > 38) {
+                        $total = $lengthCarrierCode + $lengthMethodCode;
+                        $trim = $total - 35;
+                        $methodCombineCode = substr($methodCombineCode, $trim, $lengthMethodCode);
+                    }
+                    $rate->setMethod($methodCombineCode);
+
+                    $rate->setMethodTitle(__($rateDetails['method_title']));
+                    $rate->setTooltip($rateDetails['tooltip']);
+
+                    if (array_key_exists('method_description', $rateDetails)) {
+                        $rate->setMethodDescription(__($rateDetails['method_description']));
+                    }
+                    $rate->setCost($rateDetails['cost'] * $baseRate);
+
+                    $rate->setPrice($rateDetails['price'] * $baseRate);
+
+                    if (array_key_exists('carrier_type', $rateDetails)) {
+                        $rate->setCarrierType($rateDetails['carrier_type']);
+                    }
+
+                    if (array_key_exists('carrier_id', $rateDetails)) {
+                        $rate->setCarrierId($rateDetails['carrier_id']);
+                    }
+
+                    if (array_key_exists('dispatch_date', $rateDetails)) {
+                        $rate->setDispatchDate($rateDetails['dispatch_date']);
+                    }
+
+                    if (array_key_exists('delivery_date', $rateDetails)) {
+                        $rate->setDeliveryDate($rateDetails['delivery_date']);
+                    }
+
+                    if (array_key_exists('carriergroup_detail', $rateDetails)
+                        && isset($rateDetails['carriergroup_detail'])
+                    ) {
+                        $carrierGroupDetail = $baseRate != 1 ? $this->updateWithCurrrencyConversion(
+                            $rateDetails['carriergroup_detail'],
+                            $baseRate
+                        ) :
+                            $rateDetails['carriergroup_detail'];
+
+                        $rate->setCarriergroupShippingDetails(
+                            $this->shipperDataHelper->encode($carrierGroupDetail)
+                        );
+                        if (array_key_exists('carrierGroupId', $carrierGroupDetail)) {
+                            $rate->setCarriergroupId($carrierGroupDetail['carrierGroupId']);
+                        }
+
+                        if (array_key_exists('checkoutDescription', $carrierGroupDetail)) {
+                            $rate->setCarriergroup($carrierGroupDetail['checkoutDescription']);
+                        }
+                    }
+                    $result->append($rate);
+                }
+                if (isset($carrierRate['shipments'])) {
+                    $this->persistShipments($carrierRate['shipments']);
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
+     *
+     * Build up an error message when no carrier rates returned
+     * @return Mage_Shipping_Model_Rate_Result
+     */
+    private function returnGeneralError($message = null)
+    {
+        $result = $this->rateFactory->create();
+        $error = $this->_rateErrorFactory->create();
+        $error->setCarrier($this->_code);
+        $error->setCarrierTitle($this->getConfigData('title'));
+        $error->setCarriergroupId('');
+        if ($message && $this->shipperDataHelper->getConfigValue('carriers/shipper/debug')) {
+            $error->setErrorMessage($message);
+        } else {
+            $error->setErrorMessage($this->getConfigData('specificerrmsg'));
+        }
+        $result->append($error);
+        return $result;
+    }
+
+    /**
+     *
+     * Generate error message from ShipperHQ response.
+     * Display of error messages per carrier is managed in SHQ configuration
+     *
+     * @param $result
+     * @param $errorDetails
+     * @return Mage_Shipping_Model_Rate_Result
+     */
+    private function appendError(
+        $result,
+        $errorDetails,
+        $carrierCode,
+        $carrierTitle,
+        $carrierGroupId = null,
+        $carrierGroupDetail = null
+    ) {
+
+        if (is_object($errorDetails)) {
+            $errorDetails = get_object_vars($errorDetails);
+        }
+        if ((array_key_exists('internalErrorMessage', $errorDetails) && $errorDetails['internalErrorMessage'] != '')
+            || (array_key_exists('externalErrorMessage', $errorDetails) && $errorDetails['externalErrorMessage'] != '')
+        ) {
+            $errorMessage = false;
+
+            if ($this->getConfigData("debug") && array_key_exists('internalErrorMessage', $errorDetails)
+                && $errorDetails['internalErrorMessage'] != ''
+            ) {
+                $errorMessage = $errorDetails['internalErrorMessage'];
+            } elseif (array_key_exists('externalErrorMessage', $errorDetails)
+                && $errorDetails['externalErrorMessage'] != ''
+            ) {
+                $errorMessage = $errorDetails['externalErrorMessage'];
+            }
+
+            if ($errorMessage) {
+                $error = $this->_rateErrorFactory->create();
+                $error->setCarrier($carrierCode);
+                $error->setCarrierTitle($carrierTitle);
+                $error->setErrorMessage($errorMessage);
+                if ($carrierGroupId !== null) {
+                    $error->setCarriergroupId($carrierGroupId);
+                }
+                if (is_array($carrierGroupDetail) && array_key_exists('checkoutDescription', $carrierGroupDetail)) {
+                    $error->setCarriergroup($carrierGroupDetail['checkoutDescription']);
+                }
+
+                $result->append($error);
+
+                $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ returned error', $errorDetails);
+            }
+        }
+        return $result;
+    }
+
+    private function processRatesResponse($shipperResponse, $transactionId)
+    {
+        $carrierGroups = $shipperResponse->carrierGroups;
+        $ratesArray = [];
+
+        $timezone = $this->shipperDataHelper->getConfigValue('general/locale/timezone');
+        $configSettings = $this->configSettingsFactory->create([
+            'hideNotifications' => $this->getConfigFlag('carriers/shipper/hide_notify'),
+            'transactionIdEnabled' => $this->shipperDataHelper->isTransactionIdEnabled(),
+            'locale' => $this->getLocaleInGlobals(),
+            'shipperHQCode' => $this->_code,
+            'shipperHQTitle' => $this->getConfigFlag('carriers/shipper/title'),
+            'timezone' => $timezone
+        ]);
+
+        $splitCarrierGroupDetail = [];
+        foreach ($carrierGroups as $carrierGroup) {
+            $carrierGroupDetail = $this->shipperRateHelper->extractCarrierGroupDetail(
+                $carrierGroup,
+                $transactionId,
+                $configSettings
+            );
+            $this->setCarriergroupOnItems($carrierGroupDetail, $carrierGroup->products);
+            //Pass off each carrier group to helper to decide best fit to process it.
+            //Push result back into our array
+            foreach ($carrierGroup->carrierRates as $carrierRate) {
+                $this->carrierConfigHandler->saveCarrierResponseDetails($carrierRate, $carrierGroupDetail);
+                $carrierResultWithRates = $this->shipperRateHelper->extractShipperHQRates(
+                    $carrierRate,
+                    $carrierGroupDetail,
+                    $configSettings,
+                    $splitCarrierGroupDetail
+                );
+                $ratesArray[] = $carrierResultWithRates;
+                //push out event so other modules can save their data
+                $this->eventManager->dispatch(
+                    'shipperhq_carrier_rate_response_received',
+                    ['carrier_rate_response' => $carrierRate, 'carrier_group_detail' => $carrierGroupDetail]
+                );
+            }
+        }
+
+        //check for configuration here for display
+        if ($shipperResponse->mergedRateResponse) {
+            $mergedRatesArray = [];
+            foreach ($shipperResponse->mergedRateResponse->carrierRates as $carrierRate) {
+                $this->carrierConfigHandler->saveCarrierResponseDetails($carrierRate, null);
+                $mergedResultWithRates = $this->shipperRateHelper->extractShipperHQMergedRates(
+                    $carrierRate,
+                    $splitCarrierGroupDetail,
+                    $configSettings,
+                    $transactionId
+                );
+                $mergedRatesArray[] = $mergedResultWithRates;
+            }
+            $ratesArray = $mergedRatesArray;
+        }
+
+        $carriergroupDescriber = $shipperResponse->globalSettings->carrierGroupDescription;
+        if ($carriergroupDescriber != '') {
+            $this->carrierConfigHandler->saveConfig(
+                $this->shipperDataHelper->getCarrierGroupDescPath(),
+                $carriergroupDescriber
+            );
+        }
+
+        $this->carrierConfigHandler->refreshConfig();
+
+        return $ratesArray;
+    }
+
+    private function getLocaleInGlobals()
+    {
+        $locale = $this->shipperDataHelper->getGlobalSetting('preferredLocale');
+        return $locale ? $locale : 'en-US';
+    }
+
+    private function setCarriergroupOnItems($carriergroupDetails, $productInRateResponse)
+    {
+        $rateItems = [];
+        foreach ($productInRateResponse as $item) {
+            $item = (array)$item;
+            $rateItems[$item['sku']] = $item['qty'];
+        }
+
+        foreach ($this->rawRequest->getAllItems() as $quoteItem) {
+            if (array_key_exists($quoteItem->getSku(), $rateItems)) {
+                $quoteItem->setCarriergroupId($carriergroupDetails['carrierGroupId']);
+                $quoteItem->setCarriergroup($carriergroupDetails['name']);
+
+                //need to work out how to distinguish between quote address items on multi address checkout
+                $this->carrierGroupHelper->saveCarrierGroupItem(
+                    $quoteItem,
+                    $carriergroupDetails['carrierGroupId'],
+                    $carriergroupDetails['name']
+                );
+            }
+        }
+    }
+
+    private function persistAddressValidation($shipperResponse)
+    {
+        //we've validated so we need to save
+        $shippingAddress = $this->quote->getShippingAddress();
+        $key = $this->shipperDataHelper->getAddressKey($shippingAddress);
+        $existing = [];
+        $addressType = $this->shipperRateHelper->extractDestinationType($shipperResponse);
+        $validationStatus = $this->shipperRateHelper->extractAddressValidationStatus($shipperResponse);
+        $validatedAddress = $this->shipperRateHelper->extractValidatedAddress($shipperResponse);
+        if ($validationStatus) {
+            $existing['validation_status'] = $validationStatus;
+        }
+
+        if ($addressType) {
+            $existing['destination_type'] = $addressType;
+        }
+
+        if ($validatedAddress) {
+           foreach ($validatedAddress as $field => $value) {
+               if ($field == 'addressType') continue;
+               if($field == 'zipcode') { // handle where it's returning zipcode instead of postcode
+                   $field == 'postcode';
+               }
+               $existing['validated_shipping_' .$field] = $value;
+           }
+        }
+
+        if (!empty($existing)) {
+            $existing['key'] = $key;
+            $this->checkoutSession->setShipAddressValidation($existing);
+        }
+    }
+
+    /*
+     *
+     * Build array of rates based on split or merged rates display
+     */
+
+    private function updateWithCurrrencyConversion($carrierGroupDetail, $currencyConversionRate)
+    {
+        $carrierGroupDetail['cost'] *= $currencyConversionRate;
+        $carrierGroupDetail['price'] *= $currencyConversionRate;
+        return $carrierGroupDetail;
+    }
+
+    private function persistShipments($shipmentArray)
+    {
+        $shippingAddress = $this->quote->getShippingAddress();
+        $addressId = $shippingAddress->getId();
+        $this->packageHelper->saveQuotePackages($addressId, $shipmentArray);
+    }
+
     /**
      * Get result of request
      *
@@ -369,7 +839,7 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
      */
     public function refreshCarriers()
     {
-        $allowedMethods =  $this->getAllShippingMethods();
+        $allowedMethods = $this->getAllShippingMethods();
         if (count($allowedMethods) == 0) {
             $this->shipperLogger->postDebug(
                 'Shipperhq_Shipper',
@@ -395,11 +865,10 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
             0
         );
 
-        $ourCarrierCode = $this->getId();
         $result = [];
         $allowedMethods = [];
 
-        $allMethodsRequest =  $this->shipperMapper->getCredentialsTranslation();
+        $allMethodsRequest = $this->shipperMapper->getCredentialsTranslation();
         $requestString = serialize($allMethodsRequest);
         $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
         $timeout = $this->restHelper->getWebserviceTimeout();
@@ -479,7 +948,22 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
         // go set carrier titles
         $this->carrierConfigHandler->setCarrierConfig($carrierConfig);
         $this->saveAllowedMethods($allowedMethods);
+
+        //SHQ18-112 persist Magento version to config to increase efficiency of future requests
+        $this->carrierConfigHandler->saveConfig(
+            'carriers/shipper/magento_version',
+            $this->shipperMapper->getMagentoVersion()
+        );
         return $allowedMethods;
+    }
+
+    public function saveAllowedMethods($allowedMethodsArray)
+    {
+        $carriersCodesString = $this->shipperDataHelper->encode($allowedMethodsArray);
+        $this->carrierConfigHandler->saveConfig(
+            $this->shipperDataHelper->getAllowedMethodsPath(),
+            $carriersCodesString
+        );
     }
 
     /**
@@ -511,7 +995,7 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
                 'Shipperhq_Shipper',
                 'Allowed methods config is empty',
                 'Please refresh your carriers by pressing Save button on the shipping method configuration screen '
-                .'from Stores > Configuration > Shipping Methods'
+                . 'from Stores > Configuration > Shipping Methods'
             );
             return $arr;
         }
@@ -520,22 +1004,13 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
         if (count($arr) < 1 && $this->getConfigFlag(self::ACTIVE_FLAG)) {
             $this->shipperLogger->postDebug(
                 'Shipperhq_Shipper',
-                'There are no allowed methods for ' .$requestedCode,
+                'There are no allowed methods for ' . $requestedCode,
                 'If you expect to see shipping methods for this carrier, '
-                .'please refresh your carriers by pressing Save button on the shipping method configuration screen '
-                .'from Stores > Configuration > Shipping Methods'
+                . 'please refresh your carriers by pressing Save button on the shipping method configuration screen '
+                . 'from Stores > Configuration > Shipping Methods'
             );
         }
-         return $arr;
-    }
-
-    public function saveAllowedMethods($allowedMethodsArray)
-    {
-        $carriersCodesString = $this->shipperDataHelper->encode($allowedMethodsArray);
-        $this->carrierConfigHandler->saveConfig(
-            $this->shipperDataHelper->getAllowedMethodsPath(),
-            $carriersCodesString
-        );
+        return $arr;
     }
 
     /**
@@ -545,468 +1020,9 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
      */
     public function getSortOrder()
     {
-        $path = 'carriers/'.$this->getId().'/sort_order';
+        $path = 'carriers/' . $this->getId() . '/sort_order';
         $value = $this->shipperDataHelper->getConfigValue($path);
         return $value;
-    }
-
-    private function getLocaleInGlobals()
-    {
-        $locale = $this->shipperDataHelper->getGlobalSetting('preferredLocale');
-        return $locale ? $locale : 'en-US';
-    }
-
-    /**
-     * Do remote request for and handle errors
-     *
-     * @return Mage_Shipping_Model_Rate_Result
-     */
-    private function getQuotes()
-    {
-        $requestString = serialize($this->shipperRequest);
-        $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
-        $timeout = $this->restHelper->getWebserviceTimeout();
-        if (!$resultSet) {
-            $initVal =  microtime(true);
-            $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive(
-                $this->shipperRequest,
-                $this->restHelper->getRateGatewayUrl(),
-                $timeout
-            );
-            $elapsed = microtime(true) - $initVal;
-            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Short lapse', $elapsed);
-
-            if (!$resultSet['result']) {
-                $backupRates = $this->backupCarrier->getBackupCarrierRates(
-                    $this->rawRequest,
-                    $this->getConfigData("backup_carrier")
-                );
-                if ($backupRates) {
-                    return $backupRates;
-                }
-            }
-            $this->carrierCache->setCachedQuotes($requestString, $resultSet, $this->getCarrierCode());
-        }
-        $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Rate request and result', $resultSet['debug']);
-        return $this->parseShipperResponse($resultSet['result']);
-    }
-
-    /**
-     * @param $shipperResponse
-     * @return Mage_Shipping_Model_Rate_Result
-     */
-    private function parseShipperResponse($shipperResponse)
-    {
-        $debugRequest = $this->shipperRequest;
-
-        $debugData = ['request' => json_encode($debugRequest, JSON_PRETTY_PRINT), 'response' => $shipperResponse];
-        if (!is_object($shipperResponse)) {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ did not return a response', $debugData);
-
-            return $this->returnGeneralError(
-                'Shipper HQ did not return a response - could not contact ShipperHQ. Please review your settings'
-            );
-        }
-        $transactionId = $this->shipperRateHelper->extractTransactionId($shipperResponse);
-        $this->registry->unregister('shipperhq_transaction');
-
-        $this->registry->register('shipperhq_transaction', $transactionId);
-
-        //first check and save globals for display purposes
-        $globals = [];
-        if (is_object($shipperResponse) && isset($shipperResponse->globalSettings)) {
-            $globals = $this->shipperRateHelper->extractGlobalSettings($shipperResponse);
-            $globals['transaction'] = $transactionId;
-            $this->shipperDataHelper->setGlobalSettings($globals);
-        }
-
-        $result = $this->rateFactory->create();
-
-        // If no rates are found return error message
-        if (!empty($shipperResponse->errors)) {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ returned an error', $debugData);
-            if (isset($shipperResponse->errors)) {
-                foreach ($shipperResponse->errors as $error) {
-                    $this->appendError($result, $error, $this->_code, $this->getConfigData('title'));
-                }
-            }
-            return $result;
-        }
-
-        if (isset($shipperResponse->carrierGroups)) {
-            $carrierRates = $this->processRatesResponse($shipperResponse, $transactionId, $globals);
-        } else {
-            $carrierRates = [];
-        }
-
-        if ($this->rawRequest->getValidateAddress()) { //SHQ18-141 only persist address validation if we have validated
-            $this->persistAddressValidation($shipperResponse);
-        }
-
-        if (count($carrierRates) == 0) {
-            $this->shipperLogger->postInfo(
-                'Shipperhq_Shipper',
-                'Shipper HQ did not return any carrier rates',
-                $debugData
-            );
-            return $result;
-        }
-
-        foreach ($carrierRates as $carrierRate) {
-            if (isset($carrierRate['error'])) {
-                $carriergroupId = null;
-                $carrierGroupDetail = null;
-                if (array_key_exists('carriergroup_detail', $carrierRate)
-                    && isset($carrierRate['carriergroup_detail'])
-                ) {
-                    if (array_key_exists('carrierGroupId', $carrierRate['carriergroup_detail'])) {
-                        $carriergroupId = $carrierRate['carriergroup_detail']['carrierGroupId'];
-                    }
-                    $carrierGroupDetail = $carrierRate['carriergroup_detail'];
-                }
-                $this->appendError(
-                    $result,
-                    $carrierRate['error'],
-                    $carrierRate['code'],
-                    $carrierRate['title'],
-                    $carriergroupId,
-                    $carrierGroupDetail
-                );
-                continue;
-            }
-
-            if (!array_key_exists('rates', $carrierRate)) {
-                $this->shipperLogger->postInfo(
-                    'Shipperhq_Shipper',
-                    'Shipper HQ did not return any rates for '
-                    . $carrierRate['code']
-                    . ' '
-                    . $carrierRate['title'],
-                    $debugData
-                );
-            } else {
-                $baseRate = 1;
-                $baseCurrencyCode = $this->shipperDataHelper->getBaseCurrencyCode();
-                foreach ($carrierRate['rates'] as $rateDetails) {
-                    if (isset($rateDetails['currency'])) {
-                        if ($rateDetails['currency'] != $baseCurrencyCode || $baseRate != 1) {
-                            $baseRate = $this->shipperDataHelper->getBaseCurrencyRate($rateDetails['currency']);
-                            if (!$baseRate) {
-                                $error =  __('Can\'t convert rate from "%1".', $rateDetails['currency']);
-                                $this->appendError(
-                                    $result,
-                                    $error,
-                                    $carrierRate['code'],
-                                    $carrierRate['title'],
-                                    $rateDetails['carriergroup_detail']['carrierGroupId'],
-                                    $rateDetails['carriergroup_detail']
-                                );
-                                $this->shipperLogger->postCritical(
-                                    'Shipperhq_Shipper',
-                                    'Currency Rate Missing',
-                                    'Currency code in shipping rate is ' .$rateDetails['currency']
-                                    .' but there is no currency conversion rate configured'
-                                    .' so we cannot display this shipping rate'
-                                );
-                                continue;
-                            }
-                        }
-                    }
-
-                    $rate = $this->rateMethodFactory->create();
-                    $rate->setCarrier($carrierRate['code']);
-                    $lengthCarrierCode = strlen($carrierRate['code']);
-
-                    $rate->setCarrierTitle(__($carrierRate['title']));
-
-                    $methodCombineCode = preg_replace('/&|;| /', "", $rateDetails['methodcode']);
-                    //SHQ16-1520 - enforce limit on length of shipping carrier code
-                    // and method code of less than 35 - M2 hard limit of 40
-                    $lengthMethodCode = strlen($methodCombineCode);
-
-                    if ($lengthCarrierCode + $lengthMethodCode > 38) {
-                        $total = $lengthCarrierCode + $lengthMethodCode;
-                        $trim = $total - 35;
-                        $methodCombineCode = substr($methodCombineCode, $trim, $lengthMethodCode);
-                    }
-                    $rate->setMethod($methodCombineCode);
-
-                    $rate->setMethodTitle(__($rateDetails['method_title']));
-                    $rate->setTooltip($rateDetails['tooltip']);
-
-                    if (array_key_exists('method_description', $rateDetails)) {
-                        $rate->setMethodDescription(__($rateDetails['method_description']));
-                    }
-                    $rate->setCost($rateDetails['cost']*$baseRate);
-
-                    $rate->setPrice($rateDetails['price']*$baseRate);
-
-                    if (array_key_exists('carrier_type', $rateDetails)) {
-                        $rate->setCarrierType($rateDetails['carrier_type']);
-                    }
-
-                    if (array_key_exists('carrier_id', $rateDetails)) {
-                        $rate->setCarrierId($rateDetails['carrier_id']);
-                    }
-
-                    if (array_key_exists('dispatch_date', $rateDetails)) {
-                        $rate->setDispatchDate($rateDetails['dispatch_date']);
-                    }
-
-                    if (array_key_exists('delivery_date', $rateDetails)) {
-                        $rate->setDeliveryDate($rateDetails['delivery_date']);
-                    }
-
-                    if (array_key_exists('carriergroup_detail', $rateDetails)
-                        && isset($rateDetails['carriergroup_detail'])
-                    ) {
-                        $carrierGroupDetail = $baseRate != 1 ? $this->updateWithCurrrencyConversion(
-                            $rateDetails['carriergroup_detail'],
-                            $baseRate
-                        ):
-                            $rateDetails['carriergroup_detail'];
-
-                        $rate->setCarriergroupShippingDetails(
-                            $this->shipperDataHelper->encode($carrierGroupDetail)
-                        );
-                        if (array_key_exists('carrierGroupId', $carrierGroupDetail)) {
-                            $rate->setCarriergroupId($carrierGroupDetail['carrierGroupId']);
-                        }
-
-                        if (array_key_exists('checkoutDescription', $carrierGroupDetail)) {
-                            $rate->setCarriergroup($carrierGroupDetail['checkoutDescription']);
-                        }
-                    }
-                    $result->append($rate);
-                }
-                if (isset($carrierRate['shipments'])) {
-                    $this->persistShipments($carrierRate['shipments']);
-                }
-            }
-        }
-        return $result;
-    }
-
-    /*
-     *
-     * Build array of rates based on split or merged rates display
-     */
-    private function processRatesResponse($shipperResponse, $transactionId, $globals)
-    {
-        $carrierGroups = $shipperResponse->carrierGroups;
-        $ratesArray = [];
-
-        $timezone = $this->shipperDataHelper->getConfigValue('general/locale/timezone');
-        $configSettings = $this->configSettingsFactory->create([
-            'hideNotifications' => $this->shipperDataHelper->getConfigFlag('carriers/shipper/hide_notify'),
-            'transactionIdEnabled' => $this->shipperDataHelper->isTransactionIdEnabled(),
-            'locale' => $this->getLocaleInGlobals(),
-            'shipperHQCode' => $this->_code,
-            'shipperHQTitle' => $this->shipperDataHelper->getConfigFlag('carriers/shipper/title'),
-            'timezone' => $timezone
-        ]);
-
-        $splitCarrierGroupDetail = [];
-        foreach ($carrierGroups as $carrierGroup) {
-            $carrierGroupDetail = $this->shipperRateHelper->extractCarrierGroupDetail(
-                $carrierGroup,
-                $transactionId,
-                $configSettings
-            );
-            $this->setCarriergroupOnItems($carrierGroupDetail, $carrierGroup->products);
-            //Pass off each carrier group to helper to decide best fit to process it.
-            //Push result back into our array
-            foreach ($carrierGroup->carrierRates as $carrierRate) {
-                $this->carrierConfigHandler->saveCarrierResponseDetails($carrierRate, $carrierGroupDetail);
-                $carrierResultWithRates = $this->shipperRateHelper->extractShipperHQRates(
-                    $carrierRate,
-                    $carrierGroupDetail,
-                    $configSettings,
-                    $splitCarrierGroupDetail
-                );
-                $ratesArray[] = $carrierResultWithRates;
-                //push out event so other modules can save their data
-                $this->eventManager->dispatch(
-                    'shipperhq_carrier_rate_response_received',
-                    ['carrier_rate_response' => $carrierRate, 'carrier_group_detail'=> $carrierGroupDetail]
-                );
-            }
-        }
-
-        //check for configuration here for display
-        if ($shipperResponse->mergedRateResponse) {
-            $mergedRatesArray = [];
-            foreach ($shipperResponse->mergedRateResponse->carrierRates as $carrierRate) {
-                $this->carrierConfigHandler->saveCarrierResponseDetails($carrierRate, null);
-                $mergedResultWithRates = $this->shipperRateHelper->extractShipperHQMergedRates(
-                    $carrierRate,
-                    $splitCarrierGroupDetail,
-                    $configSettings,
-                    $transactionId
-                );
-                $mergedRatesArray[] = $mergedResultWithRates;
-            }
-            $ratesArray = $mergedRatesArray;
-        }
-
-        $carriergroupDescriber = $shipperResponse->globalSettings->carrierGroupDescription;
-        if ($carriergroupDescriber != '') {
-            $this->carrierConfigHandler->saveConfig(
-                $this->shipperDataHelper->getCarrierGroupDescPath(),
-                $carriergroupDescriber
-            );
-        }
-
-        $this->carrierConfigHandler->refreshConfig();
-
-        return $ratesArray;
-    }
-
-    private function setCarriergroupOnItems($carriergroupDetails, $productInRateResponse)
-    {
-        $rateItems = [];
-        foreach ($productInRateResponse as $item) {
-            $item = (array)$item;
-            $rateItems[$item['sku']] = $item['qty'];
-        }
-
-        foreach ($this->rawRequest->getAllItems() as $quoteItem) {
-            if (array_key_exists($quoteItem->getSku(), $rateItems)) {
-                $quoteItem->setCarriergroupId($carriergroupDetails['carrierGroupId']);
-                $quoteItem->setCarriergroup($carriergroupDetails['name']);
-
-                    //need to work out how to distinguish between quote address items on multi address checkout
-                $this->carrierGroupHelper->saveCarrierGroupItem(
-                    $quoteItem,
-                    $carriergroupDetails['carrierGroupId'],
-                    $carriergroupDetails['name']
-                );
-            }
-        }
-    }
-
-    private function persistAddressValidation($shipperResponse)
-    {
-        //we've validated so we need to save
-        $shippingAddress = $this->quote->getShippingAddress();
-        $key = $this->shipperDataHelper->getAddressKey($shippingAddress);
-        $existing = [];
-        $addressType = $this->shipperRateHelper->extractDestinationType($shipperResponse);
-        $validationStatus = $this->shipperRateHelper->extractAddressValidationStatus($shipperResponse);
-        $validatedAddress = $this->shipperRateHelper->extractValidatedAddress($shipperResponse);
-        if ($validationStatus) {
-            $existing[ 'validation_status'] = $validationStatus;
-        }
-
-        if ($addressType) {
-            $existing['destination_type'] = $addressType;
-        }
-
-        if ($validatedAddress) {
-           foreach ($validatedAddress as $field => $value) {
-               if ($field == 'addressType') continue;
-               if($field == 'zipcode') { // handle where it's returning zipcode instead of postcode
-                   $field == 'postcode';
-               }
-               $existing['validated_shipping_' .$field] = $value;
-           }
-        }
-
-        if (!empty($existing)) {
-            $existing['key'] = $key;
-            $this->checkoutSession->setShipAddressValidation($existing);
-        }
-    }
-
-    private function persistShipments($shipmentArray)
-    {
-        $shippingAddress = $this->quote->getShippingAddress();
-        $addressId = $shippingAddress->getId();
-        $this->packageHelper->saveQuotePackages($addressId, $shipmentArray);
-    }
-
-    /**
-     *
-     * Build up an error message when no carrier rates returned
-     * @return Mage_Shipping_Model_Rate_Result
-     */
-    private function returnGeneralError($message = null)
-    {
-        $result = $this->rateFactory->create();
-        $error = $this->_rateErrorFactory->create();
-        $error->setCarrier($this->_code);
-        $error->setCarrierTitle($this->getConfigData('title'));
-        $error->setCarriergroupId('');
-        if ($message && $this->shipperDataHelper->getConfigValue('carriers/shipper/debug')) {
-            $error->setErrorMessage($message);
-        } else {
-            $error->setErrorMessage($this->getConfigData('specificerrmsg'));
-        }
-        $result->append($error);
-        return $result;
-    }
-
-    /**
-     *
-     * Generate error message from ShipperHQ response.
-     * Display of error messages per carrier is managed in SHQ configuration
-     *
-     * @param $result
-     * @param $errorDetails
-     * @return Mage_Shipping_Model_Rate_Result
-     */
-    private function appendError(
-        $result,
-        $errorDetails,
-        $carrierCode,
-        $carrierTitle,
-        $carrierGroupId = null,
-        $carrierGroupDetail = null
-    ) {
-    
-        if (is_object($errorDetails)) {
-            $errorDetails = get_object_vars($errorDetails);
-        }
-        if ((array_key_exists('internalErrorMessage', $errorDetails) && $errorDetails['internalErrorMessage'] != '')
-            || (array_key_exists('externalErrorMessage', $errorDetails) && $errorDetails['externalErrorMessage'] != '')
-        ) {
-            $errorMessage = false;
-
-            if ($this->getConfigData("debug") && array_key_exists('internalErrorMessage', $errorDetails)
-                && $errorDetails['internalErrorMessage'] != ''
-            ) {
-                $errorMessage = $errorDetails['internalErrorMessage'];
-            } elseif (array_key_exists('externalErrorMessage', $errorDetails)
-                && $errorDetails['externalErrorMessage'] != ''
-            ) {
-                $errorMessage = $errorDetails['externalErrorMessage'];
-            }
-
-            if ($errorMessage) {
-                $error = $this->_rateErrorFactory->create();
-                $error->setCarrier($carrierCode);
-                $error->setCarrierTitle($carrierTitle);
-                $error->setErrorMessage($errorMessage);
-                if ($carrierGroupId !== null) {
-                    $error->setCarriergroupId($carrierGroupId);
-                }
-                if (is_array($carrierGroupDetail) && array_key_exists('checkoutDescription', $carrierGroupDetail)) {
-                    $error->setCarriergroup($carrierGroupDetail['checkoutDescription']);
-                }
-
-                $result->append($error);
-
-                $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ returned error', $errorDetails);
-            }
-        }
-        return $result;
-    }
-
-    private function updateWithCurrrencyConversion($carrierGroupDetail, $currencyConversionRate)
-    {
-        $carrierGroupDetail['cost'] *= $currencyConversionRate;
-        $carrierGroupDetail['price'] *= $currencyConversionRate;
-        return $carrierGroupDetail;
     }
 
     /**
@@ -1029,40 +1045,5 @@ class Shipper extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
             $result->append($method);
         }
         return $result;
-    }
-
-    private function getSelectedOptions($shippingAddress, $sessionValues = [])
-    {
-        $shipOptions = [];
-
-        foreach (self::$shippingOptions as $option) {
-            if (is_array($sessionValues) && isset($sessionValues[$option])) {
-                $this->shipperLogger->postDebug(
-                    'ShipperHQ Shipper',
-                    'Using Session value for setting option ' .$option,
-                    $sessionValues[$option]
-                );
-                $shipOptions[] = ['name' => $option, 'value' => $sessionValues[$option]];
-            } elseif ($shippingAddress->getData($option) != '') {
-                $this->shipperLogger->postDebug(
-                    'ShipperHQ Shipper',
-                    'Using Shipping Address value for setting option ' .$option,
-                    $shippingAddress->getData($option)
-                );
-                $shipOptions[] = ['name' => $option, 'value' => $shippingAddress->getData($option)];
-            }
-        }
-        return $shipOptions;
-    }
-
-    private function getExistingValidation($key)
-    {
-        $sessionValues = $this->checkoutSession->getShipAddressValidation();
-        if (is_array($sessionValues)) {
-            if (isset($sessionValues['key']) && $sessionValues['key'] == $key) {
-                return $sessionValues;
-            }
-        }
-        return [];
     }
 }

@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -36,6 +37,18 @@ namespace ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail;
 
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
+    public function addAddressToFilter($addressId)
+    {
+        $this->addFieldToFilter('quote_address_id', $addressId);
+        return $this;
+    }
+
+    public function addCarrierGroupToFilter($carrierGroupId)
+    {
+        $this->addFieldToFilter('carrier_group_id', $carrierGroupId);
+        return $this;
+    }
+
     /**
      * Resource initialization
      *
@@ -47,17 +60,5 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
             'ShipperHQ\Shipper\Model\Quote\AddressDetail',
             'ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail'
         );
-    }
-
-    public function addAddressToFilter($addressId)
-    {
-        $this->addFieldToFilter('quote_address_id', $addressId);
-        return $this;
-    }
-
-    public function addCarrierGroupToFilter($carrierGroupId)
-    {
-        $this->addFieldToFilter('carrier_group_id', $carrierGroupId);
-        return $this;
     }
 }

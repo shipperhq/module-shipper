@@ -16,16 +16,16 @@ define(
                     'country_id': {
                         'required': true
                     },
-                    'region_id' : {
+                    'region_id': {
                         'required': false
                     },
-                    'region' : {
-                        'required': false
-                     },
-                    'city' : {
+                    'region': {
                         'required': false
                     },
-                    'street' : {
+                    'city': {
+                        'required': false
+                    },
+                    'street': {
                         'required': false
                     }
                 };
@@ -33,3 +33,4 @@ define(
         };
     }
 );
+

@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -36,7 +37,6 @@ namespace ShipperHQ\Shipper\Helper;
 
 use \Magento\Framework\Component\ComponentRegistrarInterface;
 use \Magento\Framework\Filesystem\Directory\ReadFactory;
-//use \Magento\Framework\Module\Manager AS ModuleManager; // Inherited from AbstractHelper's dependencies
 
 /**
  * Mapper for a data arrays tranformation
@@ -47,7 +47,15 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
     const VERSION = "version";
     const ENABLED = "enabled";
     const OUTPUT_ENABLED = "output_enabled";
-
+    const MODULES_MISSING = 'carriers/shipper/modules_missing';
+    /**
+     * @var ComponentRegistrarInterface
+     */
+    protected $componentRegistrar;
+    /**
+     * @var ReadFactory
+     */
+    protected $readFactory;
     private $feature_set = [
         //  'dimship' => '',
         'ltl_freight' => 'ShipperHQ_Option',
@@ -57,7 +65,6 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
         'residential' => 'ShipperHQ_Option',
         'shipcal' => 'ShipperHQ_Calendar'
     ];
-
     private $modules = [
         'ShipperHQ' => 'ShipperHQ_Shipper',
         'Freight Options' => 'ShipperHQ_Option',
@@ -65,39 +72,19 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
         'In-store Pickup' => 'ShipperHQ_Pickup'
     ];
 
-    const MODULES_MISSING = 'carriers/shipper/modules_missing';
-
-    /**
-     * @var ComponentRegistrarInterface
-     */
-    protected $componentRegistrar;
-
-    /**
-     * @var ReadFactory
-     */
-    protected $readFactory;
-
-//    /**
-//     * @var ModuleManager
-//     */
-//    protected $moduleManager;
-
     /**
      * Module constructor.
      * @param ComponentRegistrarInterface $componentRegistrar
      * @param ReadFactory $readFactory
-//     * @param ModuleManager $moduleManager
      * @param \Magento\Framework\App\Helper\Context $context
      */
     public function __construct(
         ComponentRegistrarInterface $componentRegistrar,
         ReadFactory $readFactory,
-//        ModuleManager $moduleManager,
         \Magento\Framework\App\Helper\Context $context
     ) {
         $this->componentRegistrar = $componentRegistrar;
         $this->readFactory = $readFactory;
-//        $this->moduleManager = $moduleManager;
         parent::__construct($context);
     }
 
@@ -117,7 +104,7 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
             if (isset($this->feature_set[$feature])) {
                 $moduleRequired = $this->feature_set[$feature];
                 //check module is present
-                if (!isset($modules[$moduleRequired]))  {
+                if (!isset($modules[$moduleRequired])) {
                     $target[] = $moduleRequired;
                 }
             }

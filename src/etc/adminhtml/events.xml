@@ -10,10 +10,10 @@
         <observer name="shipperhq_refresh_carriers" instance="ShipperHQ\Shipper\Observer\RefreshCarriers"/>
     </event>
     <event name="adminhtml_sales_order_create_process_data_before">
-        <observer name="shipperhq_save_shipping_admin" instance="ShipperHQ\Shipper\Observer\SaveShippingAdmin" />
+        <observer name="shipperhq_save_shipping_admin" instance="ShipperHQ\Shipper\Observer\SaveShippingAdmin"/>
     </event>
     <event name="checkout_submit_all_after">
-        <observer name="shipperhq_record_order" instance="ShipperHQ\Shipper\Observer\RecordAdminOrder" />
+        <observer name="shipperhq_record_order" instance="ShipperHQ\Shipper\Observer\RecordAdminOrder"/>
     </event>
 </config>
 

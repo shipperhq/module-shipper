@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -34,10 +35,12 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
+
 /**
  * Shipping data helper
  */
-class Rest extends Data
+class Rest
 {
     private static $wsTimeout;
 
@@ -46,21 +49,56 @@ class Rest extends Data
      */
     private $restHelper;
     /**
+     * @var ScopeConfigInterface
+     */
+    private $config;
+    /**
      * @var Data $shipperHelperData
      */
 
     /**
      * @param \ShipperHQ\Lib\Helper\Rest $restHelper
-     * @param Data $shipperHelperData
+     * @param ScopeConfigInterface $config
      */
     public function __construct(
         \ShipperHQ\Lib\Helper\Rest $restHelper,
-        Data $shipperHelperData
+        ScopeConfigInterface $config
     ) {
-    
+
         $this->restHelper = $restHelper;
-        $this->shipperHelperData = $shipperHelperData;
+        $this->config = $config;
         $this->restHelper->setBaseUrl($this->getGatewayUrl());
+    }
+
+    /**
+     * Returns url to use - live if present, otherwise dev
+     * @return string
+     */
+    private function getGatewayUrl()
+    {
+        $live = $this->cleanUpUrl($this->config->getValue(
+            'carriers/shipper/live_url',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ));
+
+        $test = $this->cleanUpUrl($this->config->getValue(
+            'carriers/shipper/url',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ));
+        return $this->config->isSetFlag(
+            'carriers/shipper/sandbox_mode',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ) ? $test : $live;
+    }
+
+    private function cleanUpUrl($urlStart)
+    {
+        $url = trim($urlStart);
+        $lastChar = substr("abcdef", -1);
+        if ($lastChar != '/') {
+            $url .= '/';
+        }
+        return $url;
     }
 
     /**
@@ -78,60 +116,36 @@ class Rest extends Data
      */
     public function getRateGatewayUrl()
     {
-        return  $this->restHelper->getRateGatewayUrl();
-    }
-
-    /*
-     * *Retrieve url for retrieving attributes
-     */
-    public function getAttributeGatewayUrl()
-    {
-        return $this->restHelper->getAttributeGatewayUrl();
-    }
-
-    /*
-     * *Retrieve url for retrieving attributes
-     */
-    public function getCheckSynchronizedUrl()
-    {
-        return $this->restHelper->getCheckSynchronizedUrl();
+        return $this->restHelper->getRateGatewayUrl();
     }
 
     /*
      * Retrieve configured timeout for webservice
      */
+
+    public function getAttributeGatewayUrl()
+    {
+        return $this->restHelper->getAttributeGatewayUrl();
+    }
+
+    public function getCheckSynchronizedUrl()
+    {
+        return $this->restHelper->getCheckSynchronizedUrl();
+    }
+
     public function getWebserviceTimeout()
     {
 
-        if (self::$wsTimeout==null) {
-            $timeout =  $this->shipperHelperData->getConfigValue('carriers/shipper/ws_timeout');
+        if (self::$wsTimeout == null) {
+            $timeout = $this->config->getValue(
+                'carriers/shipper/ws_timeout',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            );
             if (!is_numeric($timeout)) {
                 $timeout = 30;
             }
             self::$wsTimeout = $timeout;
         }
         return self::$wsTimeout;
-    }
-
-    /**
-     * Returns url to use - live if present, otherwise dev
-     * @return array
-     */
-    private function getGatewayUrl()
-    {
-        $live = $this->cleanUpUrl($this->shipperHelperData->getConfigValue('carriers/shipper/live_url'));
-
-        $test = $this->cleanUpUrl($this->shipperHelperData->getConfigValue('carriers/shipper/url'));
-        return $this->shipperHelperData->getConfigValue('carriers/shipper/sandbox_mode') ? $test : $live;
-    }
-
-    private function cleanUpUrl($urlStart)
-    {
-        $url = trim($urlStart);
-        $lastChar = substr("abcdef", -1);
-        if ($lastChar != '/') {
-            $url .= '/';
-        }
-        return $url;
     }
 }

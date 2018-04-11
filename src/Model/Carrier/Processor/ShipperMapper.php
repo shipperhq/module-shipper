@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 namespace ShipperHQ\Shipper\Model\Carrier\Processor;
 
 /**
@@ -35,21 +36,40 @@ namespace ShipperHQ\Shipper\Model\Carrier\Processor;
  * This class converts the Magento Request into a format that
  * is usable by the ShipperHQ webservice
  */
+use Magento\Bundle\Model\Product\Price as Price;
 use ShipperHQ\WS;
 use ShipperHQ\WS\Rate\Request;
-use \Magento\Bundle\Model\Product\Price as Price;
 
+/**
+ * Class ShipperMapper
+ * @package ShipperHQ\Shipper\Model\Carrier\Processor
+ * @SuppressWarnings(PHPMD.UnusedPrivateField)
+ */
 class ShipperMapper
 {
     private static $ecommerceType = 'magento';
     private static $stdAttributeNames = [
-        'shipperhq_shipping_group', 'shipperhq_post_shipping_group', 'shipperhq_location',
-        'shipperhq_royal_mail_group', 'shipperhq_shipping_qty',
-        'shipperhq_shipping_fee', 'shipperhq_additional_price', 'freight_class',
-        'shipperhq_nmfc_class', 'shipperhq_nmfc_sub', 'shipperhq_handling_fee', 'shipperhq_carrier_code',
-        'shipperhq_volume_weight', 'shipperhq_declared_value', 'ship_separately',
-        'shipperhq_dim_group', 'shipperhq_poss_boxes', 'shipperhq_master_boxes', 'ship_box_tolerance',
-        'must_ship_freight', 'packing_section_name'
+        'shipperhq_shipping_group',
+        'shipperhq_post_shipping_group',
+        'shipperhq_location',
+        'shipperhq_royal_mail_group',
+        'shipperhq_shipping_qty',
+        'shipperhq_shipping_fee',
+        'shipperhq_additional_price',
+        'freight_class',
+        'shipperhq_nmfc_class',
+        'shipperhq_nmfc_sub',
+        'shipperhq_handling_fee',
+        'shipperhq_carrier_code',
+        'shipperhq_volume_weight',
+        'shipperhq_declared_value',
+        'ship_separately',
+        'shipperhq_dim_group',
+        'shipperhq_poss_boxes',
+        'shipperhq_master_boxes',
+        'ship_box_tolerance',
+        'must_ship_freight',
+        'packing_section_name'
     ];
 
     private static $dim_height = 'ship_height';
@@ -65,12 +85,19 @@ class ShipperMapper
     private static $useDefault = 'Use Default';
 
     private static $dim_group = 'shipperhq_dim_group';
-    private static $conditional_dims = ['shipperhq_poss_boxes',
-        'shipperhq_volume_weight', 'ship_box_tolerance', 'ship_separately'
+    private static $conditional_dims = [
+        'shipperhq_poss_boxes',
+        'shipperhq_volume_weight',
+        'ship_box_tolerance',
+        'ship_separately'
     ];
 
     private static $legacyAttributeNames = [
-        'package_id', 'special_shipping_group', 'volume_weight', 'warehouse', 'handling_id',
+        'package_id',
+        'special_shipping_group',
+        'volume_weight',
+        'warehouse',
+        'handling_id',
         'package_type' // royal mail
     ];
 
@@ -191,7 +218,7 @@ class ShipperMapper
      * @param Request\ShipDetailsFactory $shipDetailsFactory
      * @param StockHandler $stockHandler
      * @param Request\Checkout\PhysicalBuildingDetailFactory $physicalBuildingDetailFactory
-     * @param Request\Checkout\StockDetailFactory $stockDetailFactory,
+     * @param Request\Checkout\StockDetailFactory $stockDetailFactory ,
      * @param \Magento\Framework\HTTP\Header $httpHeader
      */
     public function __construct(
@@ -252,7 +279,8 @@ class ShipperMapper
             'destination' => $this->getDestination($magentoRequest),
             'customerDetails' => $this->getCustomerGroupDetails($magentoRequest),
             'cartType' => $this->getCartType($magentoRequest),
-            'validateAddress' => $this->getValidateAddress($magentoRequest)]);
+            'validateAddress' => $this->getValidateAddress($magentoRequest)
+        ]);
 
         if ($delDate = $this->getDeliveryDateUTC($magentoRequest)) {
             $shipperHQRequest->setDeliveryDate($this->getDeliveryDate($magentoRequest));
@@ -278,34 +306,6 @@ class ShipperMapper
     }
 
     /**
-     * Set up values for ShipperHQ getAllowedMethods()
-     *
-     * @return string
-     */
-    public function getCredentialsTranslation($storeId = null, $ipAddress = null)
-    {
-        $shipperHQRequest = $this->infoRequestFactory->create();
-        $shipperHQRequest->setCredentials($this->getCredentials($storeId));
-        $shipperHQRequest->setSiteDetails($this->getSiteDetails($storeId, $ipAddress));
-        return $shipperHQRequest;
-    }
-
-    /**
-     * Return credentials for ShipperHQ login
-     *
-     * @return array
-     */
-    public function getCredentials($storeId = null)
-    {
-        $credentials = $this->credentialsFactory->create([
-             'apiKey'   => $this->shipperDataHelper->getConfigValue('carriers/shipper/api_key', $storeId),
-             'password' => $this->shipperDataHelper->getConfigValue('carriers/shipper/password', $storeId)
-        ]);
-
-        return $credentials;
-    }
-
-    /**
      * Format cart for from shipper for Magento
      *
      * @param $request
@@ -315,134 +315,10 @@ class ShipperMapper
     {
         $cartDetails = $this->cartFactory->create([
             'declaredValue' => $request->getPackageValue(),
-            'freeShipping'  => (bool)$request->getFreeShipping(),
-            'items'         => $this->getFormattedItems($request, $request->getAllItems())
+            'freeShipping' => (bool)$request->getFreeShipping(),
+            'items' => $this->getFormattedItems($request, $request->getAllItems())
         ]);
         return $cartDetails;
-    }
-
-    /**
-     * Return site specific information
-     *
-     * @return array
-     */
-    public function getSiteDetails($storeId = null, $ipAddress = null)
-    {
-        $edition = $this->productMetadata->getEdition();
-        $url = $this->storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_LINK);
-        $mobilePrepend =  $this->shipperDataHelper->isMobile($this->httpHeader->getHttpUserAgent()) ? 'm' : '';
-        $siteDetails = $this->siteDetailsFactory->create([
-            'ecommerceCart' => 'Magento 2 ' . $edition,
-            'ecommerceVersion' => $this->productMetadata->getVersion(),
-            'websiteUrl' => $url,
-            'environmentScope' => $this->shipperDataHelper->getConfigValue(
-                'carriers/shipper/environment_scope',
-                $storeId
-            ),
-            'appVersion' => $this->shipperDataHelper->getConfigValue('carriers/shipper/extension_version'),
-            'ipAddress' => is_null($ipAddress) ? $mobilePrepend : $mobilePrepend .$ipAddress
-        ]);
-        return $siteDetails;
-    }
-
-    /*
-     * Return customer group details
-     *
-     */
-    public function getCustomerGroupDetails($request)
-    {
-        $code = $this->getCustomerGroupId($request->getAllItems());
-
-        $group = $this->groupFactory->create()->load($code);
-        $custGroupDetails = $this->customerDetailsFactory->create(
-            ['customerGroup' => $group->getCustomerGroupCode()]
-        );
-
-        return $custGroupDetails;
-    }
-
-    /*
-    * Return ship Details selected
-    *
-    */
-    public function getShipDetails($request)
-    {
-        $pickupId = $this->getLocation($request);
-        if ($pickupId != '') {
-            $shipDetails = $this->shipDetailsFactory->create(
-                ['pickupId' => $pickupId]
-            );
-
-            return $shipDetails;
-        }
-        return false;
-    }
-
-    /*
-    * Return cartType String
-    *
-    */
-    public function getCartType($request)
-    {
-        $cartType = $request->getCartType();
-        return $cartType;
-    }
-
-    /*
-    * Return cartType String
-    *
-    */
-    public function getValidateAddress($request)
-    {
-        return $request->getValidateAddress();
-    }
-
-    /*
-    * Return Delivery Date selected
-    *
-    */
-    public function getDeliveryDateUTC($request)
-    {
-        $timeStamp = $request->getDeliveryDateTimestamp();
-        if ($timeStamp !== null) {
-            $inMilliseconds = $timeStamp * 1000;
-            return $inMilliseconds;
-        }
-        return null;
-    }
-
-    public function getDeliveryDate($request)
-    {
-        return $request->getDeliveryDate();
-    }
-
-    /*
-    * Return pickup location selected
-    *
-    */
-    public function getLocation($request)
-    {
-        $selectedLocationId = $request->getLocationSelected();
-        return $selectedLocationId;
-    }
-
-    /*
-     * Return selected carrierGroup id
-     */
-    public function getCarrierGroupId($request)
-    {
-        $carrierGroupId = $request->getCarriergroupId();
-        return $carrierGroupId;
-    }
-
-    /*
-   * Return selected carrier id
-   *
-   */
-    public function getCarrierId($request)
-    {
-        $carrierId = $request->getCarrierId();
-        return $carrierId;
     }
 
     /**
@@ -483,13 +359,13 @@ class ShipperMapper
             $options = $this->populateCustomOptions($magentoItem);
             $weight = $magentoItem->getWeight();
             if ($weight === null) { //SHIPPERHQ-1855
-                if ($productType!= \Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL &&
-                    $productType!= \Magento\Downloadable\Model\Product\Type::TYPE_DOWNLOADABLE) {
+                if ($productType != \Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL &&
+                    $productType != \Magento\Downloadable\Model\Product\Type::TYPE_DOWNLOADABLE) {
                     $this->shipperLogger->postCritical(
                         'ShipperHQ',
                         'Item weight is null, using 0',
                         'Please review the product configuration for Sku '
-                        .$magentoItem->getSku() .' as product has NULL weight'
+                        . $magentoItem->getSku() . ' as product has NULL weight'
                     );
                 }
                 $weight = 0;
@@ -538,8 +414,8 @@ class ShipperMapper
                 'items' => [], // child items
                 'attributes' => $itemAttributes,
                 'additionalAttributes' => $this->getCustomAttributes($magentoItem),
-                'warehouseDetails'            => $warehouseDetails,
-                'pickupLocationDetails'       => $pickupLocationDetails
+                'warehouseDetails' => $warehouseDetails,
+                'pickupLocationDetails' => $pickupLocationDetails
             ]);
             if (empty($warehouseDetails)) {
                 $formattedItem->setDefaultWarehouseStockDetail($this->getDefaultWarehouseStockDetail($magentoItem));
@@ -558,52 +434,47 @@ class ShipperMapper
         return $formattedItems;
     }
 
-    public function getCustomerGroupId($items)
+    public function getDimensionalAttributes($item)
     {
-        if (!empty($items)) {
-            return $items[0]->getQuote()->getCustomerGroupId();
+        $attributes = [];
+        $product = $item->getProduct();
+        if (in_array(self::$dim_length, self::$prodAttributes) && $product->getData(self::$dim_length) != '') {
+            $attributes = [self::$dim_length, self::$dim_height, self::$dim_width];
+        } elseif (in_array(self::$alt_length, self::$prodAttributes) && $product->getData(self::$alt_length) != '') {
+            $attributes = [self::$alt_length, self::$alt_height, self::$alt_width];
         }
-        return null;
+        return $attributes;
     }
 
     /**
-     * Get values for destination
+     * Reads attributes from the item
      *
-     * @param $request
+     * @param $reqdAttributeNames
+     * @param $item
      * @return array
      */
-    public function getDestination($request)
+    public function populateCustomOptions($item)
     {
-        $selectedOptions = $this->getSelectedOptions($request);
-
-        $region = $request->getDestRegionCode();
-
-        if ($region === null) { //SHQ16-2098
-            $region = "";
+        $option_values = [];
+        $options = $this->productConfiguration->getCustomOptions($item);
+        $value = '';
+        foreach ($options as $customOption) {
+            $value .= strip_tags(html_entity_decode($customOption['value'])); //SHQ16-2435
         }
-
-        //SHQ16-2238 prevent sending null in the address
-        if ($this->getCartType($request) == "CART") {
-            // Don't pass in street for this scenario
-            $destination = $this->addressFactory->create([
-                    'city'            => $request->getDestCity() === null ? '' : $request->getDestCity(),
-                    'country'         => $request->getDestCountryId() === null ? '' : $request->getDestCountryId(),
-                    'region'          => $region,
-                    'zipcode'         => $request->getDestPostcode() === null ? '' : $request->getDestPostcode(),
-                    'selectedOptions' => $selectedOptions]);
-        } else {
-            $street = $request->getDestStreet();
-            $destination = $this->addressFactory->create([
-                    'city'            => $request->getDestCity() === null ? '' : $request->getDestCity(),
-                    'country'         => $request->getDestCountryId() === null ? '' : $request->getDestCountryId(),
-                    'region'          => $region,
-                    'street'          => $street === null || !is_string($street) ? '' : str_replace("\n", ' ', $street),
-                    'zipcode'         => $request->getDestPostcode() === null ? '' : $request->getDestPostcode(),
-                    'selectedOptions' => $selectedOptions]);
+        if ($value != '') {
+            $option_values[] = [
+                'name' => 'shipperhq_custom_options',
+                'value' => $value
+            ];
+            return $option_values;
         }
-
-        return $destination;
+        return false;
     }
+
+    /*
+     * Return customer group details
+     *
+     */
 
     public function getWarehouseDetails($item)
     {
@@ -622,22 +493,29 @@ class ShipperMapper
                     if ($aValue == '') {
                         continue;
                     }
-                    $admin_value= $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
+                    $admin_value = $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
                     $valueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
-                    $warehouseDetail = $this->physicalBuildingDetailFactory->create(['name' => $valueString,
+                    $warehouseDetail = $this->physicalBuildingDetailFactory->create([
+                        'name' => $valueString,
                         'inventoryCount' => $this->stockHandler->getOriginInventoryCount($valueString, $item, $product),
                         'availabilityDate' => $this->stockHandler->getOriginAvailabilityDate(
                             $valueString,
                             $item,
                             $product
                         ),
-                        'inStock' => $this->stockHandler->getOriginInstock($valueString, $item, $product)]);
+                        'inStock' => $this->stockHandler->getOriginInstock($valueString, $item, $product)
+                    ]);
                     $details[] = $warehouseDetail;
                 }
             }
         }
         return $details;
     }
+
+    /*
+    * Return ship Details selected
+    *
+    */
 
     public function getPickupLocationDetails($item)
     {
@@ -653,9 +531,10 @@ class ShipperMapper
             $valueString = [];
             if ($attribute) {
                 foreach ($itemLocations as $aValue) {
-                    $admin_value= $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
+                    $admin_value = $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
                     $valueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
-                    $locationDetail = $this->physicalBuildingDetailFactory->create(['name' => $valueString,
+                    $locationDetail = $this->physicalBuildingDetailFactory->create([
+                        'name' => $valueString,
                         'inventoryCount' => $this->stockHandler->getLocationInventoryCount(
                             $valueString,
                             $item,
@@ -666,7 +545,8 @@ class ShipperMapper
                             $item,
                             $product
                         ),
-                        'inStock' => $this->stockHandler->getLocationInstock($valueString, $item, $product)]);
+                        'inStock' => $this->stockHandler->getLocationInstock($valueString, $item, $product)
+                    ]);
                     $details[] = $locationDetail;
                 }
             }
@@ -674,27 +554,10 @@ class ShipperMapper
         return $details;
     }
 
-    public function getDefaultWarehouseStockDetail($item)
-    {
-         $product = $item->getProduct();
-         $details = $this->stockDetailFactory->create([
-             'inventoryCount' => $this->stockHandler->getInventoryCount($item, $product),
-             'availabilityDate' => $this->stockHandler->getAvailabilityDate($item, $product),
-             'inStock' => $this->stockHandler->getInstock($item, $product)]);
-         return $details;
-    }
-
-    public function getDimensionalAttributes($item)
-    {
-        $attributes = [];
-        $product = $item->getProduct();
-        if (in_array(self::$dim_length, self::$prodAttributes) && $product->getData(self::$dim_length) != '') {
-            $attributes = [self::$dim_length, self::$dim_height, self::$dim_width];
-        } elseif (in_array(self::$alt_length, self::$prodAttributes) && $product->getData(self::$alt_length) != '') {
-            $attributes = [self::$alt_length, self::$alt_height, self::$alt_width];
-        }
-        return $attributes;
-    }
+    /*
+    * Return cartType String
+    *
+    */
 
     /**
      * Reads attributes from the item
@@ -747,30 +610,10 @@ class ShipperMapper
         return $attributes;
     }
 
-    /**
-     * Reads attributes from the item
-     *
-     * @param $reqdAttributeNames
-     * @param $item
-     * @return array
-     */
-    public function populateCustomOptions($item)
-    {
-        $option_values = [];
-        $options = $this->productConfiguration->getCustomOptions($item);
-        $value = '';
-        foreach ($options as $customOption) {
-            $value .= strip_tags(html_entity_decode($customOption['value'])); //SHQ16-2435
-        }
-        if ($value != '') {
-            $option_values[] = [
-                'name' => 'shipperhq_custom_options',
-                'value' => $value
-            ];
-            return $option_values;
-        }
-        return false;
-    }
+    /*
+    * Return cartType String
+    *
+    */
 
     /**
      * Set up additional attribute array
@@ -799,10 +642,211 @@ class ShipperMapper
         return $this->populateAttributes($customAttributes, $item);
     }
 
+    /*
+    * Return Delivery Date selected
+    *
+    */
+
+    public function getDefaultWarehouseStockDetail($item)
+    {
+        $product = $item->getProduct();
+        $details = $this->stockDetailFactory->create([
+            'inventoryCount' => $this->stockHandler->getInventoryCount($item, $product),
+            'availabilityDate' => $this->stockHandler->getAvailabilityDate($item, $product),
+            'inStock' => $this->stockHandler->getInstock($item, $product)
+        ]);
+        return $details;
+    }
+
+    /**
+     * Get values for destination
+     *
+     * @param $request
+     * @return array
+     */
+    public function getDestination($request)
+    {
+        $selectedOptions = $this->getSelectedOptions($request);
+
+        $region = $request->getDestRegionCode();
+
+        if ($region === null) { //SHQ16-2098
+            $region = "";
+        }
+
+        //SHQ16-2238 prevent sending null in the address
+        if ($this->getCartType($request) == "CART") {
+            // Don't pass in street for this scenario
+            $destination = $this->addressFactory->create([
+                'city' => $request->getDestCity() === null ? '' : $request->getDestCity(),
+                'country' => $request->getDestCountryId() === null ? '' : $request->getDestCountryId(),
+                'region' => $region,
+                'zipcode' => $request->getDestPostcode() === null ? '' : $request->getDestPostcode(),
+                'selectedOptions' => $selectedOptions
+            ]);
+        } else {
+            $street = $request->getDestStreet();
+            $destination = $this->addressFactory->create([
+                'city' => $request->getDestCity() === null ? '' : $request->getDestCity(),
+                'country' => $request->getDestCountryId() === null ? '' : $request->getDestCountryId(),
+                'region' => $region,
+                'street' => $street === null || !is_string($street) ? '' : str_replace("\n", ' ', $street),
+                'zipcode' => $request->getDestPostcode() === null ? '' : $request->getDestPostcode(),
+                'selectedOptions' => $selectedOptions
+            ]);
+        }
+
+        return $destination;
+    }
+
+    /*
+    * Return pickup location selected
+    *
+    */
+
     public function getSelectedOptions($request)
     {
         $shippingOptions = $request->getSelectedOptions();
         return $this->selectedOptionsFactory->create(['options' => $shippingOptions]);
+    }
+
+    /*
+     * Return selected carrierGroup id
+     */
+
+    public function getCartType($request)
+    {
+        $cartType = $request->getCartType();
+        return $cartType;
+    }
+
+    /*
+   * Return selected carrier id
+   *
+   */
+
+    public function getCustomerGroupDetails($request)
+    {
+        $code = $this->getCustomerGroupId($request->getAllItems());
+
+        $group = $this->groupFactory->create()->load($code);
+        $custGroupDetails = $this->customerDetailsFactory->create(
+            ['customerGroup' => $group->getCustomerGroupCode()]
+        );
+
+        return $custGroupDetails;
+    }
+
+    public function getCustomerGroupId($items)
+    {
+        if (!empty($items)) {
+            return $items[0]->getQuote()->getCustomerGroupId();
+        }
+        return null;
+    }
+
+    public function getValidateAddress($request)
+    {
+        return $request->getValidateAddress();
+    }
+
+    public function getDeliveryDateUTC($request)
+    {
+        $timeStamp = $request->getDeliveryDateTimestamp();
+        if ($timeStamp !== null) {
+            $inMilliseconds = $timeStamp * 1000;
+            return $inMilliseconds;
+        }
+        return null;
+    }
+
+    public function getDeliveryDate($request)
+    {
+        return $request->getDeliveryDate();
+    }
+
+    public function getShipDetails($request)
+    {
+        $pickupId = $this->getLocation($request);
+        if ($pickupId != '') {
+            $shipDetails = $this->shipDetailsFactory->create(
+                ['pickupId' => $pickupId]
+            );
+
+            return $shipDetails;
+        }
+        return false;
+    }
+
+    public function getLocation($request)
+    {
+        $selectedLocationId = $request->getLocationSelected();
+        return $selectedLocationId;
+    }
+
+    public function getCarrierGroupId($request)
+    {
+        $carrierGroupId = $request->getCarriergroupId();
+        return $carrierGroupId;
+    }
+
+    public function getCarrierId($request)
+    {
+        $carrierId = $request->getCarrierId();
+        return $carrierId;
+    }
+
+    /**
+     * Return site specific information
+     *
+     * @return array
+     */
+    public function getSiteDetails($storeId = null, $ipAddress = null)
+    {
+        $edition = $this->productMetadata->getEdition();
+        $url = $this->storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_LINK);
+        $mobilePrepend = $this->shipperDataHelper->isMobile($this->httpHeader->getHttpUserAgent()) ? 'm' : '';
+
+        $siteDetails = $this->siteDetailsFactory->create([
+            'ecommerceCart' => 'Magento 2 ' . $edition,
+            'ecommerceVersion' => $this->shipperDataHelper->getConfigValue('carriers/shipper/magento_version'),
+            'websiteUrl' => $url,
+            'environmentScope' => $this->shipperDataHelper->getConfigValue(
+                'carriers/shipper/environment_scope',
+                $storeId
+            ),
+            'appVersion' => $this->shipperDataHelper->getConfigValue('carriers/shipper/extension_version'),
+            'ipAddress' => is_null($ipAddress) ? $mobilePrepend : $mobilePrepend . $ipAddress
+        ]);
+        return $siteDetails;
+    }
+
+    /**
+     * Return credentials for ShipperHQ login
+     *
+     * @return array
+     */
+    public function getCredentials($storeId = null)
+    {
+        $credentials = $this->credentialsFactory->create([
+            'apiKey' => $this->shipperDataHelper->getConfigValue('carriers/shipper/api_key', $storeId),
+            'password' => $this->shipperDataHelper->getConfigValue('carriers/shipper/password', $storeId)
+        ]);
+
+        return $credentials;
+    }
+
+    /**
+     * Set up values for ShipperHQ getAllowedMethods()
+     *
+     * @return string
+     */
+    public function getCredentialsTranslation($storeId = null, $ipAddress = null)
+    {
+        $shipperHQRequest = $this->infoRequestFactory->create();
+        $shipperHQRequest->setCredentials($this->getCredentials($storeId));
+        $shipperHQRequest->setSiteDetails($this->getSiteDetails($storeId, $ipAddress));
+        return $shipperHQRequest;
     }
 
     /**
@@ -813,5 +857,10 @@ class ShipperMapper
     public function getMagentoOrderNumber($order)
     {
         return $order->getRealOrderId();
+    }
+
+    public function getMagentoVersion()
+    {
+       return $this->productMetadata->getVersion();
     }
 }

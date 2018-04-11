@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
 
 /**
@@ -45,15 +46,15 @@ class EnvironmentScope implements \Magento\Framework\Option\ArrayInterface
     {
         return [
             [
-                'value' =>  SiteDetails::LIVE,
+                'value' => SiteDetails::LIVE,
                 'label' => __('Live')
             ],
             [
-                'value' =>   SiteDetails::DEV,
+                'value' => SiteDetails::DEV,
                 'label' => __('Development')
             ],
             [
-                'value' =>   SiteDetails::TEST,
+                'value' => SiteDetails::TEST,
                 'label' => __('Test')
             ],
             [

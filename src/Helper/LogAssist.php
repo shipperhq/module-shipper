@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -34,28 +35,32 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
-use ShipperHQ\Shipper\Helper\Config;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 /**
  * Shipping data helper
  */
-class LogAssist extends \Magento\Framework\App\Helper\AbstractHelper
+class LogAssist
 {
     /**
      * @var \Psr\Log\LoggerInterface
      */
     private $logger;
     /**
-     * @var Data
+     * @var ScopeConfigInterface
      */
-    private $shipperDataHelper;
+    private $config;
 
-    public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \Psr\Log\LoggerInterface $logger
-    ) {
+    /**
+     * LogAssist constructor.
+     *
+     * @param ScopeConfigInterface $config
+     * @param \Psr\Log\LoggerInterface $logger
+     */
+    public function __construct(ScopeConfigInterface $config, \Psr\Log\LoggerInterface $logger)
+    {
         $this->logger = $logger;
-        $this->shipperDataHelper = $shipperDataHelper;
+        $this->config = $config;
     }
 
     /**
@@ -66,6 +71,12 @@ class LogAssist extends \Magento\Framework\App\Helper\AbstractHelper
     public function postDebug($module, $message, $data, array $context = [])
     {
         $this->logger->debug($this->getMessage($module, $message, $data), $context);
+    }
+
+    private function getMessage($module, $message, $data)
+    {
+        $data = is_string($data) ? $data : var_export($data, true);
+        return $module . '-- ' . $message . '-- ' . $data;
     }
 
     /**
@@ -107,12 +118,6 @@ class LogAssist extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getDebugFlag()
     {
-        return $this->shipperDataHelper->getConfigValue('carriers/shipper/debug');
-    }
-
-    private function getMessage($module, $message, $data)
-    {
-        $data = is_string($data) ? $data : var_export($data, true);
-        return $module .'-- ' .$message .'-- ' .$data;
+        return $this->config->isSetFlag('carriers/shipper/debug', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
     }
 }

@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -34,8 +35,8 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
-use ShipperHQ\Common\Model\ConfigInterface;
 use ShipperHQ\Common\Helper\AbstractConfig;
+use ShipperHQ\Common\Model\ConfigInterface;
 
 /**
  * Class Config
@@ -51,57 +52,57 @@ class Config extends AbstractConfig implements ConfigInterface
     public function getCodes()
     {
         return [
-            'date_format'   => [
-                'dd-mm-yyyy'            => 'd-m-Y',
-                'mm/dd/yyyy'            => 'm/d/Y',
-                'EEE dd-MM-yyyy'        => 'D d-m-Y'
+            'date_format' => [
+                'dd-mm-yyyy' => 'd-m-Y',
+                'mm/dd/yyyy' => 'm/d/Y',
+                'EEE dd-MM-yyyy' => 'D d-m-Y'
             ],
-            'short_date_format'   => [
-                'dd-mm-yyyy'        => 'd-m-Y',
-                'mm/dd/yyyy'            => 'm/d/Y',
-                'EEE dd-MM-yyyy'        => 'D d-m-Y'
+            'short_date_format' => [
+                'dd-mm-yyyy' => 'd-m-Y',
+                'mm/dd/yyyy' => 'm/d/Y',
+                'EEE dd-MM-yyyy' => 'D d-m-Y'
             ],
             'datepicker_format' => [
-                'dd-mm-yyyy'         => 'dd-mm-yy',
-                'mm/dd/yyyy'         => 'mm/dd/yy',
-                'EEE dd-MM-yyyy'        => 'DD d-MM-yy'
+                'dd-mm-yyyy' => 'dd-mm-yy',
+                'mm/dd/yyyy' => 'mm/dd/yy',
+                'EEE dd-MM-yyyy' => 'DD d-MM-yy'
 
             ],
-            'zend_date_format'     => [
-                'dd-mm-yyyy'         => 'dd-MM-y',
-                'mm/dd/yyyy'         => 'MM/dd/y',
-                'EEE dd-MM-yyyy'        => 'E d-M-y'
+            'zend_date_format' => [
+                'dd-mm-yyyy' => 'dd-MM-y',
+                'mm/dd/yyyy' => 'MM/dd/y',
+                'EEE dd-MM-yyyy' => 'E d-M-y'
             ],
-            'cldr_date_format'      => [
-                'en-US'            => [
-                    'yMd'           => 'M/d/Y',
-                    'yMMMd'         => 'MMM d, Y',
-                    'yMMMEd'        => 'EEE, MMM d, Y',
-                    'yMEd'          => 'EEE, M/d/Y',
-                    'MMMd'          => 'MMM d',
-                    'MMMEd'         => 'EEE, MMM d',
-                    'MEd'           => 'EEE, M/d',
-                    'Md'            => 'M/d',
-                    'yM'            => 'M/Y',
-                    'yMMM'          => 'MMM Y',
-                    'MMM'          => 'MMM',
-                    'E'             => 'EEE',
-                    'Ed'            => 'd EEE',
+            'cldr_date_format' => [
+                'en-US' => [
+                    'yMd' => 'M/d/Y',
+                    'yMMMd' => 'MMM d, Y',
+                    'yMMMEd' => 'EEE, MMM d, Y',
+                    'yMEd' => 'EEE, M/d/Y',
+                    'MMMd' => 'MMM d',
+                    'MMMEd' => 'EEE, MMM d',
+                    'MEd' => 'EEE, M/d',
+                    'Md' => 'M/d',
+                    'yM' => 'M/Y',
+                    'yMMM' => 'MMM Y',
+                    'MMM' => 'MMM',
+                    'E' => 'EEE',
+                    'Ed' => 'd EEE',
                 ],
-                'en-GB'            => [
-                    'yMd'           => 'd/M/Y',
-                    'yMMMd'         => 'd MMM Y',
-                    'yMMMEd'        => 'EEE, d MMM Y',
-                    'yMEd'          => 'EEE, d/M/Y',
-                    'MMMd'          => 'd MMM',
-                    'MMMEd'         => 'EEE, d MMM',
-                    'MEd'           => 'EEE, d/M',
-                    'Md'            => 'd/M',
-                    'yM'            => 'M/Y',
-                    'yMMM'          => 'MMM Y',
-                    'MMM'          => 'MMM',
-                    'E'             => 'EEE',
-                    'Ed'            => 'EEE d',
+                'en-GB' => [
+                    'yMd' => 'd/M/Y',
+                    'yMMMd' => 'd MMM Y',
+                    'yMMMEd' => 'EEE, d MMM Y',
+                    'yMEd' => 'EEE, d/M/Y',
+                    'MMMd' => 'd MMM',
+                    'MMMEd' => 'EEE, d MMM',
+                    'MEd' => 'EEE, d/M',
+                    'Md' => 'd/M',
+                    'yM' => 'M/Y',
+                    'yMMM' => 'MMM Y',
+                    'MMM' => 'MMM',
+                    'E' => 'EEE',
+                    'Ed' => 'EEE d',
                 ]
             ]
         ];

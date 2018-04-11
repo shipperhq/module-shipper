@@ -27,11 +27,16 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Model\System\Message;
+
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
 
 class IndexAlert implements \Magento\Framework\Notification\MessageInterface
 {
@@ -39,21 +44,21 @@ class IndexAlert implements \Magento\Framework\Notification\MessageInterface
      * @var \Magento\Indexer\Model\IndexerFactory
      */
     private $indexFactory;
-
     /**
-     * @var \ShipperHQ\Shipper\Helper\Data
+     * @var ScopeConfigInterface
      */
-    private $shipperDataHelper;
+    private $config;
 
     /**
-     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+     * @param \Magento\Indexer\Model\IndexerFactory $indexerFactory
+     * @param ScopeConfigInterface $config
      */
     public function __construct(
         \Magento\Indexer\Model\IndexerFactory $indexerFactory,
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+        ScopeConfigInterface $config
     ) {
-        $this->shipperDataHelper = $shipperDataHelper;
         $this->indexFactory = $indexerFactory;
+        $this->config = $config;
     }
 
     /**\
@@ -73,11 +78,10 @@ class IndexAlert implements \Magento\Framework\Notification\MessageInterface
      */
     public function isDisplayed()
     {
-        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
-
+        if ($this->config->isSetFlag('carriers/shipper/active', ScopeInterface::SCOPE_STORES)) {
             $eavIndexer = $this->indexFactory->create()->load('catalog_product_attribute');
 
-            if($eavIndexer->getStatus() != \Magento\Framework\Indexer\StateInterface::STATUS_VALID) {
+            if ($eavIndexer->getStatus() != \Magento\Framework\Indexer\StateInterface::STATUS_VALID) {
                 return true;
             }
         }
@@ -91,7 +95,7 @@ class IndexAlert implements \Magento\Framework\Notification\MessageInterface
      */
     public function getText()
     {
-        $message = __('Product EAV index being out of date may cause incorrect shipping rates from ShipperHQ.'.
+        $message = __('Product EAV index being out of date may cause incorrect shipping rates from ShipperHQ.' .
             ' We strongly recommend you reindex');
 
         return $message;

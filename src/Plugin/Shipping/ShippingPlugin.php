@@ -27,44 +27,42 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Plugin\Shipping;
+
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
 
 class ShippingPlugin
 {
     /**
-     * Ignore carrier codes
+     * @var ScopeConfigInterface
      */
-    protected $ignoreCarrierCodes = ['multicarrier', 'shipper', 'calendar', 'pickup'];
+    private $config;
 
     /**
-     * @var \ShipperHQ\Shipper\Helper\Data
+     * ShippingPlugin constructor.
+     * @param ScopeConfigInterface $config
      */
-    private $shipperDataHelper;
-
-    /**
-     * @var \ShipperHQ\Shipper\Helper\LogAssist
-     */
-    private $shipperLogger;
-
-    public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
-    ) {
-        $this->shipperDataHelper = $shipperDataHelper;
-        $this->shipperLogger = $shipperLogger;
+    public function __construct(ScopeConfigInterface $config)
+    {
+        $this->config = $config;
     }
 
     /**
      * Return array of carriers.
      * If $isActiveOnlyFlag is set to true, will return only active carriers
      *
+     * @param \Magento\Shipping\Model\Shipping $subject
+     * @param \Closure $proceed
      * @param string $carrierCode
      * @param \Magento\Quote\Model\Quote\Address\RateRequest $request
-     * @return $this
+     * @return \Magento\Shipping\Model\Shipping|mixed
      */
     public function aroundCollectCarrierRates(
         \Magento\Shipping\Model\Shipping $subject,
@@ -73,8 +71,8 @@ class ShippingPlugin
         \Magento\Quote\Model\Quote\Address\RateRequest $request
     ) {
         $limitCarrier = $request->getLimitCarrier();
-        $path = 'carriers/'.$carrierCode.'/model';
-        $carrierModel = $this->shipperDataHelper->getConfigValue($path);
+        $path = 'carriers/' . $carrierCode . '/model';
+        $carrierModel = $this->config->getValue($path, ScopeInterface::SCOPE_STORES);
         if ($limitCarrier === null &&
             $carrierModel == 'ShipperHQ\Shipper\Model\Carrier\Shipper' &&
             $carrierCode !== 'shipper'

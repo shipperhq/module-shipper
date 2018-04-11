@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -40,13 +41,13 @@ namespace ShipperHQ\Shipper\Helper;
 class Package extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**
-     * @var \ShipperHQ\Shipper\Model\Quote\PackagesFactory
-     */
-    private $quotePackageFactory;
-    /**
      * @var \ShipperHQ\Shipper\Model\Order\PackagesFactory
      */
     protected $orderPackageFactory;
+    /**
+     * @var \ShipperHQ\Shipper\Model\Quote\PackagesFactory
+     */
+    private $quotePackageFactory;
     /**
      * @var Data
      */
@@ -82,9 +83,9 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * Save the quote package information
      *
-     * @param $shippingAddress
-     * @param $shippingMethod
-     * @return array
+     * @param $shippingAddressId
+     * @param $shipmentArray
+     * @return void
      */
     public function saveQuotePackages($shippingAddressId, $shipmentArray)
     {
@@ -113,15 +114,35 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
             }
         } catch (\Exception $e) {
             //Log exception and move on.
-            $this->_logger->critical('ShipperHQ save quote package error: ' .$e->getMessage());
+            $this->_logger->critical('ShipperHQ save quote package error: ' . $e->getMessage());
         }
+    }
+
+    public function recoverOrderPackageDetail($order)
+    {
+        $packages = $this->loadOrderPackagesByOrderId($order->getId());
+        if (empty($packages)) {
+            $quoteShippingAddress = $this->carrierGroupHelper->getQuoteShippingAddressFromOrder($order);
+
+            if ($quoteShippingAddress != null) {
+                $this->saveOrderPackages($order, $quoteShippingAddress);
+            }
+        }
+    }
+
+    public function loadOrderPackagesByOrderId($orderId)
+    {
+        $packageModel = $this->orderPackageFactory->create();
+        $orderPackageCollection = $packageModel->loadByOrderId($orderId);
+        return $orderPackageCollection;
     }
 
     public function saveOrderPackages($order, $shippingAddress)
     {
         $orderId = $order->getId();
         $packagesColl = [];
-        $addressDetail = $this->carrierGroupHelper->loadAddressDetailByShippingAddress($shippingAddress->getAddressId());
+        $addressDetail = $this->carrierGroupHelper
+            ->loadAddressDetailByShippingAddress($shippingAddress->getAddressId());
         $savePackagesAsOrderComment = $this->shipperDataHelper->getStoreDimComments();
         foreach ($addressDetail as $detail) {
             try {
@@ -181,30 +202,11 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                 }
             } catch (\Exception $e) {
                 //Log exception and move on.
-                $this->_logger->critical('ShipperHQ save order package error: ' .$e->getMessage());
+                $this->_logger->critical('ShipperHQ save order package error: ' . $e->getMessage());
             }
         }
         $order->save();
 
         //record without carrier group details?
-    }
-
-    public function recoverOrderPackageDetail($order)
-    {
-        $packages = $this->loadOrderPackagesByOrderId($order->getId());
-        if (empty($packages)) {
-            $quoteShippingAddress = $this->carrierGroupHelper->getQuoteShippingAddressFromOrder($order);
-
-            if($quoteShippingAddress != null) {
-                $this->saveOrderPackages($order, $quoteShippingAddress);
-            }
-        }
-    }
-
-    public function loadOrderPackagesByOrderId($orderId)
-    {
-        $packageModel = $this->orderPackageFactory->create();
-        $orderPackageCollection = $packageModel->loadByOrderId($orderId);
-        return $orderPackageCollection;
     }
 }

@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -43,22 +44,17 @@ use Magento\Framework\Event\ObserverInterface;
 class CustomerAddressEdit implements ObserverInterface
 {
     /**
-     * @var \ShipperHQ\Shipper\Helper\LogAssist
-     */
-    private $shipperLogger;
-    /**
      * @var \Magento\Customer\Api\AddressRepositoryInterface
      */
     private $addressRepository;
+
     /**
      * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
      */
     public function __construct(
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
     ) {
-        $this->shipperLogger = $shipperLogger;
         $this->addressRepository = $addressRepository;
     }
 

@@ -30,8 +30,7 @@
 
 namespace ShipperHQ\Shipper\Block\Backend\Config\Carrier;
 
-class Sallowspecific
-    extends \Magento\Config\Block\System\Config\Form\Field
+class Sallowspecific extends \Magento\Config\Block\System\Config\Form\Field
 {
     /**
      * Retrieve HTML markup for given form element
@@ -45,7 +44,7 @@ class Sallowspecific
         $out = parent::render($element);
 
         $search = '<tr id="row_' . $element->getHtmlId() . '">';
-        $replace = '<tr id="row_' . $element->getHtmlId() . '" ' . $class . '>' ;
+        $replace = '<tr id="row_' . $element->getHtmlId() . '" ' . $class . '>';
         $out = preg_replace($search, $replace, $out);
         return $out;
     }
@@ -56,7 +55,8 @@ class Sallowspecific
      * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return bool
      */
-    public function isHidden(\Magento\Framework\Data\Form\Element\AbstractElement $element) {
+    public function isHidden(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+    {
         // For option values see: Magento\Shipping\Model\Config\Source\Allspecificcountries
         return $element->getValue() == 0;
     }

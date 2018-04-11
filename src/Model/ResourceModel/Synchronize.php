@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -36,17 +37,17 @@ namespace ShipperHQ\Shipper\Model\ResourceModel;
 
 class Synchronize extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
+    public function deleteAllSynchData()
+    {
+        $this->getConnection()->delete($this->getMainTable());
+        return $this;
+    }
+
     /**
      * Define main table
      */
     protected function _construct()
     {
         $this->_init('shipperhq_synchronize', 'synch_id');
-    }
-
-    public function deleteAllSynchData()
-    {
-        $this->getConnection()->delete($this->getMainTable());
-        return $this;
     }
 }

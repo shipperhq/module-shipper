@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -36,7 +37,6 @@ namespace ShipperHQ\Shipper\Observer;
 
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Message\ManagerInterface;
 
 /**
  * ShipperHQ Shipper module observer
@@ -55,7 +55,7 @@ class SetCheckoutFlag implements ObserverInterface
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession
     ) {
-    
+
         $this->checkoutSession = $checkoutSession;
     }
 
@@ -64,6 +64,7 @@ class SetCheckoutFlag implements ObserverInterface
      *
      * @param EventObserver $observer
      * @return void
+     * @SuppressWarnings(PMD.UnusedFormalParameter)
      */
     public function execute(EventObserver $observer)
     {

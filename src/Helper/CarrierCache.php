@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -34,59 +35,34 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
-class CarrierCache extends \Magento\Framework\App\Helper\AbstractHelper
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\CacheInterface;
+use Magento\Store\Model\ScopeInterface;
+
+class CarrierCache
 {
-
-    /**
-     * @var \Magento\Framework\App\CacheInterface
-     */
-    private $cache;
-
     const CACHE_TAG = 'ShipperHQ';
 
     /**
-     * Array of quotes
-     *
-     * @var array
+     * @var CacheInterface
      */
-    private static $quotesCache = [];
-
+    private $cache;
+    /**
+     * @var bool
+     */
     private $useCache = false;
 
     /**
-     * @param Context $context
+     * @param CacheInterface $cache
+     * @param ScopeConfigInterface $config
      */
-    public function __construct(
-        \Magento\Framework\App\CacheInterface $cache,
-        \Shipperhq\Shipper\Helper\Data $shipperDataHelper,
-        \Magento\Framework\App\Helper\Context $context
-    ) {
-    
-        $this->cache = $cache;
-        $this->shipperDataHelper = $shipperDataHelper;
-        $this->useCache = $this->shipperDataHelper->getConfigValue('carriers/shipper/always_use_cache');
-        parent::__construct($context);
-    }
-
-    /**
-     * Returns cache key for some request to carrier quotes service
-     *
-     * @param string|array $requestParams
-     * @return string
-     */
-    private function getQuotesCacheKey($requestParams, $carrierCode)
+    public function __construct(CacheInterface $cache, ScopeConfigInterface $config)
     {
-        if (is_array($requestParams)) {
-            $requestParams = implode(
-                ',',
-                array_merge([$carrierCode], array_keys($requestParams), $requestParams)
-            );
-        }
-        //SHQ16-2419 remove item id from key so rates can be cached across requests
-        $start = '"id";s:3:"';
-        $end = '";s:3:"sku"';
-        $requestParams = preg_replace('#('.$start.')(.*)('.$end.')#si', '$1$3', $requestParams);
-        return crc32($requestParams);
+        $this->cache = $cache;
+        $this->useCache = $config->isSetFlag(
+            'carriers/shipper/always_use_cache',
+            ScopeInterface::SCOPE_STORE
+        );
     }
 
     /**
@@ -96,6 +72,7 @@ class CarrierCache extends \Magento\Framework\App\Helper\AbstractHelper
      * Returns cached response or null
      *
      * @param string|array $requestParams
+     * @param string $carrierCode
      * @return null|string
      */
     public function getCachedQuotes($requestParams, $carrierCode)
@@ -109,10 +86,33 @@ class CarrierCache extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Returns cache key for some request to carrier quotes service
+     *
+     * @param string|array $requestParams
+     * @param string $carrierCode
+     * @return string
+     */
+    private function getQuotesCacheKey($requestParams, $carrierCode)
+    {
+        if (is_array($requestParams)) {
+            $requestParams = implode(
+                ',',
+                array_merge([$carrierCode], array_keys($requestParams), $requestParams)
+            );
+        }
+        //SHQ16-2419 remove item id from key so rates can be cached across requests
+        $start = '"id";s:3:"';
+        $end = '";s:3:"sku"';
+        $requestParams = preg_replace('#(' . $start . ')(.*)(' . $end . ')#si', '$1$3', $requestParams);
+        return crc32($requestParams);
+    }
+
+    /**
      * Sets received carrier quotes to cache
      *
      * @param string|array $requestParams
      * @param string $response
+     * @param string $carrierCode
      * @return $this
      */
     public function setCachedQuotes($requestParams, $response, $carrierCode)
@@ -126,6 +126,6 @@ class CarrierCache extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function cleanDownCachedRates()
     {
-        $this->cache->clean(\Zend_Cache::CLEANING_MODE_MATCHING_TAG, [self::CACHE_TAG]);
+        $this->cache->clean([self::CACHE_TAG]);
     }
 }

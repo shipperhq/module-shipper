@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -34,8 +35,8 @@
 
 namespace ShipperHQ\Shipper\Model;
 
-use ShipperHQ\WS\Client;
 use Magento\Framework\App\ResourceConnection;
+use ShipperHQ\WS\Client;
 
 class Synchronizer extends \Magento\Framework\Model\AbstractModel
 {
@@ -132,7 +133,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      * @param Carrier\Processor\CarrierConfigHandler $carrierConfigHandler
      * @param Client\WebServiceClientFactory $shipperWSClientFactory
      * @param \Magento\Catalog\Model\Product\Attribute\OptionManagement $attributeOptionManagement
-     * @param \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory $optionDataFactory,
+     * @param \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory $optionDataFactory ,
      * @param SynchronizeFactory $synchronizeFactory
      * @param \ShipperHQ\Shipper\Helper\Module $moduleHelper
      *
@@ -187,79 +188,6 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     /*
      *Get latest attribute data and perform changes required
      */
-    public function synchronizeData()
-    {
-        $latestAttributes = $this->getLatestAttributeData();
-        $result = [];
-        if ($latestAttributes && array_key_exists('error', $latestAttributes)) {
-            $result['error'] = $latestAttributes['error'];
-        } elseif ($latestAttributes && !empty($latestAttributes)) {
-            $updateData = $this->compareAttributeData($latestAttributes);
-            $updateResult = $this->updateAll($updateData);
-            $result['result'] = $updateResult;
-        } else {
-            $result['error']
-                = 'ShipperHQ is not responding, please check your settings to ensure they are correct';
-        }
-
-        return $result;
-    }
-
-    public function checkSynchStatus($saveTime = false)
-    {
-        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
-            $synchCheckUrl = $this->restHelper->getCheckSynchronizedUrl();
-            $result = $this->send($synchCheckUrl);
-            $synchResult = $result['result'];
-            $debugData = [
-                'result' => json_decode($result['debug']['response']),
-                'url' => $result['debug']['url']
-            ];
-            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Check synchronized status', $debugData);
-
-            if (!empty($synchResult->errors)) {
-                $this->shipperLogger->postWarning(
-                    'Shipperhq_Shipper',
-                    'Check synchronized status failed. Error: ',
-                    $synchResult->errors
-                );
-                return false;
-            }
-
-            if (!isset($synchResult->responseSummary) || $synchResult->responseSummary->status != 1) {
-                $this->shipperLogger->postWarning(
-                    'Shipperhq_Shipper',
-                    'Check Synchronized Status failed with no error. ',
-                    $synchResult
-                );
-                return false;
-            }
-            $currentVal = $this->shipperDataHelper->getConfigValue($this->shipperDataHelper->getLastSyncPath());
-            $latestSync = $synchResult->lastSynchronization;
-            $result = $latestSync == $currentVal ? '1' : "Required";
-            if ($saveTime) {
-                $this->carrierConfigHandler->saveConfig(
-                    $this->shipperDataHelper->getLastSyncPath(),
-                    $latestSync,
-                    'default',
-                    0,
-                    false
-                );
-            }
-            return $result;
-        }
-    }
-
-    private function send($url, $request = null)
-    {
-        $timeout = $this->restHelper->getWebserviceTimeout();
-        if ($request === null) {
-            $request = $this->shipperMapper->getCredentialsTranslation();
-        }
-        $result = $this->shipperWSClientFactory->create()->sendAndReceive($request, $url, $timeout);
-        $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Synch request and response', $result['debug']);
-        return $result;
-    }
 
     private function getLatestAttributeData()
     {
@@ -313,10 +241,21 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         return $result;
     }
 
+    private function send($url, $request = null)
+    {
+        $timeout = $this->restHelper->getWebserviceTimeout();
+        if ($request === null) {
+            $request = $this->shipperMapper->getCredentialsTranslation();
+        }
+        $result = $this->shipperWSClientFactory->create()->sendAndReceive($request, $url, $timeout);
+        $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Synch request and response', $result['debug']);
+        return $result;
+    }
+
     private function compareAttributeData($latestAttributes)
     {
         $result = [];
-        $productAttributes =$this->shipperDataHelper->getProductAttributes();
+        $productAttributes = $this->shipperDataHelper->getProductAttributes();
 
         foreach ($latestAttributes as $attribute) {
             switch ($attribute->type) {
@@ -349,14 +288,15 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                     foreach ($attribute->attributes as $latestValue) {
                         $found = false;
                         foreach ($existingAttributeOptions as $key => $option) {
-                            if ($option->getLabel()== $latestValue->name) {
+                            if ($option->getLabel() == $latestValue->name) {
                                 $found = true;
                                 unset($trackValues[$key]);
                                 continue;
                             }
                         }
                         if (!$found) {
-                            $result[] = ['attribute_type' => $attribute->type,
+                            $result[] = [
+                                'attribute_type' => $attribute->type,
                                 'attribute_code' => $attribute->code,
                                 'value' => $latestValue->name,
                                 'status' => self::ADD_ATTRIBUTE_OPTION,
@@ -384,7 +324,8 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                                 $deleteFlag = self::REMOVE_ATTRIBUTE_OPTION;
                             }
 
-                            $result[] = ['attribute_type' => $attribute->type,
+                            $result[] = [
+                                'attribute_type' => $attribute->type,
                                 'attribute_code' => $attribute->code,
                                 'value' => $option->getLabel(),
                                 'option_id' => $option->getValue(),
@@ -399,10 +340,11 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                         foreach ($attribute->attributes as $globalSetting) {
                             $value = $globalSetting->value == 'true' ? 1 : 0;
                             $configValue = $this->shipperDataHelper->getDefaultConfigValue(
-                                'carriers/shipper/'.$globalSetting->code
+                                'carriers/shipper/' . $globalSetting->code
                             );
                             if ($configValue != $value) {
-                                $result[] = ['attribute_type' => 'global_setting',
+                                $result[] = [
+                                    'attribute_type' => 'global_setting',
                                     'attribute_code' => $globalSetting->code,
                                     'value' => $value,
                                     'option_id' => '',
@@ -424,7 +366,8 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                     }
                     $neededFeaturesStr = strtolower(implode('|', $neededFeatures));
                     if ($neededFeaturesStr != $configValue) {
-                        $result[] = ['attribute_type' => 'feature',
+                        $result[] = [
+                            'attribute_type' => 'feature',
                             'attribute_code' => 'ShipperHQ Features',
                             'value' => "Needs refresh",
                             'option_id' => $neededFeaturesStr,
@@ -439,6 +382,40 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         }
         $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Compare attributes result: ', $result);
         return $result;
+    }
+
+    private function getIsAttributeValueUsed($attribute_code, $value, $storeId, $isSelect = false)
+    {
+        $attributeModel = $this->shipperDataHelper->getAttribute($attribute_code, $storeId);
+
+        $select = $this->connection->select()->distinct(
+            true
+        )->from(
+            $attributeModel->getBackend()->getTable(),
+            ['value']
+        )->where(
+            'attribute_id=?',
+            $attributeModel->getId()
+        )->where(
+            'value!=?',
+            ''
+        );
+
+        $usedAttributeValues = $this->connection->fetchCol($select);
+
+        if ($isSelect) {
+            //account for multiselect values
+            $separated = [];
+            foreach ($usedAttributeValues as $key => $aValue) {
+                if (strstr($aValue, ',')) {
+                    $values = explode(',', $aValue);
+                    $separated = array_merge($separated, $values);
+                    unset($usedAttributeValues[$key]);
+                }
+            }
+            $usedAttributeValues = array_merge($usedAttributeValues, $separated);
+        }
+        return in_array($value, $usedAttributeValues);
     }
 
     private function saveSynchData($data)
@@ -472,15 +449,32 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         return $result;
     }
 
+    public function synchronizeData()
+    {
+        $latestAttributes = $this->getLatestAttributeData();
+        $result = [];
+        if ($latestAttributes && array_key_exists('error', $latestAttributes)) {
+            $result['error'] = $latestAttributes['error'];
+        } elseif ($latestAttributes && !empty($latestAttributes)) {
+            $updateData = $this->compareAttributeData($latestAttributes);
+            $updateResult = $this->updateAll($updateData);
+            $result['result'] = $updateResult;
+        } else {
+            $result['error']
+                = 'ShipperHQ is not responding, please check your settings to ensure they are correct';
+        }
+
+        return $result;
+    }
+
     /*
      * Add new option values to attributes
      *
      */
+
     private function updateAll($updateData)
     {
         $result = 0;
-        $configValue = $this->shipperDataHelper->getConfigValue(self::FEATURES_ENABLED_CONFIG);
-        $currentFeaturesEnabled = explode('|', $configValue);
 
         foreach ($updateData as $attributeUpdate) {
             if ($attributeUpdate['attribute_type'] == 'product') {
@@ -567,37 +561,48 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         return $result;
     }
 
-    private function getIsAttributeValueUsed($attribute_code, $value, $storeId, $isSelect = false)
+    public function checkSynchStatus($saveTime = false)
     {
-        $attributeModel = $this->shipperDataHelper->getAttribute($attribute_code, $storeId);
+        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
+            $synchCheckUrl = $this->restHelper->getCheckSynchronizedUrl();
+            $result = $this->send($synchCheckUrl);
+            $synchResult = $result['result'];
+            $debugData = [
+                'result' => json_decode($result['debug']['response']),
+                'url' => $result['debug']['url']
+            ];
+            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Check synchronized status', $debugData);
 
-        $select = $this->connection->select()->distinct(
-            true
-        )->from(
-            $attributeModel->getBackend()->getTable(),
-            ['value']
-        )->where(
-            'attribute_id=?',
-            $attributeModel->getId()
-        )->where(
-            'value!=?',
-            ''
-        );
-
-        $usedAttributeValues = $this->connection->fetchCol($select);
-
-        if ($isSelect) {
-            //account for multiselect values
-            $separated = [];
-            foreach ($usedAttributeValues as $key => $aValue) {
-                if (strstr($aValue, ',')) {
-                    $values = explode(',', $aValue);
-                    $separated = array_merge($separated, $values);
-                    unset($usedAttributeValues[$key]);
-                }
+            if (!empty($synchResult->errors)) {
+                $this->shipperLogger->postWarning(
+                    'Shipperhq_Shipper',
+                    'Check synchronized status failed. Error: ',
+                    $synchResult->errors
+                );
+                return false;
             }
-            $usedAttributeValues = array_merge($usedAttributeValues, $separated);
+
+            if (!isset($synchResult->responseSummary) || $synchResult->responseSummary->status != 1) {
+                $this->shipperLogger->postWarning(
+                    'Shipperhq_Shipper',
+                    'Check Synchronized Status failed with no error. ',
+                    $synchResult
+                );
+                return false;
+            }
+            $currentVal = $this->shipperDataHelper->getConfigValue($this->shipperDataHelper->getLastSyncPath());
+            $latestSync = $synchResult->lastSynchronization;
+            $result = $latestSync == $currentVal ? '1' : "Required";
+            if ($saveTime) {
+                $this->carrierConfigHandler->saveConfig(
+                    $this->shipperDataHelper->getLastSyncPath(),
+                    $latestSync,
+                    'default',
+                    0,
+                    false
+                );
+            }
+            return $result;
         }
-        return in_array($value, $usedAttributeValues);
     }
 }

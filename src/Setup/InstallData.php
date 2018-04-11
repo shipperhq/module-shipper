@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -35,12 +36,12 @@
 namespace ShipperHQ\Shipper\Setup;
 
 use Magento\Catalog\Setup\CategorySetupFactory;
+use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Framework\Setup\InstallDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Quote\Setup\QuoteSetupFactory;
 use Magento\Sales\Setup\SalesSetupFactory;
-use Magento\Customer\Setup\CustomerSetupFactory;
 
 /**
  * @codeCoverageIgnore
@@ -116,49 +117,49 @@ class InstallData implements InstallDataInterface
 
         /* ------ shipperhq_shipping_group -------- */
         $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_shipping_group', [
-            'type'                     => 'text',
-            'backend'                  => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
-            'input'                    => 'multiselect',
-            'label'                    => 'Shipping Group',
-            'global' =>\Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
-            'visible'                  => true,
-            'required'                 => false,
-            'visible_on_front'         => false,
+            'type' => 'text',
+            'backend' => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
+            'input' => 'multiselect',
+            'label' => 'Shipping Group',
+            'global' => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
+            'visible' => true,
+            'required' => false,
+            'visible_on_front' => false,
             'is_html_allowed_on_front' => false,
-            'searchable'               => false,
-            'filterable'               => false,
-            'comparable'               => false,
-            'is_configurable'          => false,
-            'unique'                   => false,
-            'user_defined'             => true,
-            'used_in_product_listing'  => false
+            'searchable' => false,
+            'filterable' => false,
+            'comparable' => false,
+            'is_configurable' => false,
+            'unique' => false,
+            'user_defined' => true,
+            'used_in_product_listing' => false
         ]);
 
         /* ------ shipperhq_warehouse -------- */
         $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_warehouse', [
-            'type'                     => 'text',
-            'backend'                  => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
-            'input'                    => 'multiselect',
-            'label'                    => 'Origin',
-            'global'                   => false,
-            'visible'                  => true,
-            'required'                 => false,
-            'visible_on_front'         => false,
+            'type' => 'text',
+            'backend' => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
+            'input' => 'multiselect',
+            'label' => 'Origin',
+            'global' => false,
+            'visible' => true,
+            'required' => false,
+            'visible_on_front' => false,
             'is_html_allowed_on_front' => false,
-            'searchable'               => false,
-            'filterable'               => false,
-            'comparable'               => false,
-            'is_configurable'          => false,
-            'unique'                   => false,
-            'user_defined'             => true,
-            'used_in_product_listing'  => false
+            'searchable' => false,
+            'filterable' => false,
+            'comparable' => false,
+            'is_configurable' => false,
+            'unique' => false,
+            'user_defined' => true,
+            'used_in_product_listing' => false
         ]);
 
         $entityTypeId = $catalogSetup->getEntityTypeId(\Magento\Catalog\Model\Product::ENTITY);
 
         $attributeSetArr = $catalogSetup->getAllAttributeSetIds($entityTypeId);
 
-        $stdAttributeCodes = ['shipperhq_shipping_group' => '1',  'shipperhq_warehouse' => '10'];
+        $stdAttributeCodes = ['shipperhq_shipping_group' => '1', 'shipperhq_warehouse' => '10'];
 
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
@@ -217,7 +218,7 @@ class InstallData implements InstallDataInterface
             'required' => false,
             'comment' => 'Carrier Group ID'
         ];
-        $entities = ['quote_address_rate', 'quote_item', 'quote_address_item' ];
+        $entities = ['quote_address_rate', 'quote_item', 'quote_address_item'];
         foreach ($entities as $entity) {
             $quoteSetup->addAttribute($entity, 'carriergroup_id', $carrier_group_id);
         }
@@ -229,7 +230,7 @@ class InstallData implements InstallDataInterface
             'required' => false,
             'comment' => 'ShipperHQ Carrier Group'
         ];
-        $entities = ['quote_address_rate', 'quote_item', 'quote_address_item' ];
+        $entities = ['quote_address_rate', 'quote_item', 'quote_address_item'];
         foreach ($entities as $entity) {
             $quoteSetup->addAttribute($entity, 'carriergroup', $carrier_group);
         }
@@ -241,7 +242,7 @@ class InstallData implements InstallDataInterface
             'required' => false,
             'comment' => 'ShipperHQ Carrier Group Details'
         ];
-        $entities = ['quote_address_rate','quote_address' ];
+        $entities = ['quote_address_rate', 'quote_address'];
         foreach ($entities as $entity) {
             $quoteSetup->addAttribute($entity, 'carriergroup_shipping_details', $carrierGroupDetails);
         }
@@ -289,7 +290,7 @@ class InstallData implements InstallDataInterface
             'required' => false,
             'comment' => 'ShipperHQ Shipping Description'
         ];
-        $entities = ['quote_item', 'quote_address_item' ];
+        $entities = ['quote_item', 'quote_address_item'];
         foreach ($entities as $entity) {
             $quoteSetup->addAttribute($entity, 'carriergroup_shipping', $carriergroupShipping);
         }
@@ -617,12 +618,14 @@ class InstallData implements InstallDataInterface
 
         $attributeSetArr = $catalogSetup->getAllAttributeSetIds($entityTypeId);
 
-        $dimAttributeCodes = ['ship_separately' => '2',
+        $dimAttributeCodes = [
+            'ship_separately' => '2',
             'shipperhq_dim_group' => '1',
             'ship_length' => '10',
             'ship_width' => '11',
             'ship_height' => '12',
-            'shipperhq_poss_boxes' => '20'];
+            'shipperhq_poss_boxes' => '20'
+        ];
 
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
@@ -767,7 +770,7 @@ class InstallData implements InstallDataInterface
 
         $freightAttributeCodes = [
             'freight_class' => '1',
-            'must_ship_freight' =>'10'
+            'must_ship_freight' => '10'
         ];
 
         foreach ($attributeSetArr as $attributeSetId) {

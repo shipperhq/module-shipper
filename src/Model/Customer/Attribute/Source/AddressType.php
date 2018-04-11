@@ -27,10 +27,12 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Model\Customer\Attribute\Source;
 
 class AddressType extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
@@ -56,14 +58,6 @@ class AddressType extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSou
         $this->attrOptionFactory = $attrOptionFactory;
     }
 
-    public function toOptionArray()
-    {
-        return [
-            ['label' => __('Residential'), 'value' => self::SHQ_ADDRESS_TYPE_RESIDENTIAL],
-            ['label' => __('Business'), 'value' => self::SHQ_ADDRESS_TYPE_BUSINESS]
-        ];
-    }
-
     /**
      * Retrieve All options
      *
@@ -72,7 +66,15 @@ class AddressType extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSou
     public function getAllOptions()
     {
         $arr = $this->toOptionArray();
-        array_unshift($arr, ['value'=>'', 'label'=>__('--- Unknown ---')]);
+        array_unshift($arr, ['value' => '', 'label' => __('--- Unknown ---')]);
         return $arr;
+    }
+
+    public function toOptionArray()
+    {
+        return [
+            ['label' => __('Residential'), 'value' => self::SHQ_ADDRESS_TYPE_RESIDENTIAL],
+            ['label' => __('Business'), 'value' => self::SHQ_ADDRESS_TYPE_BUSINESS]
+        ];
     }
 }

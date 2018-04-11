@@ -29,18 +29,28 @@
                                     </div>
                                 <?php else: ?>
                                     <?php $_checked = $block->isMethodActive($_code) ? 'checked="checked"' : '' ?>
-                                    <input <?php /* @escapeNotVerified */ echo $_radioProperty ?> value="<?php /* @escapeNotVerified */ echo $_code ?>"
-                                                                                                  id="s_method_<?php /* @escapeNotVerified */ echo $_code ?>" <?php /* @escapeNotVerified */ echo $_checked ?>
-                                                                                                  class="admin__control-radio"/>
-                                    <label class="admin__field-label" for="s_method_<?php /* @escapeNotVerified */ echo $_code ?>">
-                                        <?php echo $block->escapeHtml($_rate->getMethodTitle() ? $_rate->getMethodTitle() : $_rate->getMethodDescription()) ?> -
+                                    <input <?php /* @escapeNotVerified */
+                                    echo $_radioProperty ?> value="<?php /* @escapeNotVerified */
+                                    echo $_code ?>"
+                                                            id="s_method_<?php /* @escapeNotVerified */
+                                                            echo $_code ?>" <?php /* @escapeNotVerified */
+                                    echo $_checked ?>
+                                                            class="admin__control-radio"/>
+                                    <label class="admin__field-label" for="s_method_<?php /* @escapeNotVerified */
+                                    echo $_code ?>">
+                                        <?php echo $block->escapeHtml($_rate->getMethodTitle() ? $_rate->getMethodTitle() : $_rate->getMethodDescription()) ?>
+                                        -
                                         <strong>
-                                            <?php $_excl = $block->getShippingPrice($_rate->getPrice(), $this->helper('Magento\Tax\Helper\Data')->displayShippingPriceIncludingTax()); ?>
+                                            <?php $_excl = $block->getShippingPrice($_rate->getPrice(),
+                                                $this->helper('Magento\Tax\Helper\Data')->displayShippingPriceIncludingTax()); ?>
                                             <?php $_incl = $block->getShippingPrice($_rate->getPrice(), true); ?>
 
-                                            <?php /* @escapeNotVerified */ echo $_excl; ?>
+                                            <?php /* @escapeNotVerified */
+                                            echo $_excl; ?>
                                             <?php if ($this->helper('Magento\Tax\Helper\Data')->displayShippingBothPrices() && $_incl != $_excl): ?>
-                                                (<?php /* @escapeNotVerified */ echo __('Incl. Tax'); ?> <?php /* @escapeNotVerified */ echo $_incl; ?>)
+                                                (<?php /* @escapeNotVerified */
+                                                echo __('Incl. Tax'); ?><?php /* @escapeNotVerified */
+                                                echo $_incl; ?>)
                                             <?php endif; ?>
                                         </strong>
                                     </label>
@@ -52,7 +62,7 @@
             <?php endforeach; ?>
             <?php echo $block->getChildHtml('shipperhq.extra', false); ?>
         </dl>
-        <?php if($helper->adminShippingEnabled()): ?>
+        <?php if ($helper->adminShippingEnabled()): ?>
             <dt class="admin__order-shipment-methods-title"><?php echo 'Custom Shipping'; ?></dt>
             <div class="admin__field">
                 <label for="customCarrier" class=""><?php echo 'Description'; ?></label>
@@ -60,27 +70,34 @@
             </div>
             <div class="admin__field">
                 <label for="customPrice" class=""><?php echo 'Price'; ?></label>
-                <input name="customPrice" type="text" class="customPrice validate-zero-or-greater" id="customPrice" size="5" class="admin__control-text"/>
+                <input name="customPrice" type="text" class="customPrice validate-zero-or-greater" id="customPrice"
+                       size="5" class="admin__control-text"/>
             </div>
             <div class="admin__field">
-                <button type="button" title="<?php /* @escapeNotVerified */ echo __('Add custom shipping') ?>" class="action-default scalable action-secondary" onclick="order.setAdminShippingMethod(this.value, customCarrier.value, customPrice.value)" value="<?php /* @escapeNotVerified */ echo "shipperadmin_adminshipping" ?>">
-                    <span><?php /* @escapeNotVerified */ echo __('Add custom shipping') ?></span>
+                <button type="button" title="<?php /* @escapeNotVerified */
+                echo __('Add custom shipping') ?>" class="action-default scalable action-secondary"
+                        onclick="order.setAdminShippingMethod(this.value, customCarrier.value, customPrice.value)"
+                        value="<?php /* @escapeNotVerified */
+                        echo "shipperadmin_adminshipping" ?>">
+                    <span><?php /* @escapeNotVerified */
+                        echo __('Add custom shipping') ?></span>
                 </button>
             </div>
         <?php endif; ?>
     </div>
     <script>
-        require(['prototype'], function(){
+        require(['prototype'], function () {
             $('order-shipping-method-choose').show();
         });
     </script>
 <?php elseif ($block->getIsRateRequest()): ?>
     <div class="order-shipping-method-summary">
-        <strong class="order-shipping-method-not-available"><?php /* @escapeNotVerified */ echo __('Sorry, no quotes are available for this order.') ?></strong>
+        <strong class="order-shipping-method-not-available"><?php /* @escapeNotVerified */
+            echo __('Sorry, no quotes are available for this order.') ?></strong>
     </div>
     <br/>
-   <!--SHQ16-2159 allow custom admin shipping when no rates are displayed -->
-    <?php if($helper->adminShippingEnabled()): ?>
+    <!--SHQ16-2159 allow custom admin shipping when no rates are displayed -->
+    <?php if ($helper->adminShippingEnabled()): ?>
         <dt class="admin__order-shipment-methods-title"><?php echo 'Custom Shipping'; ?></dt>
         <div class="admin__field">
             <label for="customCarrier" class=""><?php echo 'Description'; ?></label>
@@ -88,27 +105,35 @@
         </div>
         <div class="admin__field">
             <label for="customPrice" class=""><?php echo 'Price'; ?></label>
-            <input name="customPrice" type="text" class="customPrice validate-zero-or-greater" id="customPrice" size="5" class="admin__control-text"/>
+            <input name="customPrice" type="text" class="customPrice validate-zero-or-greater" id="customPrice" size="5"
+                   class="admin__control-text"/>
         </div>
         <div class="admin__field">
-            <button type="button" title="<?php /* @escapeNotVerified */ echo __('Add custom shipping') ?>" class="action-default scalable action-secondary" onclick="order.setAdminShippingMethod(this.value, customCarrier.value, customPrice.value)" value="<?php /* @escapeNotVerified */ echo "shipperadmin_adminshipping" ?>">
-                <span><?php /* @escapeNotVerified */ echo __('Add custom shipping') ?></span>
+            <button type="button" title="<?php /* @escapeNotVerified */
+            echo __('Add custom shipping') ?>" class="action-default scalable action-secondary"
+                    onclick="order.setAdminShippingMethod(this.value, customCarrier.value, customPrice.value)"
+                    value="<?php /* @escapeNotVerified */
+                    echo "shipperadmin_adminshipping" ?>">
+                <span><?php /* @escapeNotVerified */
+                    echo __('Add custom shipping') ?></span>
             </button>
         </div>
     <?php endif; ?>
 <?php else: ?>
     <div id="order-shipping-method-summary" class="order-shipping-method-summary">
         <a href="#" onclick="order.loadShippingRates();return false" class="action-default">
-            <span><?php /* @escapeNotVerified */ echo __('Get shipping methods and rates') ?></span>
+            <span><?php /* @escapeNotVerified */
+                echo __('Get shipping methods and rates') ?></span>
         </a>
-        <input type="hidden" name="order[has_shipping]" value="" class="required-entry" />
+        <input type="hidden" name="order[has_shipping]" value="" class="required-entry"/>
     </div>
 <?php endif; ?>
 <div style="display: none;" id="shipping-method-overlay" class="order-methods-overlay">
-    <span><?php /* @escapeNotVerified */ echo __('You don\'t need to select a shipping method.') ?></span>
+    <span><?php /* @escapeNotVerified */
+        echo __('You don\'t need to select a shipping method.') ?></span>
 </div>
 <script>
-    require(["Magento_Sales/order/create/form"], function(){
+    require(["Magento_Sales/order/create/form"], function () {
 
         order.overlay('shipping-method-overlay', <?php if ($block->getQuote()->isVirtual()): ?>false<?php else: ?>true<?php endif; ?>);
         order.overlay('address-shipping-overlay', <?php if ($block->getQuote()->isVirtual()): ?>false<?php else: ?>true<?php endif; ?>);
@@ -117,13 +142,13 @@
         order.isOnlyVirtualProduct = true;
         <?php endif; ?>
 
-        AdminOrder.prototype.setAdminShippingMethod=function(method, description, price){
+        AdminOrder.prototype.setAdminShippingMethod = function (method, description, price) {
             var data = {};
             data['order[shipping_method]'] = method;
             data['order[custom_description]'] = description;
             data['order[custom_price]'] = price;
             var decimalOnly = /^\s*-?[0-9]\d*(\.\d{1,2})?\s*$/;
-            if(!decimalOnly.test(price)){
+            if (!decimalOnly.test(price)) {
                 alert('Custom shipping price field can only contain price data');
                 return false;
             }

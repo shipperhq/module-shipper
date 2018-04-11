@@ -27,17 +27,18 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Ui\Component\Listing\Column;
 
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
-use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
-use Magento\Framework\Stdlib\BooleanUtils;
+use Magento\Ui\Component\Listing\Columns\Column;
 
 /**
  * Class Address
@@ -100,7 +101,7 @@ class DeliveryDate extends Column
     {
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as & $item) {
-                $item[$this->getData('name')]  = null;
+                $item[$this->getData('name')] = null;
                 $orderGridDetails = $this->carrierGroupHelper->loadOrderGridDetailByOrderId($item["entity_id"]);
                 foreach ($orderGridDetails as $orderDetail) {
                     if ($orderDetail->getDeliveryDate() != '') {

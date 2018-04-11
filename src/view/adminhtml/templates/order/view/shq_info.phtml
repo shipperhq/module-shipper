@@ -13,30 +13,30 @@
 <?php if ($order->getIsVirtual()) : return '';endif; ?>
 
 <?php if ($cgInfo): ?>
-        <?php /* Shipping Method */ ?>
-        <div class="admin__page-section-item order-shipping-method">
-            <div class="admin__page-section-item-content">
-                <?php if ($destType = $this->getFieldValue('destination_type')): ?>
-                    <div class="order-shipping-additional">
-                        <?php echo __('Destination type') .': ' .$block->escapeHtml($destType) ?>
-                    </div>
-                <?php endif; ?>
-                <?php if ($validStatus = $this->getAddressValidStatus()): ?>
-                    <div class="order-shipping-additional">
-                        <?php echo __('Shipping address validation') .': ' .$block->escapeHtml($validStatus) ?>
-                    </div>
-                <?php endif; ?>
-                <?php if ($order->getShqDeliveryDate()): ?>
-                    <div class="order-shipping-additional">
-                        <?php echo __('Delivery date') .': ' .$block->escapeHtml($order->getShqDeliveryDate()) ?>
-                    </div>
-                <?php endif; ?>
-                    <br/>
-                    <hr style="height:1px;border:0;background:#ddd;margin-bottom:15px;"/>
-                    <div class="order-shipping-additional">
-                            <div style="margin-bottom:20px;font-weight:bold;"><?php echo $this->getCarrierGroupTitle(); ?></div>
-                        <?php echo $cgInfo; ?>
-                    </div>
+    <?php /* Shipping Method */ ?>
+    <div class="admin__page-section-item order-shipping-method">
+        <div class="admin__page-section-item-content">
+            <?php if ($destType = $this->getFieldValue('destination_type')): ?>
+                <div class="order-shipping-additional">
+                    <?php echo __('Destination type') . ': ' . $block->escapeHtml($destType) ?>
+                </div>
+            <?php endif; ?>
+            <?php if ($validStatus = $this->getAddressValidStatus()): ?>
+                <div class="order-shipping-additional">
+                    <?php echo __('Shipping address validation') . ': ' . $block->escapeHtml($validStatus) ?>
+                </div>
+            <?php endif; ?>
+            <?php if ($order->getShqDeliveryDate()): ?>
+                <div class="order-shipping-additional">
+                    <?php echo __('Delivery date') . ': ' . $block->escapeHtml($order->getShqDeliveryDate()) ?>
+                </div>
+            <?php endif; ?>
+            <br/>
+            <hr style="height:1px;border:0;background:#ddd;margin-bottom:15px;"/>
+            <div class="order-shipping-additional">
+                <div style="margin-bottom:20px;font-weight:bold;"><?php echo $this->getCarrierGroupTitle(); ?></div>
+                <?php echo $cgInfo; ?>
             </div>
         </div>
+    </div>
 <?php endif; ?>

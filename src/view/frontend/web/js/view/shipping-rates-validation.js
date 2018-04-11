@@ -25,3 +25,4 @@ define(
         return Component;
     }
 );
+

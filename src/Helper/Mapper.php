@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -70,12 +71,12 @@ class Mapper extends \Magento\Framework\App\Helper\AbstractHelper
             } elseif (is_array($sourceField)) {
                 list($field, $defaultValue) = $sourceField;
                 $target[$targetField] = (isset($source[$field]) ? $source[$field] : $defaultValue);
-            } elseif ($sourceField instanceof Closure) {
+            } elseif ($sourceField instanceof \Closure) {
                 $mapping = is_object($source) && is_callable($source);
                 $target[$targetField] = $mapping;
             }
         }
-        
+
         return $target;
     }
 }

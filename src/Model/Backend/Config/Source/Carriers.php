@@ -30,6 +30,11 @@
 
 namespace ShipperHQ\Shipper\Model\Backend\Config\Source;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Shipping\Model\Config;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
 class Carriers
 {
     /**
@@ -38,40 +43,50 @@ class Carriers
     private $storeManager;
 
     /**
-     * @var \Magento\Shipping\Model\Config
+     * @var Config
      */
     private $shippingConfig;
     /**
-     * @var \ShipperHQ\Shipper\Helper\Data
+     * @var ScopeConfigInterface
      */
-    private $shipperDataHelper;
+    private $config;
 
+    /**
+     * Carriers constructor.
+     * @param ScopeConfigInterface $config
+     * @param StoreManagerInterface $storeManager
+     * @param Config $shippingConfig
+     */
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \Magento\Backend\Block\Template\Context $context,
-        \Magento\Shipping\Model\Config $shippingConfig
+        ScopeConfigInterface $config,
+        StoreManagerInterface $storeManager,
+        Config $shippingConfig
     ) {
-
         $this->shippingConfig = $shippingConfig;
-        $this->storeManager = $context->getStoreManager();
-        $this->shipperDataHelper = $shipperDataHelper;
+        $this->storeManager = $storeManager;
+        $this->config = $config;
     }
 
     public function toOptionArray()
     {
-
         $arr = [];
 
         $carriers = $this->shippingConfig->getAllCarriers($this->storeManager->getStore());
 
-        foreach ($carriers as $carrierCode => $carrierModel) {
-            $carrierTitle = $this->shipperDataHelper->getConfigValue('carriers/' . $carrierCode . '/title');
+        $carriers = array_keys($carriers);
+        foreach ($carriers as $carrierCode) {
+            $carrierTitle = $this->config->getValue(
+                'carriers/' . $carrierCode . '/title',
+                ScopeInterface::SCOPE_STORES
+            );
             if (strpos($carrierCode, 'shipper') === 0 || $carrierTitle == '') {
                 continue;
             }
-            if ($this->shipperDataHelper->getConfigValue(
-                'carriers/'.$carrierCode.'/model'
-            ) == 'ShipperHQ\Shipper\Model\Carrier\Shipper') {
+            if ($this->config->getValue(
+                'carriers/' . $carrierCode . '/model',
+                ScopeInterface::SCOPE_STORES
+            ) === 'ShipperHQ\Shipper\Model\Carrier\Shipper'
+            ) {
                 continue;
             }
             $arr[] = ['value' => $carrierCode, 'label' => $carrierTitle];

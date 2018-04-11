@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -34,10 +35,9 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
+use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Webapi\Exception;
 use Magento\Store\Model\Store;
-use ShipperHQ\Shipper\Helper\Config;
-use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -45,28 +45,25 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
+    const SHIPPERHQ_SHIPPER_CARRIERGROUP_DESC_PATH = 'carriers/shipper/carriergroup_describer';
+    const SHIPPERHQ_LAST_SYNC = 'carriers/shipper/last_sync';
+    const SHIPPERHQ_SHIPPER_ALLOWED_METHODS_PATH = 'carriers/shipper/allowed_methods';
     private static $showTransId;
+    public $magentoCarrierCodes =
+        [
+            'ups' => 'ups',
+            'fedEx' => 'fedex',
+            'usps' => 'usps',
+            'dhl' => 'dhl',
+            'dhlint' => 'dhlint',
+            'upsFreight' => 'upsfreight'
+        ];
     private $prodAttributes;
     private $baseCurrencyRate;
-
     /**
      * @var Mage_Sales_Model_Quote
      */
     private $quote;
-
-    public $magentoCarrierCodes =
-        [
-            'ups'        => 'ups',
-            'fedEx'      => 'fedex',
-            'usps'       => 'usps',
-            'dhl'        => 'dhl',
-            'dhlint'     => 'dhlint',
-            'upsFreight' => 'upsfreight'
-        ];
-
-    const SHIPPERHQ_SHIPPER_CARRIERGROUP_DESC_PATH = 'carriers/shipper/carriergroup_describer';
-    const SHIPPERHQ_LAST_SYNC = 'carriers/shipper/last_sync';
-    const SHIPPERHQ_SHIPPER_ALLOWED_METHODS_PATH = 'carriers/shipper/allowed_methods';
     /**
      * @var \Magento\Eav\Model\Config
      */
@@ -118,7 +115,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         StoreManagerInterface $storeManager,
         \Magento\Checkout\Helper\Data $checkoutHelper
     ) {
-         parent::__construct($context);
+        parent::__construct($context);
         $this->shipperConfig = $shipperConfig;
         $this->eavConfig = $eavConfig;
         $this->registry = $registry;
@@ -129,11 +126,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->dirCurrencyFactory = $dirCurrencyFactory;
         $this->carrierFactory = $carrierFactory;
         $this->checkoutHelper = $checkoutHelper;
-    }
-
-    public function isModuleActive()
-    {
-        return self::isModuleEnabled("ShipperHQ_Shipper");
     }
 
     public function getCarrierGroupDescPath()
@@ -149,32 +141,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getAllowedMethodsPath()
     {
         return self::SHIPPERHQ_SHIPPER_ALLOWED_METHODS_PATH;
-    }
-
-    /**
-     * Get Config Value
-     *
-     * @param $configField
-     * @return mixed
-     */
-    public function getConfigValue($configField, $store = null)
-    {
-        return $this->scopeConfig->getValue(
-            $configField,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Get Default Scope Config Value
-     *
-     * @param $configField
-     * @return mixed
-     */
-    public function getDefaultConfigValue($configField)
-    {
-        return $this->scopeConfig->getValue($configField);
     }
 
     /**
@@ -198,6 +164,21 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             self::$showTransId = $this->getConfigValue('carriers/shipper/display_transaction');
         }
         return self::$showTransId;
+    }
+
+    /**
+     * Get Config Value
+     *
+     * @param $configField
+     * @return mixed
+     */
+    public function getConfigValue($configField, $store = null)
+    {
+        return $this->scopeConfig->getValue(
+            $configField,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 
     public function getTransactionId()
@@ -237,6 +218,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $result;
     }
 
+    /**
+     * Get Default Scope Config Value
+     *
+     * @param $configField
+     * @return mixed
+     */
+    public function getDefaultConfigValue($configField)
+    {
+        return $this->scopeConfig->getValue($configField);
+    }
+
     public function getStoreDimComments()
     {
         $result = false;
@@ -258,45 +250,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function isCheckout($quote)
     {
 
-        $isCheckout =  $this->checkoutSession->getIsCheckout();
+        $isCheckout = $this->checkoutSession->getIsCheckout();
         if ($quote->getIsMultiShipping()) {
             return true;
         }
         return $isCheckout;
     }
-
-    /**
-     * Set template for multiaddress checkout if enabled
-     *
-     * @return string
-     */
-    public function getMultiAddressTemplate()
-    {
-        if ($this->isModuleActive()) {
-            return 'shipperhq/checkout/multishipping/shipping.phtml';
-        }
-        return 'checkout/multishipping/shipping.phtml';
-    }
-
+    
     public function encode($data)
     {
         return $this->jsonHelper->jsonEncode($data);
-    }
-
-    public function decode($data)
-    {
-        $decoded = [];
-        if ($data !== null && $data != '') {
-            try {
-                $result = json_decode($data);
-                if ($result !== null) {
-                    $decoded = $result;
-                }
-            } catch (Exception $e) {
-                return $decoded;
-            }
-        }
-        return $decoded;
     }
 
     public function decodeShippingDetails($shippingDetailsEnc)
@@ -336,31 +299,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $this;
     }
 
-    public function getGlobalSetting($code)
-    {
-        $globals = self::getGlobalSettings();
-        if ($globals !== null && array_key_exists($code, $globals)
-            && $globals[$code] != '') {
-            return $globals[$code];
-        }
-        return false;
-    }
-
-    /*
-     * Retrieve global settings saved to session
-     *
-     * @return array
-     */
-    public function getGlobalSettings()
-    {
-        return $this->checkoutSession->getShipperGlobal();
-    }
-
-    /*
-     * Retrieve global settings saved to session
-     *
-     * @return array
-     */
     public function setGlobalSettings($globals)
     {
         $this->checkoutSession->setShipperGlobal($globals);
@@ -408,16 +346,32 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getCarriergroupShippingHtml($encodedDetails)
     {
         $decodedDetails = self::decode($encodedDetails);
-        $htmlText='';
+        $htmlText = '';
         foreach ($decodedDetails as $shipLine) {
             if (!is_array($shipLine) || !array_key_exists('name', $shipLine)) {
                 continue;
             }
-            $htmlText .= $shipLine['name'].
-                ' : '.$shipLine['carrierTitle'].' - '. $shipLine['methodTitle'].' ';
-            $htmlText .= " ". $this->checkoutHelper->formatPrice($shipLine['price']).'<br/>';
+            $htmlText .= $shipLine['name'] .
+                ' : ' . $shipLine['carrierTitle'] . ' - ' . $shipLine['methodTitle'] . ' ';
+            $htmlText .= " " . $this->checkoutHelper->formatPrice($shipLine['price']) . '<br/>';
         }
         return $htmlText;
+    }
+
+    public function decode($data)
+    {
+        $decoded = [];
+        if ($data !== null && $data != '') {
+            try {
+                $result = json_decode($data);
+                if ($result !== null) {
+                    $decoded = $result;
+                }
+            } catch (Exception $e) {
+                return $decoded;
+            }
+        }
+        return $decoded;
     }
 
     public function getPackageBreakdownText($packages, $carrierGroupName = false)
@@ -425,18 +379,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $boxText = '';
         $count = 1;
         if ($carrierGroupName) {
-            $boxText .= $carrierGroupName .': ';
+            $boxText .= $carrierGroupName . ': ';
         }
-        foreach ($packages as $key => $box) {
-            $boxText .= __('Package').' #'.($count++);
+        foreach ($packages as $box) {
+            $boxText .= __('Package') . ' #' . ($count++);
 
-            if ($box!=null) {
-                $boxText .= ' Box name: ' .$box['package_name'];
+            if ($box != null) {
+                $boxText .= ' Box name: ' . $box['package_name'];
                 $boxText .= ' : ' . $box['length'];
-                $boxText .= 'x' . $box['width'] ;
-                $boxText .= 'x'. $box['height'] ;
-                $boxText .= ': W='.$box['weight'] . ':' ;
-                $boxText .= ' Value='.$box['declaredValue']. ':';
+                $boxText .= 'x' . $box['width'];
+                $boxText .= 'x' . $box['height'];
+                $boxText .= ': W=' . $box['weight'] . ':';
+                $boxText .= ' Value=' . $box['declaredValue'] . ':';
                 $boxText .= $this->getProductBreakdownText($box);
             }
             $boxText .= '<br/>';
@@ -455,10 +409,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             if (is_array($box['items'])) {
                 foreach ($box['items'] as $item) {
                     $productText .= ' SKU='
-                        .$item['qty_packed']
-                        .' * '.$item['sku']
-                        .' ' .$item['weight_packed']
-                        .$weightUnit .';  ';
+                        . $item['qty_packed']
+                        . ' * ' . $item['sku']
+                        . ' ' . $item['weight_packed']
+                        . $weightUnit . ';  ';
                 }
             } else {
                 $productText = $box['items'];
@@ -466,11 +420,26 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return $productText;
     }
-    
+
+    public function getGlobalSetting($code)
+    {
+        $globals = self::getGlobalSettings();
+        if ($globals !== null && array_key_exists($code, $globals)
+            && $globals[$code] != '') {
+            return $globals[$code];
+        }
+        return false;
+    }
+
+    public function getGlobalSettings()
+    {
+        return $this->checkoutSession->getShipperGlobal();
+    }
+
     public function getAttribute($attribute_code, $store = null)
     {
 
-        $product =  $this->productFactory->create();
+        $product = $this->productFactory->create();
         $attribute = $product->getResource()->getAttribute($attribute_code);
         if ($store === null || $store == '') {
             $store = Store::DEFAULT_STORE_ID;
@@ -489,10 +458,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getCarrierByCode($carrierCode, $storeId = null)
     {
-        if (!$this->getConfigValue('carriers/'.$carrierCode.'/active', $storeId)) {
+        if (!$this->getConfigValue('carriers/' . $carrierCode . '/active', $storeId)) {
             return false;
         }
-        $className =  $this->getConfigValue('carriers/'.$carrierCode.'/model', $storeId);
+        $className = $this->getConfigValue('carriers/' . $carrierCode . '/model', $storeId);
         if (!$className) {
             return false;
         }
@@ -531,27 +500,105 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $uaSignatures = '/(nokia|iphone|android|motorola|^mot\-|softbank|foma|docomo|kddi|up\.browser|up\.link|'
             . 'htc|dopod|blazer|netfront|helio|hosin|huawei|novarra|CoolPad|webos|techfaith|palmsource|'
-            . 'blackberry|alcatel|amoi|ktouch|nexian|samsung|^sam\-|s[cg]h|^lge|ericsson|philips|sagem|wellcom|bunjalloo|maui|'
-            . 'symbian|smartphone|mmp|midp|wap|phone|windows ce|iemobile|^spice|^bird|^zte\-|longcos|pantech|gionee|^sie\-|portalmmm|'
-            . 'jig\s browser|hiptop|^ucweb|^benq|haier|^lct|opera\s*mobi|opera\*mini|320x320|240x320|176x220'
-            . ')/i';
+            . 'blackberry|alcatel|amoi|ktouch|nexian|samsung|^sam\-|s[cg]h|^lge|ericsson|philips|sagem|wellcom|'
+            . 'bunjalloo|maui|symbian|smartphone|mmp|midp|wap|phone|windows ce|iemobile|^spice|^bird|^zte\-|longcos|'
+            . 'pantech|gionee|^sie\-|portalmmm|jig\s browser|hiptop|^ucweb|^benq|haier|^lct|opera\s*mobi|opera\*mini|'
+            . '320x320|240x320|176x220)/i';
 
-        if (preg_match($uaSignatures,$data)) {
+        if (preg_match($uaSignatures, $data)) {
             return true;
         }
         $mobile_ua = strtolower(substr($data, 0, 4));
         $mobile_agents = array(
-            'w3c ','acs-','alav','alca','amoi','audi','avan','benq','bird','blac',
-            'blaz','brew','cell','cldc','cmd-','dang','doco','eric','hipt','inno',
-            'ipaq','java','jigs','kddi','keji','leno','lg-c','lg-d','lg-g','lge-',
-            'maui','maxo','midp','mits','mmef','mobi','mot-','moto','mwbp','nec-',
-            'newt','noki','oper','palm','pana','pant','phil','play','port','prox',
-            'qwap','sage','sams','sany','sch-','sec-','send','seri','sgh-','shar',
-            'sie-','siem','smal','smar','sony','sph-','symb','t-mo','teli','tim-',
-            'tosh','tsm-','upg1','upsi','vk-v','voda','wap-','wapa','wapi','wapp',
-            'wapr','webc','winw','winw','xda ','xda-');
+            'w3c ',
+            'acs-',
+            'alav',
+            'alca',
+            'amoi',
+            'audi',
+            'avan',
+            'benq',
+            'bird',
+            'blac',
+            'blaz',
+            'brew',
+            'cell',
+            'cldc',
+            'cmd-',
+            'dang',
+            'doco',
+            'eric',
+            'hipt',
+            'inno',
+            'ipaq',
+            'java',
+            'jigs',
+            'kddi',
+            'keji',
+            'leno',
+            'lg-c',
+            'lg-d',
+            'lg-g',
+            'lge-',
+            'maui',
+            'maxo',
+            'midp',
+            'mits',
+            'mmef',
+            'mobi',
+            'mot-',
+            'moto',
+            'mwbp',
+            'nec-',
+            'newt',
+            'noki',
+            'oper',
+            'palm',
+            'pana',
+            'pant',
+            'phil',
+            'play',
+            'port',
+            'prox',
+            'qwap',
+            'sage',
+            'sams',
+            'sany',
+            'sch-',
+            'sec-',
+            'send',
+            'seri',
+            'sgh-',
+            'shar',
+            'sie-',
+            'siem',
+            'smal',
+            'smar',
+            'sony',
+            'sph-',
+            'symb',
+            't-mo',
+            'teli',
+            'tim-',
+            'tosh',
+            'tsm-',
+            'upg1',
+            'upsi',
+            'vk-v',
+            'voda',
+            'wap-',
+            'wapa',
+            'wapi',
+            'wapp',
+            'wapr',
+            'webc',
+            'winw',
+            'winw',
+            'xda ',
+            'xda-'
+        );
 
-        if (in_array($mobile_ua,$mobile_agents)) {
+        if (in_array($mobile_ua, $mobile_agents)) {
             return true;
         }
         return false;

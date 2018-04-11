@@ -27,10 +27,12 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Block\Adminhtml\Order\View;
 
 use Magento\Sales\Block\Adminhtml\Order\AbstractOrder;
@@ -51,8 +53,6 @@ class Info extends AbstractOrder
     private $packageHelper;
 
     private $cgInfo = null;
-
-    private $defaultDateFormat = 'm/d/y';
 
     /**
      * @param \Magento\Backend\Block\Template\Context $context
@@ -80,12 +80,12 @@ class Info extends AbstractOrder
     public function getCarrierGroupTitle()
     {
         $describer = $this->shipperDataHelper->getConfigValue($this->shipperDataHelper->getCarrierGroupDescPath());
-        if($describer) {
+        if ($describer) {
             $heading = $describer;
         } else {
             $heading = __('Origin');
         }
-        $heading = $heading .' ' .__("Shipping Information");
+        $heading = $heading . ' ' . __("Shipping Information");
         return $heading;
     }
 
@@ -93,6 +93,22 @@ class Info extends AbstractOrder
     {
         $cginfo = $this->shipperDataHelper->decodeShippingDetails($this->getFieldValue('carrier_group_detail'));
         $result = $this->carrierGroupHelper->getCarrierGroupText($cginfo, $this->getOrder());
+        return $result;
+    }
+
+    public function getFieldValue($fieldName)
+    {
+        $info = $this->getCarriergroupInfo();
+        $result = null;
+        foreach ($info as $carrierGroupDetail) {
+            if (isset($carrierGroupDetail[$fieldName])) {
+                $result = $carrierGroupDetail[$fieldName];
+            }
+        }
+
+        if ($result === null && $this->getOrder()->getData($fieldName)) {
+            $result = $this->getOrder()->getData($fieldName);
+        }
         return $result;
     }
 
@@ -105,7 +121,7 @@ class Info extends AbstractOrder
             if (empty($this->cgInfo)) {
                 //retrieve using quote shipping address ID from carrier group helper
                 //legacy
-                if($order->getCarriergroupShippingDetails() != '') {
+                if ($order->getCarriergroupShippingDetails() != '') {
                     $this->cgInfo = $this->shipperDataHelper->decodeShippingDetails(
                         $order->getCarriergroupShippingDetails()
                     );
@@ -135,22 +151,6 @@ class Info extends AbstractOrder
 
         if ($result === null && $this->getOrder()->getValidationStatus()) {
             $result = $this->getOrder()->getValidationStatus();
-        }
-        return $result;
-    }
-
-    public function getFieldValue($fieldName)
-    {
-        $info = $this->getCarriergroupInfo();
-        $result = null;
-        foreach ($info as $carrierGroupDetail) {
-            if (isset($carrierGroupDetail[$fieldName])) {
-                $result = $carrierGroupDetail[$fieldName];
-            }
-        }
-
-        if ($result === null && $this->getOrder()->getData($fieldName)) {
-            $result = $this->getOrder()->getData($fieldName);
         }
         return $result;
     }

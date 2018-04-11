@@ -27,7 +27,10 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 namespace ShipperHQ\Shipper\Model\Carrier\Processor;
+
+use Magento\Store\Model\StoreManagerInterface;
 
 class BackupCarrier
 {
@@ -52,18 +55,18 @@ class BackupCarrier
     /**
      * BackupCarrier constructor.
      * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
-     * @param \Magento\Backend\Block\Template\Context $context
+     * @param StoreManagerInterface $storeManager
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
      * @param CarrierConfigHandler
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Magento\Backend\Block\Template\Context $context,
+        StoreManagerInterface $storeManager,
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         CarrierConfigHandler $carrierConfigHandler
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
-        $this->storeManager = $context->getStoreManager();
+        $this->storeManager = $storeManager;
         $this->shipperLogger = $shipperLogger;
         $this->carrierConfigHandler = $carrierConfigHandler;
     }
@@ -76,12 +79,12 @@ class BackupCarrier
             return false;
         }
         $storeId = $rawRequest->getStoreId();
-        $tempEnabledCarrier = $this->tempSetCarrierEnabled($carrierCode, true, $storeId);
+        $tempEnabledCarrier = $this->tempSetCarrierEnabled($carrierCode, true);
 
         $carrier = $this->shipperDataHelper->getCarrierByCode($carrierCode, $storeId);
 
         if (!$carrier) {
-            $this->tempSetCarrierEnabled($carrierCode, false, $storeId);
+            $this->tempSetCarrierEnabled($carrierCode, false);
             $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Unable to activate backup carrier', $carrierCode);
             return false;
         }
@@ -90,30 +93,13 @@ class BackupCarrier
         $this->shipperLogger->postInfo(
             'Shipperhq_Shipper',
             'Backup carrier result: ',
-            'returned ' .count($result) .' results'
+            'returned ' . count($result) . ' results'
         );
 
         if ($tempEnabledCarrier) {
-            $this->tempSetCarrierEnabled($carrierCode, false, $storeId);
+            $this->tempSetCarrierEnabled($carrierCode, false);
         }
         return $result;
-    }
-
-    /**
-     * Enable or disable carrier
-     * @return boolean
-     */
-    private function tempSetCarrierEnabled($carrierCode, $enabled, $storeId)
-    {
-        $carrierPath = 'carriers/' . $carrierCode . '/active';
-        $tempEnabledCarrier = false;
-        // if $enabled set to false was previously enabled!
-        if (!$this->shipperDataHelper->getConfigFlag($carrierPath) || !$enabled) {
-            $this->carrierConfigHandler->saveConfig($carrierPath, $enabled);
-            $this->carrierConfigHandler->refreshConfig();
-            $tempEnabledCarrier = true;
-        }
-        return $tempEnabledCarrier;
     }
 
     /**
@@ -136,5 +122,22 @@ class BackupCarrier
             return false;
         }
         return $backupCarrierDetails;
+    }
+
+    /**
+     * Enable or disable carrier
+     * @return boolean
+     */
+    private function tempSetCarrierEnabled($carrierCode, $enabled)
+    {
+        $carrierPath = 'carriers/' . $carrierCode . '/active';
+        $tempEnabledCarrier = false;
+        // if $enabled set to false was previously enabled!
+        if (!$this->shipperDataHelper->getConfigFlag($carrierPath) || !$enabled) {
+            $this->carrierConfigHandler->saveConfig($carrierPath, $enabled);
+            $this->carrierConfigHandler->refreshConfig();
+            $tempEnabledCarrier = true;
+        }
+        return $tempEnabledCarrier;
     }
 }

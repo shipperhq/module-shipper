@@ -1,5 +1,5 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <preference for="Magento\Framework\Search\Adapter\Mysql\Field\FieldInterface" type="Magento\Framework\Search\Adapter\Mysql\Field\Field" />
+    <preference for="Magento\Framework\Search\Adapter\Mysql\Field\FieldInterface" type="Magento\Framework\Search\Adapter\Mysql\Field\Field"/>
     <type name="ShipperHQ\Shipper\Helper\LogAssist">
         <arguments>
             <argument name="logger" xsi:type="object">ShipperHQ\Logger\Model\Logger</argument>
@@ -90,8 +90,8 @@
     <type name="ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail">
         <arguments>
             <argument name="connectionName" xsi:type="string">sales</argument>
-         </arguments>
-        </type>
+        </arguments>
+    </type>
     <type name="ShipperHQ\Shipper\Model\ResourceModel\Order\Detail">
         <arguments>
             <argument name="connectionName" xsi:type="string">sales</argument>
@@ -104,7 +104,7 @@
     </type>
     <type name="ShipperHQ\Shipper\Model\ResourceModel\Order\ItemDetail">
         <arguments>
-           <argument name="connectionName" xsi:type="string">sales</argument>
+            <argument name="connectionName" xsi:type="string">sales</argument>
         </arguments>
     </type>
     <type name="ShipperHQ\Shipper\Model\ResourceModel\Quote\Packages">

@@ -1,0 +1,14 @@
+/build              export-ignore
+/test               export-ignore
+.gitattributes      export-ignore
+.gitignore          export-ignore
+.gitmodules         export-ignore
+.editorconfig       export-ignore
+/package.json       export-ignore
+/package-lock.json  export-ignore
+/gulpfile.js        export-ignore
+/grumphp.yml        export-ignore
+/composer.lock      export-ignore
+/.eslintrc          export-ignore
+/.eslintignore      export-ignore
+/.jscsrc            export-ignore

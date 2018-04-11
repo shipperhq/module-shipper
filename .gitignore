@@ -1,2 +1,5 @@
 .DS_Store
-composer.json.lock
+/.idea
+/vendor
+/node_modules
+/cache.properties

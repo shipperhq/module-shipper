@@ -27,15 +27,17 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Ui\Component\Listing\Column;
 
-use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
+use Magento\Ui\Component\Listing\Columns\Column;
 
 /**
  * Class Address
@@ -70,6 +72,7 @@ class TimeSlot extends Column
      *
      * @param array $dataSource
      * @return array
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function prepareDataSource(array $dataSource)
     {

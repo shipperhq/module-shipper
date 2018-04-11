@@ -27,11 +27,16 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Model\System\Message;
+
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
 
 class ModuleAlert implements \Magento\Framework\Notification\MessageInterface
 {
@@ -40,29 +45,28 @@ class ModuleAlert implements \Magento\Framework\Notification\MessageInterface
      * @var \Magento\Framework\UrlInterface
      */
     private $urlBuilder;
-
-    /**
-     * @var \ShipperHQ\Shipper\Helper\Data
-     */
-    private $shipperDataHelper;
     /**
      * @var \ShipperHQ\Shipper\Model\Carrier\Processor\CarrierConfigHandler
      */
     private $carrierConfigHandler;
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $config;
 
     /**
-     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+     * @param ScopeConfigInterface $config
      * @param \Magento\Framework\UrlInterface $urlBuilder
-     * @param \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList
+     * @param \ShipperHQ\Shipper\Model\Carrier\Processor\CarrierConfigHandler $carrierConfigHandler
      */
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+        ScopeConfigInterface $config,
         \Magento\Framework\UrlInterface $urlBuilder,
         \ShipperHQ\Shipper\Model\Carrier\Processor\CarrierConfigHandler $carrierConfigHandler
     ) {
-        $this->shipperDataHelper = $shipperDataHelper;
         $this->urlBuilder = $urlBuilder;
         $this->carrierConfigHandler = $carrierConfigHandler;
+        $this->config = $config;
     }
 
     /**
@@ -82,9 +86,8 @@ class ModuleAlert implements \Magento\Framework\Notification\MessageInterface
      */
     public function isDisplayed()
     {
-        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
-
-            $moduleMissing = $this->shipperDataHelper->getConfigValue(self::MODULES_MISSING);
+        if ($this->config->isSetFlag('carriers/shipper/active', ScopeInterface::SCOPE_STORES)) {
+            $moduleMissing = $this->config->getValue(self::MODULES_MISSING, ScopeInterface::SCOPE_STORES);
             if ($moduleMissing != '') {
                 return true;
             }
@@ -100,10 +103,10 @@ class ModuleAlert implements \Magento\Framework\Notification\MessageInterface
     public function getText()
     {
         $message = __(
-                'Your ShipperHQ installation may be missing some modules: ').
-                $this->shipperDataHelper->getConfigValue(self::MODULES_MISSING) .
-            __('. Please verify with ShipperHQ if these are required'
-            ) . ' ';
+            'Your ShipperHQ installation may be missing some modules: '
+        ) .
+            $this->config->getValue(self::MODULES_MISSING, ScopeInterface::SCOPE_STORES) .
+            __('. Please verify with ShipperHQ if these are required') . ' ';
         return $message;
     }
 

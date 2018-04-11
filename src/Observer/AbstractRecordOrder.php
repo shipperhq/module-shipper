@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -34,7 +35,6 @@
 
 namespace ShipperHQ\Shipper\Observer;
 
-use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 
 /**
@@ -51,6 +51,10 @@ abstract class AbstractRecordOrder implements ObserverInterface
      */
     protected $quoteRepository;
     /**
+     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
+     */
+    protected $carrierGroupHelper;
+    /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
     private $shipperLogger;
@@ -58,10 +62,6 @@ abstract class AbstractRecordOrder implements ObserverInterface
      * @var \ShipperHQ\Shipper\Helper\Package
      */
     private $packageHelper;
-    /**
-     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
-     */
-    protected $carrierGroupHelper;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
@@ -77,7 +77,7 @@ abstract class AbstractRecordOrder implements ObserverInterface
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
     ) {
-    
+
         $this->shipperDataHelper = $shipperDataHelper;
         $this->quoteRepository = $quoteRepository;
         $this->shipperLogger = $shipperLogger;
@@ -87,7 +87,6 @@ abstract class AbstractRecordOrder implements ObserverInterface
 
     public function recordOrder($order)
     {
-        $customOrderId = null;
         //https://github.com/magento/magento2/issues/4233
         $quoteId = $order->getQuoteId();
         //Merged from pull request https://github.com/shipperhq/module-shipper/pull/20 - credit to vkalchenko
@@ -106,7 +105,7 @@ abstract class AbstractRecordOrder implements ObserverInterface
             $orderDetailArray = $this->carrierGroupHelper->loadOrderDetailByOrderId($order->getId());
             //SHQ16- Review for splits
             foreach ($orderDetailArray as $orderDetail) {
-                $original  = $orderDetail->getCarrierType();
+                $original = $orderDetail->getCarrierType();
                 $carrierTypeArray = explode('_', $orderDetail->getCarrierType());
                 if (is_array($carrierTypeArray) && isset($carrierTypeArray[1])) {
                     $orderDetail->setCarrierType($carrierTypeArray[1]);
@@ -119,10 +118,10 @@ abstract class AbstractRecordOrder implements ObserverInterface
                             $cgDetail['carrierType'] = $carrierTypeArray[1];
                         }
                         if (is_array($shipDescriptionArray) && isset($cgDetail['carrierTitle'])) {
-                            $shipDescriptionArray[0] = $cgDetail['carrierTitle'] .' ';
+                            $shipDescriptionArray[0] = $cgDetail['carrierTitle'] . ' ';
                             $newShipDescription = implode('-', $shipDescriptionArray);
-                            if(!$this->shipperDataHelper->getAlwaysShowSingleCarrierTitle()) {
-                               $order->setShippingDescription($newShipDescription);
+                            if (!$this->shipperDataHelper->getAlwaysShowSingleCarrierTitle()) {
+                                $order->setShippingDescription($newShipDescription);
                             }
                         }
                         $cgArray[$key] = $cgDetail;
@@ -133,7 +132,7 @@ abstract class AbstractRecordOrder implements ObserverInterface
                     $this->shipperLogger->postInfo(
                         'Shipperhq_Shipper',
                         'Rates displayed as single carrier',
-                        'Resetting carrier type on order to be ' .$carrierTypeArray[1]
+                        'Resetting carrier type on order to be ' . $carrierTypeArray[1]
                     );
                 }
             }
@@ -159,7 +158,7 @@ abstract class AbstractRecordOrder implements ObserverInterface
                 $carrierType,
                 $carrierCode
             );
-            $shipping_method = ($magentoCarrierCode .'_' .$method);
+            $shipping_method = ($magentoCarrierCode . '_' . $method);
         }
         return $shipping_method;
     }

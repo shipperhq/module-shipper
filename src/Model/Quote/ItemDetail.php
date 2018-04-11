@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -81,14 +82,6 @@ class ItemDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     }
 
     /**
-     * Define resource model
-     */
-    protected function _construct()
-    {
-        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\Quote\ItemDetail');
-    }
-
-    /**
      * Return model from carrier group id and address id
      *
      * @param string $carrierGroupId
@@ -107,7 +100,6 @@ class ItemDetail extends \Magento\Framework\Model\AbstractExtensibleModel
         return false;
     }
 
-    //@codeCoverageIgnoreStart
     /**
      * {@inheritdoc}
      */
@@ -115,6 +107,8 @@ class ItemDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     {
         return $this->getData(self::QUOTE_ITEM_ID);
     }
+
+    //@codeCoverageIgnoreStart
 
     /**
      * {@inheritdoc}
@@ -154,5 +148,13 @@ class ItemDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     public function setCarrierGroupShipping($carrierGroupShipping)
     {
         return $this->setData(self::CARRIER_GROUP_SHIPPING, $carrierGroupShipping);
+    }
+
+    /**
+     * Define resource model
+     */
+    protected function _construct()
+    {
+        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\Quote\ItemDetail');
     }
 }

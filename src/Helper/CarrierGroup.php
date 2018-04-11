@@ -27,12 +27,14 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
 
 namespace ShipperHQ\Shipper\Helper;
+
 use Magento\Framework\Api\SearchCriteriaBuilder;
 
 /**
@@ -40,6 +42,7 @@ use Magento\Framework\Api\SearchCriteriaBuilder;
  */
 class CarrierGroup extends Data
 {
+    const NO_SHIPPERHQ_DETAIL_AVAILABLE = 'ShipperHQ Notice';
     /**
      * @var \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory
      */
@@ -60,9 +63,9 @@ class CarrierGroup extends Data
      * @var \ShipperHQ\Shipper\Model\Order\GridDetailFactory
      */
     private $orderGridDetailFactory;
-    /*
-    * @var Data
-    */
+    /**
+     * @var Data
+     */
     private $shipperDataHelper;
     /**
      * @var \Magento\Quote\Api\CartRepositoryInterface
@@ -72,7 +75,6 @@ class CarrierGroup extends Data
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
      */
     private $searchCriteriaBuilder;
-
     private $allNamedOptions = array(
         'liftgate_required' => 'Liftgate Required',
         'inside_delivery' => 'Inside Delivery',
@@ -81,9 +83,8 @@ class CarrierGroup extends Data
         'customer_carrier' => 'Customer Carrier',
         'customer_carrier_ph' => 'Customer Carrier Phone',
         'customer_carrier_account' => 'Customer Carrier Account Number',
-        'limited_delivery' => 'Limited Access for Delivery');
-
-    const NO_SHIPPERHQ_DETAIL_AVAILABLE = 'ShipperHQ Notice';
+        'limited_delivery' => 'Limited Access for Delivery'
+    );
 
     /**
      * @param \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory $addressDetailFactory
@@ -105,7 +106,7 @@ class CarrierGroup extends Data
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
-    
+
         $this->addressDetailFactory = $addressDetailFactory;
         $this->itemDetailFactory = $itemDetailFactory;
         $this->orderDetailFactory = $orderDetailFactory;
@@ -138,7 +139,7 @@ class CarrierGroup extends Data
             } else {
                 $arrayofShipDetails = $shipDetails;
             }
-            
+
             $shippingAddress
                 ->setCarrierId($foundRate->getCarrierId())
                 ->setCarrierType($foundRate->getCarrierType())
@@ -153,18 +154,23 @@ class CarrierGroup extends Data
                 $thisAddressDetail = $addressDetail;
             }
 
-            $update = ['quote_address_id' => $shippingAddress->getId(),
+            $update = [
+                'quote_address_id' => $shippingAddress->getId(),
                 'carrier_group_id' => $foundRate->getCarriergroupId(),
                 'carrier_type' => $foundRate->getCarrierType(),
                 'carrier_group' => $foundRate->getCarriergroup(),
                 'carrier_id' => $foundRate->getCarrierId(),
-                'dispatch_date' =>$foundRate->getShqDispatchDate() ? date('Y-m-d', strtotime($foundRate->getShqDispatchDate())): '',
-                'delivery_date' => $foundRate->getShqDeliveryDate() ? date('Y-m-d', strtotime($foundRate->getShqDeliveryDate())): ''
+                'dispatch_date' => $foundRate->getShqDispatchDate() ?
+                    date('Y-m-d', strtotime($foundRate->getShqDispatchDate())) :
+                    '',
+                'delivery_date' => $foundRate->getShqDeliveryDate() ?
+                    date('Y-m-d', strtotime($foundRate->getShqDeliveryDate())) :
+                    ''
             ];
 
             $update = array_merge($update, $additionalDetail);
 
-            foreach ($arrayofShipDetails as $key =>  $detail) {
+            foreach ($arrayofShipDetails as $key => $detail) {
                 //records destination type returned on rate - not type from address validation or user selection
                 if (isset($detail['destination_type'])) {
                     $update['destination_type'] = $detail['destination_type'];
@@ -188,18 +194,6 @@ class CarrierGroup extends Data
         return true;
     }
 
-    public function saveCarrierGroupItem($item, $carrierGroupId, $carrierGroup)
-    {
-        $itemDetail = $this->itemDetailFactory->create();
-        $itemRecord = $itemDetail->loadDetailByItemId($item->getItemId());
-        if (!$itemRecord) {
-            $itemRecord = $itemDetail->setQuoteItemId($item->getItemId());
-        }
-        $itemRecord->setCarrierGroupId($carrierGroupId)
-                    ->setCarrierGroup($carrierGroup);
-        $itemRecord->save();
-    }
-
     public function setShippingOnItems($shippingDetails, $shippingAddress)
     {
         foreach ($shippingAddress->getAllItems() as $item) {
@@ -209,13 +203,82 @@ class CarrierGroup extends Data
                 foreach ($shippingDetails as $carrierGroupDetail) {
                     if ($carrierGroupDetail['carrierGroupId'] == $itemRecord->getCarrierGroupId()) {
                         //updateRecord
-                        $shippingText = $carrierGroupDetail['carrierTitle'] .' - ' .$carrierGroupDetail['methodTitle'];
+                        $shippingText = $carrierGroupDetail['carrierTitle']
+                            . ' - '
+                            . $carrierGroupDetail['methodTitle'];
                         $itemRecord->setCarriergroupShipping($shippingText);
                         $itemRecord->save();
                     }
                 }
             }
         }
+    }
+
+    public function saveCarrierGroupItem($item, $carrierGroupId, $carrierGroup)
+    {
+        $itemDetail = $this->itemDetailFactory->create();
+        $itemRecord = $itemDetail->loadDetailByItemId($item->getItemId());
+        if (!$itemRecord) {
+            $itemRecord = $itemDetail->setQuoteItemId($item->getItemId());
+        }
+        $itemRecord->setCarrierGroupId($carrierGroupId)
+            ->setCarrierGroup($carrierGroup);
+        $itemRecord->save();
+    }
+
+    public function loadOrderGridDetailByOrderId($orderId)
+    {
+        $orderGridDetailModel = $this->orderGridDetailFactory->create();
+        $orderGridDetailCollection = $orderGridDetailModel->loadByOrder($orderId);
+        return $orderGridDetailCollection;
+    }
+
+    public function recoverOrderInfoFromQuote($order)
+    {
+        $shippingAddress = $this->getQuoteShippingAddressFromOrder($order);
+
+        if ($shippingAddress != null) {
+            $this->saveOrderDetail($order, $shippingAddress);
+        }
+
+        //attempt to recover item detail
+        foreach ($order->getAllItems() as $item) {
+            $itemDetail = $this->loadOrderItemDetailByOrderItemId($item->getId());
+            if (!$itemDetail) {
+                $this->recordOrderItems($order);
+            }
+            break;
+        }
+        $cgInfo = $this->getOrderCarrierGroupInfo($order->getId());
+        if (empty($cgInfo)) {
+            $order->addStatusToHistory(
+                $order->getStatus(),
+                self::NO_SHIPPERHQ_DETAIL_AVAILABLE . __(': No detailed shipping information recorded'),
+                false
+            );
+            $order->save();
+        }
+        return $cgInfo;
+    }
+
+    public function getQuoteShippingAddressFromOrder($order)
+    {
+        $shippingAddress = null;
+
+        $searchCriteria = $this->searchCriteriaBuilder->addFilter(
+            'entity_id',
+            $order->getQuoteId()
+        )->create(); //SHQ18-56
+        $quotes = $this->quoteRepository->getList($searchCriteria);
+
+        if ($quotes->getTotalCount() > 1) {
+            foreach ($quotes as $quote) {
+                $shippingAddress = $quote->getShippingAddress();
+                break;
+            }
+        }
+
+        return $shippingAddress;
     }
 
     public function saveOrderDetail($order, $shippingAddress)
@@ -244,10 +307,54 @@ class CarrierGroup extends Data
         $this->saveOrderGridDetail($quoteAddressCollection, $orderId);
     }
 
+    public function loadAddressDetailByShippingAddress($shippingAddressId)
+    {
+        $addressDetailModel = $this->addressDetailFactory->create();
+
+        $addressDetailCollection = $addressDetailModel->loadByAddress($shippingAddressId);
+        return $addressDetailCollection;
+    }
+
+    private function saveOrderGridDetail($quoteDetailCollection, $orderId)
+    {
+        $orderGridDetailModel = $this->orderGridDetailFactory->create();
+        $data = [];
+        $isMultiple = count($quoteDetailCollection) > 1;
+        $carrierGroup = '';
+        foreach ($quoteDetailCollection as $quote) {
+            $data = $quote->getData();
+            if ($isMultiple) {
+                $carrierGroup .= $quote->getData('carrier_group') . ' ';
+            } else {
+                $carrierGroup = $quote->getData('carrier_group');
+            }
+        }
+
+        $data['carrier_group'] = $carrierGroup;
+
+        $existingOrderGridDetailCollection = $orderGridDetailModel->loadByOrder($orderId);
+        if ($existingOrderGridDetailCollection->getSize() > 0) {
+            return;
+        }
+
+        unset($data['quote_address_id']);
+        unset($data['id']);
+        $data['order_id'] = $orderId;
+        $orderGridDetailModel->setData($data)
+            ->save();
+    }
+
+    public function loadOrderItemDetailByOrderItemId($orderItemId)
+    {
+        $orderItemDetailModel = $this->orderItemDetailFactory->create();
+        $orderItemDetailCollection = $orderItemDetailModel->loadDetailByItemId($orderItemId);
+        return $orderItemDetailCollection;
+    }
+
     public function recordOrderItems($order)
     {
         foreach ($order->getAllItems() as $orderItem) {
-            $quoteItemId =  $orderItem->getQuoteItemId();
+            $quoteItemId = $orderItem->getQuoteItemId();
             $quoteItemDetail = $this->itemDetailFactory->create()->loadDetailByItemId($quoteItemId);
             if ($quoteItemDetail) {
                 $orderItemDetail = $this->orderItemDetailFactory->create();
@@ -260,14 +367,6 @@ class CarrierGroup extends Data
                     ->save();
             }
         }
-    }
-
-    public function loadAddressDetailByShippingAddress($shippingAddressId)
-    {
-        $addressDetailModel = $this->addressDetailFactory->create();
-
-        $addressDetailCollection = $addressDetailModel->loadByAddress($shippingAddressId);
-        return $addressDetailCollection;
     }
 
     public function getOrderCarrierGroupInfo($orderId)
@@ -289,114 +388,29 @@ class CarrierGroup extends Data
         return $orderDetailCollection;
     }
 
-    public function loadOrderGridDetailByOrderId($orderId)
-    {
-        $orderGridDetailModel = $this->orderGridDetailFactory->create();
-        $orderGridDetailCollection = $orderGridDetailModel->loadByOrder($orderId);
-        return $orderGridDetailCollection;
-    }
-
-    public function loadOrderItemDetailByOrderItemId($orderItemId)
-    {
-        $orderItemDetailModel = $this->orderItemDetailFactory->create();
-        $orderItemDetailCollection = $orderItemDetailModel->loadDetailByItemId($orderItemId);
-        return $orderItemDetailCollection;
-    }
-
-    public function getQuoteShippingAddressFromOrder($order)
-    {
-        $shippingAddress = null;
-
-        $searchCriteria = $this->searchCriteriaBuilder->addFilter('entity_id', $order->getQuoteId())->create(); //SHQ18-56
-        $quotes = $this->quoteRepository->getList($searchCriteria);
-
-        if ($quotes->getTotalCount() > 1) {
-            foreach ($quotes as $quote) {
-                $shippingAddress = $quote->getShippingAddress();
-                break;
-            }
-        }
-
-        return $shippingAddress;
-    }
-
-    public function recoverOrderInfoFromQuote($order)
-    {
-        $shippingAddress = $this->getQuoteShippingAddressFromOrder($order);
-
-        if($shippingAddress != null) {
-            $this->saveOrderDetail($order, $shippingAddress);
-        }
-
-        //attempt to recover item detail
-        foreach ($order->getAllItems() as $item) {
-            $itemDetail = $this->loadOrderItemDetailByOrderItemId($item->getId());
-            if (!$itemDetail) {
-                $this->recordOrderItems($order);
-            }
-            break;
-        }
-        $cgInfo = $this->getOrderCarrierGroupInfo($order->getId());
-        if(empty($cgInfo)) {
-            $order->addStatusToHistory($order->getStatus(), self::NO_SHIPPERHQ_DETAIL_AVAILABLE .__(': No detailed shipping information recorded'), false);
-            $order->save();
-        }
-        return $cgInfo;
-    }
-
     public function canCheckForQuoteInformation($order)
     {
         foreach ($order->getAllStatusHistory() as $orderComment) {
-            if(strstr($orderComment->getComment(),self::NO_SHIPPERHQ_DETAIL_AVAILABLE)) {
+            if (strstr($orderComment->getComment(), self::NO_SHIPPERHQ_DETAIL_AVAILABLE)) {
                 return false;
             }
         }
         return true;
     }
 
-    private function saveOrderGridDetail($quoteDetailCollection, $orderId)
-    {
-        $orderGridDetailModel = $this->orderGridDetailFactory->create();
-        $data = [];
-        $isMultiple = count($quoteDetailCollection) > 1;
-        $carrierGroup = '';
-        foreach ($quoteDetailCollection as $quote) {
-            $data = $quote->getData();
-            if ($isMultiple) {
-                $carrierGroup .= $quote->getData('carrier_group') .' ';
-            } else {
-                $carrierGroup = $quote->getData('carrier_group');
-            }
-        }
-
-        $data['carrier_group'] = $carrierGroup;
-
-        $existingOrderGridDetailCollection = $orderGridDetailModel->loadByOrder($orderId);
-        if ($existingOrderGridDetailCollection->getSize() > 0) {
-            return;
-        }
-
-        unset($data['quote_address_id']);
-        unset($data['id']);
-        $data['order_id'] = $orderId;
-        $orderGridDetailModel->setData($data)
-            ->save();
-    }
-
-
     public function getCarrierGroupText($cginfo, $order)
     {
-        $displayValues = array('destination_type', 'customer_carrier', 'customer_carrier_ph', 'customer_carrier_account');
+        $displayValues = ['destination_type', 'customer_carrier', 'customer_carrier_ph', 'customer_carrier_account'];
 
         $carriergroupText = '';
         foreach ($cginfo as $cgrp) {
             if (is_array($cgrp)) {
                 $carriergroupText .= '<div class="shq-oinfo">';
-                $carriergroupText .= '<div class="shq-oinfo-origin">' .$cgrp['name'] .'</div>';
-                $carriergroupText .= '<div class="shq-oinfo-method">' . $cgrp['carrierTitle'] ;
+                $carriergroupText .= '<div class="shq-oinfo-origin">' . $cgrp['name'] . '</div>';
+                $carriergroupText .= '<div class="shq-oinfo-method">' . $cgrp['carrierTitle'];
                 $carriergroupText .= ' - ' . $cgrp['methodTitle'];
                 $price = $order->formatPrice($cgrp['price']);
-                $carriergroupText .= ' ' . $price .'</div>';
+                $carriergroupText .= ' ' . $price . '</div>';
                 $carriergroupText .= '<div class="shq-oinfo-carrier">';
                 if ((array_key_exists('carrierName', $cgrp) && $cgrp['carrierName'] != '')) {
                     $carriergroupText .= 'Carrier: ';

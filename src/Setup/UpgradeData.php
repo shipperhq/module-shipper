@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -35,14 +36,12 @@
 namespace ShipperHQ\Shipper\Setup;
 
 use Magento\Catalog\Setup\CategorySetupFactory;
-use Magento\Framework\Setup\InstallDataInterface;
+use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Quote\Setup\QuoteSetupFactory;
 use Magento\Sales\Setup\SalesSetupFactory;
-use Magento\Customer\Setup\CustomerSetupFactory;
-
-use Magento\Framework\Setup\UpgradeDataInterface;
 
 class UpgradeData implements UpgradeDataInterface
 {
@@ -72,23 +71,37 @@ class UpgradeData implements UpgradeDataInterface
      * @var CustomerSetupFactory
      */
     private $customerSetupFactory;
+    /**
+     * \Magento\Framework\App\ProductMetadata
+     */
+    private $productMetadata;
+    /**
+     * @var \Magento\Framework\App\Config\Storage\WriterInterface
+     */
+    private $configStorageWriter;
 
     /**
      * @param CategorySetupFactory $categorySetupFactory
      * @param QuoteSetupFactory $quoteSetupFactory
      * @param SalesSetupFactory $salesSetupFactory
      * @param CustomerSetupFactory $customerSetupFactory
+     * @param \Magento\Framework\App\ProductMetadata $productMetadata
+     * @param \Magento\Framework\App\Config\Storage\WriterInterface $configStorageWriter
      */
     public function __construct(
         CategorySetupFactory $categorySetupFactory,
         QuoteSetupFactory $quoteSetupFactory,
         SalesSetupFactory $salesSetupFactory,
-        CustomerSetupFactory $customerSetupFactory
+        CustomerSetupFactory $customerSetupFactory,
+        \Magento\Framework\App\ProductMetadata $productMetadata,
+        \Magento\Framework\App\Config\Storage\WriterInterface $configStorageWriter
     ) {
         $this->categorySetupFactory = $categorySetupFactory;
         $this->quoteSetupFactory = $quoteSetupFactory;
         $this->salesSetupFactory = $salesSetupFactory;
         $this->customerSetupFactory = $customerSetupFactory;
+        $this->productMetadata = $productMetadata;
+        $this->configStorageWriter = $configStorageWriter;
     }
 
     /**
@@ -218,8 +231,10 @@ class UpgradeData implements UpgradeDataInterface
             $customerSetup->updateAttribute(
                 'customer_address',
                 'destination_type',
-                ['source_model'=> 'ShipperHQ\Shipper\Model\Customer\Attribute\Source\AddressType',
-                    'frontend_input' => 'select']
+                [
+                    'source_model' => 'ShipperHQ\Shipper\Model\Customer\Attribute\Source\AddressType',
+                    'frontend_input' => 'select'
+                ]
             );
         }
 
@@ -228,8 +243,12 @@ class UpgradeData implements UpgradeDataInterface
             $catalogSetup->updateAttribute(
                 'catalog_product',
                 'must_ship_freight',
-                ['note'=> 'Can be overridden at Carrier level within ShipperHQ']
+                ['note' => 'Can be overridden at Carrier level within ShipperHQ']
             );
+        }
+
+        if (version_compare($context->getVersion(), '1.1.19') < 0) {
+            $this->configStorageWriter->save('carriers/shipper/magento_version', $this->productMetadata->getVersion());
         }
 
         $installer->endSetup();
@@ -478,12 +497,14 @@ class UpgradeData implements UpgradeDataInterface
 
         $attributeSetArr = $catalogSetup->getAllAttributeSetIds($entityTypeId);
 
-        $dimAttributeCodes = ['ship_separately' => '2',
+        $dimAttributeCodes = [
+            'ship_separately' => '2',
             'shipperhq_dim_group' => '1',
             'ship_length' => '10',
             'ship_width' => '11',
             'ship_height' => '12',
-            'shipperhq_poss_boxes' => '20'];
+            'shipperhq_poss_boxes' => '20'
+        ];
 
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
@@ -609,7 +630,7 @@ class UpgradeData implements UpgradeDataInterface
 
         $freightAttributeCodes = [
             'freight_class' => '1',
-            'must_ship_freight' =>'10'
+            'must_ship_freight' => '10'
         ];
 
         foreach ($attributeSetArr as $attributeSetId) {

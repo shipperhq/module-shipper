@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -85,10 +86,10 @@ class Packages extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $items = [];
         foreach ((array)$object->getData('items') as $item) {
             $items[] = [
-                'package_id'    => $packageId,
-                'sku'           => $item['sku'],
+                'package_id' => $packageId,
+                'sku' => $item['sku'],
                 'weight_packed' => $item['weight_packed'],
-                'qty_packed'    => $item['qty_packed']
+                'qty_packed' => $item['qty_packed']
             ];
         }
         if (count($items) > 0) {

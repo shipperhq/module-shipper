@@ -27,35 +27,37 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Plugin\Order;
 
 class CollectionFactory
 {
-    /**
-     * @var \ShipperHQ\Shipper\Helper\LogAssist
-     */
-    private $shipperLogger;
     /** @var \Magento\Framework\App\ResourceConnection */
     private $resource;
 
     public function __construct(
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Magento\Framework\App\ResourceConnection $resource
     ) {
-        $this->shipperLogger = $shipperLogger;
         $this->resource = $resource;
     }
 
+    /**
+     * @param \Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory $subject
+     * @param \Closure $proceed
+     * @param $requestName
+     * @return mixed
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function aroundGetReport(
         \Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory $subject,
         \Closure $proceed,
         $requestName
     ) {
-    
         $result = $proceed($requestName);
         if ($requestName == 'sales_order_grid_data_source') {
             if ($result instanceof \Magento\Sales\Model\ResourceModel\Order\Grid\Collection) {

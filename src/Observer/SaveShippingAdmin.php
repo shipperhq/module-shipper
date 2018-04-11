@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -34,20 +35,17 @@
 
 namespace ShipperHQ\Shipper\Observer;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\DataObject\Factory as DataObjectFactory;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Message\ManagerInterface;
-use Magento\Framework\DataObject\Factory as DataObjectFactory;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * ShipperHQ Shipper module observer
  */
 class SaveShippingAdmin implements ObserverInterface
 {
-    /**
-     * @var \ShipperHQ\Shipper\Helper\Data
-     */
-    private $shipperDataHelper;
     /**
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
@@ -75,9 +73,13 @@ class SaveShippingAdmin implements ObserverInterface
      * @var DataObjectFactory
      */
     private $objectFactory;
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $config;
 
     /**
-     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+     * @param ScopeConfigInterface $config
      * @param  \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
      * @param  \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param \Magento\Framework\Registry $registry
@@ -86,7 +88,7 @@ class SaveShippingAdmin implements ObserverInterface
      * @param  DataObjectFactory $objectFactory
      */
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+        ScopeConfigInterface $config,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Magento\Framework\Registry $registry,
@@ -94,14 +96,15 @@ class SaveShippingAdmin implements ObserverInterface
         \Magento\Framework\Event\ManagerInterface $eventManager,
         DataObjectFactory $objectFactory
     ) {
-        $this->shipperDataHelper = $shipperDataHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->shipperLogger = $shipperLogger;
         $this->registry = $registry;
         $this->quoteService = $quoteService;
         $this->eventManager = $eventManager;
         $this->objectFactory = $objectFactory;
+        $this->config = $config;
     }
+
     /**
      * Record order shipping information after order is placed
      *
@@ -110,7 +113,7 @@ class SaveShippingAdmin implements ObserverInterface
      */
     public function execute(EventObserver $observer)
     {
-        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
+        if ($this->config->isSetFlag('carriers/shipper/active', ScopeInterface::SCOPE_STORES)) {
             $requestData = $observer->getRequestModel()->getPost();
             if (isset($requestData['order'])) {
                 $orderData = $requestData['order'];
@@ -119,8 +122,9 @@ class SaveShippingAdmin implements ObserverInterface
                     $additionalDetail = $this->objectFactory->create();
                     $this->eventManager->dispatch(
                         'shipperhq_additional_detail_admin',
-                        ['order_data' => $orderData,
-                            'additional_detail'=> $additionalDetail,
+                        [
+                            'order_data' => $orderData,
+                            'additional_detail' => $additionalDetail,
                             'shipping_address' => $quote->getShippingAddress()
                         ]
                     );
@@ -152,7 +156,7 @@ class SaveShippingAdmin implements ObserverInterface
         $found = false;
         $customCarrierGroupData = [];
         if (isset($data['custom_price'])) {
-            $adminData  = ['customPrice' => $data['custom_price']];
+            $adminData = ['customPrice' => $data['custom_price']];
             if (isset($data['custom_description'])) {
                 $adminData['customCarrier'] = $data['custom_description'];
                 $found = true;
@@ -162,7 +166,7 @@ class SaveShippingAdmin implements ObserverInterface
         }
 
         if ($found) {
-            $shippingAddress =  $quote->getShippingAddress();
+            $shippingAddress = $quote->getShippingAddress();
             $this->quoteService->cleanDownRates($shippingAddress, 'shipperadmin', '');
             $detail = $this->objectFactory->create();
             $detail->addData($customCarrierGroupData);

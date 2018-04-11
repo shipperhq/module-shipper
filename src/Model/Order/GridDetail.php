@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -88,14 +89,6 @@ class GridDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     }
 
     /**
-     * Define resource model
-     */
-    protected function _construct()
-    {
-        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\Order\GridDetail');
-    }
-
-    /**
      * Return model from carrier group id and address id
      *
      * @param string $carrierGroupId
@@ -111,7 +104,6 @@ class GridDetail extends \Magento\Framework\Model\AbstractExtensibleModel
         return $collection;
     }
 
-    //@codeCoverageIgnoreStart
     /**
      * {@inheritdoc}
      */
@@ -119,6 +111,8 @@ class GridDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     {
         return $this->getData(self::ORDER_ID);
     }
+
+    //@codeCoverageIgnoreStart
 
     /**
      * {@inheritdoc}
@@ -294,5 +288,13 @@ class GridDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     public function setAddressValid($addressValid)
     {
         return $this->setData(self::ADDRESS_VALID, $addressValid);
+    }
+
+    /**
+     * Define resource model
+     */
+    protected function _construct()
+    {
+        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\Order\GridDetail');
     }
 }

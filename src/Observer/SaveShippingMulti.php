@@ -27,6 +27,7 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -34,8 +35,10 @@
 
 namespace ShipperHQ\Shipper\Observer;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * ShipperHQ Shipper module observer
@@ -43,35 +46,33 @@ use Magento\Framework\Event\ObserverInterface;
 class SaveShippingMulti implements ObserverInterface
 {
     /**
-     * @var \ShipperHQ\Shipper\Helper\Data
-     */
-    private $shipperDataHelper;
-
-    /**
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
     private $carrierGroupHelper;
-
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
     private $shipperLogger;
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $config;
 
     /**
-     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+     * @param ScopeConfigInterface $config
      * @param  \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
      * @param  \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      */
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+        ScopeConfigInterface $config,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
     ) {
-    
-        $this->shipperDataHelper = $shipperDataHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->shipperLogger = $shipperLogger;
+        $this->config = $config;
     }
+
     /**
      * Process shipping method and save
      *
@@ -80,7 +81,7 @@ class SaveShippingMulti implements ObserverInterface
      */
     public function execute(EventObserver $observer)
     {
-        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
+        if ($this->config->isSetFlag('carriers/shipper/active', ScopeInterface::SCOPE_STORES)) {
             $request = $observer->getEvent()->getRequest();
             $shippingMethods = $request->getPost('shipping_method', '');
             if (!is_array($shippingMethods)) {

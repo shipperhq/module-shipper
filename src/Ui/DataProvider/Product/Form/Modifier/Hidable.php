@@ -30,11 +30,11 @@
 
 namespace ShipperHQ\Shipper\Ui\DataProvider\Product\Form\Modifier;
 
-use Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\AbstractModifier;
-use Magento\Catalog\Model\Locator\LocatorInterface;
 use Magento\Catalog\Api\ProductAttributeRepositoryInterface;
-use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Catalog\Model\Locator\LocatorInterface;
 use Magento\Catalog\Model\ProductAttributeGroupRepository;
+use Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\AbstractModifier;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 
 class Hidable extends AbstractModifier
 {
@@ -57,7 +57,6 @@ class Hidable extends AbstractModifier
      * @var ProductAttributeGroupRepository
      */
     protected $productAttributeGroupRepository;
-
 
 
     /**
@@ -118,7 +117,8 @@ class Hidable extends AbstractModifier
      * @param string $attrCode
      * @return mixed
      */
-    protected function getAttributeGroupCode($attrCode) {
+    protected function getAttributeGroupCode($attrCode)
+    {
         $attributes = $this->getProduct()->getAttributes();
 
         if (!isset($attributes[$attrCode])) {
@@ -133,11 +133,13 @@ class Hidable extends AbstractModifier
         return $groupCode;
     }
 
-    private function getProduct() {
+    private function getProduct()
+    {
         return $this->locator->getProduct();
     }
 
-    private function getAttributeSetId() {
+    private function getAttributeSetId()
+    {
         return $this->getProduct()->getAttributeSetId();
     }
 

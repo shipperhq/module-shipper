@@ -27,20 +27,18 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Block\Adminhtml\Order\View\Items;
 
 use Magento\Sales\Block\Adminhtml\Items\Column\DefaultColumn;
 
 class Column extends DefaultColumn
 {
-    /**
-     * @var \ShipperHQ\Shipper\Helper\Data
-     */
-    private $shipperDataHelper;
     /**
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
@@ -72,11 +70,6 @@ class Column extends DefaultColumn
         return $this->getDetail($itemId, 'carrier_group');
     }
 
-    public function getCarrierGroupShipping($itemId)
-    {
-        return $this->getDetail($itemId, 'carrier_group_shipping');
-    }
-
     private function getDetail($itemId, $detail)
     {
         $result = '';
@@ -95,5 +88,10 @@ class Column extends DefaultColumn
     {
         $this->itemDetail = $this->carrierGroupHelper->loadOrderItemDetailByOrderItemId($itemId);
         return $this->itemDetail;
+    }
+
+    public function getCarrierGroupShipping($itemId)
+    {
+        return $this->getDetail($itemId, 'carrier_group_shipping');
     }
 }

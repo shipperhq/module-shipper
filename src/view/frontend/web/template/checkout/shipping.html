@@ -6,9 +6,7 @@
 -->
 <li id="shipping" class="checkout-shipping-address" data-bind="fadeVisible: visible()">
     <div class="step-title" data-bind="i18n: 'Shipping Address'" data-role="title"></div>
-    <div id="checkout-step-shipping"
-         class="step-content"
-         data-role="content">
+    <div id="checkout-step-shipping" class="step-content" data-role="content">
 
         <!-- ko if: (!quoteIsVirtual) -->
         <!-- ko foreach: getRegion('customer-email') -->
@@ -26,9 +24,7 @@
 
         <!-- Address form pop up -->
         <!-- ko if: (!isFormInline) -->
-        <button type="button"
-                data-bind="click: showFormPopUp, visible: !isNewAddressAdded()"
-                class="action action-show-popup">
+        <button type="button" data-bind="click: showFormPopUp, visible: !isNewAddressAdded()" class="action action-show-popup">
             <span data-bind="i18n: 'New Address'"></span></button>
         <div id="opc-new-shipping-address" data-bind="visible: isFormPopUpVisible()">
             <!-- ko template: 'Magento_Checkout/shipping-address/form' --><!-- /ko -->
@@ -48,20 +44,13 @@
 
 
 <!--Shipping method template-->
-<li id="opc-shipping_method"
-    class="checkout-shipping-method"
-    data-bind="fadeVisible: visible(), blockLoader: isLoading"
-    role="presentation">
+<li id="opc-shipping_method" class="checkout-shipping-method" data-bind="fadeVisible: visible(), blockLoader: isLoading" role="presentation">
     <div class="checkout-shipping-method">
         <div class="step-title" data-bind="i18n: 'Shipping Methods'" data-role="title"></div>
         <!-- ko foreach: getRegion('before-shipping-method-form') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!-- /ko -->
-        <div id="checkout-step-shipping_method"
-             class="step-content"
-             data-role="content"
-             role="tabpanel"
-             aria-hidden="false">
+        <div id="checkout-step-shipping_method" class="step-content" data-role="content" role="tabpanel" aria-hidden="false">
             <!-- ko if: rates().length  -->
             <form class="form methods-shipping" id="co-shipping-method-form" data-bind="submit: setShippingInformation" novalidate="novalidate">
                 <div id="checkout-shipping-method-load">
@@ -89,7 +78,7 @@
                                                     'value' : method.carrier_code + '_' + method.method_code,
                                                     'id': 's_method_' + method.method_code,
                                                     'aria-labelledby': 'label_method_' + method.method_code + '_' + method.carrier_code + ' ' + 'label_carrier_' + method.method_code + '_' + method.carrier_code
-                                                 }" />
+                                                 }"/>
                                 <!-- /ko -->
                                 <!--ko ifnot: ($parent.rates().length == 1)-->
                                 <input type="radio"
@@ -172,7 +161,9 @@
                 </div>
             </form>
             <!-- /ko -->
-            <!-- ko ifnot: rates().length > 0 --><div class="no-quotes-block"><!-- ko i18n: 'Sorry, no quotes are available for this order at this time'--><!-- /ko --></div><!-- /ko -->
+            <!-- ko ifnot: rates().length > 0 -->
+            <div class="no-quotes-block"><!-- ko i18n: 'Sorry, no quotes are available for this order at this time'-->
+                <!-- /ko --></div><!-- /ko -->
         </div>
     </div>
 </li>

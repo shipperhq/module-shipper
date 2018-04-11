@@ -27,11 +27,16 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Model\System\Message;
+
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
 
 class Credentials implements \Magento\Framework\Notification\MessageInterface
 {
@@ -40,23 +45,21 @@ class Credentials implements \Magento\Framework\Notification\MessageInterface
      * @var \Magento\Framework\UrlInterface
      */
     private $urlBuilder;
-
     /**
-     * @var \ShipperHQ\Shipper\Helper\Data
+     * @var ScopeConfigInterface
      */
-    private $shipperDataHelper;
+    private $config;
 
     /**
-     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+     * @param ScopeConfigInterface $config
      * @param \Magento\Framework\UrlInterface $urlBuilder
-     * @param \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList
      */
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+        ScopeConfigInterface $config,
         \Magento\Framework\UrlInterface $urlBuilder
     ) {
-        $this->shipperDataHelper = $shipperDataHelper;
         $this->urlBuilder = $urlBuilder;
+        $this->config = $config;
     }
 
     /**
@@ -76,8 +79,8 @@ class Credentials implements \Magento\Framework\Notification\MessageInterface
      */
     public function isDisplayed()
     {
-        if ($this->shipperDataHelper->getConfigValue('carriers/shipper/active')) {
-            if ($this->shipperDataHelper->getConfigValue(self::SHIPPERHQ_INVALID_CREDENTIALS_SUPPLIED)) {
+        if ($this->config->isSetFlag('carriers/shipper/active', ScopeInterface::SCOPE_STORES)) {
+            if ($this->config->getValue(self::SHIPPERHQ_INVALID_CREDENTIALS_SUPPLIED, ScopeInterface::SCOPE_STORES)) {
                 return true;
             }
         }
@@ -93,7 +96,7 @@ class Credentials implements \Magento\Framework\Notification\MessageInterface
     {
         $message = __(
             'Your ShipperHQ credentials saved in Magento are invalid.'
-            .' You will no longer receive shipping rates until this is rectified.'
+                . ' You will no longer receive shipping rates until this is rectified.'
         ) . ' ';
         $url = $this->urlBuilder->getUrl('adminhtml/system_config/edit/section/carriers');
         $message .= __(

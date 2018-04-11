@@ -27,12 +27,15 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
 
 namespace ShipperHQ\Shipper\Model\Order;
+
+use ShipperHQ\Shipper\Model\ResourceModel\Order\ItemDetail\CollectionFactory;
 
 class ItemDetail extends \Magento\Framework\Model\AbstractExtensibleModel
 {
@@ -48,17 +51,17 @@ class ItemDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     private $orderItemDetailCollection;
 
     /**
-     * @param \ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail\CollectionFactory $quoteAddressDetailCollectionFactory
+     * @param CollectionFactory $orderItemDetailCollectionFactory
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
-     * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory $customAttributeFactory
+     * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
+     * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
      * @param array $data
      */
     public function __construct(
-        \ShipperHQ\Shipper\Model\ResourceModel\Order\ItemDetail\CollectionFactory $orderItemDetailCollectionFactory,
+        CollectionFactory $orderItemDetailCollectionFactory,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
@@ -80,14 +83,6 @@ class ItemDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     }
 
     /**
-     * Define resource model
-     */
-    protected function _construct()
-    {
-        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\Order\ItemDetail');
-    }
-
-    /**
      * Return model from carrier group id and address id
      *
      * @param string $carrierGroupId
@@ -106,7 +101,6 @@ class ItemDetail extends \Magento\Framework\Model\AbstractExtensibleModel
         return false;
     }
 
-    //@codeCoverageIgnoreStart
     /**
      * {@inheritdoc}
      */
@@ -114,6 +108,8 @@ class ItemDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     {
         return $this->getData(self::ORDER_ITEM_ID);
     }
+
+    //@codeCoverageIgnoreStart
 
     /**
      * {@inheritdoc}
@@ -153,5 +149,13 @@ class ItemDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     public function setCarrierGroupShipping($carrierGroupShipping)
     {
         return $this->setData(self::CARRIER_GROUP_SHIPPING, $carrierGroupShipping);
+    }
+
+    /**
+     * Define resource model
+     */
+    protected function _construct()
+    {
+        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\Order\ItemDetail');
     }
 }

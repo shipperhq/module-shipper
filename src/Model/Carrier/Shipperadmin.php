@@ -27,10 +27,12 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Model\Carrier;
 
 /**
@@ -40,22 +42,27 @@ namespace ShipperHQ\Shipper\Model\Carrier;
  * @package ShipperHQ_Shipper
  */
 
+use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Quote\Model\Quote\Address\RateResult\Error;
 use Magento\Shipping\Model\Carrier\AbstractCarrier;
+use Magento\Shipping\Model\Carrier\CarrierInterface;
 use Magento\Shipping\Model\Rate\Result;
-use Magento\Quote\Model\Quote\Item as QuoteItem;
 
-class Shipperadmin extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements \Magento\Shipping\Model\Carrier\CarrierInterface
+class Shipperadmin extends AbstractCarrier implements CarrierInterface
 {
     /**
      * @var string
      */
     protected $_code = 'shipperadmin';
     /**
-     * @var \ShipperHQ\Shipper\Helper\Data
+     * @var \Magento\Shipping\Model\Rate\ResultFactory
      */
-    protected $shipperDataHelper;
+    protected $rateFactory;
+    /**
+     * @var \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory
+     */
+    protected $rateMethodFactory;
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
@@ -65,16 +72,12 @@ class Shipperadmin extends \Magento\Shipping\Model\Carrier\AbstractCarrier imple
      */
     private $registry;
     /**
-     * @var \Magento\Shipping\Model\Rate\ResultFactory
+     * @var JsonHelper
      */
-    protected $rateFactory;
-    /**
-     * @var \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory
-     */
-    protected $rateMethodFactory;
+    private $jsonHelper;
 
     /**
-     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+     * @param JsonHelper $jsonHelper
      * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Shipping\Model\Rate\ResultFactory $resultFactory
@@ -85,7 +88,7 @@ class Shipperadmin extends \Magento\Shipping\Model\Carrier\AbstractCarrier imple
      * @param array $data
      */
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+        JsonHelper $jsonHelper,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \Magento\Framework\Registry $registry,
         \Magento\Shipping\Model\Rate\ResultFactory $resultFactory,
@@ -95,13 +98,12 @@ class Shipperadmin extends \Magento\Shipping\Model\Carrier\AbstractCarrier imple
         \Psr\Log\LoggerInterface $logger,
         array $data = []
     ) {
-    
-        $this->shipperDataHelper = $shipperDataHelper;
+        parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
         $this->shipperLogger = $shipperLogger;
         $this->registry = $registry;
         $this->rateFactory = $resultFactory;
         $this->rateMethodFactory = $rateMethodFactory;
-        parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
+        $this->jsonHelper = $jsonHelper;
     }
 
     /**
@@ -109,6 +111,7 @@ class Shipperadmin extends \Magento\Shipping\Model\Carrier\AbstractCarrier imple
      *
      * @param RateRequest $request
      * @return bool|Result|Error
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function collectRates(RateRequest $request)
     {
@@ -138,7 +141,7 @@ class Shipperadmin extends \Magento\Shipping\Model\Carrier\AbstractCarrier imple
                 $method->setMethodTitle($rateInfo['customCarrier']);
                 $method->setCarriergroupId($carrierGroupId);
                 $method->setCarriergroupShippingDetails(
-                    $this->shipperDataHelper->encode($carrierGroupShippingDetail)
+                    $this->jsonHelper->jsonEncode($carrierGroupShippingDetail)
                 );
                 $result->append($method);
             }
@@ -158,6 +161,6 @@ class Shipperadmin extends \Magento\Shipping\Model\Carrier\AbstractCarrier imple
      */
     public function getAllowedMethods()
     {
-        return ['adminshipping'=>'adminshipping'];
+        return ['adminshipping' => 'adminshipping'];
     }
 }

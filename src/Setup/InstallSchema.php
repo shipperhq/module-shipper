@@ -27,10 +27,12 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace ShipperHQ\Shipper\Setup;
 
 use Magento\Framework\Setup\InstallSchemaInterface;
@@ -47,6 +49,11 @@ class InstallSchema implements InstallSchemaInterface
      */
     private static $connectionName = 'sales';
 
+    /**
+     * @param SchemaSetupInterface $setup
+     * @param ModuleContextInterface $context
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
         $installer = $setup;
@@ -100,14 +107,15 @@ class InstallSchema implements InstallSchemaInterface
             $installer->getConnection()->createTable($table);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_address_detail'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_address_detail'));
+        $quoteAddressDetailTable = $installer->getTable('shipperhq_quote_address_detail');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($quoteAddressDetailTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($quoteAddressDetailTable);
             $table
                 ->addColumn(
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'quote_address_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -328,14 +336,15 @@ class InstallSchema implements InstallSchemaInterface
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_detail'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_detail'));
+        $orderDetailTable = $installer->getTable('shipperhq_order_detail');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($orderDetailTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($orderDetailTable);
             $table
                 ->addColumn(
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'order_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
@@ -549,14 +558,15 @@ class InstallSchema implements InstallSchemaInterface
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_item_detail'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_item_detail'));
+        $quoteItemDetailTable = $installer->getTable('shipperhq_quote_item_detail');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($quoteItemDetailTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($quoteItemDetailTable);
             $table
                 ->addColumn(
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'quote_item_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -591,14 +601,15 @@ class InstallSchema implements InstallSchemaInterface
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_address_item_detail'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_address_item_detail'));
+        $quoteAddressItemDetailTable = $installer->getTable('shipperhq_quote_address_item_detail');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($quoteAddressItemDetailTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($quoteAddressItemDetailTable);
             $table
                 ->addColumn(
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'quote_address_item_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -633,14 +644,15 @@ class InstallSchema implements InstallSchemaInterface
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_item_detail'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_item_detail'));
+        $orderItemDetailTable = $installer->getTable('shipperhq_order_item_detail');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($orderItemDetailTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($orderItemDetailTable);
             $table
                 ->addColumn(
                     'id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
-                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true ]
+                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'order_item_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
@@ -675,8 +687,9 @@ class InstallSchema implements InstallSchemaInterface
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_packages'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_packages'));
+        $quotePackagesTable = $installer->getTable('shipperhq_quote_packages');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($quotePackagesTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($quotePackagesTable);
 
             $table
                 ->addColumn(
@@ -753,8 +766,9 @@ class InstallSchema implements InstallSchemaInterface
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_quote_package_items'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_quote_package_items'));
+        $quotePackageItemsTable = $installer->getTable('shipperhq_quote_package_items');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($quotePackageItemsTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($quotePackageItemsTable);
 
             $table
                 ->addColumn(
@@ -793,15 +807,16 @@ class InstallSchema implements InstallSchemaInterface
                         'package_id'
                     ),
                     'package_id',
-                    $installer->getTable('shipperhq_quote_packages'),
+                    $quotePackagesTable,
                     'package_id',
                     \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_packages'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_packages'));
+        $orderPackagesTable = $installer->getTable('shipperhq_order_packages');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($orderPackagesTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($orderPackagesTable);
 
             $table
                 ->addColumn(
@@ -878,8 +893,9 @@ class InstallSchema implements InstallSchemaInterface
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_package_items'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_package_items'));
+        $orderPackageItemsTable = $installer->getTable('shipperhq_order_package_items');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($orderPackageItemsTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($orderPackageItemsTable);
 
             $table
                 ->addColumn(
@@ -918,15 +934,16 @@ class InstallSchema implements InstallSchemaInterface
                         'package_id'
                     ),
                     'package_id',
-                    $installer->getTable('shipperhq_order_packages'),
+                    $orderPackagesTable,
                     'package_id',
                     \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($installer->getTable('shipperhq_order_detail_grid'))) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($installer->getTable('shipperhq_order_detail_grid'));
+        $orderDetailGridTable = $installer->getTable('shipperhq_order_detail_grid');
+        if (!$installer->getConnection(self::$connectionName)->isTableExists($orderDetailGridTable)) {
+            $table = $installer->getConnection(self::$connectionName)->newTable($orderDetailGridTable);
             $table
                 ->addColumn(
                     'id',

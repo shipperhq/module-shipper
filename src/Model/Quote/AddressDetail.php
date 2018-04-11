@@ -27,12 +27,15 @@
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
 
 namespace ShipperHQ\Shipper\Model\Quote;
+
+use ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail\CollectionFactory;
 
 class AddressDetail extends \Magento\Framework\Model\AbstractExtensibleModel
 {
@@ -71,7 +74,7 @@ class AddressDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     private $quoteAddressDetailCollection;
 
     /**
-     * @param \ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail\CollectionFactory $quoteAddressDetailCollectionFactory
+     * @param CollectionFactory $quoteAddressDetailCollectionFactory
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
@@ -81,7 +84,7 @@ class AddressDetail extends \Magento\Framework\Model\AbstractExtensibleModel
      * @param array $data
      */
     public function __construct(
-        \ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail\CollectionFactory $quoteAddressDetailCollectionFactory,
+        CollectionFactory $quoteAddressDetailCollectionFactory,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
@@ -100,14 +103,6 @@ class AddressDetail extends \Magento\Framework\Model\AbstractExtensibleModel
             $data
         );
         $this->quoteAddressDetailCollection = $quoteAddressDetailCollectionFactory->create();
-    }
-
-    /**
-     * Define resource model
-     */
-    protected function _construct()
-    {
-        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail');
     }
 
     /**
@@ -145,7 +140,6 @@ class AddressDetail extends \Magento\Framework\Model\AbstractExtensibleModel
         return $collection;
     }
 
-    //@codeCoverageIgnoreStart
     /**
      * {@inheritdoc}
      */
@@ -153,6 +147,8 @@ class AddressDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     {
         return $this->getData(self::QUOTE_ADDRESS_ID);
     }
+
+    //@codeCoverageIgnoreStart
 
     /**
      * {@inheritdoc}
@@ -560,5 +556,13 @@ class AddressDetail extends \Magento\Framework\Model\AbstractExtensibleModel
     public function setAddressValid($addressValid)
     {
         return $this->setData(self::ADDRESS_VALID, $addressValid);
+    }
+
+    /**
+     * Define resource model
+     */
+    protected function _construct()
+    {
+        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail');
     }
 }

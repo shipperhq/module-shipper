@@ -1146,7 +1146,28 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addValidatedAddressColumns($installer,'shipperhq_order_detail');
         }
 
+        if (version_compare($context->getVersion(), '1.1.20') < 0) {
+            $this->addCarrierTypeToOrderDetailGrid($installer);
+        }
+
         $installer->endSetup();
+    }
+
+    public function addCarrierTypeToOrderDetailGrid(SchemaSetupInterface $installer)
+    {
+        $connection = $installer->getConnection(self::$connectionName);
+        $table = $installer->getTable('shipperhq_order_detail_grid');
+        $connection->addColumn(
+            $table,
+            'carrier_type',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'length' => 255,
+                'nullable' => true,
+                'default' => '',
+                'comment' => 'Carrier Type'
+            ]
+        );
     }
 
     public function addValidatedAddressColumns(SchemaSetupInterface $installer, $tableName)

@@ -23,12 +23,25 @@
                 </item>
             </argument>
         </column>
+        <column name="shipperhq.dispatch_date" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\DispatchDate">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Dispatch Date</item>
+                    <item name="sortOrder" xsi:type="number">12</item>
+                    <item name="visible" xsi:type="boolean">true</item>
+                    <item name="filter" xsi:type="string">dateRange</item>
+                    <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/date</item>
+                    <item name="dataType" xsi:type="string">date</item>
+                    <item name="dateFormat" xsi:type="string">MMM dd, YYYY</item>
+                </item>
+            </argument>
+        </column>
         <column name="shipperhq.time_slot" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\TimeSlot">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
                     <item name="label" xsi:type="string" translate="true">Time Slot Start</item>
-                    <item name="sortOrder" xsi:type="number">12</item>
+                    <item name="sortOrder" xsi:type="number">13</item>
                     <item name="visible" xsi:type="boolean">true</item>
                 </item>
             </argument>
@@ -39,6 +52,16 @@
                     <item name="filter" xsi:type="string">text</item>
                     <item name="label" xsi:type="string" translate="true">Pickup Location</item>
                     <item name="sortOrder" xsi:type="number">14</item>
+                    <item name="visible" xsi:type="boolean">true</item>
+                </item>
+            </argument>
+        </column>
+        <column name="shipperhq.carrier_type" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\CarrierType">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">text</item>
+                    <item name="label" xsi:type="string" translate="true">Carrier Type</item>
+                    <item name="sortOrder" xsi:type="number">15</item>
                     <item name="visible" xsi:type="boolean">true</item>
                 </item>
             </argument>

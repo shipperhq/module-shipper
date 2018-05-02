@@ -78,7 +78,12 @@ class StockHandler
     public function getInventoryCount($item, $product)
     {
         $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
-        return $stockItem->getQty();
+
+        if (!$stockItem->getManageStock()) { //SHQ18-209
+            return null;
+        } else {
+            return $stockItem->getQty();
+        }
     }
 
     public function getOriginAvailabilityDate($origin, $item, $product)

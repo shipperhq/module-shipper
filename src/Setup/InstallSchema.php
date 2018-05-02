@@ -1022,6 +1022,12 @@ class InstallSchema implements InstallSchemaInterface
                     null,
                     ['nullable' => true],
                     'Address Valid Status'
+                )->addColumn(
+                    'carrier_type',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    ['nullable' => true],
+                    'Carrier Type'
                 )->addIndex(
                     $installer->getIdxName('shipperhq_order_detail_grid', ['order_id']),
                     ['order_id']

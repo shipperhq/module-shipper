@@ -1,6 +1,6 @@
 <listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <columns name="sales_order_columns">
-        <column name="shipperhq.carrier_group" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\CarrierGroup">
+        <column name="shipper_order_join.carrier_group" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\CarrierGroup">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
@@ -10,7 +10,7 @@
                 </item>
             </argument>
         </column>
-        <column name="shipperhq.delivery_date" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\DeliveryDate">
+        <column name="shipper_order_join.delivery_date" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\DeliveryDate">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Delivery Date</item>
@@ -23,7 +23,7 @@
                 </item>
             </argument>
         </column>
-        <column name="shipperhq.dispatch_date" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\DispatchDate">
+        <column name="shipper_order_join.dispatch_date" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\DispatchDate">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Dispatch Date</item>
@@ -36,7 +36,7 @@
                 </item>
             </argument>
         </column>
-        <column name="shipperhq.time_slot" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\TimeSlot">
+        <column name="shipper_order_join.time_slot" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\TimeSlot">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
@@ -46,7 +46,7 @@
                 </item>
             </argument>
         </column>
-        <column name="shipperhq.pickup_location" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\PickupLocation">
+        <column name="shipper_order_join.pickup_location" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\PickupLocation">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>
@@ -56,7 +56,7 @@
                 </item>
             </argument>
         </column>
-        <column name="shipperhq.carrier_type" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\CarrierType">
+        <column name="shipper_order_join.carrier_type" class="ShipperHQ\Shipper\Ui\Component\Listing\Column\CarrierType">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">text</item>

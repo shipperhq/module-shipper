@@ -15,6 +15,9 @@
     <event name="checkout_submit_all_after">
         <observer name="shipperhq_record_order" instance="ShipperHQ\Shipper\Observer\RecordAdminOrder"/>
     </event>
+    <event name="email_order_set_template_vars_before">
+        <observer name="shipperhq_save_email_variables" instance="ShipperHQ\Shipper\Observer\SaveEmailVariables"/>
+    </event>
 </config>
 
 

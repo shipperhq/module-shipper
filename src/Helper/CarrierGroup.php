@@ -270,9 +270,8 @@ class CarrierGroup extends Data
             $order->getQuoteId()
         )->create(); //SHQ18-56
         $quotes = $this->quoteRepository->getList($searchCriteria);
-
-        if ($quotes->getTotalCount() > 1) {
-            foreach ($quotes as $quote) {
+        if ($quotes->getTotalCount() > 0) {
+            foreach ($quotes->getItems() as $quote) {
                 $shippingAddress = $quote->getShippingAddress();
                 break;
             }

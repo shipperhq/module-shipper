@@ -36,7 +36,6 @@
 namespace ShipperHQ\Shipper\Observer;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\DataObject\Factory as DataObjectFactory;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -50,29 +49,10 @@ class SaveEmailVariables implements ObserverInterface
 	 * @var \ShipperHQ\Shipper\Helper\CarrierGroup
 	 */
 	private $carrierGroupHelper;
-
 	/**
 	 * @var \ShipperHQ\Shipper\Helper\LogAssist
 	 */
 	private $shipperLogger;
-	/**
-	 * @var \Magento\Framework\Registry
-	 */
-	private $registry;
-	/**
-	 * @var \ShipperHQ\Common\Model\Quote\Service
-	 */
-	private $quoteService;
-	/**
-	 * Application Event Dispatcher
-	 *
-	 * @var \Magento\Framework\Event\ManagerInterface
-	 */
-	private $eventManager;
-	/**
-	 * @var DataObjectFactory
-	 */
-	private $objectFactory;
 	/**
 	 * @var ScopeConfigInterface
 	 */
@@ -84,10 +64,12 @@ class SaveEmailVariables implements ObserverInterface
 	 */
 	public function __construct(
 		ScopeConfigInterface $config,
-		\ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
+		\ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
+		\ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
 	) {
 		$this->shipperLogger = $shipperLogger;
 		$this->config = $config;
+		$this->carrierGroupHelper = $carrierGroupHelper;
 	}
 
 	/**
@@ -100,19 +82,33 @@ class SaveEmailVariables implements ObserverInterface
 	{
 		if ($this->config->isSetFlag('carriers/shipper/active', ScopeInterface::SCOPE_STORES)) {
 			$data = $observer->getTransport();
+			$order = $data->getOrder();
+            $orderDetail = $this->carrierGroupHelper->getOrderCarrierGroupInfo($order->getId());
+            if (count($orderDetail) > 0) {
+			    foreach ($orderDetail as $orderData) {
+                    if (isset($orderData['delivery_date'])) {
+                        $data['deliveryDate'] = $orderData['delivery_date'];
+                        break;
+                    }
+                }
+			} else {
+                $quoteShippingAddress = $this->carrierGroupHelper->getQuoteShippingAddressFromOrder($order);
+				if($quoteShippingAddress) {
 
-			$extensionAttributes = $data->getOrder()->getExtensionAttributes();
+                    $quoteAddressDetailsCollection = $this->carrierGroupHelper->loadAddressDetailByShippingAddress(
+                        $quoteShippingAddress->getId()
+                    );
+                    $quoteAddressData = $quoteAddressDetailsCollection->getData();
 
-			if(!empty($extensionAttributes->getShipperhqCarrierGroupDetails())) {
-				$carrierGroupDetails = $extensionAttributes->getShipperhqCarrierGroupDetails();
-
-				if (count($carrierGroupDetails) == 1) { //Only supporting one origin/split
-					foreach ($carrierGroupDetails as $carrierGroupDetail) {
-						$data['deliveryDate'] = $carrierGroupDetail->getDeliveryDate();
-						break;
-					}
-				}
+                    if (count($quoteAddressData) > 0) {
+                        foreach ($quoteAddressData as $quoteAddressDetail) {
+                            $data['deliveryDate'] = $quoteAddressDetail['delivery_date'];
+                            break;
+                        }
+                    }
+                }
 			}
+
 		}
 	}
 }

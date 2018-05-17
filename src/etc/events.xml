@@ -9,6 +9,9 @@
     <event name="sales_order_shipment_save_before">
         <observer name="shipperhq_before_save_order_shipment" instance="ShipperHQ\Shipper\Observer\BeforeSaveOrderShipment"/>
     </event>
+    <event name="email_order_set_template_vars_before">
+        <observer name="shipperhq_save_email_variables" instance="ShipperHQ\Shipper\Observer\SaveEmailVariables"/>
+    </event>
 </config>
 
 

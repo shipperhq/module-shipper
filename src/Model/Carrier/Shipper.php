@@ -810,8 +810,17 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
     private function updateWithCurrrencyConversion($carrierGroupDetail, $currencyConversionRate)
     {
-        $carrierGroupDetail['cost'] *= $currencyConversionRate;
-        $carrierGroupDetail['price'] *= $currencyConversionRate;
+        if (is_array($carrierGroupDetail) && isset($carrierGroupDetail[0])) {
+            // Merged rates return a numeric array of assoc arrays. If there is a 0 key we know this is the case
+            foreach ($carrierGroupDetail as $k=>$detail) {
+                $carrierGroupDetail[$k]['cost'] *= $currencyConversionRate;
+                $carrierGroupDetail[$k]['price'] *= $currencyConversionRate;
+            }
+        }
+        else {
+            $carrierGroupDetail['cost'] *= $currencyConversionRate;
+            $carrierGroupDetail['price'] *= $currencyConversionRate;
+        }
         return $carrierGroupDetail;
     }
 

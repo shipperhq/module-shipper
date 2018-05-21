@@ -194,6 +194,12 @@ class ShipperMapper
      */
     private $stockDetailFactory;
     /**
+     * Tax data
+     *
+     * @var \Magento\Tax\Helper\Data
+     */
+    protected $taxHelper;
+    /**
      * @var \Magento\Framework\HTTP\Header
      */
     private $httpHeader;
@@ -218,7 +224,8 @@ class ShipperMapper
      * @param Request\ShipDetailsFactory $shipDetailsFactory
      * @param StockHandler $stockHandler
      * @param Request\Checkout\PhysicalBuildingDetailFactory $physicalBuildingDetailFactory
-     * @param Request\Checkout\StockDetailFactory $stockDetailFactory ,
+     * @param Request\Checkout\StockDetailFactory $stockDetailFactory
+     * @param \Magento\Tax\Helper\Data $taxHelper
      * @param \Magento\Framework\HTTP\Header $httpHeader
      */
     public function __construct(
@@ -241,6 +248,7 @@ class ShipperMapper
         StockHandler $stockHandler,
         \ShipperHQ\WS\Rate\Request\Checkout\PhysicalBuildingDetailFactory $physicalBuildingDetailFactory,
         \ShipperHQ\WS\Rate\Request\Checkout\StockDetailFactory $stockDetailFactory,
+        \Magento\Tax\Helper\Data $taxHelper,
         \Magento\Framework\HTTP\Header $httpHeader
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
@@ -262,6 +270,7 @@ class ShipperMapper
         $this->stockHandler = $stockHandler;
         $this->physicalBuildingDetailFactory = $physicalBuildingDetailFactory;
         $this->stockDetailFactory = $stockDetailFactory;
+        $this->taxHelper = $taxHelper;
         self::$prodAttributes = $this->shipperDataHelper->getProductAttributes();
         $this->httpHeader = $httpHeader;
     }
@@ -379,6 +388,14 @@ class ShipperMapper
                 $itemAttributes = $this->populateAttributes($stdAttributes, $magentoItem);
             }
 
+            if($this->taxHelper->discountTax() && $magentoItem->getTaxPercent() > 0) {
+                $discountAmount = round($magentoItem->getDiscountAmount() / ($magentoItem->getTaxPercent()/100+1), 2);
+                $baseDiscountAmount = round($magentoItem->getBaseDiscountAmount() / ($magentoItem->getTaxPercent()/100+1), 2);
+            } else {
+                $discountAmount = $magentoItem->getDiscountAmount();
+                $baseDiscountAmount = $magentoItem->getBaseDiscountAmount();
+            }
+
             $formattedItem = $this->itemFactory->create([
                 'id' => $id,
                 'sku' => $magentoItem->getSku(),
@@ -387,17 +404,17 @@ class ShipperMapper
                 'rowTotal' => $magentoItem->getRowTotal(),
                 'basePrice' => $magentoItem->getBasePrice(),
                 'baseRowTotal' => $magentoItem->getBaseRowTotal(),
-                'discountAmount' => (float)$magentoItem->getDiscountAmount(),
+                'discountAmount' => (float)$discountAmount,
                 'discountPercent' => (float)$magentoItem->getDiscountPercent(),
                 'discountedBasePrice' => $magentoItem->getBasePrice() -
-                    ($magentoItem->getBaseDiscountAmount() / $magentoItem->getQty()),
+                    ($baseDiscountAmount / $magentoItem->getQty()),
                 'discountedStorePrice' => $magentoItem->getPrice() -
-                    ($magentoItem->getDiscountAmount() / $magentoItem->getQty()),
+                    ($discountAmount / $magentoItem->getQty()),
                 'discountedTaxInclBasePrice' => $magentoItem->getBasePrice() -
-                    ($magentoItem->getBaseDiscountAmount() / $magentoItem->getQty()) +
+                    ($baseDiscountAmount / $magentoItem->getQty()) +
                     ($magentoItem->getBaseTaxAmount() / $magentoItem->getQty()),
                 'discountedTaxInclStorePrice' => $magentoItem->getPrice() -
-                    ($magentoItem->getDiscountAmount() / $magentoItem->getQty()) +
+                    ($discountAmount / $magentoItem->getQty()) +
                     ($magentoItem->getTaxAmount() / $magentoItem->getQty()),
                 'fixedPrice' => $fixedPrice,
                 'fixedWeight' => $fixedWeight,

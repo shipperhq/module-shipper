@@ -264,7 +264,7 @@ SHQ18-220 refactored use of quote and order detail in email observer
 ## 20.18.9
 SHQ18-237 - Fix for multiple rate currencies being returned when multiple origins
 
-## 20.18.10
-SHQ18-215 Fix issue with included tax discounts
+## 20.18.11 (2018-05-31)
+SHQ18-261 Fix ambiguous where clause SQL error in M2.2.4 with Amazon Pay
 
 

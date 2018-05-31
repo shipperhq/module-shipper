@@ -266,7 +266,7 @@ class CarrierGroup extends Data
         $shippingAddress = null;
 
         $searchCriteria = $this->searchCriteriaBuilder->addFilter(
-            'entity_id',
+            'main_table.entity_id',
             $order->getQuoteId()
         )->create(); //SHQ18-56
         $quotes = $this->quoteRepository->getList($searchCriteria);

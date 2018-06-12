@@ -78,8 +78,9 @@ class StockHandler
     public function getInventoryCount($item, $product)
     {
         $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
+        $allowBackorder = $stockItem->getBackorders() != $stockItem::BACKORDERS_NO;
 
-        if (!$stockItem->getManageStock()) { //SHQ18-209
+        if (!$stockItem->getManageStock() || $allowBackorder ) { //SHQ18-209 & SHQ18-289
             return null;
         } else {
             return $stockItem->getQty();

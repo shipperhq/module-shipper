@@ -268,3 +268,7 @@ SHQ18-237 - Fix for multiple rate currencies being returned when multiple origin
 SHQ18-261 Fix ambiguous where clause SQL error in M2.2.4 with Amazon Pay
 
 
+## 20.18.12 (2018-06-12)
+SHQ18-289 Fetch rates if out of stock item allows backorders
+
+

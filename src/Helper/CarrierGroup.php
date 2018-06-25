@@ -416,25 +416,28 @@ class CarrierGroup extends Data
                     $carriergroupText .= '' . strtoupper($cgrp['carrierName']);
                 }
 
-                if ((array_key_exists('pickup_date', $cgrp) && $cgrp['pickup_date'] != '')) {
+                if (array_key_exists('pickup_location', $cgrp)) {
                     $carriergroupText .= '<br/> Pickup : ';
-                    if (array_key_exists('location_name', $cgrp)) {
-                        $carriergroupText .= '' . $cgrp['location_name'];
-                    }
+                    $carriergroupText .= '' . $cgrp['pickup_location'];
+                }
+
+                if ((array_key_exists('pickup_date', $cgrp) && $cgrp['pickup_date'] != '')) {
                     $carriergroupText .= ' ' . $cgrp['pickup_date'];
                     if (array_key_exists('pickup_slot', $cgrp)) {
                         $displayTimeSlot = str_replace('_', ' - ', $cgrp['pickup_slot']);
                         $carriergroupText .= ' ' . $displayTimeSlot . ' ';
                     }
                 }
+
                 if (array_key_exists('dispatch_date', $cgrp) && $cgrp['dispatch_date'] != '') {
                     $carriergroupText .= '<br/>' . __('Dispatch Date') . ' : ' . $cgrp['dispatch_date'];
                 }
 
                 if (array_key_exists('delivery_date', $cgrp) && $cgrp['delivery_date'] != '') {
-                    $carriergroupText .= '<br/>' . __('Delivery Date') . ' : ' . $cgrp['delivery_date'];
-                    if (array_key_exists('del_slot', $cgrp)) {
-                        $displayTimeSlot = str_replace('_', ' - ', $cgrp['del_slot']);
+                    $dateText = isset($cgrp['pickup_location']) ? __('Pickup Date') :  __('Delivery Date');
+                    $carriergroupText .= '<br/>' .$dateText . ' : ' . $cgrp['delivery_date'];
+                    if (array_key_exists('time_slot', $cgrp)) {
+                        $displayTimeSlot = str_replace('_', ' - ', $cgrp['time_slot']);
                         $carriergroupText .= ' ' . $displayTimeSlot . ' ';
                     }
                 }

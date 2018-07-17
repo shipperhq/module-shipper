@@ -276,3 +276,7 @@ SHQ18-289 Fetch rates if out of stock item allows backorders
 SHQ18-344 correct variable names for time slot and pickup location name
 
 
+## 20.18.14 (2018-07-17)
+SHQ18-438 Implement rounding for decimal quantities under 1
+
+

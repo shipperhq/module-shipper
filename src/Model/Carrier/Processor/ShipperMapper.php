@@ -396,10 +396,24 @@ class ShipperMapper
                 $baseDiscountAmount = $magentoItem->getBaseDiscountAmount();
             }
 
+            $qty = $magentoItem->getQty() ? floatval($magentoItem->getQty()) : 0;
+
+            if ($qty < 1 && $qty > 0) {
+                $qty = 1; //SHQ18-438
+                $weight = $weight * $magentoItem->getQty();
+
+                $this->shipperLogger->postInfo(
+                    'ShipperHQ_Shipper',
+                    'Item quantity is decimal and less than 1, rounding quantity up to 1.'.
+                    'Setting weight to fractional value',
+                    'SKU: '.$magentoItem->getSku(). ' Weight: '. $weight
+                );
+            }
+
             $formattedItem = $this->itemFactory->create([
                 'id' => $id,
                 'sku' => $magentoItem->getSku(),
-                'qty' => $magentoItem->getQty() ? floatval($magentoItem->getQty()) : 0,
+                'qty' => $qty,
                 'weight' => $weight,
                 'rowTotal' => $magentoItem->getRowTotal(),
                 'basePrice' => $magentoItem->getBasePrice(),

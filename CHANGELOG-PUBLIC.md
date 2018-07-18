@@ -280,3 +280,7 @@ SHQ18-344 correct variable names for time slot and pickup location name
 SHQ18-438 Implement rounding for decimal quantities under 1
 
 
+## 20.19.0 (2018-07-18)
+SHQ18-127 Fix conflict with B2B module
+
+

@@ -13,5 +13,12 @@ var config = {
             "Magento_Checkout/template/billing-address/details.html":
                 "ShipperHQ_Shipper/template/billing-address/details.html"
         }
+    },
+    config: {
+        mixins: {
+            'Magento_Checkout/js/model/shipping-service': {
+                'ShipperHQ_Shipper/js/model/shipping-service-mixin': true
+            }
+        }
     }
 };

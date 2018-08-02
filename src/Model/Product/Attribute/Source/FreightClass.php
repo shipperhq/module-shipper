@@ -104,11 +104,11 @@ class FreightClass extends \Magento\Eav\Model\Entity\Attribute\Source\Config
         return $arr;
     }
 
-    public function getFlatColums()
+    public function getFlatColumns()
     {
         $columns = [
             $this->getAttribute()->getAttributeCode() => [
-                'type' => 'int',
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                 'unsigned' => false,
                 'is_null' => true,
                 'default' => null,

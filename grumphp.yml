@@ -1,16 +1,16 @@
 parameters:
-    git_dir: .
-    bin_dir: vendor/bin
-    tasks:
-      - phplint:
-            exclude: ['vendor']
-            triggered_by: ['php', 'phtml']
-      - phpmd:
-            exclude: ['vendor']
-            ruleset: ['cleancode', 'codesize', 'naming']
-            triggered_by: ['php', 'phtml']
-      - phpcs:
-            exclude: ['vendor']
-            standard: "vendor/magento-ecg/coding-standard/Ecg/"
-            show_warnings: false
-            triggered_by: ['php', 'phtml']
+  bin_dir: vendor/bin
+  git_dir: .
+  tasks:
+    phplint:
+      exclude: [vendor]
+      triggered_by: [php, phtml]
+    phpmd:
+      exclude: [vendor]
+      ruleset: [cleancode, codesize, naming]
+      triggered_by: [php, phtml]
+    phpcs:
+      ignore_patterns: [vendor]
+      show_warnings: false
+      standard: vendor/magento-ecg/coding-standard/Ecg/
+      triggered_by: [php, phtml]

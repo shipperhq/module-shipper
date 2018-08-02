@@ -284,3 +284,7 @@ SHQ18-438 Implement rounding for decimal quantities under 1
 SHQ18-127 Fix conflict with B2B module
 
 
+## 20.20.0 (2018-08-02)
+SHQ18-155 support map and location details for in store pickup
+
+

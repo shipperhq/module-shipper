@@ -7,44 +7,40 @@
 }
 
 form.methods-shipping input.shq-input {
-    width: 80% !important;
+    width: 80%;
 }
 
 .form.methods-shipping select,
 .form.methods-shipping input {
-    font-size: 12px !important;
-    height: 30px !important;
-    border: 1px solid #ddd !important;
-    max-width: 100% !important;
+    font-size: 12px;
+    height: 30px;
+    border: 1px solid #ddd;
+    max-width: 100%;
     float: left;
     line-height: 30px;
     padding-left: 5px;
     padding-right: 5px;
+}
+.form.methods-shipping input[type="radio"] {
+    height: auto;
+    margin-top: 4px;
+}
+
+.shq-optn-50l,
+.shq-optn-50r {
+    margin-bottom: 10px;
 }
 
 .shq-optn-50l,
 .shq-optn-50r,
 .shq-optn-100 {
     float: left;
-    margin-bottom: 20px;
     font-size: 12px;
 }
 
-.shq-optn-50l {
-    width: 46%;
-    padding-right: 4%;
-    box-sizing: content-box;
-}
-
-.shq-optn-50r {
-    width: 46%;
-    padding-left: 4%;
-    box-sizing: content-box;
-}
-
-.shq-optn-100 {
-    width: 100%;
-}
+.shq-optn-50l {width: 50%; padding-right: 5px; box-sizing: border-box;}
+.shq-optn-50r {width: 50%; padding-left: 5px; box-sizing: border-box;}
+.shq-optn-100 {width: 100%;}
 
 .form.methods-shipping label.shq-title,
 .form.methods-shipping input.shq-input,
@@ -53,7 +49,6 @@ form.methods-shipping input.shq-input {
 }
 
 .form.methods-shipping input.shq-input {
-    width: auto;
     float: left;
 }
 
@@ -66,13 +61,19 @@ form.methods-shipping input.shq-input {
 }
 
 .shq-input {
-    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-top: 2px;
 }
 
 .shq-datepicker button {
     float: left;
     width: 14px;
     margin: 0 5px 0 0;
+}
+
+.shq_datepicker button.ui-datepicker-trigger {
+    margin-top: 5px;
+    margin-left: 2px;
 }
 
 @media only screen and (max-width: 480px) {

@@ -26,7 +26,8 @@ define(
         var appendMethodTooltips = function(viewModel, methodTable) {
             if (viewModel.rates().length) {
                 _.each(viewModel.rates(), function(method) {
-                    var row = methodTable.find('#s_method_' + method.carrier_code + '_' + method.method_code).closest('tr');
+                    // Can't use ID selection, must use attr selection, because methods may have special chars
+                    var row = methodTable.find('[id="s_method_' + method.carrier_code + '_' + method.method_code + '"]').closest('tr');
                     if (row.length && method.extension_attributes) {
                         row.find('.col-description').remove(); // Delete previous tooltip if exists
                         var tooltip = $('' +

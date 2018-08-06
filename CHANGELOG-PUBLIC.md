@@ -288,3 +288,7 @@ SHQ18-127 Fix conflict with B2B module
 SHQ18-155 support map and location details for in store pickup
 
 
+## 20.20.1 (2018-08-06)
+SHQ18-511 Fix tooltips breaking checkout when method has special chars
+
+

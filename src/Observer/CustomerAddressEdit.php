@@ -37,6 +37,7 @@ namespace ShipperHQ\Shipper\Observer;
 
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
 
 /**
  * ShipperHQ Shipper module observer
@@ -49,7 +50,6 @@ class CustomerAddressEdit implements ObserverInterface
     private $addressRepository;
 
     /**
-     * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
      */
     public function __construct(
@@ -77,7 +77,11 @@ class CustomerAddressEdit implements ObserverInterface
                         $existingAddress->setCustomAttribute('validation_status', '');
                     }
                 }
-                $this->addressRepository->save($existingAddress);
+                try {
+                    $this->addressRepository->save($existingAddress);
+                } catch (LocalizedException $e) {
+                    //do nothing, message has already been added to the messsage queue
+                }
             }
         }
     }

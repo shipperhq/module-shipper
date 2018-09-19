@@ -292,3 +292,7 @@ SHQ18-155 support map and location details for in store pickup
 SHQ18-511 Fix tooltips breaking checkout when method has special chars
 
 
+## 20.20.2 (2018-09-19)
+SHQ18-774 Ensure correct store configuration is used in admin orders
+
+

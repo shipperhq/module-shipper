@@ -307,7 +307,8 @@ class ShipperMapper
             $shipperHQRequest->setCarrierId($carrierId);
         }
 
-        $storeId = $magentoRequest->getStoreId();
+        //SHQ18-774
+        $storeId = $magentoRequest->getQuote()->getStoreId() ? $magentoRequest->getQuote()->getStoreId() : $magentoRequest->getStoreId();
         $ipAddress = $magentoRequest->getIpAddress();
         $shipperHQRequest->setSiteDetails($this->getSiteDetails($storeId, $ipAddress));
         $shipperHQRequest->setCredentials($this->getCredentials($storeId));

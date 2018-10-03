@@ -9,10 +9,11 @@ define(
         'underscore',
         'jquery',
         'knockout',
+        'Magento_Checkout/js/action/select-shipping-method',
         'uiRegistry',
         'mage/utils/wrapper'
     ],
-    function (_, $, ko, registry, wrapper) {
+    function (_, $, ko, selectShippingMethodAction, registry, wrapper) {
         'use strict';
 
         var appendHeading = function(viewModel, methodTable) {
@@ -52,6 +53,8 @@ define(
             }
         };
 
+        var initialLoad = true;
+
         return function (target) {
             var setShippingRates = target.setShippingRates;
             target.setShippingRates = wrapper.wrap(setShippingRates, function(fn, ratesData) {
@@ -62,6 +65,12 @@ define(
                 if (methodTbl.length && shippingVM) {
                     appendHeading(shippingVM, methodTbl);
                     appendMethodTooltips(shippingVM, methodTbl);
+                }
+
+                // SHQ18-860 clear selected shipping method on reload
+                if (initialLoad) {
+                    selectShippingMethodAction(null)
+                    initialLoad = false
                 }
             });
             return target;

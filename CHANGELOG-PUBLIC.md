@@ -296,3 +296,7 @@ SHQ18-511 Fix tooltips breaking checkout when method has special chars
 SHQ18-774 Ensure correct store configuration is used in admin orders
 
 
+## 20.21.0 (2018-10-03)
+SHQ18-860 Wipe selections when returning to cart from other pages
+
+

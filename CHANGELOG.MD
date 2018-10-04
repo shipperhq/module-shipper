@@ -300,3 +300,7 @@ SHQ18-774 Ensure correct store configuration is used in admin orders
 SHQ18-860 Wipe selections when returning to cart from other pages
 
 
+## 20.21.1 (2018-10-04)
+SHQ18-889 Resolved issue with getting store id in multi address checkout
+
+

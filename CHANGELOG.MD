@@ -308,3 +308,7 @@ SHQ18-889 Resolved issue with getting store id in multi address checkout
 SHQ18-964 Add availability date to attributes array
 
 
+## 20.21.3 (2018-10-23)
+SHQ18-955 Convert html in origin and pickup names to corresponding character
+
+

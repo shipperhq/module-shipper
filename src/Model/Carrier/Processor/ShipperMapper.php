@@ -531,7 +531,8 @@ class ShipperMapper
                         continue;
                     }
                     $admin_value = $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
-                    $valueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
+                    $rawValueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
+                    $valueString = html_entity_decode($rawValueString); //SHQ18-955
                     $warehouseDetail = $this->physicalBuildingDetailFactory->create([
                         'name' => $valueString,
                         'inventoryCount' => $this->stockHandler->getOriginInventoryCount($valueString, $item, $product),
@@ -569,7 +570,8 @@ class ShipperMapper
             if ($attribute) {
                 foreach ($itemLocations as $aValue) {
                     $admin_value = $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
-                    $valueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
+					$rawValueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
+					$valueString = html_entity_decode($rawValueString); //SHQ18-955
                     $locationDetail = $this->physicalBuildingDetailFactory->create([
                         'name' => $valueString,
                         'inventoryCount' => $this->stockHandler->getLocationInventoryCount(

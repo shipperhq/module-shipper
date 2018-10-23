@@ -40,11 +40,11 @@ class Sallowspecific extends \Magento\Config\Block\System\Config\Form\Field
      */
     public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
-        $class = $this->isHidden($element) ? "class=\"hidden\"" : "";
+        $class = $this->isHidden($element) ? 'class="hidden"' : '';
         $out = parent::render($element);
 
-        $search = '<tr id="row_' . $element->getHtmlId() . '">';
-        $replace = '<tr id="row_' . $element->getHtmlId() . '" ' . $class . '>';
+        $search = "/<tr id=\"row_{$element->getHtmlId()}\">/";
+        $replace = "<tr id=\"row_{$element->getHtmlId()}\" $class>";
         $out = preg_replace($search, $replace, $out);
         return $out;
     }

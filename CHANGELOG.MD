@@ -304,3 +304,7 @@ SHQ18-860 Wipe selections when returning to cart from other pages
 SHQ18-889 Resolved issue with getting store id in multi address checkout
 
 
+## 20.21.2 (2018-10-23)
+SHQ18-964 Add availability date to attributes array
+
+

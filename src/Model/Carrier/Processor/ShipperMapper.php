@@ -69,7 +69,8 @@ class ShipperMapper
         'shipperhq_master_boxes',
         'ship_box_tolerance',
         'must_ship_freight',
-        'packing_section_name'
+        'packing_section_name',
+		'shipperhq_availability_date'
     ];
 
     private static $dim_height = 'ship_height';

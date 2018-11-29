@@ -312,3 +312,7 @@ SHQ18-964 Add availability date to attributes array
 SHQ18-955 Convert html in origin and pickup names to corresponding character
 
 
+## 20.21.4 (2018-11-29)
+SHQ18-1120 Perform dynamic address type lookup within PayPal express checkout
+
+

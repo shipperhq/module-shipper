@@ -12,6 +12,9 @@
     <event name="controller_action_predispatch_checkout_index_index">
         <observer name="shipperhq_set_checkout" instance="ShipperHQ\Shipper\Observer\SetCheckoutFlag"/>
     </event>
+    <event name="controller_action_predispatch_paypal_express_gettoken">
+        <observer name="shipperhq_set_checkout_paypal" instance="ShipperHQ\Shipper\Observer\SetCheckoutFlag"/>
+    </event>
     <event name="checkout_controller_multishipping_shipping_post">
         <observer name="shipperhq_multiaddress_save_shipping" instance="ShipperHQ\Shipper\Observer\SaveShippingMulti"/>
     </event>

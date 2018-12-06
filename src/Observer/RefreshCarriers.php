@@ -59,6 +59,11 @@ class RefreshCarriers implements ObserverInterface
      */
     private $config;
 
+	/**
+	 * @var \ShipperHQ\Shipper\Helper\Data
+	 */
+	private $shipperDataHelper;
+
     /**
      * @param ScopeConfigInterface $config
      * @param  \ShipperHQ\Shipper\Model\Carrier\Shipper $carrier
@@ -67,11 +72,13 @@ class RefreshCarriers implements ObserverInterface
     public function __construct(
         ScopeConfigInterface $config,
         \ShipperHQ\Shipper\Model\Carrier\Shipper $carrier,
-        ManagerInterface $messageManager
+        ManagerInterface $messageManager,
+		\ShipperHQ\Shipper\Helper\Data $shipperDataHelper
     ) {
         $this->shipperCarrier = $carrier;
         $this->messageManager = $messageManager;
         $this->config = $config;
+        $this->shipperDataHelper = $shipperDataHelper;
     }
 
     /**
@@ -84,6 +91,13 @@ class RefreshCarriers implements ObserverInterface
     public function execute(EventObserver $observer)
     {
         if ($this->config->isSetFlag('carriers/shipper/active', ScopeInterface::SCOPE_STORES)) {
+			if(!$this->shipperDataHelper->getCredentialsEntered()) {
+				$message = __('Missing credentials for ShipperHQ. Can\'t update carriers');
+				$this->messageManager->addError($message);
+
+				return;
+			}
+
             $refreshResult = $this->shipperCarrier->refreshCarriers();
             if (array_key_exists('error', $refreshResult)) {
                 $message = __($refreshResult['error']);

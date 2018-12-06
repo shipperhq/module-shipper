@@ -104,11 +104,16 @@ class FreightClass extends \Magento\Eav\Model\Entity\Attribute\Source\Config
         return $arr;
     }
 
-    public function getFlatColums()
+    /**
+	 * SHQ18-1019 Resolve issue with function name and type.
+	 *
+	 * Thanks to @dfg-ck on GitHub for this fix
+	 */
+    public function getFlatColumns()
     {
         $columns = [
             $this->getAttribute()->getAttributeCode() => [
-                'type' => 'int',
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                 'unsigned' => false,
                 'is_null' => true,
                 'default' => null,

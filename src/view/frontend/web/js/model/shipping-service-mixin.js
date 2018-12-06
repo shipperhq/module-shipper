@@ -69,7 +69,12 @@ define(
 
                 // SHQ18-860 clear selected shipping method on reload
                 if (initialLoad) {
-                    selectShippingMethodAction(null)
+                    // SHQ18-1143 - In M2.1 if there's only one method it's hardcoded to be checked
+                    selectShippingMethodAction(
+                        ratesData.length == 1
+                            ? ratesData[0]
+                            : null
+                    );
                     initialLoad = false
                 }
             });

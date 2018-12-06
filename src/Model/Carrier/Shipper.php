@@ -249,6 +249,24 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             return false;
         }
 
+        //Set quote on request so we can get store ID from quote
+		if (is_array($request->getAllItems())) {
+			$item = current($request->getAllItems());
+			if ($item instanceof QuoteItem) {
+				$request->setQuote($item->getQuote());
+				$this->quote = $item->getQuote();
+			}
+		}
+
+        if (!$this->shipperDataHelper->getCredentialsEntered($request)) {
+			$this->shipperLogger->postDebug(
+				'Shipperhq_Shipper',
+				'No credentials entered',
+				'Missing API key or Authentication key. Ignoring request'
+			);
+        	return false;
+		}
+
         if ($request->getDestPostcode() === null && $this->getConfigFlag(self::IGNORE_EMPTY_ZIP)) {
             $this->shipperLogger->postDebug(
                 'Shipperhq_Shipper',
@@ -277,14 +295,6 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      */
     public function setRequest(\Magento\Quote\Model\Quote\Address\RateRequest $request)
     {
-        if (is_array($request->getAllItems())) {
-            $item = current($request->getAllItems());
-            if ($item instanceof QuoteItem) {
-                $request->setQuote($item->getQuote());
-                $this->quote = $item->getQuote();
-            }
-        }
-
         //SHQ16-1261 - further detail as values not on shipping address
         if (!$this->quote) {
             $this->quote = $this->shipperDataHelper->getQuote();

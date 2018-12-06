@@ -191,7 +191,14 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
 
     private function getLatestAttributeData()
     {
-        $result = [];
+		$result = [];
+
+		if (!$this->shipperDataHelper->getCredentialsEntered()) {
+			$result['error'] = 'Missing API key or Authentication key. Can\'t connect to ShipperHQ';
+
+			return $result;
+		}
+
         $synchronizeUrl = $this->restHelper->getAttributeGatewayUrl();
         $resultSet = $this->send($synchronizeUrl);
 

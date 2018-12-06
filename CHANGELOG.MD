@@ -316,3 +316,7 @@ SHQ18-955 Convert html in origin and pickup names to corresponding character
 SHQ18-1120 Perform dynamic address type lookup within PayPal express checkout
 
 
+## 20.21.5 (2018-12-06)
+SHQ18-1159 Prevent calls to ShipperHQ API if credentials are not entered. SHQ18-1143 Autoselect method if only one present
+
+

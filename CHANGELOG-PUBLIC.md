@@ -320,3 +320,7 @@ SHQ18-1120 Perform dynamic address type lookup within PayPal express checkout
 SHQ18-1159 Prevent calls to ShipperHQ API if credentials are not entered. SHQ18-1143 Autoselect method if only one present
 
 
+## 20.21.6 (2018-12-10)
+SHQ18-944 Remove restricted characters from order grid column names
+
+

@@ -324,3 +324,7 @@ SHQ18-1159 Prevent calls to ShipperHQ API if credentials are not entered. SHQ18-
 SHQ18-944 Remove restricted characters from order grid column names
 
 
+## 20.21.7 (2019-01-22)
+SHQ18-1335 Fixing Array to String Conversion
+
+

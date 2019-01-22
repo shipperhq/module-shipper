@@ -625,7 +625,12 @@ class ShipperMapper
                     $valueString = [];
                     foreach ($attributeValue as $aValue) {
                         $admin_value = $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
-                        $valueString[] = $admin_value;
+                        // SHQ18-1335 - getOptionsText may return an array in some scenarios -- see vendor/magento/module-eav/Model/Entity/Attribute/Source/Table.php
+                        if (is_array($admin_value)) {
+                            $valueString = array_merge($valueString, $admin_value);
+                        } else {
+                            $valueString[] = $admin_value;
+                        }
                     }
                     $attributeValue = implode('#', $valueString);
                 } else {

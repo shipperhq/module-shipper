@@ -115,7 +115,7 @@ class FreightClass extends \Magento\Eav\Model\Entity\Attribute\Source\Config
             $this->getAttribute()->getAttributeCode() => [
                 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                 'unsigned' => false,
-                'is_null' => true,
+                'nullable' => true,
                 'default' => null,
                 'extra' => null
             ]

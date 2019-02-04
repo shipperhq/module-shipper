@@ -328,3 +328,7 @@ SHQ18-944 Remove restricted characters from order grid column names
 SHQ18-1335 Fixing Array to String Conversion
 
 
+## 20.21.8 (2019-02-04)
+SHQ18-1310 Convert HTML in attribute values to character before sending in request
+
+

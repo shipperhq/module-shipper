@@ -115,23 +115,29 @@ class ShippingInformationPlugin
         $carrierCode = $addressInformation->getShippingCarrierCode();
         $methodCode = $addressInformation->getShippingMethodCode();
         $shippingMethod = $carrierCode . '_' . $methodCode;
+
         $quote = $this->quoteRepository->getActive($cartId);
-        $address = $quote->getShippingAddress();
+		$address = $addressInformation->getShippingAddress();
+        $quoteAddress = $quote->getShippingAddress();
+
         $validation = false;
+
         try {
             if ($this->checkoutSession) {
                 $validation = $this->checkoutSession->getShipAddressValidation();
                 if (is_array($validation) && isset($validation['key'])) {
                     if (isset($validation['validation_status'])) {
-                        $address->setValidationStatus($validation['validation_status']);
+                        //$addressInformation->getShippingAddress()->setValidationStatus($validation['validation_status']);
+                    	$address->setValidationStatus($validation['validation_status']);
                     }
                     if (isset($validation['destination_type'])) {
-                        $address->setDestinationType($validation['destination_type']);
+						//$addressInformation->getShippingAddress()->setDestinationType($validation['destination_type']);
+
+						$address->setDestinationType($validation['destination_type']);
                     }
                     $this->checkoutSession->setShipAddressValidation(null);
                 }
                 $this->checkoutSession->setShipAddressValidation(null);
-                $address->save();
             }
         } catch (\Exception $e) {
             $this->shipperLogger->postCritical(
@@ -167,18 +173,19 @@ class ShippingInformationPlugin
             'Processed the following extra fields from checkout ',
             $additionalDetail
         );
+        //Switch to using quoteAddress. This function call updates it to correct address
         $result = $proceed($cartId, $addressInformation);
 
         $this->carrierGroupHelper->saveCarrierGroupInformation(
-            $address,
+			$quoteAddress,
             $shippingMethod,
             $additionalDetailArray
         );
 
-        if ($address->getCustomerId()) {
+        if ($quoteAddress->getCustomerId()) {
             $customerAddresses = $quote->getCustomer()->getAddresses();
             foreach ($customerAddresses as $oneAddress) {
-                if ($oneAddress->getId() == $address->getCustomerAddressId() &&
+                if ($oneAddress->getId() == $quoteAddress->getCustomerAddressId() &&
                     is_array($validation) && isset($validation['key'])
                 ) {
                     if (isset($validation['validation_status'])) {
@@ -198,7 +205,7 @@ class ShippingInformationPlugin
                 'address_extn_attributes' => $extAttributes,
                 'additional_detail' => $additionalDetail,
                 'carrier_code' => $carrierCode,
-                'address' => $address,
+                'address' => $quoteAddress,
                 'shipping_method' => $shippingMethod
             ]
         );

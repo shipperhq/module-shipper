@@ -332,3 +332,7 @@ SHQ18-1335 Fixing Array to String Conversion
 SHQ18-1310 Convert HTML in attribute values to character before sending in request
 
 
+## 20.21.9 (2019-02-12)
+SHQ18-1391 Ensure shipping rate saved to order matches shipping rate in order details
+
+

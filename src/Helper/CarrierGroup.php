@@ -128,7 +128,15 @@ class CarrierGroup extends Data
     public function saveCarrierGroupInformation($shippingAddress, $shippingMethod, array $additionalDetail = [])
     {
         //admin and front end orders use method
-        $foundRate = $shippingAddress->getShippingRateByCode($shippingMethod);
+        //SHQ18-1391 - need to ensure rate matches on code and price. If more than 1, then use latest
+        $foundRate = false;
+        $shippingPrice = $shippingAddress->getShippingAmount();
+        foreach ($shippingAddress->getShippingRatesCollection() as $rate) {
+            if ($rate->getCode() == $shippingMethod && $rate->getPrice() == $shippingPrice) {
+                $foundRate = $rate;
+            }
+        }
+
         if ($foundRate && $foundRate->getCarriergroupShippingDetails() != '') {
             $shipDetails = $this->shipperDataHelper->decodeShippingDetails(
                 $foundRate->getCarriergroupShippingDetails()
@@ -287,6 +295,7 @@ class CarrierGroup extends Data
         foreach ($quoteAddressCollection as $quoteDetail) {
             $orderDetailModel = $this->orderDetailFactory->create();
             $data = $quoteDetail->getData();
+
             $existingOrderDetailCollection = $orderDetailModel->loadByOrder($orderId);
             if (!empty($existingOrderDetailCollection)) {
                 foreach ($existingOrderDetailCollection as $order) {

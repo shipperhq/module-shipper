@@ -545,14 +545,31 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                         $trim = $total - 35;
                         $methodCombineCode = substr($methodCombineCode, $trim, $lengthMethodCode);
                     }
-                    $rate->setMethod($methodCombineCode);
 
                     $rate->setMethodTitle(__($rateDetails['method_title']));
-                    $rate->setTooltip($rateDetails['tooltip']);
+                    $rate->setMethod($methodCombineCode);
+                    $tooltip = "";
+                    if (isset($rateDetails['tooltip']) && !empty($rateDetails['tooltip'])) {
+                        $tooltip = $rateDetails['tooltip'];
+                    }
+                    else if (isset($carrierRate['custom_description']) && !empty($carrierRate['custom_description'])) {
+                        $tooltip = $carrierRate['custom_description'];
+                    }
+                    $rate->setTooltip($tooltip);
 
                     if (array_key_exists('method_description', $rateDetails)) {
                         $rate->setMethodDescription(__($rateDetails['method_description']));
                     }
+
+                    if (isset($rateDetails['carriergroup_detail']['customDuties']) && $rateDetails['carriergroup_detail']['customDuties'] > 0) {
+                        $dutiesMessage = sprintf("$%01.2f in taxes and duties included", $rateDetails['carriergroup_detail']['customDuties']);
+                        $rate->setCustomDuties(__($dutiesMessage));
+                    }
+
+                    if (isset($rateDetails['carriergroup_detail']['hideNotifications']) && $rateDetails['carriergroup_detail']['hideNotifications']) {
+                        $rate->setHideNotifications($rateDetails['carriergroup_detail']['hideNotifications']);
+                    }
+
                     $rate->setCost($rateDetails['cost'] * $baseRate);
 
                     $rate->setPrice($rateDetails['price'] * $baseRate);
@@ -687,11 +704,11 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
         $timezone = $this->shipperDataHelper->getConfigValue('general/locale/timezone');
         $configSettings = $this->configSettingsFactory->create([
-            'hideNotifications' => $this->getConfigFlag('carriers/shipper/hide_notify'),
+            'hideNotifications' => $this->getConfigFlag('hide_notify'),
             'transactionIdEnabled' => $this->shipperDataHelper->isTransactionIdEnabled(),
             'locale' => $this->getLocaleInGlobals(),
             'shipperHQCode' => $this->_code,
-            'shipperHQTitle' => $this->getConfigFlag('carriers/shipper/title'),
+            'shipperHQTitle' => $this->getConfigFlag('title'),
             'timezone' => $timezone
         ]);
 

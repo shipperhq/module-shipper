@@ -117,11 +117,15 @@ class CarrierCache
      */
     public function setCachedQuotes($requestParams, $response, $carrierCode)
     {
-        if ($this->useCache) {
+        if ($this->useCache && $this->responseCanBeCached($response)) {
             $key = $this->getQuotesCacheKey($requestParams, $carrierCode);
             $this->cache->save(serialize($response), $key, [self::CACHE_TAG]);
         }
         return $this;
+    }
+
+    public static function responseCanBeCached($response) {
+        return isset($response['result']) && !empty($response['result']);
     }
 
     public function cleanDownCachedRates()

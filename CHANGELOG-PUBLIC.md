@@ -336,3 +336,7 @@ SHQ18-1310 Convert HTML in attribute values to character before sending in reque
 SHQ18-1391 Ensure shipping rate saved to order matches shipping rate in order details
 
 
+## 20.22.0 (2019-03-11)
+SHQ18-1613 Support displaying actual method rate shopping selected in admin order view
+
+

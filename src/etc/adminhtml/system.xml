@@ -99,7 +99,7 @@
                 </field>
                 <field id="hide_notify" translate="label" type="select" sortOrder="310" showInDefault="1"
                        showInWebsite="1" showInStore="0">
-                    <label>Hide Carrier Notifications at Checkout</label>
+                    <label>Hide Carrier Logos</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <tooltip>
                         Carriers may include notifications when their live rates have been modified. Set to yes if you wish to hide these notifications.

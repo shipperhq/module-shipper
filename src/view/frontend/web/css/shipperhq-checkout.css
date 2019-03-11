@@ -89,3 +89,39 @@ form.methods-shipping input.shq-input {
     }
 
 }
+
+.shq-method-carrier-logo {
+    padding-right: 5px;
+    padding-bottom: 5px;
+}
+.shq-method-carrier-logo img {
+    max-width: 70px;
+    width: 100%;
+    vertical-align: middle;
+    box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.22);
+    background: #fff;
+    border-radius: 3px;
+    margin-right: 5px;
+}
+
+.shq-method-carrier-title {
+    vertical-align: middle;
+}
+
+.shq-method-subtext {
+    font-size: .8em;
+    font-weight: bold;
+    padding: .25em 0;
+}
+
+.table-checkout-shipping-method tbody tr td {
+    vertical-align: middle;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.table-checkout-shipping-method tbody tr td.col-carrier{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}

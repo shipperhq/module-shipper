@@ -11,15 +11,33 @@ define(
         'knockout',
         'Magento_Checkout/js/action/select-shipping-method',
         'uiRegistry',
-        'mage/utils/wrapper'
+        'mage/utils/wrapper',
+        'shq_logos_manifest'
     ],
-    function (_, $, ko, selectShippingMethodAction, registry, wrapper) {
+    function (_, $, ko, selectShippingMethodAction, registry, wrapper, manifest) {
         'use strict';
 
-        var appendHeading = function(viewModel, methodTable) {
-            if ($(methodTable).find('thead tr td.col-description').length === 0) {
+        var findMethodLabel = function(methodTable, method) {
+            var methodLabel = methodTable.find('[id="label_method_' + method.method_code + '_' + method.carrier_code + '"]');
+            if (!methodLabel.length) {
+                methodLabel = methodTable.find('[id="s_method_' + method.carrier_code + '_' + method.method_code + '"]');
+            }
+
+            return methodLabel
+        };
+
+        var findMethodRow = function(methodTable, method) {
+            var methodLabel = findMethodLabel(methodTable, method);
+
+            return methodLabel.closest('tr')
+        };
+
+        var appendTooltipColumn = function(viewModel, methodTable) {
+            if ($(methodTable).find('tr td.col-description').length === 0) {
                 var heading = $('<th class="col col-description" data-bind="i18n: \'\'"></th>');
                 heading.appendTo(methodTable.find('thead tr'));
+                var column = $('<td class="col col-description"></td>');
+                column.appendTo(methodTable.find('tbody tr, tfoot tr'));
                 ko.applyBindings(viewModel, heading[0]);
             }
         };
@@ -28,8 +46,8 @@ define(
             if (viewModel.rates().length) {
                 _.each(viewModel.rates(), function(method) {
                     // Can't use ID selection, must use attr selection, because methods may have special chars
-                    var row = methodTable.find('[id="s_method_' + method.carrier_code + '_' + method.method_code + '"]').closest('tr');
-                    if (row.length && method.extension_attributes) {
+                    var row = findMethodRow(methodTable, method);
+                    if (row.length && method.extension_attributes && method.extension_attributes.tooltip) {
                         row.find('.col-description').remove(); // Delete previous tooltip if exists
                         var tooltip = $('' +
                             '<td class="col col-description">' +
@@ -53,6 +71,76 @@ define(
             }
         };
 
+        var appendCustomDuties = function(viewModel, methodTable) {
+            if (viewModel.rates().length) {
+                _.each(viewModel.rates(), function(method) {
+                    // Can't use ID selection, must use attr selection, because methods may have special chars
+                    var label = findMethodLabel(methodTable, method);
+                    if (label.length && method.extension_attributes && method.extension_attributes.custom_duties) {
+                        var customDuties = $('' +
+                            '<div class="shq-method-subtext" data-bind="text: extension_attributes.custom_duties"></div>\n'
+                        );
+                        customDuties.appendTo(label);
+                        ko.applyBindings(method, customDuties[0]);
+                    }
+                });
+            }
+        };
+
+        var addCarrierLogos = function(viewModel, methodTable) {
+            var logosBasePath = document.querySelector('[rel=shq-carriers-logos-path]').href;
+            if (/^http/.test(logosBasePath) && viewModel.rates().length) {
+                _.each(viewModel.rates(), function(method) {
+                    if (
+                        method.extension_attributes &&
+                        method.extension_attributes.hide_notifications &&
+                        method.extension_attributes.hide_notifications === "1"
+                    ) {
+                        return
+                    }
+
+                    var row = findMethodRow(methodTable, method);
+                    var label = row.find('.col-carrier');
+                    if (label.length) {
+                        var strippedCarrierCode = method.carrier_code.toString().replace(/^shq|[^a-z]/ig, '');
+                        var logo = logosBasePath + '/' + strippedCarrierCode + '.png';
+                        if (manifest.filter(function(el) {return el.toLowerCase() === strippedCarrierCode.toLowerCase()}).length <= 0) {
+                            logo = logosBasePath + '/smpkg.png';
+                            if (/pickup/i.test(method.carrier_code)) {
+                                logo = logoBasePath + '/pickup.png';
+                            } else if (/freight/i.test(method.carrier_code)) {
+                                logo = logosBasePath + '/freight.png';
+                            }
+                        }
+                        var img = $('<div class="shq-method-carrier-logo"><img src="' + logo + '" alt="' + method.carrier_title + '"/></div><div class="shq-method-carrier-title">' + method.carrier_title + '</div>')
+                        label.html(img)
+                    }
+                });
+            }
+        };
+
+        var appendSHQData = function() {
+            var methodTbl = $('#opc-shipping_method .table-checkout-shipping-method');
+            var shippingVM = registry.get("checkout.steps.shipping-step.shippingAddress");
+            if (methodTbl.length && methodTbl.find('tbody tr').length && shippingVM) {
+                appendTooltipColumn(shippingVM, methodTbl);
+                appendMethodTooltips(shippingVM, methodTbl);
+                appendCustomDuties(shippingVM, methodTbl);
+                addCarrierLogos(shippingVM, methodTbl);
+                return true;
+            }
+            return false;
+        };
+
+        var appendSHQDataWhenLoaded = function(retries, delayMs, firstDelayMs) {
+            var delay = firstDelayMs !== undefined ? firstDelayMs : delayMs;
+            setTimeout(function() {
+                if (!appendSHQData() && retries) {
+                    appendSHQDataWhenLoaded(--retries, delayMs)
+                }
+            }, delay)
+        };
+
         var initialLoad = true;
 
         return function (target) {
@@ -60,12 +148,8 @@ define(
             target.setShippingRates = wrapper.wrap(setShippingRates, function(fn, ratesData) {
                 fn(ratesData); // Call original method
 
-                var methodTbl = $('#opc-shipping_method .table-checkout-shipping-method');
-                var shippingVM = registry.get("checkout.steps.shipping-step.shippingAddress");
-                if (methodTbl.length && shippingVM) {
-                    appendHeading(shippingVM, methodTbl);
-                    appendMethodTooltips(shippingVM, methodTbl);
-                }
+                // M2.2 has split shipping methods into their own module. Wait for up to 2.5s for it to load
+                appendSHQDataWhenLoaded(10, 250, 0);
 
                 // SHQ18-860 clear selected shipping method on reload
                 if (initialLoad) {

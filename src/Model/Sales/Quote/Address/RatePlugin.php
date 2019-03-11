@@ -72,6 +72,7 @@ class RatePlugin
                 ->setCustomDescription($rate->getCustomDescription())
                 ->setCarrierId($rate->getCarrierId())
                 ->setCustomDuties($rate->getCustomDuties())
+                ->setHideNotifications($rate->getHideNotifications())
                 ->setTooltip($rate->getTooltip());
         }
         return $result;

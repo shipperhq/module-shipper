@@ -67,13 +67,19 @@ class ShippingMethodConverterPlugin
 
         $resultShippingMethod = $proceed($rateModel, $quoteCurrencyCode);
         $extensionAttributes = $resultShippingMethod->getExtensionAttributes();
-        if ($extensionAttributes && $extensionAttributes->getTooltip() || $rateModel->getTooltip() == '') {
+        if ($extensionAttributes &&
+            ($extensionAttributes->getTooltip() || $rateModel->getTooltip() == '') &&
+            ($extensionAttributes->getCustomDuties() || $rateModel->getCustomDuties() == '') &&
+            ($extensionAttributes->getHideNotifications() || $rateModel->getHideNotifications() == '')
+        ) {
             return $resultShippingMethod;
         }
 
         $shippingMethodExtension = $extensionAttributes ?
             $extensionAttributes : $this->shippingMethodExtensionFactory->create();
         $shippingMethodExtension->setTooltip($rateModel->getTooltip());
+        $shippingMethodExtension->setCustomDuties($rateModel->getCustomDuties());
+        $shippingMethodExtension->setHideNotifications($rateModel->getHideNotifications());
         $resultShippingMethod->setExtensionAttributes($shippingMethodExtension);
 
         return $resultShippingMethod;

@@ -11,7 +11,9 @@ var config = {
             "Magento_Checkout/template/shipping-address/address-renderer/default.html":
                 "ShipperHQ_Shipper/template/shipping-address/address-renderer/default.html",
             "Magento_Checkout/template/billing-address/details.html":
-                "ShipperHQ_Shipper/template/billing-address/details.html"
+                "ShipperHQ_Shipper/template/billing-address/details.html",
+            "shq_logos_manifest":
+                'ShipperHQ_Shipper/images/carriers/manifest'
         }
     },
     config: {

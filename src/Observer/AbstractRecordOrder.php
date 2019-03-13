@@ -145,7 +145,7 @@ abstract class AbstractRecordOrder implements ObserverInterface
         $order->save();
     }
 
-    private function getDefaultCarrierShipMethod($order, $shippingAddress)
+    private function getDefaultCarrierShipMethod ($order, $shippingAddress)
     {
         $shipping_method = $order->getShippingMethod();
         $rate = $shippingAddress->getShippingRateByCode($shipping_method);
@@ -158,8 +158,14 @@ abstract class AbstractRecordOrder implements ObserverInterface
                 $carrierType,
                 $carrierCode
             );
+
+            //SHQ18-1620 Change to numerical UPS code for Magento labelling support
+            if ($carrierType == "ups") {
+                $method = $this->shipperDataHelper->mapToMagentoUPSMethodCode($method);
+            }
             $shipping_method = ($magentoCarrierCode . '_' . $method);
         }
+
         return $shipping_method;
     }
 }

@@ -58,6 +58,20 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'dhlint' => 'dhlint',
             'upsFreight' => 'upsfreight'
         ];
+	public $magentoUPSMethodCodes =
+		[
+			'1DA' => '01',
+			'2DA' => '02',
+			'GND' => '03',
+			'XPR' => '07',
+			'XPD' => '08',
+			'STD' => '11',
+			'3DS' => '12',
+			'1DP' => '13',
+			'1DM' => '14',
+			'XDM' => '54',
+			'2DM' => '59'
+		];
     private $prodAttributes;
     private $baseCurrencyRate;
     private $storeId;
@@ -316,6 +330,22 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return $this->magentoCarrierCodes[$carrierType];
         }
         return $carrierCode;
+    }
+
+    /**
+     * SHQ18-1620 Map SHQ UPS code to Magento numeric code
+     *
+     * @param $shqUPSMethodCode
+     *
+     * @return mixed
+     */
+    public function mapToMagentoUPSMethodCode ($shqUPSMethodCode)
+    {
+        if (array_key_exists($shqUPSMethodCode, $this->magentoUPSMethodCodes)) {
+            return $this->magentoUPSMethodCodes[$shqUPSMethodCode];
+        }
+
+        return $shqUPSMethodCode;
     }
 
     /**

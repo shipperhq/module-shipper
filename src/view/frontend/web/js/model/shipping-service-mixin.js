@@ -17,7 +17,7 @@ define(
     function (_, $, ko, selectShippingMethodAction, registry, wrapper, manifest) {
         'use strict';
 
-        var findMethodLabel = function(methodTable, method) {
+        var findMethodLabel = function (methodTable, method) {
             var methodLabel = methodTable.find('[id="label_method_' + method.method_code + '_' + method.carrier_code + '"]');
             if (!methodLabel.length) {
                 methodLabel = methodTable.find('[id="s_method_' + method.carrier_code + '_' + method.method_code + '"]');
@@ -26,13 +26,13 @@ define(
             return methodLabel
         };
 
-        var findMethodRow = function(methodTable, method) {
+        var findMethodRow = function (methodTable, method) {
             var methodLabel = findMethodLabel(methodTable, method);
 
             return methodLabel.closest('tr')
         };
 
-        var appendTooltipColumn = function(viewModel, methodTable) {
+        var appendTooltipColumn = function (viewModel, methodTable) {
             if ($(methodTable).find('tr td.col-description').length === 0) {
                 var heading = $('<th class="col col-description" data-bind="i18n: \'\'"></th>');
                 heading.appendTo(methodTable.find('thead tr'));
@@ -42,9 +42,9 @@ define(
             }
         };
 
-        var appendMethodTooltips = function(viewModel, methodTable) {
+        var appendMethodTooltips = function (viewModel, methodTable) {
             if (viewModel.rates().length) {
-                _.each(viewModel.rates(), function(method) {
+                _.each(viewModel.rates(), function (method) {
                     // Can't use ID selection, must use attr selection, because methods may have special chars
                     var row = findMethodRow(methodTable, method);
                     if (row.length && method.extension_attributes && method.extension_attributes.tooltip) {
@@ -71,9 +71,9 @@ define(
             }
         };
 
-        var appendCustomDuties = function(viewModel, methodTable) {
+        var appendCustomDuties = function (viewModel, methodTable) {
             if (viewModel.rates().length) {
-                _.each(viewModel.rates(), function(method) {
+                _.each(viewModel.rates(), function (method) {
                     // Can't use ID selection, must use attr selection, because methods may have special chars
                     var label = findMethodLabel(methodTable, method);
                     if (label.length && method.extension_attributes && method.extension_attributes.custom_duties) {
@@ -87,10 +87,10 @@ define(
             }
         };
 
-        var addCarrierLogos = function(viewModel, methodTable) {
+        var addCarrierLogos = function (viewModel, methodTable) {
             var logosBasePath = document.querySelector('[rel=shq-carriers-logos-path]').href;
             if (/^http/.test(logosBasePath) && viewModel.rates().length) {
-                _.each(viewModel.rates(), function(method) {
+                _.each(viewModel.rates(), function (method) {
                     if (
                         method.extension_attributes &&
                         method.extension_attributes.hide_notifications &&
@@ -103,8 +103,13 @@ define(
                     var label = row.find('.col-carrier');
                     if (label.length) {
                         var strippedCarrierCode = method.carrier_code.toString().replace(/^shq|[^a-z]/ig, '');
-                        var logo = logosBasePath + '/' + strippedCarrierCode + '.png';
-                        if (manifest.filter(function(el) {return el.toLowerCase() === strippedCarrierCode.toLowerCase()}).length <= 0) {
+                        var manifestEntries = manifest.filter(function (el) {
+                            return el.toLowerCase() === strippedCarrierCode.toLowerCase()
+                        });
+                        if (manifestEntries.length > 0) {
+                            var logoFile = manifestEntries.shift();
+                            var logo = logosBasePath + '/' + logoFile + '.png';
+                        } else {
                             logo = logosBasePath + '/smpkg.png';
                             if (/pickup/i.test(method.carrier_code)) {
                                 logo = logoBasePath + '/pickup.png';
@@ -119,7 +124,7 @@ define(
             }
         };
 
-        var appendSHQData = function() {
+        var appendSHQData = function () {
             var methodTbl = $('#opc-shipping_method .table-checkout-shipping-method');
             var shippingVM = registry.get("checkout.steps.shipping-step.shippingAddress");
             if (methodTbl.length && methodTbl.find('tbody tr').length && shippingVM) {
@@ -132,9 +137,9 @@ define(
             return false;
         };
 
-        var appendSHQDataWhenLoaded = function(retries, delayMs, firstDelayMs) {
+        var appendSHQDataWhenLoaded = function (retries, delayMs, firstDelayMs) {
             var delay = firstDelayMs !== undefined ? firstDelayMs : delayMs;
-            setTimeout(function() {
+            setTimeout(function () {
                 if (!appendSHQData() && retries) {
                     appendSHQDataWhenLoaded(--retries, delayMs)
                 }
@@ -145,7 +150,7 @@ define(
 
         return function (target) {
             var setShippingRates = target.setShippingRates;
-            target.setShippingRates = wrapper.wrap(setShippingRates, function(fn, ratesData) {
+            target.setShippingRates = wrapper.wrap(setShippingRates, function (fn, ratesData) {
                 fn(ratesData); // Call original method
 
                 // M2.2 has split shipping methods into their own module. Wait for up to 2.5s for it to load

@@ -340,3 +340,7 @@ SHQ18-1391 Ensure shipping rate saved to order matches shipping rate in order de
 SHQ18-1613 Support displaying actual method rate shopping selected in admin order view
 
 
+## 20.22.1 (2019-03-13)
+SHQ18-1644 Fix case sensitivity in carrier logos / SHQ18-1620 Use numeric method codes for UPS
+
+

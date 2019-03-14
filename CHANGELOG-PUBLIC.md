@@ -344,3 +344,7 @@ SHQ18-1613 Support displaying actual method rate shopping selected in admin orde
 SHQ18-1644 Fix case sensitivity in carrier logos / SHQ18-1620 Use numeric method codes for UPS
 
 
+## 20.23.0 (2019-03-14)
+SHQ18-1651 Update dependencies in composer.json
+
+

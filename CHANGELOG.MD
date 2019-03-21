@@ -348,3 +348,7 @@ SHQ18-1644 Fix case sensitivity in carrier logos / SHQ18-1620 Use numeric method
 SHQ18-1651 Update dependencies in composer.json
 
 
+## 20.24.0 (2019-03-21)
+SHQ18-1666 Display rate shopped method as order comment
+
+

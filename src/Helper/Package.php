@@ -198,6 +198,10 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                             $boxText = __('Transaction ID: ') . $carrier_group['transaction'];
                             $order->addStatusToHistory($order->getStatus(), $boxText, false);
                         }
+
+                        if (strpos($order->getShippingMethod(), 'multicarrier') === 0) {
+                            $order->addStatusToHistory($order->getStatus(), "Shipping method for " . $carrier_group['name'] . ": " . $carrier_group['methodTitle'], false);
+                        }
                     }
                 }
             } catch (\Exception $e) {

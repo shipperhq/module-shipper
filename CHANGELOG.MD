@@ -352,3 +352,7 @@ SHQ18-1651 Update dependencies in composer.json
 SHQ18-1666 Display rate shopped method as order comment
 
 
+## 20.24.1 (2019-03-21)
+SHQ18-1700 Code improvements to mitigate deadlocking
+
+

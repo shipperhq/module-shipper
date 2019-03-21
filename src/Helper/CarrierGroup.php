@@ -75,6 +75,11 @@ class CarrierGroup extends Data
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
      */
     private $searchCriteriaBuilder;
+    /**
+     * @var \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface
+     */
+    protected $orderStatusHistoryRepository;
+
     private $allNamedOptions = array(
         'liftgate_required' => 'Liftgate Required',
         'inside_delivery' => 'Inside Delivery',
@@ -95,6 +100,7 @@ class CarrierGroup extends Data
      * @param Data $shipperDataHelper
      * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      */
     public function __construct(
         \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory $addressDetailFactory,
@@ -104,7 +110,8 @@ class CarrierGroup extends Data
         \ShipperHQ\Shipper\Model\Order\GridDetailFactory $orderGridDetailFactory,
         Data $shipperDataHelper,
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        SearchCriteriaBuilder $searchCriteriaBuilder
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
 
         $this->addressDetailFactory = $addressDetailFactory;
@@ -115,15 +122,19 @@ class CarrierGroup extends Data
         $this->shipperDataHelper = $shipperDataHelper;
         $this->quoteRepository = $quoteRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**
      * Save the carrier group shipping details for single carriergroup orders and
      * set carrier information on shipping address
      *
-     * @param $shippingAddress
-     * @param $shippingMethod
-     * @return array
+     * @param       $shippingAddress
+     * @param       $shippingMethod
+     * @param array $additionalDetail
+     *
+     * @return bool
+     * @throws \Exception
      */
     public function saveCarrierGroupInformation($shippingAddress, $shippingMethod, array $additionalDetail = [])
     {
@@ -257,15 +268,15 @@ class CarrierGroup extends Data
             }
             break;
         }
+
         $cgInfo = $this->getOrderCarrierGroupInfo($order->getId());
+
         if (empty($cgInfo)) {
-            $order->addStatusToHistory(
-                $order->getStatus(),
+            $this->orderStatusHistoryRepository->save($order->addStatusHistoryComment(
                 self::NO_SHIPPERHQ_DETAIL_AVAILABLE . __(': No detailed shipping information recorded'),
-                false
-            );
-            $order->save();
+                $order->getStatus()));
         }
+
         return $cgInfo;
     }
 

@@ -56,21 +56,28 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
      * @var CarrierGroup
      */
     private $carrierGroupHelper;
+    /**
+     * @var \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface
+     */
+    protected $orderStatusHistoryRepository;
 
     /**
      * Package constructor.
-     * @param \Magento\Framework\App\Helper\Context $context
-     * @param \ShipperHQ\Shipper\Model\Quote\PackagesFactory $quotePackageFactory
-     * @param \ShipperHQ\Shipper\Model\Order\PackagesFactory $orderPackageFactory
-     * @param Data $shipperDataHelper
-     * @param CarrierGroup $carrierGroupHelper
+     *
+     * @param \Magento\Framework\App\Helper\Context                    $context
+     * @param \ShipperHQ\Shipper\Model\Quote\PackagesFactory           $quotePackageFactory
+     * @param \ShipperHQ\Shipper\Model\Order\PackagesFactory           $orderPackageFactory
+     * @param Data                                                     $shipperDataHelper
+     * @param CarrierGroup                                             $carrierGroupHelper
+     * @param \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
         \ShipperHQ\Shipper\Model\Quote\PackagesFactory $quotePackageFactory,
         \ShipperHQ\Shipper\Model\Order\PackagesFactory $orderPackageFactory,
         Data $shipperDataHelper,
-        CarrierGroup $carrierGroupHelper
+        CarrierGroup $carrierGroupHelper,
+        \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
 
         parent::__construct($context);
@@ -78,6 +85,7 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
         $this->orderPackageFactory = $orderPackageFactory;
         $this->shipperDataHelper = $shipperDataHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
+        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**
@@ -193,14 +201,22 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                                 $carrier_group['name']
                             );
                             $boxText .= __('Transaction ID: ') . $carrier_group['transaction'];
-                            $order->addStatusToHistory($order->getStatus(), $boxText, false);
                         } else {
                             $boxText = __('Transaction ID: ') . $carrier_group['transaction'];
-                            $order->addStatusToHistory($order->getStatus(), $boxText, false);
                         }
 
+                        /*
+                         * SHQ18-1700 Thanks to @dewayneholden on Github for this suggested code change
+                         * Using method addStatusHistoryComment() for Magento 2.1 compatibility
+                         * Once 2.1 is EOL we will switch to using addCommentToStatusHistory()
+                         */
+                        $this->orderStatusHistoryRepository->save($order->addStatusHistoryComment($boxText, $order->getStatus()));
+
                         if (strpos($order->getShippingMethod(), 'multicarrier') === 0) {
-                            $order->addStatusToHistory($order->getStatus(), "Shipping method for " . $carrier_group['name'] . ": " . $carrier_group['methodTitle'], false);
+                            $this->orderStatusHistoryRepository->save($order->addStatusHistoryComment(
+                                "Shipping method for " . $carrier_group['name'] . ": " . $carrier_group['methodTitle'],
+                                $order->getStatus()
+                            ));
                         }
                     }
                 }
@@ -209,8 +225,6 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                 $this->_logger->critical('ShipperHQ save order package error: ' . $e->getMessage());
             }
         }
-        $order->save();
-
         //record without carrier group details?
     }
 }

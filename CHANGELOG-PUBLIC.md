@@ -356,3 +356,7 @@ SHQ18-1666 Display rate shopped method as order comment
 SHQ18-1700 Code improvements to mitigate deadlocking
 
 
+## 20.24.2 (2019-04-03)
+SHQ18-1613 Added carrier title to order comment. SHQ18-1777 Updated Zenda logo
+
+

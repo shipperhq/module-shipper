@@ -214,7 +214,7 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
 
                         if (strpos($order->getShippingMethod(), 'multicarrier') === 0) {
                             $this->orderStatusHistoryRepository->save($order->addStatusHistoryComment(
-                                "Shipping method for " . $carrier_group['name'] . ": " . $carrier_group['methodTitle'],
+                                "Shipping method for " . $carrier_group['name'] . ": " . $carrier_group['carrierTitle'] ." - ". $carrier_group['methodTitle'],
                                 $order->getStatus()
                             ));
                         }

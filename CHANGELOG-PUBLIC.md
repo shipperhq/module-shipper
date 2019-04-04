@@ -360,3 +360,7 @@ SHQ18-1700 Code improvements to mitigate deadlocking
 SHQ18-1613 Added carrier title to order comment. SHQ18-1777 Updated Zenda logo
 
 
+## 20.24.3 (2019-04-04)
+SHQ18-1823 don't show logos for errors or non SHQ methods
+
+

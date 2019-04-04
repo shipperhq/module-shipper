@@ -99,6 +99,11 @@ define(
                         return
                     }
 
+                    // SHQ18-1823 don't show logos for non ShipperHQ methods or errors
+                    if (method.error_message !== "" || method.carrier_code.toString().indexOf("shq") === -1) {
+                        return
+                    }
+
                     var row = findMethodRow(methodTable, method);
                     var label = row.find('.col-carrier');
                     if (label.length) {

@@ -43,11 +43,11 @@ class Packages extends \Magento\Framework\Model\AbstractExtensibleModel
     private $orderPackageCollection;
 
     /**
-     * @param \ShipperHQ\Shipper\Model\ResourceModel\Quote\Packages\CollectionFactory $quotePackageCollectionFactory
+     * @param \ShipperHQ\Shipper\Model\ResourceModel\Quote\Packages\CollectionFactory $orderPackageCollectionFactory
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
-     * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory $customAttributeFactory
+     * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
+     * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
      * @param array $data

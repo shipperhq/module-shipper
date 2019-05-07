@@ -436,6 +436,15 @@ class CarrierGroup extends Data
                     $carriergroupText .= '' . strtoupper($cgrp['carrierName']);
                 }
 
+                if ((array_key_exists('customDuties', $cgrp) && $cgrp['customDuties'] != 0)) {
+                    $customs =  $order->formatPrice($cgrp['customDuties']);
+                    $carriergroupText .= '<br /> Customs and duties : ';
+                    $carriergroupText .= ' ' . $customs;
+                    if ((array_key_exists('customsMessage', $cgrp) && $cgrp['customsMessage'] != '')) {
+                        $carriergroupText .= ' ' . $cgrp['customsMessage'];
+                    }
+                }
+
                 if (array_key_exists('pickup_location', $cgrp) && $cgrp['pickup_location'] != null) {
                     $carriergroupText .= '<br/> Pickup : ';
                     $carriergroupText .= '' . $cgrp['pickup_location'];

@@ -561,8 +561,14 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                         $rate->setMethodDescription(__($rateDetails['method_description']));
                     }
 
-                    if (isset($rateDetails['carriergroup_detail']['customDuties']) && $rateDetails['carriergroup_detail']['customDuties'] > 0) {
-                        $dutiesMessage = sprintf("$%01.2f in taxes and duties included", $rateDetails['carriergroup_detail']['customDuties']);
+                    //SHQ18-1804 presence of customsMessage means we need to include the customs for display
+                    //If customsMessage is blank, it's likely we are meant to hide duties.
+                    if (isset($rateDetails['carriergroup_detail']['customDuties']) &&
+                        $rateDetails['carriergroup_detail']['customDuties'] > 0 &&
+                        isset($rateDetails['carriergroup_detail']['customsMessage']) &&
+                        $rateDetails['carriergroup_detail']['customsMessage'] != '') {
+
+                        $dutiesMessage = sprintf("$%01.2f ", $rateDetails['carriergroup_detail']['customDuties']) . $rateDetails['carriergroup_detail']['customsMessage'];
                         $rate->setCustomDuties(__($dutiesMessage));
                     }
 

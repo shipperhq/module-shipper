@@ -57,5 +57,6 @@
         <attribute name="shipperhq_nmfc_class"/>
         <attribute name="must_ship_freight"/>
         <attribute name="shipperhq_nmfc_sub"/>
+        <attribute name="shipperhq_hs_code"/>
     </group>
 </config>

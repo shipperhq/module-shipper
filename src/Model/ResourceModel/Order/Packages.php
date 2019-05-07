@@ -85,11 +85,14 @@ class Packages extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         // Add new package items
         $items = [];
         foreach ((array)$object->getData('items') as $item) {
+            $qtyPacked = array_key_exists('qty_packed', $item) ? $item['qty_packed'] : $item['qtyPacked'];
+            $weightPacked = array_key_exists('weight_packed', $item) ? $item['weight_packed'] : $item['weightPacked'];
+
             $items[] = [
                 'package_id' => $packageId,
                 'sku' => $item['sku'],
-                'weight_packed' => $item['weight_packed'],
-                'qty_packed' => $item['qty_packed']
+                'weight_packed' => $weightPacked,
+                'qty_packed' => $qtyPacked
             ];
         }
         if (count($items) > 0) {

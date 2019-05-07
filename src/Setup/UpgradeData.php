@@ -251,6 +251,10 @@ class UpgradeData implements UpgradeDataInterface
             $this->configStorageWriter->save('carriers/shipper/magento_version', $this->productMetadata->getVersion());
         }
 
+        if (version_compare($context->getVersion(), '1.1.21') < 0) {
+            $this->installCrossBorderAttributes($catalogSetup);
+        }
+
         $installer->endSetup();
     }
 
@@ -657,6 +661,66 @@ class UpgradeData implements UpgradeDataInterface
             );
 
             foreach ($freightAttributeCodes as $code => $sort) {
+                $attributeId = $catalogSetup->getAttributeId($entityTypeId, $code);
+                $catalogSetup->addAttributeToGroup(
+                    $entityTypeId,
+                    $attributeSetId,
+                    $attributeGroupId,
+                    $attributeId,
+                    $sort
+                );
+            }
+        };
+    }
+
+    private function installCrossBorderAttributes($catalogSetup)
+    {
+        /* ------ shq_hs_code -------- */
+        $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_hs_code', [
+            'type' => 'text',
+            'input' => 'text',
+            'label' => 'HS Code',
+            'global' => false,
+            'visible' => true,
+            'required' => false,
+            'visible_on_front' => false,
+            'is_html_allowed_on_front' => false,
+            'searchable' => false,
+            'filterable' => false,
+            'comparable' => false,
+            'is_configurable' => false,
+            'unique' => false,
+            'user_defined' => true,
+            'used_in_product_listing' => false
+        ]);
+
+        $entityTypeId = $catalogSetup->getEntityTypeId(\Magento\Catalog\Model\Product::ENTITY);
+
+        $attributeSetArr = $catalogSetup->getAllAttributeSetIds($entityTypeId);
+
+        $crossAttributeCodes = [
+            'shipperhq_hs_code' => '25',
+        ];
+
+        foreach ($attributeSetArr as $attributeSetId) {
+
+            $attributeGroupId = $catalogSetup->getAttributeGroup(
+                $entityTypeId,
+                $attributeSetId,
+                'Shipping'
+            );
+
+            if (!$attributeGroupId) {
+                $catalogSetup->addAttributeGroup($entityTypeId, $attributeSetId, 'Shipping', '99');
+            }
+
+            $attributeGroupId = $catalogSetup->getAttributeGroupId(
+                $entityTypeId,
+                $attributeSetId,
+                'Shipping'
+            );
+
+            foreach ($crossAttributeCodes as $code => $sort) {
                 $attributeId = $catalogSetup->getAttributeId($entityTypeId, $code);
                 $catalogSetup->addAttributeToGroup(
                     $entityTypeId,

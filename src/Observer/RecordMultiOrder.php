@@ -50,12 +50,18 @@ class RecordMultiOrder extends AbstractRecordOrder implements ObserverInterface
     private $orderFactory;
 
     /**
-     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+     * @var \Magento\Checkout\Model\Session
+     */
+    private $checkoutSession;
+
+    /**
+     * @param \Magento\Sales\Model\OrderFactory          $orderFactory
+     * @param \ShipperHQ\Shipper\Helper\Data             $shipperDataHelper
      * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
-     * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
-     * @param \Magento\Sales\Model\OrderFactory $orderFactory
-     * @param \ShipperHQ\Shipper\Helper\Package $packageHelper
-     * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
+     * @param \ShipperHQ\Shipper\Helper\LogAssist        $shipperLogger
+     * @param \ShipperHQ\Shipper\Helper\Package          $packageHelper
+     * @param \ShipperHQ\Shipper\Helper\CarrierGroup     $carrierGroupHelper
+     * @param \Magento\Checkout\Model\Session            $checkoutSession
      */
     public function __construct(
         \Magento\Sales\Model\OrderFactory $orderFactory,
@@ -63,10 +69,12 @@ class RecordMultiOrder extends AbstractRecordOrder implements ObserverInterface
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
-        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
+        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
+        \Magento\Checkout\Model\Session $checkoutSession
     ) {
 
         $this->orderFactory = $orderFactory;
+        $this->checkoutSession = $checkoutSession;
         parent::__construct($shipperDataHelper, $quoteRepository, $shipperLogger, $packageHelper, $carrierGroupHelper);
     }
 
@@ -89,6 +97,8 @@ class RecordMultiOrder extends AbstractRecordOrder implements ObserverInterface
                     $this->recordOrder($order);
                 }
             }
+
+            $this->checkoutSession->setShipperHQPackages('');
         }
     }
 }

@@ -45,10 +45,6 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
      */
     protected $orderPackageFactory;
     /**
-     * @var \ShipperHQ\Shipper\Model\Quote\PackagesFactory
-     */
-    private $quotePackageFactory;
-    /**
      * @var Data
      */
     private $shipperDataHelper;
@@ -60,12 +56,15 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
      * @var \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface
      */
     protected $orderStatusHistoryRepository;
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    private $checkoutSession;
 
     /**
      * Package constructor.
      *
      * @param \Magento\Framework\App\Helper\Context                    $context
-     * @param \ShipperHQ\Shipper\Model\Quote\PackagesFactory           $quotePackageFactory
      * @param \ShipperHQ\Shipper\Model\Order\PackagesFactory           $orderPackageFactory
      * @param Data                                                     $shipperDataHelper
      * @param CarrierGroup                                             $carrierGroupHelper
@@ -73,19 +72,19 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
-        \ShipperHQ\Shipper\Model\Quote\PackagesFactory $quotePackageFactory,
         \ShipperHQ\Shipper\Model\Order\PackagesFactory $orderPackageFactory,
         Data $shipperDataHelper,
         CarrierGroup $carrierGroupHelper,
-        \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+        \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository,
+        \Magento\Checkout\Model\Session $checkoutSession
     ) {
 
         parent::__construct($context);
-        $this->quotePackageFactory = $quotePackageFactory;
         $this->orderPackageFactory = $orderPackageFactory;
         $this->shipperDataHelper = $shipperDataHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
+        $this->checkoutSession = $checkoutSession;
     }
 
     /**
@@ -93,6 +92,9 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @param $shippingAddressId
      * @param $shipmentArray
+     * @param $carrierCode
+     * @param $carrierGroupId
+     *
      * @return void
      */
     public function saveQuotePackages($shippingAddressId, $shipmentArray)
@@ -100,30 +102,26 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
         if ($shippingAddressId === null) {
             return;
         }
-        try {
-            $packageModel = $this->quotePackageFactory->create();
-            foreach ($shipmentArray as $shipment) {
-                //clean up packages saved
-                //this should be in some kind of package manager - an interface or something as this could be replaced
-                $packages = $packageModel->loadByCarrier(
-                    $shippingAddressId,
-                    $shipment['carrier_group_id'],
-                    $shipment['carrier_code']
-                );
-                foreach ($packages as $package) {
-                    $packageModel->deleteByPackageId($package->getPackageId());
-                }
-            }
 
-            foreach ($shipmentArray as $shipment) {
-                $shipment['quote_address_id'] = $shippingAddressId;
-                $packageModel->setData($shipment);
-                $packageModel->save();
-            }
-        } catch (\Exception $e) {
-            //Log exception and move on.
-            $this->_logger->critical('ShipperHQ save quote package error: ' . $e->getMessage());
+        $sessionPackages = json_decode($this->checkoutSession->getShipperHQPackages(), true);
+
+        foreach ($shipmentArray as $shipment) {
+            $carrierCode = $shipment['carrier_code'];
+            $carrierGroupId = $shipment['carrier_group_id'];
+
+            //Delete any existing packages for this set of rates
+            unset($sessionPackages[$shippingAddressId][$carrierGroupId][$carrierCode]);
         }
+
+        foreach ($shipmentArray as $shipment) {
+            $shipment['quote_address_id'] = $shippingAddressId;
+            $carrierCode = $shipment['carrier_code'];
+            $carrierGroupId = $shipment['carrier_group_id'];
+
+            //$carrierCode can be carrierCode_methodCode - see populateShipments()
+            $sessionPackages[$shippingAddressId][$carrierGroupId][$carrierCode][] = $shipment;
+        }
+        $this->checkoutSession->setShipperHQPackages(json_encode($sessionPackages));
     }
 
     public function recoverOrderPackageDetail($order)
@@ -165,33 +163,25 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                         $carrierGroupId = $carrier_group['carrierGroupId'];
                         $carrier_code = $carrier_group['carrier_code'];
                         $shippingMethodCode = $carrier_group['code'];
-                        $quotePackageModel = $this->quotePackageFactory->create();
-                        $packagesColl = $quotePackageModel->loadByCarrier(
-                            $shippingAddress->getAddressId(),
-                            $carrierGroupId,
-                            $carrier_code . '_' . $shippingMethodCode
-                        );
-                        if ($packagesColl->getSize() < 1) {
-                            $quotePackageModelToo = $this->quotePackageFactory->create();
-                            $packagesColl = $quotePackageModelToo->loadByCarrier(
-                                $shippingAddress->getAddressId(),
-                                $carrierGroupId,
-                                $carrier_code
-                            );
-                        }
+
+                        $sessionPackages = json_decode($this->checkoutSession->getShipperHQPackages(), true);
+
+                        $packagesColl = $this->getPackagesFromSession($sessionPackages,
+                            $shippingAddress->getAddressId(), $shippingMethodCode, $carrier_code, $carrierGroupId);
+
                         foreach ($packagesColl as $box) {
                             $package = $this->orderPackageFactory->create();
                             $package->setOrderId($orderId);
                             $package->setCarrierGroupId($carrierGroupId)
-                                ->setCarrierCode($box->getCarrierCode())
-                                ->setPackageName($box->getPackageName())
-                                ->setLength($box->getLength())
-                                ->setWidth($box->getWidth())
-                                ->setHeight($box->getHeight())
-                                ->setWeight($box->getWeight())
-                                ->setDeclaredValue($box->getDeclaredValue())
-                                ->setSurchargePrice($box->getSurchargePrice())
-                                ->setItems($box->getItems());
+                                ->setCarrierCode($box['carrier_code'])
+                                ->setPackageName($box['package_name'])
+                                ->setLength($box['length'])
+                                ->setWidth($box['width'])
+                                ->setHeight($box['height'])
+                                ->setWeight($box['weight'])
+                                ->setDeclaredValue($box['declared_value'])
+                                ->setSurchargePrice($box['surcharge_price'])
+                                ->setItems($box['items']);
                             $package->save();
                         }
 
@@ -226,5 +216,32 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
             }
         }
         //record without carrier group details?
+    }
+
+    /**
+     * Finds the packages/boxes saved in the session
+     *
+     * @param $sessionData
+     * @param $shippingAddressId
+     * @param $methodCode
+     * @param $carrierCode
+     * @param $carrierGroupId
+     *
+     * @return array
+     */
+    private function getPackagesFromSession($sessionData, $shippingAddressId, $methodCode, $carrierCode, $carrierGroupId) {
+        $packages = [];
+
+        if (array_key_exists($shippingAddressId, $sessionData)) {
+            if (array_key_exists($carrierGroupId, $sessionData[$shippingAddressId])) {
+                if (array_key_exists($carrierCode, $sessionData[$shippingAddressId][$carrierGroupId])) {
+                    $packages = $sessionData[$shippingAddressId][$carrierGroupId][$carrierCode];
+                } else if (array_key_exists($carrierCode . '_' . $methodCode, $sessionData[$shippingAddressId][$carrierGroupId])) {
+                    $packages = $sessionData[$shippingAddressId][$carrierGroupId][$carrierCode . '_' . $methodCode];
+                }
+            }
+        }
+
+        return $packages;
     }
 }

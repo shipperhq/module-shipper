@@ -92,7 +92,19 @@ abstract class AbstractRecordOrder implements ObserverInterface
         //Merged from pull request https://github.com/shipperhq/module-shipper/pull/20 - credit to vkalchenko
         $quote = $this->quoteRepository->get($quoteId, [$order->getStoreId()]);
 
-        $shippingAddress = $quote->getShippingAddress();
+        //SHQ18-1947 Need to find correct address to lookup carriergroup details and packed boxes when MAC
+        if ($quote->getIsMultiShipping()) {
+            $customerAddressId = $order->getShippingAddress()->getCustomerAddressId();
+
+            foreach ($quote->getAllShippingAddresses() as $address) {
+                if ($address->getCustomerAddressId() == $customerAddressId) {
+                    $shippingAddress = $address;
+                    break;
+                }
+            }
+        } else {
+            $shippingAddress = $quote->getShippingAddress();
+        }
 
         $order->setDestinationType($shippingAddress->getDestinationType());
         $order->setValidationStatus($shippingAddress->getValidationStatus());

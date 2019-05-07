@@ -364,3 +364,7 @@ SHQ18-1613 Added carrier title to order comment. SHQ18-1777 Updated Zenda logo
 SHQ18-1823 don't show logos for errors or non SHQ methods
 
 
+## 20.25.0 (2019-05-07)
+SHQ18-1866 Save quote packages to session rather than DB. SHQ18-1947 Fix to ensure saving correct address details in multi address checkout. SHQ18-1804 Custom dutires in admin support
+
+

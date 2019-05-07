@@ -107,11 +107,6 @@
             <argument name="connectionName" xsi:type="string">sales</argument>
         </arguments>
     </type>
-    <type name="ShipperHQ\Shipper\Model\ResourceModel\Quote\Packages">
-        <arguments>
-            <argument name="connectionName" xsi:type="string">sales</argument>
-        </arguments>
-    </type>
     <type name="ShipperHQ\Shipper\Model\ResourceModel\Order\Packages">
         <arguments>
             <argument name="connectionName" xsi:type="string">sales</argument>

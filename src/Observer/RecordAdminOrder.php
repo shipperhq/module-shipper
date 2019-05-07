@@ -44,6 +44,30 @@ use Magento\Framework\Event\ObserverInterface;
 class RecordAdminOrder extends AbstractRecordOrder implements ObserverInterface
 {
     /**
+     * @var \Magento\Sales\Model\OrderFactory
+     */
+    private $orderFactory;
+
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    private $checkoutSession;
+
+    public function __construct(
+        \Magento\Sales\Model\OrderFactory $orderFactory,
+        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
+        \ShipperHQ\Shipper\Helper\Package $packageHelper,
+        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
+        \Magento\Checkout\Model\Session $checkoutSession
+    ) {
+
+        $this->orderFactory = $orderFactory;
+        $this->checkoutSession = $checkoutSession;
+        parent::__construct($shipperDataHelper, $quoteRepository, $shipperLogger, $packageHelper, $carrierGroupHelper);
+    }
+    /**
      * Record order shipping information after order is placed
      *
      * @param EventObserver $observer
@@ -55,6 +79,7 @@ class RecordAdminOrder extends AbstractRecordOrder implements ObserverInterface
             $order = $observer->getEvent()->getData('order');
             if ($order->getIncrementId()) {
                 $this->recordOrder($order);
+                $this->checkoutSession->setShipperHQPackages('');
             }
         }
     }

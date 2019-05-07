@@ -155,11 +155,30 @@ class InstallData implements InstallDataInterface
             'used_in_product_listing' => false
         ]);
 
+        /* ------ shq_hs_code -------- */
+        $catalogSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'shipperhq_hs_code', [
+            'type' => 'text',
+            'input' => 'text',
+            'label' => 'HS Code',
+            'global' => false,
+            'visible' => true,
+            'required' => false,
+            'visible_on_front' => false,
+            'is_html_allowed_on_front' => false,
+            'searchable' => false,
+            'filterable' => false,
+            'comparable' => false,
+            'is_configurable' => false,
+            'unique' => false,
+            'user_defined' => true,
+            'used_in_product_listing' => false
+        ]);
+
         $entityTypeId = $catalogSetup->getEntityTypeId(\Magento\Catalog\Model\Product::ENTITY);
 
         $attributeSetArr = $catalogSetup->getAllAttributeSetIds($entityTypeId);
 
-        $stdAttributeCodes = ['shipperhq_shipping_group' => '1', 'shipperhq_warehouse' => '10'];
+        $stdAttributeCodes = ['shipperhq_shipping_group' => '1', 'shipperhq_warehouse' => '10', 'shipperhq_hs_code' => '25'];
 
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2

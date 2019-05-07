@@ -416,12 +416,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $boxText .= __('Package') . ' #' . ($count++);
 
             if ($box != null) {
+                $declaredValue = array_key_exists('declaredValue', $box) ? $box['declaredValue'] : $box['declared_value'];
+
                 $boxText .= ' Box name: ' . $box['package_name'];
                 $boxText .= ' : ' . $box['length'];
                 $boxText .= 'x' . $box['width'];
                 $boxText .= 'x' . $box['height'];
                 $boxText .= ': W=' . $box['weight'] . ':';
-                $boxText .= ' Value=' . $box['declaredValue'] . ':';
+                $boxText .= ' Value=' . $declaredValue . ':';
                 $boxText .= $this->getProductBreakdownText($box);
             }
             $boxText .= '<br/>';
@@ -439,10 +441,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if (array_key_exists('items', $box) || (is_object($box) && $box->getItems() !== null)) {
             if (is_array($box['items'])) {
                 foreach ($box['items'] as $item) {
+                    $qtyPacked = array_key_exists('qty_packed', $item) ? $item['qty_packed'] : $item['qtyPacked'];
+                    $weightPacked = array_key_exists('weight_packed', $item) ? $item['weight_packed'] : $item['weightPacked'];
+
                     $productText .= ' SKU='
-                        . $item['qty_packed']
+                        . $qtyPacked
                         . ' * ' . $item['sku']
-                        . ' ' . $item['weight_packed']
+                        . ' ' . $weightPacked
                         . $weightUnit . ';  ';
                 }
             } else {

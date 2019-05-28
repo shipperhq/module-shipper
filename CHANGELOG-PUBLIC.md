@@ -368,3 +368,7 @@ SHQ18-1823 don't show logos for errors or non SHQ methods
 SHQ18-1866 Save quote packages to session rather than DB. SHQ18-1947 Fix to ensure saving correct address details in multi address checkout. SHQ18-1804 Custom dutires in admin support
 
 
+## 20.25.1 (2019-05-28)
+SHQ18-1907 Ensure duties and taxes do not duplicate. SHQ18-1945 Add FlavorCloud logo
+
+

@@ -76,7 +76,9 @@ define(
                 _.each(viewModel.rates(), function (method) {
                     // Can't use ID selection, must use attr selection, because methods may have special chars
                     var label = findMethodLabel(methodTable, method);
+                    var row = findMethodRow(methodTable, method);
                     if (label.length && method.extension_attributes && method.extension_attributes.custom_duties) {
+                        row.find('.shq-method-subtext').remove(); // Delete previous duties if exists
                         var customDuties = $('' +
                             '<div class="shq-method-subtext" data-bind="text: extension_attributes.custom_duties"></div>\n'
                         );

@@ -19,6 +19,7 @@ define([], function() {
     "fastway",
     "fedEx",
     "fedExFreight",
+    "flavorCloud",
     "freight",
     "generic",
     "gso",

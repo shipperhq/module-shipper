@@ -910,75 +910,98 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         $result = [];
         $allowedMethods = [];
 
-        $allMethodsRequest = $this->shipperMapper->getCredentialsTranslation();
-        $requestString = serialize($allMethodsRequest);
-        $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
-        $timeout = $this->restHelper->getWebserviceTimeout();
-        if (!$resultSet) {
-            $allowedMethodUrl = $this->restHelper->getAllowedMethodGatewayUrl();
-            $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive(
-                $allMethodsRequest,
-                $allowedMethodUrl,
-                $timeout
-            );
-        }
+        $credentialsPerStore = [];
+        $allStoreIds = $this->shipperDataHelper->getAllStoreIds();
 
-        $allowedMethodResponse = $resultSet['result'];
-        $debugData = $resultSet['debug'];
-        $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Allowed methods response', $debugData);
+        foreach ($allStoreIds as $storeId) {
+            $credentials = $this->shipperMapper->getCredentialsTranslation($storeId);
 
-        if (!is_object($allowedMethodResponse)) {
-            $this->shipperLogger->postInfo(
-                'Shipperhq_Shipper',
-                'Allowed Methods: No or invalid response received from Shipper HQ',
-                $allowedMethodResponse
-            );
+            if ($credentials != null) {
+                $apiKey = $credentials->getCredentials()->getApiKey();
 
-            $shipperHQ = "<a href=https://shipperhq.com/ratesmgr/websites>ShipperHQ</a> ";
-            $result['result'] = false;
-            $result['error'] = 'ShipperHQ is not contactable, verify the details from the website configuration in '
-                . $shipperHQ;
-            return $result;
-        } elseif (!empty($allowedMethodResponse->errors)) {
-            $this->shipperLogger->postInfo(
-                'Shipperhq_Shipper',
-                'Allowed methods: response contained following errors',
-                $allowedMethodResponse
-            );
-            $error = 'ShipperHQ Error: ';
-            foreach ($allowedMethodResponse->errors as $anError) {
-                if (isset($anError->internalErrorMessage)) {
-                    $error .= ' ' . $anError->internalErrorMessage;
-                } elseif (isset($anError->externalErrorMessage) && $anError->externalErrorMessage != '') {
-                    $error .= ' ' . $anError->externalErrorMessage;
-                }
-
-                //SHQ16-1708
-                if (isset($anError->errorCode) && $anError->errorCode == '3') {
-                    $this->carrierConfigHandler->saveConfig(
-                        \ShipperHQ\Shipper\Model\System\Message\Credentials::SHIPPERHQ_INVALID_CREDENTIALS_SUPPLIED,
-                        1
-                    );
+                if (!array_key_exists($apiKey, $credentialsPerStore)) {
+                    $credentialsPerStore[$apiKey] = $credentials;
                 }
             }
-            $result['result'] = false;
-            $result['error'] = $error;
-            return $result;
-        } elseif (empty($allowedMethodResponse->carrierMethods)) {
-            $this->shipperLogger->postInfo(
-                'Shipperhq_Shipper',
-                'Allowed methods web service did not return any carriers or shipping methods',
-                $allowedMethodResponse
-            );
-            $result['result'] = false;
-            $result['warning'] =
-                'ShipperHQ Warning: No carriers setup, log in to ShipperHQ Dashboard and create carriers';
-            return $result;
         }
-        $this->carrierCache->setCachedQuotes($requestString, $resultSet, $this->getCarrierCode());
+
+        $allAllowedMethodsResponse = [];
+
+        foreach ($credentialsPerStore as $storeId => $credentials) {
+            $allMethodsRequest = $credentials;
+            $requestString = serialize($allMethodsRequest);
+            $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
+            $timeout = $this->restHelper->getWebserviceTimeout();
+            if (!$resultSet) {
+                $allowedMethodUrl = $this->restHelper->getAllowedMethodGatewayUrl();
+                $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive(
+                    $allMethodsRequest,
+                    $allowedMethodUrl,
+                    $timeout
+                );
+            }
+
+            //Todo add store name to log output
+            $allowedMethodResponse = $resultSet['result'];
+            $debugData = $resultSet['debug'];
+            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Allowed methods response', $debugData);
+            if (!is_object($allowedMethodResponse)) {
+                $this->shipperLogger->postInfo(
+                    'Shipperhq_Shipper',
+                    'Allowed Methods: No or invalid response received from Shipper HQ',
+                    $allowedMethodResponse
+                );
+                $shipperHQ = "<a href=https://shipperhq.com/ratesmgr/websites>ShipperHQ</a> ";
+                $result['result'] = false;
+                $result['error'] = 'ShipperHQ is not contactable, verify the details from the website configuration in '
+                    . $shipperHQ;
+
+                return $result;
+            } elseif (!empty($allowedMethodResponse->errors)) {
+                $this->shipperLogger->postInfo(
+                    'Shipperhq_Shipper',
+                    'Allowed methods: response contained following errors',
+                    $allowedMethodResponse
+                );
+                $error = 'ShipperHQ Error: ';
+                foreach ($allowedMethodResponse->errors as $anError) {
+                    if (isset($anError->internalErrorMessage)) {
+                        $error .= ' ' . $anError->internalErrorMessage;
+                    } elseif (isset($anError->externalErrorMessage) && $anError->externalErrorMessage != '') {
+                        $error .= ' ' . $anError->externalErrorMessage;
+                    }
+                    //SHQ16-1708
+                    if (isset($anError->errorCode) && $anError->errorCode == '3') {
+                        $this->carrierConfigHandler->saveConfig(
+                            \ShipperHQ\Shipper\Model\System\Message\Credentials::SHIPPERHQ_INVALID_CREDENTIALS_SUPPLIED,
+                            1
+                        );
+                    }
+                }
+                $result['result'] = false;
+                $result['error'] = $error;
+
+                return $result;
+            } elseif (empty($allowedMethodResponse->carrierMethods)) {
+                $this->shipperLogger->postInfo(
+                    'Shipperhq_Shipper',
+                    'Allowed methods web service did not return any carriers or shipping methods',
+                    $allowedMethodResponse
+                );
+                $result['result'] = false;
+                $result['warning'] =
+                    'ShipperHQ Warning: No carriers setup, log in to ShipperHQ Dashboard and create carriers';
+
+                return $result;
+            }
+
+            $this->carrierCache->setCachedQuotes($requestString, $resultSet, $this->getCarrierCode());
+
+            $allAllowedMethodsResponse[] = $allowedMethodResponse;
+        }
 
         $carrierConfig = $this->allowedMethodsHelper->extractAllowedMethodsAndCarrierConfig(
-            $allowedMethodResponse,
+            $allAllowedMethodsResponse,
             $allowedMethods
         );
 

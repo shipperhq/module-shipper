@@ -372,3 +372,7 @@ SHQ18-1866 Save quote packages to session rather than DB. SHQ18-1947 Fix to ensu
 SHQ18-1907 Ensure duties and taxes do not duplicate. SHQ18-1945 Add FlavorCloud logo
 
 
+## 20.26.0 (2019-06-12)
+SHQ18-2107 Support for allowed methods for multiple API keys on one store
+
+

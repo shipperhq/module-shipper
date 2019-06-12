@@ -680,4 +680,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
 		return false;
     }
+
+    public function getAllStoreIds()
+    {
+        $storeIds = [];
+
+        $stores = $this->storeManager->getStores();
+
+        if (count($stores)) {
+            foreach ($stores as $store) {
+                $storeIds[] = $store->getId();
+            }
+        }
+
+        return $storeIds;
+    }
 }

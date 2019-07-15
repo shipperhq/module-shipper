@@ -376,3 +376,7 @@ SHQ18-1907 Ensure duties and taxes do not duplicate. SHQ18-1945 Add FlavorCloud 
 SHQ18-2107 Support for allowed methods for multiple API keys on one store
 
 
+## 20.27.0 (2019-07-15)
+SHQ18-2267 Make accessorials available on order emails
+
+

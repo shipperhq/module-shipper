@@ -117,7 +117,7 @@ class ShippingInformationPlugin
         $shippingMethod = $carrierCode . '_' . $methodCode;
 
         $quote = $this->quoteRepository->getActive($cartId);
-		$address = $addressInformation->getShippingAddress();
+        $address = $addressInformation->getShippingAddress();
         $quoteAddress = $quote->getShippingAddress();
 
         $validation = false;
@@ -128,12 +128,12 @@ class ShippingInformationPlugin
                 if (is_array($validation) && isset($validation['key'])) {
                     if (isset($validation['validation_status'])) {
                         //$addressInformation->getShippingAddress()->setValidationStatus($validation['validation_status']);
-                    	$address->setValidationStatus($validation['validation_status']);
+                        $address->setValidationStatus($validation['validation_status']);
                     }
                     if (isset($validation['destination_type'])) {
-						//$addressInformation->getShippingAddress()->setDestinationType($validation['destination_type']);
+                        //$addressInformation->getShippingAddress()->setDestinationType($validation['destination_type']);
 
-						$address->setDestinationType($validation['destination_type']);
+                        $address->setDestinationType($validation['destination_type']);
                     }
                     $this->checkoutSession->setShipAddressValidation(null);
                 }
@@ -177,7 +177,7 @@ class ShippingInformationPlugin
         $result = $proceed($cartId, $addressInformation);
 
         $this->carrierGroupHelper->saveCarrierGroupInformation(
-			$quoteAddress,
+            $quoteAddress,
             $shippingMethod,
             $additionalDetailArray
         );

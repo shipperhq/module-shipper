@@ -80,7 +80,7 @@ class StockHandler
         $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
         $allowBackorder = $stockItem->getBackorders() != $stockItem::BACKORDERS_NO;
 
-        if (!$stockItem->getManageStock() || $allowBackorder ) { //SHQ18-209 & SHQ18-289
+        if (!$stockItem->getManageStock() || $allowBackorder) { //SHQ18-209 & SHQ18-289
             return null;
         } else {
             return $stockItem->getQty();

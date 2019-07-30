@@ -80,7 +80,7 @@ class CarrierGroup extends Data
      */
     protected $orderStatusHistoryRepository;
 
-    private $allNamedOptions = array(
+    private $allNamedOptions = [
         'liftgate_required' => 'Liftgate Required',
         'inside_delivery' => 'Inside Delivery',
         'destination_type' => 'Destination Type',
@@ -89,7 +89,7 @@ class CarrierGroup extends Data
         'customer_carrier_ph' => 'Customer Carrier Phone',
         'customer_carrier_account' => 'Customer Carrier Account Number',
         'limited_delivery' => 'Limited Access for Delivery'
-    );
+    ];
 
     /**
      * @param \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory $addressDetailFactory
@@ -274,7 +274,8 @@ class CarrierGroup extends Data
         if (empty($cgInfo)) {
             $this->orderStatusHistoryRepository->save($order->addStatusHistoryComment(
                 self::NO_SHIPPERHQ_DETAIL_AVAILABLE . __(': No detailed shipping information recorded'),
-                $order->getStatus()));
+                $order->getStatus()
+            ));
         }
 
         return $cgInfo;
@@ -484,6 +485,9 @@ class CarrierGroup extends Data
                 }
                 if (array_key_exists('freightQuoteId', $cgrp) && $cgrp['freightQuoteId'] != '') {
                     $carriergroupText .= ' Quote Id: ' . $cgrp['freightQuoteId'];
+                }
+                if (array_key_exists('listing_created', $cgrp) && $cgrp['listing_created'] != '') {
+                    $carriergroupText .= '<br/>'  .$cgrp['carrierTitle']  .': ' .$cgrp['listing_created'];
                 }
                 $carriergroupText .= '</div></div>';
             }

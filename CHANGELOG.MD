@@ -380,3 +380,7 @@ SHQ18-2107 Support for allowed methods for multiple API keys on one store
 SHQ18-2267 Make accessorials available on order emails
 
 
+## 20.28.0 (2019-07-30)
+SHQ18-2247 uShip Integration
+
+

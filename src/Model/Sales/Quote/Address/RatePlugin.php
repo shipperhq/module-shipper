@@ -40,20 +40,19 @@ class RatePlugin
     /**
      * Set additional information on shipping rate
      *
-     * @param \Magento\Quote\Model\Quote\Address\Rate $subject
-     * @param callable $proceed
+     * @param \Magento\Quote\Model\Quote\Address\Rate                      $subject
+     * @param                                                              $result
+     * @param \Magento\Quote\Model\Quote\Address\RateResult\AbstractResult $rate
      *
      * @return \Magento\Quote\Model\Quote\Address\Rate
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function aroundImportShippingRate(
+    public function afterImportShippingRate(
         \Magento\Quote\Model\Quote\Address\Rate $subject,
-        $proceed,
+        $result,
         \Magento\Quote\Model\Quote\Address\RateResult\AbstractResult $rate
     ) {
-
-        $result = $proceed($rate);
         if ($rate instanceof \Magento\Quote\Model\Quote\Address\RateResult\Error) {
             $result
                 ->setCarrierId($rate->getCarrierId())

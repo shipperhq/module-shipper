@@ -166,8 +166,13 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
 
                         $sessionPackages = json_decode($this->checkoutSession->getShipperHQPackages(), true);
 
-                        $packagesColl = $this->getPackagesFromSession($sessionPackages,
-                            $shippingAddress->getAddressId(), $shippingMethodCode, $carrier_code, $carrierGroupId);
+                        $packagesColl = $this->getPackagesFromSession(
+                            $sessionPackages,
+                            $shippingAddress->getAddressId(),
+                            $shippingMethodCode,
+                            $carrier_code,
+                            $carrierGroupId
+                        );
 
                         foreach ($packagesColl as $box) {
                             $package = $this->orderPackageFactory->create();
@@ -229,14 +234,15 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @return array
      */
-    private function getPackagesFromSession($sessionData, $shippingAddressId, $methodCode, $carrierCode, $carrierGroupId) {
+    private function getPackagesFromSession($sessionData, $shippingAddressId, $methodCode, $carrierCode, $carrierGroupId)
+    {
         $packages = [];
 
         if (array_key_exists($shippingAddressId, $sessionData)) {
             if (array_key_exists($carrierGroupId, $sessionData[$shippingAddressId])) {
                 if (array_key_exists($carrierCode, $sessionData[$shippingAddressId][$carrierGroupId])) {
                     $packages = $sessionData[$shippingAddressId][$carrierGroupId][$carrierCode];
-                } else if (array_key_exists($carrierCode . '_' . $methodCode, $sessionData[$shippingAddressId][$carrierGroupId])) {
+                } elseif (array_key_exists($carrierCode . '_' . $methodCode, $sessionData[$shippingAddressId][$carrierGroupId])) {
                     $packages = $sessionData[$shippingAddressId][$carrierGroupId][$carrierCode . '_' . $methodCode];
                 }
             }

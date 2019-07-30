@@ -250,22 +250,22 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         }
 
         //Set quote on request so we can get store ID from quote
-		if (is_array($request->getAllItems())) {
-			$item = current($request->getAllItems());
-			if ($item instanceof QuoteItem) {
-				$request->setQuote($item->getQuote());
-				$this->quote = $item->getQuote();
-			}
-		}
+        if (is_array($request->getAllItems())) {
+            $item = current($request->getAllItems());
+            if ($item instanceof QuoteItem) {
+                $request->setQuote($item->getQuote());
+                $this->quote = $item->getQuote();
+            }
+        }
 
         if (!$this->shipperDataHelper->getCredentialsEntered($request)) {
-			$this->shipperLogger->postDebug(
-				'Shipperhq_Shipper',
-				'No credentials entered',
-				'Missing API key or Authentication key. Ignoring request'
-			);
-        	return false;
-		}
+            $this->shipperLogger->postDebug(
+                'Shipperhq_Shipper',
+                'No credentials entered',
+                'Missing API key or Authentication key. Ignoring request'
+            );
+            return false;
+        }
 
         if ($request->getDestPostcode() === null && $this->getConfigFlag(self::IGNORE_EMPTY_ZIP)) {
             $this->shipperLogger->postDebug(
@@ -551,8 +551,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                     $tooltip = "";
                     if (isset($rateDetails['tooltip']) && !empty($rateDetails['tooltip'])) {
                         $tooltip = $rateDetails['tooltip'];
-                    }
-                    else if (isset($carrierRate['custom_description']) && !empty($carrierRate['custom_description'])) {
+                    } elseif (isset($carrierRate['custom_description']) && !empty($carrierRate['custom_description'])) {
                         $tooltip = $carrierRate['custom_description'];
                     }
                     $rate->setTooltip($tooltip);
@@ -821,13 +820,15 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         }
 
         if ($validatedAddress) {
-           foreach ($validatedAddress as $field => $value) {
-               if ($field == 'addressType') continue;
-               if($field == 'zipcode') { // handle where it's returning zipcode instead of postcode
-                   $field == 'postcode';
-               }
-               $existing['validated_shipping_' .$field] = $value;
-           }
+            foreach ($validatedAddress as $field => $value) {
+                if ($field == 'addressType') {
+                    continue;
+                }
+                if ($field == 'zipcode') { // handle where it's returning zipcode instead of postcode
+                    $field == 'postcode';
+                }
+                $existing['validated_shipping_' .$field] = $value;
+            }
         }
 
         if (!empty($existing)) {
@@ -845,12 +846,11 @@ class Shipper extends AbstractCarrier implements CarrierInterface
     {
         if (is_array($carrierGroupDetail) && isset($carrierGroupDetail[0])) {
             // Merged rates return a numeric array of assoc arrays. If there is a 0 key we know this is the case
-            foreach ($carrierGroupDetail as $k=>$detail) {
+            foreach ($carrierGroupDetail as $k => $detail) {
                 $carrierGroupDetail[$k]['cost'] *= $currencyConversionRate;
                 $carrierGroupDetail[$k]['price'] *= $currencyConversionRate;
             }
-        }
-        else {
+        } else {
             $carrierGroupDetail['cost'] *= $currencyConversionRate;
             $carrierGroupDetail['price'] *= $currencyConversionRate;
         }

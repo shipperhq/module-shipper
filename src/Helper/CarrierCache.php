@@ -124,7 +124,8 @@ class CarrierCache
         return $this;
     }
 
-    public static function responseCanBeCached($response) {
+    public static function responseCanBeCached($response)
+    {
         return isset($response['result']) && !empty($response['result']);
     }
 

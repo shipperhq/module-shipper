@@ -58,20 +58,20 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'dhlint' => 'dhlint',
             'upsFreight' => 'upsfreight'
         ];
-	public $magentoUPSMethodCodes =
-		[
-			'1DA' => '01',
-			'2DA' => '02',
-			'GND' => '03',
-			'XPR' => '07',
-			'XPD' => '08',
-			'STD' => '11',
-			'3DS' => '12',
-			'1DP' => '13',
-			'1DM' => '14',
-			'XDM' => '54',
-			'2DM' => '59'
-		];
+    public $magentoUPSMethodCodes =
+        [
+            '1DA' => '01',
+            '2DA' => '02',
+            'GND' => '03',
+            'XPR' => '07',
+            'XPD' => '08',
+            'STD' => '11',
+            '3DS' => '12',
+            '1DP' => '13',
+            '1DM' => '14',
+            'XDM' => '54',
+            '2DM' => '59'
+        ];
     private $prodAttributes;
     private $baseCurrencyRate;
     private $storeId;
@@ -339,7 +339,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @return mixed
      */
-    public function mapToMagentoUPSMethodCode ($shqUPSMethodCode)
+    public function mapToMagentoUPSMethodCode($shqUPSMethodCode)
     {
         if (array_key_exists($shqUPSMethodCode, $this->magentoUPSMethodCodes)) {
             return $this->magentoUPSMethodCodes[$shqUPSMethodCode];
@@ -545,7 +545,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return true;
         }
         $mobile_ua = strtolower(substr($data, 0, 4));
-        $mobile_agents = array(
+        $mobile_agents = [
             'w3c ',
             'acs-',
             'alav',
@@ -632,7 +632,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'winw',
             'xda ',
             'xda-'
-        );
+        ];
 
         if (in_array($mobile_ua, $mobile_agents)) {
             return true;
@@ -640,45 +640,45 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return false;
     }
 
-	/**
-	 * SHQ18-774 Gets store ID from quote if available else request
-	 *
-	 * @param $request
-	 *
-	 * @return mixed
-	 */
-	public function getStoreIdFromRequest($request)
-	{
-		if ($this->storeId) {
-			return $this->storeId;
-		}
+    /**
+     * SHQ18-774 Gets store ID from quote if available else request
+     *
+     * @param $request
+     *
+     * @return mixed
+     */
+    public function getStoreIdFromRequest($request)
+    {
+        if ($this->storeId) {
+            return $this->storeId;
+        }
 
-		if ($request->getQuote() && $request->getQuote()->getStoreId()) {
-			$this->storeId = $request->getQuote()->getStoreId();
-		} else {
-			$this->storeId = $request->getStoreId();
-		}
+        if ($request->getQuote() && $request->getQuote()->getStoreId()) {
+            $this->storeId = $request->getQuote()->getStoreId();
+        } else {
+            $this->storeId = $request->getStoreId();
+        }
 
-		return $this->storeId;
+        return $this->storeId;
     }
 
-	/**
-	 * SHQ18-1159 Check credentials are entered before calling out to ShipperHQ API
-	 *
-	 * @param $request
-	 *
-	 * @return bool
-	 */
-	public function getCredentialsEntered($request = null)
-	{
-		$storeId = $request ? $this->getStoreIdFromRequest($request) : null;
+    /**
+     * SHQ18-1159 Check credentials are entered before calling out to ShipperHQ API
+     *
+     * @param $request
+     *
+     * @return bool
+     */
+    public function getCredentialsEntered($request = null)
+    {
+        $storeId = $request ? $this->getStoreIdFromRequest($request) : null;
 
-		if (!empty($this->getConfigValue('carriers/shipper/api_key', $storeId)) &&
-			!empty($this->getConfigValue('carriers/shipper/password', $storeId))) {
-			return true;
-		}
+        if (!empty($this->getConfigValue('carriers/shipper/api_key', $storeId)) &&
+            !empty($this->getConfigValue('carriers/shipper/password', $storeId))) {
+            return true;
+        }
 
-		return false;
+        return false;
     }
 
     public function getAllStoreIds()

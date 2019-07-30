@@ -45,47 +45,47 @@ use Magento\Store\Model\ScopeInterface;
  */
 class SaveEmailVariables implements ObserverInterface
 {
-	/**
-	 * @var \ShipperHQ\Shipper\Helper\CarrierGroup
-	 */
-	private $carrierGroupHelper;
-	/**
-	 * @var \ShipperHQ\Shipper\Helper\LogAssist
-	 */
-	private $shipperLogger;
-	/**
-	 * @var ScopeConfigInterface
-	 */
-	private $config;
+    /**
+     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
+     */
+    private $carrierGroupHelper;
+    /**
+     * @var \ShipperHQ\Shipper\Helper\LogAssist
+     */
+    private $shipperLogger;
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $config;
 
-	/**
-	 * @param ScopeConfigInterface                 $config
-	 * @param  \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
-	 */
-	public function __construct(
-		ScopeConfigInterface $config,
-		\ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-		\ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
-	) {
-		$this->shipperLogger = $shipperLogger;
-		$this->config = $config;
-		$this->carrierGroupHelper = $carrierGroupHelper;
-	}
+    /**
+     * @param ScopeConfigInterface                 $config
+     * @param  \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
+     */
+    public function __construct(
+        ScopeConfigInterface $config,
+        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
+        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
+    ) {
+        $this->shipperLogger = $shipperLogger;
+        $this->config = $config;
+        $this->carrierGroupHelper = $carrierGroupHelper;
+    }
 
-	/**
-	 * Record order shipping information after order is placed
-	 *
-	 * @param EventObserver $observer
-	 * @return void
-	 */
-	public function execute(EventObserver $observer)
-	{
-		if ($this->config->isSetFlag('carriers/shipper/active', ScopeInterface::SCOPE_STORES)) {
-			$data = $observer->getTransport();
-			$order = $data->getOrder();
+    /**
+     * Record order shipping information after order is placed
+     *
+     * @param EventObserver $observer
+     * @return void
+     */
+    public function execute(EventObserver $observer)
+    {
+        if ($this->config->isSetFlag('carriers/shipper/active', ScopeInterface::SCOPE_STORES)) {
+            $data = $observer->getTransport();
+            $order = $data->getOrder();
             $orderDetail = $this->carrierGroupHelper->getOrderCarrierGroupInfo($order->getId());
             if (count($orderDetail) > 0) {
-			    foreach ($orderDetail as $orderData) {
+                foreach ($orderDetail as $orderData) {
                     if (isset($orderData['delivery_date'])) {
                         $data['deliveryDate']           = array_key_exists('delivery_date', $orderData) ? $orderData['delivery_date'] : '';
                         $data['customerCarrier']        = array_key_exists('customer_carrier', $orderData) ? $orderData['customer_carrier']: '';
@@ -98,14 +98,14 @@ class SaveEmailVariables implements ObserverInterface
                         break;
                     }
                 }
-			} else {
+            } else {
                 $quoteShippingAddress = $this->carrierGroupHelper->getQuoteShippingAddressFromOrder($order);
-				if($quoteShippingAddress) {
+                if ($quoteShippingAddress) {
 
                     $quoteAddressDetailsCollection = $this->carrierGroupHelper->loadAddressDetailByShippingAddress(
                         $quoteShippingAddress->getId()
                     );
-                    $quoteAddressData = $quoteAddressDetailsCollection->getData();
+                          $quoteAddressData = $quoteAddressDetailsCollection->getData();
 
                     if (count($quoteAddressData) > 0) {
                         foreach ($quoteAddressData as $quoteAddressDetail) {
@@ -121,8 +121,8 @@ class SaveEmailVariables implements ObserverInterface
                         }
                     }
                 }
-			}
+            }
 
-		}
-	}
+        }
+    }
 }

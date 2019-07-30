@@ -52,27 +52,28 @@ class ShippingMethodConverterPlugin
      * Set additional information for shipping method
      *
      * @param \Magento\Quote\Model\Cart\ShippingMethodConverter $subject
-     * @param callable $proceed
-     * @param string $quoteCurrencyCode The quote currency code.
-     * @param \Magento\Quote\Model\Quote\Address\Rate $rateModel The rate model.
+     * @param                                                   $result
+     * @param \Magento\Quote\Model\Quote\Address\Rate           $rateModel         The rate model.
+     * @param string                                            $quoteCurrencyCode The quote currency code.
+     *
      * @return \Magento\Quote\Api\Data\ShippingMethodInterface Shipping method data object
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function aroundModelToDataObject(
+    public function afterModelToDataObject(
         \Magento\Quote\Model\Cart\ShippingMethodConverter $subject,
-        $proceed,
+        $result,
         \Magento\Quote\Model\Quote\Address\Rate $rateModel,
         $quoteCurrencyCode
+
     ) {
 
-        $resultShippingMethod = $proceed($rateModel, $quoteCurrencyCode);
-        $extensionAttributes = $resultShippingMethod->getExtensionAttributes();
+        $extensionAttributes = $result->getExtensionAttributes();
         if ($extensionAttributes &&
             ($extensionAttributes->getTooltip() || $rateModel->getTooltip() == '') &&
             ($extensionAttributes->getCustomDuties() || $rateModel->getCustomDuties() == '') &&
             ($extensionAttributes->getHideNotifications() || $rateModel->getHideNotifications() == '')
         ) {
-            return $resultShippingMethod;
+            return $result;
         }
 
         $shippingMethodExtension = $extensionAttributes ?
@@ -80,8 +81,8 @@ class ShippingMethodConverterPlugin
         $shippingMethodExtension->setTooltip($rateModel->getTooltip());
         $shippingMethodExtension->setCustomDuties($rateModel->getCustomDuties());
         $shippingMethodExtension->setHideNotifications($rateModel->getHideNotifications());
-        $resultShippingMethod->setExtensionAttributes($shippingMethodExtension);
+        $result->setExtensionAttributes($shippingMethodExtension);
 
-        return $resultShippingMethod;
+        return $result;
     }
 }

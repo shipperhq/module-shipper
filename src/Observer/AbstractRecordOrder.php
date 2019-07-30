@@ -33,9 +33,11 @@
  * See COPYING.txt for license details.
  */
 
+
 namespace ShipperHQ\Shipper\Observer;
 
 use Magento\Framework\Event\ObserverInterface;
+use ShipperHQ\Shipper\Model\Listing\ListingService;
 
 /**
  * ShipperHQ Shipper module observer
@@ -64,25 +66,38 @@ abstract class AbstractRecordOrder implements ObserverInterface
     private $packageHelper;
 
     /**
+     * @var ListingService
+     */
+    private $listingService;
+
+
+    const USHIP_CARRIER_TYPE = 'uShip';
+
+    const AUTOMATIC_LISTING = 'AUTO';
+
+    /**
+     * AbstractRecordOrder constructor.
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
      * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
      * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param \ShipperHQ\Shipper\Helper\Package $packageHelper
      * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
+     * @param ListingService $listingService
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
-        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
+        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
+        ListingService $listingService
     ) {
-
         $this->shipperDataHelper = $shipperDataHelper;
         $this->quoteRepository = $quoteRepository;
         $this->shipperLogger = $shipperLogger;
         $this->packageHelper = $packageHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
+        $this->listingService = $listingService;
     }
 
     public function recordOrder($order)
@@ -112,6 +127,22 @@ abstract class AbstractRecordOrder implements ObserverInterface
         $this->carrierGroupHelper->saveOrderDetail($order, $shippingAddress);
         $this->carrierGroupHelper->recordOrderItems($order);
         $this->packageHelper->saveOrderPackages($order, $shippingAddress);
+
+
+        //(shipping rate is used again in getDefaultCarrierShipMethod so we could reuse there rather than potentially retrieving twice.)
+        $shipping_method = $order->getShippingMethod();
+        $shippingRate = $shippingAddress->getShippingRateByCode($shipping_method);
+        if ($shippingRate) {
+            list($carrierCode, $method) = explode('_', $shipping_method, 2);
+            $carrierType = $shippingRate->getCarrierType();
+
+            if ($carrierType == self::USHIP_CARRIER_TYPE &&
+                $this->shipperDataHelper->getDefaultConfigValue('carriers/shipper/create_listing') &&
+                $this->shipperDataHelper->getDefaultConfigValue('carriers/shipper/create_listing') == self::AUTOMATIC_LISTING) {
+
+                    $this->listingService->createListing($order, $shipping_method, $shippingAddress, $carrierType);
+            }
+        }
 
         if (strstr($order->getShippingMethod(), 'shqshared_')) {
             $orderDetailArray = $this->carrierGroupHelper->loadOrderDetailByOrderId($order->getId());
@@ -157,7 +188,7 @@ abstract class AbstractRecordOrder implements ObserverInterface
         $order->save();
     }
 
-    private function getDefaultCarrierShipMethod ($order, $shippingAddress)
+    private function getDefaultCarrierShipMethod($order, $shippingAddress)
     {
         $shipping_method = $order->getShippingMethod();
         $rate = $shippingAddress->getShippingRateByCode($shipping_method);

@@ -58,35 +58,35 @@ class CustomerAddressEdit implements ObserverInterface
         $this->addressRepository = $addressRepository;
     }
 
-	/**
-	 * Set Checked status of "Remember Me"
-	 *
-	 * SHQ18-1001 Fix for 500 error when street address exceeds 255 chars. Thanks to @vkalchenko for the fix!
-	 *
-	 * @param EventObserver $observer
-	 *
-	 * @return void
-	 * @throws LocalizedException
-	 */
-	public function execute(EventObserver $observer)
-	{
-		$request = $observer->getEvent()->getRequest();
-		if ($request) {
-			if ($addressId = $request->getParam('id')) {
-				$existingAddress = $this->addressRepository->getById($addressId);
-				foreach ($existingAddress->getCustomAttributes() as $customAttribute) {
-					if ($customAttribute->getAttributeCode() == 'destination_type') {
-						$existingAddress->setCustomAttribute('destination_type', '');
-					} elseif ($customAttribute->getAttributeCode() == 'validation_status') {
-						$existingAddress->setCustomAttribute('validation_status', '');
-					}
-				}
-				try {
-					$this->addressRepository->save($existingAddress);
-				} catch (LocalizedException $e) {
-					//do nothing, message has already been added to the messsage queue
-				}
-			}
-		}
-	}
+    /**
+     * Set Checked status of "Remember Me"
+     *
+     * SHQ18-1001 Fix for 500 error when street address exceeds 255 chars. Thanks to @vkalchenko for the fix!
+     *
+     * @param EventObserver $observer
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    public function execute(EventObserver $observer)
+    {
+        $request = $observer->getEvent()->getRequest();
+        if ($request) {
+            if ($addressId = $request->getParam('id')) {
+                $existingAddress = $this->addressRepository->getById($addressId);
+                foreach ($existingAddress->getCustomAttributes() as $customAttribute) {
+                    if ($customAttribute->getAttributeCode() == 'destination_type') {
+                        $existingAddress->setCustomAttribute('destination_type', '');
+                    } elseif ($customAttribute->getAttributeCode() == 'validation_status') {
+                        $existingAddress->setCustomAttribute('validation_status', '');
+                    }
+                }
+                try {
+                    $this->addressRepository->save($existingAddress);
+                } catch (LocalizedException $e) {
+                    //do nothing, message has already been added to the messsage queue
+                }
+            }
+        }
+    }
 }

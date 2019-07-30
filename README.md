@@ -17,7 +17,7 @@ Once installed, you can configure with your ShipperHQ platform credentials to pr
 
 Compatibility
 -------------
-- Magento >= 2.1 (Including 2.2.x)
+- Magento >= 2.2
 
 - Supports both Magento Opensource (Community) and Magento Commerce (Enterprise)
 

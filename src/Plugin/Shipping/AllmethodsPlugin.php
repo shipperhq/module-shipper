@@ -77,13 +77,9 @@ class AllmethodsPlugin
      * @return array
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function aroundToOptionArray(
-        \Magento\Shipping\Model\Config\Source\Allmethods $subject,
-        \Closure $proceed,
-        $isActiveOnlyFlag = false
-    ) {
-        $result = $proceed();
-
+    public function afterToOptionArray(
+        \Magento\Shipping\Model\Config\Source\Allmethods $subject, $result, $isActiveOnlyFlag = false)
+    {
         $methods = [['value' => '', 'label' => '']];
         $carriers = $this->shippingConfig->getAllCarriers();
         foreach ($carriers as $carrierCode => $carrierModel) {

@@ -1143,7 +1143,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
         if (version_compare($context->getVersion(), '1.1.18') < 0) {
             $this->addValidatedAddressColumns($installer, 'shipperhq_quote_address_detail');
-            $this->addValidatedAddressColumns($installer,'shipperhq_order_detail');
+            $this->addValidatedAddressColumns($installer, 'shipperhq_order_detail');
         }
 
         if (version_compare($context->getVersion(), '1.1.20') < 0) {

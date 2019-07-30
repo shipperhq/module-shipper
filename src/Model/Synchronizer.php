@@ -191,13 +191,13 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
 
     private function getLatestAttributeData()
     {
-		$result = [];
+        $result = [];
 
-		if (!$this->shipperDataHelper->getCredentialsEntered()) {
-			$result['error'] = 'Missing API key or Authentication key. Can\'t connect to ShipperHQ';
+        if (!$this->shipperDataHelper->getCredentialsEntered()) {
+            $result['error'] = 'Missing API key or Authentication key. Can\'t connect to ShipperHQ';
 
-			return $result;
-		}
+            return $result;
+        }
 
         $synchronizeUrl = $this->restHelper->getAttributeGatewayUrl();
         $resultSet = $this->send($synchronizeUrl);
@@ -383,6 +383,33 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                         ];
                     }
                     break;
+                case 'carrier':
+                    if ($attribute->code == 'carrier_listing_type') {
+                        // If any carrier is AUTO then treat all as auto, otherwise use manual if manual was found
+                        $value = 'NONE';
+                        foreach ($attribute->attributes as $carrierSetting) {
+                            if ($carrierSetting->createListing == "AUTO") {
+                                $value = "AUTO";
+                                break;
+                            } elseif ($carrierSetting->createListing == "MANUAL") {
+                                $value = "MANUAL";
+                            }
+                        }
+                        $configValue = $this->shipperDataHelper->getDefaultConfigValue(
+                            'carriers/shipper/create_listing'
+                        );
+                        if ($configValue != $value) {
+                            $result[] = [
+                                'attribute_type' => 'carrier',
+                                'attribute_code' => 'carriers/shipper/create_listing',
+                                'value' => $value,
+                                'option_id' => '',
+                                'status' => self::ADD_ATTRIBUTE_OPTION,
+                                'date_added' => date('Y-m-d H:i:s')
+                            ];
+                        }
+                    }
+                    break;
                 default:
                     break;
             }
@@ -531,6 +558,17 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                     $this->carrierConfigHandler->saveConfig(
                         self::FEATURES_ENABLED_CONFIG,
                         $attributeUpdate["option_id"],
+                        'default',
+                        0,
+                        true
+                    );
+                    $result++;
+                }
+            } elseif ($attributeUpdate['attribute_type'] == 'carrier') {
+                if ($attributeUpdate['status'] == self::ADD_ATTRIBUTE_OPTION) {
+                    $this->carrierConfigHandler->saveConfig(
+                        $attributeUpdate['attribute_code'],
+                        $attributeUpdate['value'],
                         'default',
                         0,
                         true

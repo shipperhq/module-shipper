@@ -105,10 +105,10 @@ class FreightClass extends \Magento\Eav\Model\Entity\Attribute\Source\Config
     }
 
     /**
-	 * SHQ18-1019 Resolve issue with function name and type.
-	 *
-	 * Thanks to @dfg-ck on GitHub for this fix
-	 */
+     * SHQ18-1019 Resolve issue with function name and type.
+     *
+     * Thanks to @dfg-ck on GitHub for this fix
+     */
     public function getFlatColumns()
     {
         $columns = [

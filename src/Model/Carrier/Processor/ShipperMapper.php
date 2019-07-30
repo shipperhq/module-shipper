@@ -70,7 +70,7 @@ class ShipperMapper
         'ship_box_tolerance',
         'must_ship_freight',
         'packing_section_name',
-		'shipperhq_availability_date',
+        'shipperhq_availability_date',
         'shipperhq_hs_code'
     ];
 
@@ -310,7 +310,7 @@ class ShipperMapper
         }
 
         //SHQ18-774
-		$storeId = $this->shipperDataHelper->getStoreIdFromRequest($magentoRequest);
+        $storeId = $this->shipperDataHelper->getStoreIdFromRequest($magentoRequest);
 
         $ipAddress = $magentoRequest->getIpAddress();
         $shipperHQRequest->setSiteDetails($this->getSiteDetails($storeId, $ipAddress));
@@ -392,7 +392,7 @@ class ShipperMapper
                 $itemAttributes = $this->populateAttributes($stdAttributes, $magentoItem);
             }
 
-            if($this->taxHelper->discountTax() && $magentoItem->getTaxPercent() > 0) {
+            if ($this->taxHelper->discountTax() && $magentoItem->getTaxPercent() > 0) {
                 $discountAmount = round($magentoItem->getDiscountAmount() / ($magentoItem->getTaxPercent()/100+1), 2);
                 $baseDiscountAmount = round($magentoItem->getBaseDiscountAmount() / ($magentoItem->getTaxPercent()/100+1), 2);
             } else {
@@ -568,8 +568,8 @@ class ShipperMapper
             if ($attribute) {
                 foreach ($itemLocations as $aValue) {
                     $admin_value = $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
-					$rawValueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
-					$valueString = html_entity_decode($rawValueString); //SHQ18-955
+                    $rawValueString = is_array($admin_value) ? implode('', $admin_value) : $admin_value;
+                    $valueString = html_entity_decode($rawValueString); //SHQ18-955
                     $locationDetail = $this->physicalBuildingDetailFactory->create([
                         'name' => $valueString,
                         'inventoryCount' => $this->stockHandler->getLocationInventoryCount(
@@ -627,7 +627,7 @@ class ShipperMapper
                     foreach ($attributeValue as $aValue) {
                         $admin_value = $attribute->setStoreId(0)->getSource()->getOptionText($aValue);
                         // SHQ18-1335 - getOptionsText may return an array in some scenarios -- see vendor/magento/module-eav/Model/Entity/Attribute/Source/Table.php
-						// SHQ18-1310 - Don't sent HTML in request. Convert to actual character
+                        // SHQ18-1310 - Don't sent HTML in request. Convert to actual character
                         if (is_array($admin_value)) {
                             $valueString = array_merge(array_map("html_entity_decode", $valueString), $admin_value);
                         } else {
@@ -904,6 +904,6 @@ class ShipperMapper
 
     public function getMagentoVersion()
     {
-       return $this->productMetadata->getVersion();
+        return $this->productMetadata->getVersion();
     }
 }

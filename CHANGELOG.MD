@@ -384,3 +384,7 @@ SHQ18-2267 Make accessorials available on order emails
 SHQ18-2247 uShip Integration
 
 
+## 20.29.0 (2019-08-19)
+SHQ18-2416 Add support for showing rate shopped method in admin panel
+
+

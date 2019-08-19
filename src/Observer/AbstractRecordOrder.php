@@ -128,23 +128,22 @@ abstract class AbstractRecordOrder implements ObserverInterface
         $this->carrierGroupHelper->recordOrderItems($order);
         $this->packageHelper->saveOrderPackages($order, $shippingAddress);
 
-
-        //(shipping rate is used again in getDefaultCarrierShipMethod so we could reuse there rather than potentially retrieving twice.)
-        $shipping_method = $order->getShippingMethod();
-        $shippingRate = $shippingAddress->getShippingRateByCode($shipping_method);
+        $shippingMethod = $order->getShippingMethod();
+        $shippingRate = $shippingAddress->getShippingRateByCode($shippingMethod);
         if ($shippingRate) {
-            list($carrierCode, $method) = explode('_', $shipping_method, 2);
+            list($carrierCode, $method) = explode('_', $shippingMethod, 2);
             $carrierType = $shippingRate->getCarrierType();
 
             if ($carrierType == self::USHIP_CARRIER_TYPE &&
                 $this->shipperDataHelper->getDefaultConfigValue('carriers/shipper/create_listing') &&
                 $this->shipperDataHelper->getDefaultConfigValue('carriers/shipper/create_listing') == self::AUTOMATIC_LISTING) {
 
-                    $this->listingService->createListing($order, $shipping_method, $shippingAddress, $carrierType);
+                    $this->listingService->createListing($order, $shippingMethod, $shippingAddress, $carrierType);
             }
         }
 
-        if (strstr($order->getShippingMethod(), 'shqshared_')) {
+        //Merged rates or display as single carrier
+        if (strstr($shippingMethod, 'shqshared_')) {
             $orderDetailArray = $this->carrierGroupHelper->loadOrderDetailByOrderId($order->getId());
             //SHQ16- Review for splits
             foreach ($orderDetailArray as $orderDetail) {
@@ -165,8 +164,14 @@ abstract class AbstractRecordOrder implements ObserverInterface
                             $newShipDescription = implode('-', $shipDescriptionArray);
                             if (!$this->shipperDataHelper->getAlwaysShowSingleCarrierTitle()) {
                                 $order->setShippingDescription($newShipDescription);
+
+                                //SHQ18-2416 Save actual carrier and method code from rate shop
+                                if (isset($cgDetail['carrier_code']) && isset($cgDetail['code'] )) {
+                                    $order->setShippingMethod($cgDetail['carrier_code'] . "_" . $cgDetail['code']);
+                                }
                             }
                         }
+
                         $cgArray[$key] = $cgDetail;
                     }
                     $encoded = $this->shipperDataHelper->encode($cgArray);
@@ -182,19 +187,26 @@ abstract class AbstractRecordOrder implements ObserverInterface
         }
 
         if ($this->shipperDataHelper->useDefaultCarrierCodes()) {
-            $order->setShippingMethod($this->getDefaultCarrierShipMethod($order, $shippingAddress));
+            $order->setShippingMethod($this->getDefaultCarrierShipMethod($order->getShippingMethod(), $shippingRate));
         }
 
         $order->save();
     }
 
-    private function getDefaultCarrierShipMethod($order, $shippingAddress)
+    /**
+     * Converts shipping_method saved on order from ShipperHQ carrier code to Magento carrier code
+     * Will also convert to Magento UPS method codes if carrier type is UPS
+     *
+     * @param $shippingMethod String carriercode_methodcode
+     * @param $shippingRate
+     *
+     * @return string
+     */
+    private function getDefaultCarrierShipMethod($shippingMethod, $shippingRate)
     {
-        $shipping_method = $order->getShippingMethod();
-        $rate = $shippingAddress->getShippingRateByCode($shipping_method);
-        if ($rate) {
-            list($carrierCode, $method) = explode('_', $shipping_method, 2);
-            $carrierType = $rate->getCarrierType();
+        if ($shippingRate) {
+            list($carrierCode, $method) = explode('_', $shippingMethod, 2);
+            $carrierType = $shippingRate->getCarrierType();
             $carrierType = strstr($carrierType, "shqshared_") ?
                 str_replace('shqshared_', '', $carrierType) : $carrierType;
             $magentoCarrierCode = $this->shipperDataHelper->mapToMagentoCarrierCode(
@@ -206,9 +218,9 @@ abstract class AbstractRecordOrder implements ObserverInterface
             if ($carrierType == "ups") {
                 $method = $this->shipperDataHelper->mapToMagentoUPSMethodCode($method);
             }
-            $shipping_method = ($magentoCarrierCode . '_' . $method);
+            $shippingMethod = ($magentoCarrierCode . '_' . $method);
         }
 
-        return $shipping_method;
+        return $shippingMethod;
     }
 }

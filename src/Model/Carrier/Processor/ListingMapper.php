@@ -31,7 +31,7 @@ namespace ShipperHQ\Shipper\Model\Carrier\Processor;
 
 use ShipperHQ\GraphQL\Types\Input\Carrier;
 use ShipperHQ\GraphQL\Types\Input\Sender;
-use ShipperHQ\GraphQL\Types\Input\RMSDestination;
+use ShipperHQ\GraphQL\Types\Input\Address;
 use ShipperHQ\GraphQL\Types\Input\RMSSiteDetails;
 use ShipperHQ\GraphQL\Types\Input\Piece;
 use ShipperHQ\GraphQL\Types\Input\ListingInfo;
@@ -98,7 +98,7 @@ class ListingMapper
      * @return ListingInfo
      * @throws \ShipperHQ\GraphQL\Exception\SerializerException
      */
-    public function mapCreateListingRequest(Order $order, $shippingAddress, $carrierType, $originName)
+    public function mapCreateListingRequest(Order $order, $shippingAddress, $carrierType, $originName, $shippingCost)
     {
         $shippingMethod = $order->getShippingMethod();
 
@@ -110,7 +110,7 @@ class ListingMapper
 
             $recipient = $this->mapRecipient($order);
 
-            $listingArray = $this->mapListing($order, $shippingMethod);
+            $listingArray = $this->mapListing($order, $shippingMethod, $shippingCost);
 
             $siteDetails = $this->mapSiteDetails($order);
 
@@ -130,14 +130,14 @@ class ListingMapper
      * @return Listing[]
      * @throws \ShipperHQ\GraphQL\Exception\SerializerException
      */
-    private function mapListing(Order $order, $shippingMethod)
+    private function mapListing(Order $order, $shippingMethod, $shippingCost)
     {
         list($carrierCode, $method) = explode('_', $shippingMethod, 2);
 
         $listingDetail = new ListingDetail(
-            $order->getId(),
+            $order->getIncrementId(),
             $method,
-            $order->getShippingAmount()
+            $shippingCost
         );
 
         $items = (array)$order->getAllItems(); // Coerce into being an array
@@ -166,9 +166,9 @@ class ListingMapper
         $product = $item->getProduct();
         $piece = new Piece(
             $item->getId(),
-            $item->getSku(), //referenceID?
+            $item->getName(), //referenceID?
             $item->getPrice() ? (int)$item->getPrice() : 0,
-            (int)$item->getWeight() * $item->getQty(),
+            (int)$item->getWeight() * $item->getQtyOrdered(),
             $product->getData(self::$dim_length),
             $product->getData(self::$dim_width),
             $product->getData(self::$dim_height)
@@ -179,13 +179,13 @@ class ListingMapper
 
     /**
      * @param Order $order
-     * @return RMSDestination
+     * @return Address
      */
     private function mapRecipient(Order $order)
     {
         $shippingAddress = $order->getShippingAddress();
 
-        $recipient = new RMSDestination(
+        $recipient = new Address(
             $shippingAddress->getCountryId() === null ? '' : $shippingAddress->getCountryId(),
             $shippingAddress->getRegionCode(),
             $shippingAddress->getCity() === null ? '' : $shippingAddress->getCity(),
@@ -193,6 +193,11 @@ class ListingMapper
             $shippingAddress->getStreetLine(2),
             $shippingAddress->getPostcode() === null ? '' : $shippingAddress->getPostcode()
         );
+
+        $recipient->setEmail($shippingAddress->getEmail());
+        $recipient->setTelNo($shippingAddress->getTelephone());
+        $recipient->setGivenName($shippingAddress->getFirstname());
+        $recipient->setFamilyName($shippingAddress->getLastname());
 
         return $recipient;
     }

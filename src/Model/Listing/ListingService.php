@@ -115,9 +115,12 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
         $timeout = $this->graphqlHelper->getTimeout();
         $headers = $this->graphqlHelper->buildRequestHeader();
 
-        $originName = $this->getOriginName($order);
+        $orderDetailArray = $this->carrierGroupHelper->loadOrderDetailByOrderId($order->getId());
+
+        $originName = $this->getOriginName($orderDetailArray);
+        $shippingCost = $this->getShippingCost($orderDetailArray);
         try {
-            $requestObj = $this->listingMapper->mapCreateListingRequest($order, $shippingAddress, $carrierType, $originName);
+            $requestObj = $this->listingMapper->mapCreateListingRequest($order, $shippingAddress, $carrierType, $originName, $shippingCost);
         }
         catch (\Exception $e) {
             $this->shipperLogger->postCritical('Shipperhq_Shipper', 'Failed to form request', '');
@@ -137,7 +140,7 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
         }
 
         $result = $this->parseResponse($response, CreateListing::class, [$this, 'handleCreateListingResponse']);
-        $this->recordResult($result, $order);
+        $this->recordResult($result, $orderDetailArray);
         return $result;
     }
 
@@ -193,9 +196,7 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
      * @param Order $order
      * @return string
      */
-    private function getOriginName($order) {
-
-        $orderDetailArray = $this->carrierGroupHelper->loadOrderDetailByOrderId($order->getId());
+    private function getOriginName($orderDetailArray) {
 
         //Formatted as arrays but likely to be only 1 per order
         foreach ($orderDetailArray as $orderDetail) {
@@ -210,15 +211,32 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
+     * @param Array $orderDetailArray
+     * @return string
+     */
+    private function getShippingCost($orderDetailArray) {
+
+        //Formatted as arrays but likely to be only 1 per order
+        foreach ($orderDetailArray as $orderDetail) {
+
+            $cgArray = $this->shipperDataHelper->decodeShippingDetails($orderDetail->getCarrierGroupDetail());
+
+            foreach ($cgArray as $key => $cgDetail) {
+                return $cgDetail['rate_cost'] ? $cgDetail['rate_cost'] : $cgDetail['cost'];
+            }
+        }
+        return '';
+    }
+
+    /**
      * @param CreateListingData $responseData
      * @param Order $order
      * @return bool
      */
-    private function recordResult($result, $order) {
+    private function recordResult($result, $orderDetailArray) {
 
         //assuming result is true or false as listing response does not return any kind of ID at present
        $listingResult = $result ? 'Listing Created' : 'Listing failed';
-        $orderDetailArray = $this->carrierGroupHelper->loadOrderDetailByOrderId($order->getId());
         //Formatted as arrays but likely to be only 1 per order
         foreach ($orderDetailArray as $orderDetail) {
             $cgArray = $this->shipperDataHelper->decodeShippingDetails($orderDetail->getCarrierGroupDetail());

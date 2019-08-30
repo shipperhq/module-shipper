@@ -1,0 +1,63 @@
+<!--
+  ~ Shipper HQ
+  ~
+  ~ @category ShipperHQ
+  ~ @package ShipperHQ_Shipper
+  ~ @copyright Copyright (c) 2019 Zowta LTD and Zowta LLC (http://www.ShipperHQ.com)
+  ~ @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+  ~ @author ShipperHQ Team sales@shipperhq.com
+  -->
+
+<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="template" xsi:type="string">templates/listing-modal</item>
+        <item name="name" xsi:type="string">shipperhq_shipper_listing_modal</item>
+    </argument>
+
+    <modal name="listing_modal">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="onCancel" xsi:type="string">actionCancel</item>
+            </item>
+        </argument>
+        <htmlContent class="ShipperHQ\Shipper\Component\Listing" name="shq_listing">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">ShipperHQ_Shipper/js/view/listing</item>
+                </item>
+            </argument>
+        </htmlContent>
+    </modal>
+
+    <button name="modal_button">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="title" xsi:type="string" translate="true">Create uShip Listing</item>
+                <item name="disabled" xsi:type="boolean">false</item>
+                <item name="buttonClasses" xsi:type="string">primary</item>
+                <item name="actions" xsi:type="array">
+                    <item name="0" xsi:type="array">
+                        <item name="targetName" xsi:type="string">${ $.parentName}.listing_modal</item>
+                        <item name="actionName" xsi:type="string">openModal</item>
+                    </item>
+                </item>
+            </item>
+        </argument>
+    </button>
+
+    <dataSource name="shipperhq_shipper_listing_modal_data_source">
+        <argument name="dataProvider" xsi:type="configurableObject">
+            <!-- the PHP class that implements a data provider -->
+            <argument name="class" xsi:type="string">ShipperHQ\Shipper\Model\Listing\Modal\DataProvider</argument>
+
+            <!-- redundant with the `dataSource` name -->
+            <argument name="name" xsi:type="string">shipperhq_shipper_listing_modal_data_source</argument>
+
+            <!-- required: means ui components are meant to work with models -->
+            <argument name="primaryFieldName" xsi:type="string">entity_id</argument>
+
+            <!-- required: means ui components are meant to work with URL passing -->
+            <argument name="requestFieldName" xsi:type="string">id</argument>
+        </argument>
+    </dataSource>
+</container>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+  ~ Shipper HQ
+  ~
+  ~ @category ShipperHQ
+  ~ @package ShipperHQ_Shipper
+  ~ @copyright Copyright (c) 2019 Zowta LTD and Zowta LLC (http://www.ShipperHQ.com)
+  ~ @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+  ~ @author ShipperHQ Team sales@shipperhq.com
+  -->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V2/shipperhq/createListing" method="POST">
+        <service class="ShipperHQ\Shipper\Api\CreateListingInterface" method="createListing"/>
+        <resources>
+            <resource ref="ShipperHQ_Shipper::createlisting"/>
+        </resources>
+    </route>
+    <route url="/V2/shipperhq/fetchUpdatedCarrierRate" method="POST">
+        <service class="ShipperHQ\Shipper\Api\FetchUpdatedCarrierRateInterface" method="fetchRate"/>
+        <resources>
+            <resource ref="ShipperHQ_Shipper::createlisting"/>
+        </resources>
+    </route>
+</routes>

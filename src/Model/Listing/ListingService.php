@@ -40,6 +40,9 @@ use ShipperHQ\Shipper\Helper\GraphQLHelper;
 
 class ListingService extends \Magento\Framework\Model\AbstractModel
 {
+    const LISTING_CREATED = 'Listing Created';
+    const LISTING_FAILED = 'Listing Failed';
+
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
@@ -98,7 +101,8 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
         Serializer $serializer,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
-    ) {
+    )
+    {
         $this->shipperLogger = $shipperLogger;
         $this->listingMapper = $listingMapper;
         $this->graphqlHelper = $graphqlHelper;
@@ -109,7 +113,15 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
         $this->shipperDataHelper = $shipperDataHelper;
     }
 
-    public function createListing($order, $shipping_method, $shippingAddress, $carrierType)
+    /**
+     * @param \Magento\Sales\Model\Order $order
+     * @param \Magento\Quote\Model\Quote\Address $shippingAddress
+     * @param string $carrierType
+     * @param \ShipperHQ\Shipper\Model\Api\CreateListing\Item[] $withItems
+     * @param false|\ShipperHQ\Shipper\Api\FetchUpdatedCarrierRate\RateInterface $rate
+     * @return false|CreateListing
+     */
+    public function createListing($order, $shippingAddress, $carrierType, $withItems = [], $rate = false)
     {
         $endpoint = $this->graphqlHelper->getListingEndpoint();
         $timeout = $this->graphqlHelper->getTimeout();
@@ -120,10 +132,9 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
         $originName = $this->getOriginName($orderDetailArray);
         $shippingCost = $this->getShippingCost($orderDetailArray);
         try {
-            $requestObj = $this->listingMapper->mapCreateListingRequest($order, $shippingAddress, $carrierType, $originName, $shippingCost);
-        }
-        catch (\Exception $e) {
-            $this->shipperLogger->postCritical('Shipperhq_Shipper', 'Failed to form request', '');
+            $requestObj = $this->listingMapper->mapCreateListingRequest($order, $shippingAddress, $carrierType, $originName, $shippingCost, $withItems, $rate);
+        } catch (\Exception $e) {
+            $this->shipperLogger->postCritical('Shipperhq_Shipper', 'Failed to form request', $e->getMessage());
             return false;
         }
 
@@ -133,15 +144,14 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
             $elapsed = microtime(true) - $initVal;
             $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Listing Request time elapsed', $elapsed);
             $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Listing Request and Response', $response['debug']);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->shipperLogger->postCritical('Shipperhq_Shipper', 'Rate Request failed with Exception', $e->getMessage());
             return false;
         }
 
         $result = $this->parseResponse($response, CreateListing::class, [$this, 'handleCreateListingResponse']);
-        $this->recordResult($result, $orderDetailArray);
-        return $result;
+        $this->recordResult($result, $response, $orderDetailArray);
+        return $result ? $response['result'] : $result;
     }
 
     /**
@@ -173,7 +183,8 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
      * @param array $context
      * @return bool
      */
-    private function handleCreateListingResponse($responseData, $context) {
+    private function handleCreateListingResponse($responseData, $context)
+    {
         $createListing = $responseData->getCreateListing();
         $errors = $createListing->getErrors();
         if (!empty($errors)) {
@@ -181,7 +192,7 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
             return false;
         }
 
-        $serializedResponse = $this->serializer::serialize($createListing->getResponseSummary(), JSON_PRETTY_PRINT);
+        $serializedResponse = $this->serializer::serialize($createListing, JSON_PRETTY_PRINT);
 
         if ($createListing->getResponseSummary()->getStatus() != 1) {
             $this->shipperLogger->postWarning('Shipperhq_Shipper', 'Response returned failing status', $serializedResponse);
@@ -196,7 +207,8 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
      * @param Order $order
      * @return string
      */
-    private function getOriginName($orderDetailArray) {
+    private function getOriginName($orderDetailArray)
+    {
 
         //Formatted as arrays but likely to be only 1 per order
         foreach ($orderDetailArray as $orderDetail) {
@@ -214,7 +226,8 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
      * @param Array $orderDetailArray
      * @return string
      */
-    private function getShippingCost($orderDetailArray) {
+    private function getShippingCost($orderDetailArray)
+    {
 
         //Formatted as arrays but likely to be only 1 per order
         foreach ($orderDetailArray as $orderDetail) {
@@ -222,26 +235,36 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
             $cgArray = $this->shipperDataHelper->decodeShippingDetails($orderDetail->getCarrierGroupDetail());
 
             foreach ($cgArray as $key => $cgDetail) {
-                return $cgDetail['rate_cost'] ? $cgDetail['rate_cost'] : $cgDetail['cost'];
+                return isset($cgDetail['rate_cost']) ? $cgDetail['rate_cost'] : $cgDetail['cost'];
             }
         }
         return '';
     }
 
     /**
-     * @param CreateListingData $responseData
-     * @param Order $order
-     * @return bool
+     * @param boolean $success
+     * @param array $response
+     * @param array $orderDetailArray
+     * @return mixed
      */
-    private function recordResult($result, $orderDetailArray) {
+    private function recordResult($success, $response, $orderDetailArray)
+    {
+        /** @var CreateListing $response */
+        $response = $response['result']; // Ditch the debugging data
 
-        //assuming result is true or false as listing response does not return any kind of ID at present
-       $listingResult = $result ? 'Listing Created' : 'Listing failed';
+        $listingResult = $success ? self::LISTING_CREATED : self::LISTING_FAILED;
+
+        $listingId = '';
+        if ($response->getData() && $response->getData()->getCreateListing()) {
+            $listingId = $response->getData()->getCreateListing()->getListingId();
+        }
+
         //Formatted as arrays but likely to be only 1 per order
         foreach ($orderDetailArray as $orderDetail) {
             $cgArray = $this->shipperDataHelper->decodeShippingDetails($orderDetail->getCarrierGroupDetail());
             foreach ($cgArray as $key => $cgDetail) {
                 $cgDetail['listing_created'] = $listingResult;
+                $cgDetail['listing_id'] = $listingId;
                 $cgArray[$key] = $cgDetail;
             }
             $encoded = $this->shipperDataHelper->encode($cgArray);
@@ -249,7 +272,7 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
             $orderDetail->save();
         }
 
-        return $result;
+        return $success;
     }
 
 }

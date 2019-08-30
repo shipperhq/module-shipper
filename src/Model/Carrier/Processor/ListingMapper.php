@@ -22,7 +22,7 @@
  * Shipper HQ Shipping
  *
  * @category ShipperHQ
- * @package ShipperHQ_Server
+ * @package ShipperHQ_Shipper
  * @copyright Copyright (c) 2017 Zowta LLC (http://www.ShipperHQ.com)
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
@@ -40,6 +40,8 @@ use ShipperHQ\GraphQL\Types\Input\ListingDetail;
 use ShipperHQ\WS;
 use \Magento\Sales\Model\Order\Item;
 use \Magento\Sales\Model\Order;
+use \Magento\Catalog\Helper\Product;
+use \Magento\Catalog\Model\Product\Gallery\Processor;
 
 class ListingMapper
 {
@@ -63,6 +65,11 @@ class ListingMapper
      */
     private $credentialsFactory;
 
+    /**
+     * @var \Magento\Framework\Filesystem\Directory\WriteInterface
+     */
+    private $mediaDirectory;
+
     private static $dim_height = 'ship_height';
     private static $dim_width = 'ship_width';
     private static $dim_length = 'ship_length';
@@ -74,20 +81,22 @@ class ListingMapper
      * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
      * @param WS\Shared\CredentialsFactory $credentialsFactory
      * @param \Magento\Backend\Block\Template\Context $context
+     * @param \Magento\Framework\Filesystem $filesystem
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Framework\App\ProductMetadata $productMetadata,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \ShipperHQ\WS\Shared\CredentialsFactory $credentialsFactory,
-        \Magento\Backend\Block\Template\Context $context
-
+        \Magento\Backend\Block\Template\Context $context,
+        \Magento\Framework\Filesystem $filesystem
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->productMetadata = $productMetadata;
         $this->shipperLogger = $shipperLogger;
         $this->credentialsFactory = $credentialsFactory;
         $this->storeManager = $context->getStoreManager();
+        $this->mediaDirectory = $filesystem->getDirectoryWrite(\Magento\Framework\App\Filesystem\DirectoryList::MEDIA);
     }
 
     /**
@@ -95,12 +104,21 @@ class ListingMapper
      * @param ShippingAddress $shippingAddress
      * @param $carrierType
      * @param $originName
+     * @param $shippingCost
+     * @param \ShipperHQ\Shipper\Model\Api\CreateListing\Item[] $withItems
+     * @param false|\ShipperHQ\Shipper\Api\FetchUpdatedCarrierRate\RateInterface $rate
      * @return ListingInfo
      * @throws \ShipperHQ\GraphQL\Exception\SerializerException
      */
-    public function mapCreateListingRequest(Order $order, $shippingAddress, $carrierType, $originName, $shippingCost)
+    public function mapCreateListingRequest(Order $order, $shippingAddress, $carrierType, $originName, $shippingCost, $withItems = [], $rate = false)
     {
         $shippingMethod = $order->getShippingMethod();
+
+        if ($rate) {
+            $shippingMethod = "{$rate->getCarrierCode()}_{$rate->getMethodCode()}";
+            $carrierType = $rate->getCarrierType();
+            $shippingCost = $rate->getPrice();
+        }
 
         try {
 
@@ -110,7 +128,7 @@ class ListingMapper
 
             $recipient = $this->mapRecipient($order);
 
-            $listingArray = $this->mapListing($order, $shippingMethod, $shippingCost);
+            $listingArray = $this->mapListing($order, $shippingMethod, $shippingCost, $withItems);
 
             $siteDetails = $this->mapSiteDetails($order);
 
@@ -127,10 +145,12 @@ class ListingMapper
     /**
      * @param Order $order
      * @param string $shippingMethod
+     * @param $shippingCost
+     * @param \ShipperHQ\Shipper\Model\Api\CreateListing\Item[] $withItems
      * @return Listing[]
      * @throws \ShipperHQ\GraphQL\Exception\SerializerException
      */
-    private function mapListing(Order $order, $shippingMethod, $shippingCost)
+    private function mapListing(Order $order, $shippingMethod, $shippingCost, $withItems = [])
     {
         list($carrierCode, $method) = explode('_', $shippingMethod, 2);
 
@@ -141,6 +161,25 @@ class ListingMapper
         );
 
         $items = (array)$order->getAllItems(); // Coerce into being an array
+
+        if(count($withItems)) {
+
+            // TODO: Refactor to extract
+            $withItems = array_reduce($withItems, function ($carry, $item) {
+                /** @var \ShipperHQ\Shipper\Model\Api\CreateListing\Item $item */
+                $carry[$item->getItemId()] = $item->getQty();
+                return $carry;
+            }, []);
+
+            $items = array_filter($items, function (Item &$item) use ($withItems) {
+                $product = $item->getProduct();
+                if (isset($withItems[$product->getEntityId()])) {
+                    $item->setData('listing_qty', $withItems[$product->getEntityId()]);
+                    return true;
+                }
+                return false;
+            });
+        }
 
         $pieces = [];
         /** @var Item $item */
@@ -164,15 +203,28 @@ class ListingMapper
     private function mapProductDetails(Item $item)
     {
         $product = $item->getProduct();
+
+        $listingQty = $item->getData('listing_qty') ?: $item->getQtyOrdered();
+
         $piece = new Piece(
             $item->getId(),
             $item->getName(), //referenceID?
             $item->getPrice() ? (int)$item->getPrice() : 0,
-            (int)$item->getWeight() * $item->getQtyOrdered(),
-            $product->getData(self::$dim_length),
-            $product->getData(self::$dim_width),
-            $product->getData(self::$dim_height)
+            (int)$item->getWeight() * $listingQty,
+            $product->getData(self::$dim_length) ? $product->getData(self::$dim_length) : 1,
+            $product->getData(self::$dim_width) ? $product->getData(self::$dim_width) : 1,
+            $product->getData(self::$dim_height) ? $product->getData(self::$dim_height) : 1
         );
+
+        try {
+            $thumbnail = $product->getThumbnail();
+            $fullPath =  'catalog/product/' . ltrim($thumbnail, '/');
+            $fileContent = $this->mediaDirectory->readFile($fullPath);
+            $encodedContent = base64_encode($fileContent);
+            $piece->setImage($encodedContent);
+        } catch (Exception $e) {
+            $this->shipperLogger->postCritical('ShipperHQ', 'Exception during image upload to listing', $e->getMessage());
+        }
 
         return $piece;
     }

@@ -41,6 +41,7 @@ define([], function() {
     "ups",
     "upsFreight",
     "upsGroundFreight",
+    "uShip",
     "usps",
     "vitranExpress",
     "xpo",

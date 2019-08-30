@@ -70,7 +70,7 @@ class GraphQLHelper
      */
     public function getListingEndpoint()
     {
-        return $this->config->getValue(self::SHIPPERHQ_ENDPOINT_PATH) .'label';
+        return $this->config->getValue(self::SHIPPERHQ_ENDPOINT_PATH) .'/label';
     }
 
     /**

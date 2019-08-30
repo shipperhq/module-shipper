@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+  ~ Shipper HQ
+  ~
+  ~ @category ShipperHQ
+  ~ @package ShipperHQ_Shipper
+  ~ @copyright Copyright (c) 2019 Zowta LTD and Zowta LLC (http://www.ShipperHQ.com)
+  ~ @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+  ~ @author ShipperHQ Team sales@shipperhq.com
+  -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="ShipperHQ\Shipper\Api\CreateListingInterface" type="ShipperHQ\Shipper\Model\Api\CreateListing"/>
+    <preference for="ShipperHQ\Shipper\Api\CreateListing\ItemInterface" type="ShipperHQ\Shipper\Model\Api\CreateListing\Item"/>
+    <preference for="ShipperHQ\Shipper\Api\FetchUpdatedCarrierRateInterface" type="ShipperHQ\Shipper\Model\Api\FetchUpdatedCarrierRate"/>
+    <preference for="ShipperHQ\Shipper\Api\FetchUpdatedCarrierRate\ItemInterface" type="ShipperHQ\Shipper\Model\Api\FetchUpdatedCarrierRate\Item"/>
+    <preference for="ShipperHQ\Shipper\Api\FetchUpdatedCarrierRate\RateInterface" type="ShipperHQ\Shipper\Model\Api\FetchUpdatedCarrierRate\Rate"/>
+</config>

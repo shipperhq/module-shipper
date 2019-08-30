@@ -10,6 +10,10 @@
             </action>
             <block class="ShipperHQ\Shipper\Block\Adminhtml\Order\View\Info" name="postorder_info" template="ShipperHQ_Shipper::order/view/shq_info.phtml"/>
             <block class="Magento\Sales\Block\Adminhtml\Order\AbstractOrder" name="order_shipping_view_orig" template="Magento_Shipping::order/view/info.phtml"/>
+            <arguments>
+                <argument name="viewModel" xsi:type="object">ShipperHQ\Shipper\ViewModel\Listing</argument>
+            </arguments>
+            <uiComponent name="shipperhq_shipper_listing_modal"/>
         </referenceBlock>
         <referenceBlock name="order_items">
             <arguments>

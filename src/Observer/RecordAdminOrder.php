@@ -37,6 +37,7 @@ namespace ShipperHQ\Shipper\Observer;
 
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
+use ShipperHQ\Shipper\Helper\Listing as ListingHelper;
 
 /**
  * ShipperHQ Shipper module observer
@@ -61,12 +62,13 @@ class RecordAdminOrder extends AbstractRecordOrder implements ObserverInterface
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \Magento\Checkout\Model\Session $checkoutSession,
-        \ShipperHQ\Shipper\Model\Listing\ListingService $listingService
+        \ShipperHQ\Shipper\Model\Listing\ListingService $listingService,
+        ListingHelper $listingHelper
     ) {
 
         $this->orderFactory = $orderFactory;
         $this->checkoutSession = $checkoutSession;
-        parent::__construct($shipperDataHelper, $quoteRepository, $shipperLogger, $packageHelper, $carrierGroupHelper, $listingService);
+        parent::__construct($shipperDataHelper, $quoteRepository, $shipperLogger, $packageHelper, $carrierGroupHelper, $listingService, $listingHelper);
     }
     /**
      * Record order shipping information after order is placed

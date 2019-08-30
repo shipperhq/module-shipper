@@ -36,6 +36,7 @@
 namespace ShipperHQ\Shipper\Helper;
 
 use Magento\Framework\Api\SearchCriteriaBuilder;
+use ShipperHQ\Shipper\Model\Listing\ListingService;
 
 /**
  * Carrier Group Processing helper
@@ -487,7 +488,16 @@ class CarrierGroup extends Data
                     $carriergroupText .= ' Quote Id: ' . $cgrp['freightQuoteId'];
                 }
                 if (array_key_exists('listing_created', $cgrp) && $cgrp['listing_created'] != '') {
-                    $carriergroupText .= '<br/>'  .$cgrp['carrierTitle']  .': ' .$cgrp['listing_created'];
+                    if ($cgrp['listing_created'] === ListingService::LISTING_CREATED && array_key_exists('listing_id', $cgrp) && $cgrp['listing_id'] != '') {
+                        $carriergroupText .= <<<LISTING
+                        <br/>
+                        <br/>
+                        A listing has been created with uShip.
+<br /><a href="https://uship.com/shipment/Furniture-Listing/{$cgrp['listing_id']}/">Listing #{$cgrp['listing_id']}</a>
+LISTING;
+                    } else {
+                        $carriergroupText .=  "<br/>Failed to create uShip listing.";
+                    }
                 }
                 $carriergroupText .= '</div></div>';
             }

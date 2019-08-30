@@ -388,3 +388,7 @@ SHQ18-2247 uShip Integration
 SHQ18-2416 Add support for showing rate shopped method in admin panel
 
 
+## 20.30.0 (2019-08-30)
+SHQ18-2440/2431/2517/2518 Implement manual listing utility
+
+

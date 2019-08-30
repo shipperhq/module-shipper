@@ -37,7 +37,9 @@
 namespace ShipperHQ\Shipper\Observer;
 
 use Magento\Framework\Event\ObserverInterface;
+use ShipperHQ\GraphQL\Response\CreateListing;
 use ShipperHQ\Shipper\Model\Listing\ListingService;
+use ShipperHQ\Shipper\Helper\Listing as ListingHelper;
 
 /**
  * ShipperHQ Shipper module observer
@@ -70,6 +72,9 @@ abstract class AbstractRecordOrder implements ObserverInterface
      */
     private $listingService;
 
+    /** @var ListingHelper */
+    private $listingHelper;
+
 
     const USHIP_CARRIER_TYPE = 'uShip';
 
@@ -83,6 +88,7 @@ abstract class AbstractRecordOrder implements ObserverInterface
      * @param \ShipperHQ\Shipper\Helper\Package $packageHelper
      * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
      * @param ListingService $listingService
+     * @param ListingHelper $listingHelper
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
@@ -90,14 +96,17 @@ abstract class AbstractRecordOrder implements ObserverInterface
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
-        ListingService $listingService
-    ) {
+        ListingService $listingService,
+        ListingHelper $listingHelper
+    )
+    {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->quoteRepository = $quoteRepository;
         $this->shipperLogger = $shipperLogger;
         $this->packageHelper = $packageHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->listingService = $listingService;
+        $this->listingHelper = $listingHelper;
     }
 
     public function recordOrder($order)
@@ -134,11 +143,16 @@ abstract class AbstractRecordOrder implements ObserverInterface
             list($carrierCode, $method) = explode('_', $shippingMethod, 2);
             $carrierType = $shippingRate->getCarrierType();
 
+
             if ($carrierType == self::USHIP_CARRIER_TYPE &&
                 $this->shipperDataHelper->getDefaultConfigValue('carriers/shipper/create_listing') &&
                 $this->shipperDataHelper->getDefaultConfigValue('carriers/shipper/create_listing') == self::AUTOMATIC_LISTING) {
 
-                    $this->listingService->createListing($order, $shippingMethod, $shippingAddress, $carrierType);
+                /** @var false|CreateListing $listingCreated */
+                $listingCreated = $this->listingService->createListing($order, $shippingAddress, $carrierType);
+                if ($listingCreated !== false && $listingCreated != null) {
+                    $this->listingHelper->saveListingDetailsToOrderComments($order, ListingService::LISTING_CREATED, $listingCreated->getData()->getCreateListing()->getListingId());
+                }
             }
         }
 
@@ -166,7 +180,7 @@ abstract class AbstractRecordOrder implements ObserverInterface
                                 $order->setShippingDescription($newShipDescription);
 
                                 //SHQ18-2416 Save actual carrier and method code from rate shop
-                                if (isset($cgDetail['carrier_code']) && isset($cgDetail['code'] )) {
+                                if (isset($cgDetail['carrier_code']) && isset($cgDetail['code'])) {
                                     $order->setShippingMethod($cgDetail['carrier_code'] . "_" . $cgDetail['code']);
                                 }
                             }

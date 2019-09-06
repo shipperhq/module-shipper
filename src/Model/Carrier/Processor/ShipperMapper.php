@@ -893,6 +893,31 @@ class ShipperMapper
     }
 
     /**
+     * Gets credentials from all websites/stores in Magento
+     *
+     * @return array
+     */
+    public function getAllCredentialsTranslation()
+    {
+        $credentialsPerStore = [];
+        $allStoreIds = $this->shipperDataHelper->getAllStoreIds();
+
+        foreach ($allStoreIds as $storeId) {
+            $credentials = $this->getCredentialsTranslation($storeId);
+
+            if ($credentials != null) {
+                $apiKey = $credentials->getCredentials()->getApiKey();
+
+                if (!array_key_exists($apiKey, $credentialsPerStore)) {
+                    $credentialsPerStore[$apiKey] = $credentials;
+                }
+            }
+        }
+
+        return $credentialsPerStore;
+    }
+
+    /**
      * Gets the magento order number
      * @param $order
      * @return mixed

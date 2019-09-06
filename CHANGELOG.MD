@@ -392,3 +392,7 @@ SHQ18-2416 Add support for showing rate shopped method in admin panel
 SHQ18-2440/2431/2517/2518 Implement manual listing utility
 
 
+## 20.31.0 (2019-09-06)
+SHQ18-2198 Support syncronisation from multiple API keys
+
+

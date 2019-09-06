@@ -910,20 +910,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         $result = [];
         $allowedMethods = [];
 
-        $credentialsPerStore = [];
-        $allStoreIds = $this->shipperDataHelper->getAllStoreIds();
-
-        foreach ($allStoreIds as $storeId) {
-            $credentials = $this->shipperMapper->getCredentialsTranslation($storeId);
-
-            if ($credentials != null) {
-                $apiKey = $credentials->getCredentials()->getApiKey();
-
-                if (!array_key_exists($apiKey, $credentialsPerStore)) {
-                    $credentialsPerStore[$apiKey] = $credentials;
-                }
-            }
-        }
+        $credentialsPerStore = $this->shipperMapper->getAllCredentialsTranslation();
 
         $allAllowedMethodsResponse = [];
 

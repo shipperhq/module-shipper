@@ -185,10 +185,11 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         return $result;
     }
 
-    /*
-     *Get latest attribute data and perform changes required
+    /**
+     * Get latest attribute data and perform changes required
+     *
+     * @return array
      */
-
     private function getLatestAttributeData()
     {
         $result = [];
@@ -200,24 +201,92 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         }
 
         $synchronizeUrl = $this->restHelper->getAttributeGatewayUrl();
-        $resultSet = $this->send($synchronizeUrl);
+        $credentialsPerStore = $this->shipperMapper->getAllCredentialsTranslation();
 
-        $allAttributesResponse = $resultSet['result'];
+        $resultSetArray = [];
+        $origins = [];
 
+        foreach ($credentialsPerStore as $credentials) {
+            $resultSetArray[] = $this->send($synchronizeUrl, $credentials);
+        }
+
+        if (count($resultSetArray) > 0) {
+            foreach ($resultSetArray as $key => $resultSet) {
+                $resultObject = $resultSet['result'];
+                if (!$this->validateAllAtrributesResponse($resultObject)) {
+                    continue;
+                }
+                $attributes = $resultObject->attributeTypes;
+                foreach ($attributes as $attribute) {
+                    if ($attribute->code == "shipperhq_warehouse") {
+                        $originObjArr = $attribute->attributes;
+                        foreach ($originObjArr as $origin) {
+                            if (!array_key_exists($origin->name, $origins)) {
+                                $origins[$origin->name] = $origin;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            //Use as master result set. Will be from default configuration scope
+            $allAttributesResponse = $resultSetArray[0]['result'];
+
+            /*
+             * Merge in the origins from all API keys present in M2 configuration
+             */
+            if ($this->validateAllAtrributesResponse($allAttributesResponse)) {
+                $this->mergeOriginsToMasterResponse($allAttributesResponse, $origins);
+                $result = $allAttributesResponse->attributeTypes;
+            }
+        }
+        
+        return $result;
+    }
+
+    /**
+     * Merges in the array of origins from all found API keys
+     *
+     * @param $masterResponse
+     * @param $allWebsiteOrigins
+     */
+    private function mergeOriginsToMasterResponse(&$masterResponse, $allWebsiteOrigins)
+    {
+        $attributes = $masterResponse->attributeTypes;
+
+        foreach ($attributes as $attribute) {
+            if ($attribute->code == "shipperhq_warehouse") {
+                $attribute->attributes = $allWebsiteOrigins;
+                break;
+            }
+        }
+    }
+
+    /**
+     * Validates the attribute response is valid and contains data TODO: log store name as this is now potenitally per store
+     * 
+     * @param $response
+     *
+     * @return bool
+     */
+    private function validateAllAtrributesResponse($response)
+    {
+        $validResponse = false;
+        
         $this->shipperLogger->postDebug(
             'Shipperhq_Shipper',
             'Latest attributes response',
-            (array)$allAttributesResponse
+            (array)$response
         );
 
-        if (!is_object($allAttributesResponse)) {
+        if (!is_object($response)) {
             $this->shipperLogger->postInfo(
                 'Shipperhq_Shipper',
                 'Retrieving attributes: No or invalid response received from Shipper HQ',
-                $allAttributesResponse
+                $response
             );
-        } elseif (isset($allAttributesResponse->errors) && !empty($allAttributesResponse->errors)) {
-            foreach ($allAttributesResponse->errors as $errorDetails) {
+        } elseif (isset($response->errors) && !empty($response->errors)) {
+            foreach ($response->errors as $errorDetails) {
                 $errorDetails = (array)$errorDetails;
                 if (array_key_exists('internalErrorMessage', $errorDetails)
                     && $errorDetails['internalErrorMessage'] != ''
@@ -232,22 +301,23 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
             $this->shipperLogger->postInfo(
                 'Shipperhq_Shipper',
                 'Shipper HQ returned error',
-                $allAttributesResponse->errors
+                $response->errors
             );
-        } elseif (!$allAttributesResponse || !isset($allAttributesResponse->responseSummary) ||
-            (string)$allAttributesResponse->responseSummary->status != 1 ||
-            !$allAttributesResponse->attributeTypes) {
+        } elseif (!$response || !isset($response->responseSummary) ||
+            (string)$response->responseSummary->status != 1 ||
+            !$response->attributeTypes) {
             $this->shipperLogger->postInfo(
                 'Shipperhq_Shipper',
                 'Unable to parse latest attributes response : ',
-                $allAttributesResponse
+                $response
             );
         } else {
-            $result = $allAttributesResponse->attributeTypes;
+            $validResponse = true;
         }
-        return $result;
+        
+        return $validResponse;
     }
-
+    
     private function send($url, $request = null)
     {
         $timeout = $this->restHelper->getWebserviceTimeout();

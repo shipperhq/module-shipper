@@ -681,9 +681,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return false;
     }
 
+    /**
+     * Returns all stores ids. 0 (default store) is always first in the array
+     *
+     * @return array
+     */
     public function getAllStoreIds()
     {
-        $storeIds = [];
+        //Default store is always 0. Want it to be first in array for use elsewhere
+        $storeIds = [0];
 
         $stores = $this->storeManager->getStores();
 

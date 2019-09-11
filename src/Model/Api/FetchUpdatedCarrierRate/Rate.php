@@ -36,6 +36,9 @@ class Rate implements RateInterface
     /** @var float */
     private $price;
 
+    /** @var float */
+    private $nypAmount;
+
     /**
      * Rate constructor.
      * @param string $carrier_code
@@ -44,8 +47,9 @@ class Rate implements RateInterface
      * @param string $method_code
      * @param string $method_title
      * @param float $price
+     * @param float|null $nyp_amount
      */
-    public function __construct(string $carrier_code, string $carrier_title, string $carrier_type, string $method_code, string $method_title, float $price)
+    public function __construct(string $carrier_code, string $carrier_title, string $carrier_type, string $method_code, string $method_title, float $price, float $nyp_amount = null)
     {
         $this->carrierCode = $carrier_code;
         $this->carrierTitle = $carrier_title;
@@ -53,6 +57,7 @@ class Rate implements RateInterface
         $this->methodCode = $method_code;
         $this->methodTitle = $method_title;
         $this->price = $price;
+        $this->nypAmount = $nyp_amount;
     }
 
     /**
@@ -162,4 +167,17 @@ class Rate implements RateInterface
         $this->price = $price;
         return $this;
     }
+
+    public function getNypAmount()
+    {
+        return $this->nypAmount;
+    }
+
+    public function setNypAmount(float $nypAmount)
+    {
+        $this->nypAmount = $nypAmount;
+        return $this;
+    }
+
+
 }

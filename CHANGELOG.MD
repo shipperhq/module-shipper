@@ -396,3 +396,7 @@ SHQ18-2440/2431/2517/2518 Implement manual listing utility
 SHQ18-2198 Support syncronisation from multiple API keys
 
 
+## 20.31.1 (2019-09-11)
+SHQ18-2587 Added support for uShip NYP Amount (Price less fees) and improved uniqueness of shipmentId
+
+

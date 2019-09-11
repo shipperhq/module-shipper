@@ -117,7 +117,7 @@ class ListingMapper
         if ($rate) {
             $shippingMethod = "{$rate->getCarrierCode()}_{$rate->getMethodCode()}";
             $carrierType = $rate->getCarrierType();
-            $shippingCost = $rate->getPrice();
+            $shippingCost = $rate->getNypAmount() ? $rate->getNypAmount() : $rate->getPrice();
         }
 
         try {
@@ -155,7 +155,7 @@ class ListingMapper
         list($carrierCode, $method) = explode('_', $shippingMethod, 2);
 
         $listingDetail = new ListingDetail(
-            $order->getIncrementId(),
+            $this->getShipmentId($order),
             $method,
             $shippingCost
         );
@@ -287,7 +287,7 @@ class ListingMapper
     {
         $storeId = $order->getStoreId();
         $edition = $this->productMetadata->getEdition();
-        $url = $this->storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_LINK);
+        $url = $this->getStoreUrl($storeId);
 
         $siteDetails = new RMSSiteDetails(
             $this->scopeConfig->getValue('carriers/shipper/extension_version', 'store', $storeId),
@@ -298,6 +298,28 @@ class ListingMapper
         );
 
         return $siteDetails;
+    }
+
+    /**
+     * @param $storeId
+     * @return mixed
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    private function getStoreUrl($storeId)
+    {
+        return $this->storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_LINK);
+    }
+
+    /**
+     * @param Order $order
+     * @return string
+     */
+    private function getShipmentId(Order $order): string
+    {
+        $incrementId = $order->getIncrementId();
+        $storeUrl = $this->getStoreUrl($order->getStoreId());
+        $storeUrlHash = md5($storeUrl);
+        return "$storeUrlHash-$incrementId";
     }
 
 }

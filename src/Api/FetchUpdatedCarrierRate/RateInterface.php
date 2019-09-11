@@ -80,4 +80,15 @@ interface RateInterface
      * @return RateInterface
      */
     public function setPrice(float $price);
+
+    /**
+     * @return float
+     */
+    public function getNypAmount();
+
+    /**
+     * @param float $nypAmount
+     * @return RateInterface
+     */
+    public function setNypAmount(float $nypAmount);
 }

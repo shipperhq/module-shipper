@@ -100,7 +100,8 @@ class FetchUpdatedCarrierRate implements FetchUpdatedCarrierRateInterface
                     "carrier_type" => $rate->getData('carrier_type'),
                     "method_code" => $rate->getMethod(),
                     "method_title" => $rate->getMethodTitle(),
-                    "price" => $rate->getPrice()
+                    "price" => $rate->getPrice(),
+                    "nyp_amount" => $rate->getNypAmount()
                 ]);
             }, $rates);
             return $mappedRates;

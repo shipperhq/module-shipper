@@ -72,7 +72,8 @@ class RatePlugin
                 ->setCarrierId($rate->getCarrierId())
                 ->setCustomDuties($rate->getCustomDuties())
                 ->setHideNotifications($rate->getHideNotifications())
-                ->setTooltip($rate->getTooltip());
+                ->setTooltip($rate->getTooltip())
+                ->setNypAmount($rate->getNypAmount());
         }
         return $result;
     }

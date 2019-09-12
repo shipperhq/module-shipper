@@ -32,7 +32,7 @@ class Listing implements ArgumentInterface
     const DIM_WIDTH = 'ship_width';
     const DIM_LENGTH = 'ship_length';
     const PRODUCT_WEIGHT = 'weight';
-    
+
     /** @var array */
     private $config;
 
@@ -125,9 +125,7 @@ class Listing implements ArgumentInterface
      */
     public function showListingButton()
     {
-        $createListing = $this->configReader->getValue('carriers/shipper/create_listing');
-
-        if ( $createListing === 'NONE' || $createListing === null) {
+        if ($this->areListingsDisabled()) {
             return false;
         }
 
@@ -136,6 +134,13 @@ class Listing implements ArgumentInterface
         }
 
         return true;
+    }
+
+    private function areListingsDisabled()
+    {
+        $createListing = $this->configReader->getValue('carriers/shipper/create_listing');
+
+        return $createListing === 'NONE' || $createListing === null;
     }
 
     private function hasListingAlreadyProcessed()
@@ -158,12 +163,19 @@ class Listing implements ArgumentInterface
 
     private function initializeConfig()
     {
+        if ($this->areListingsDisabled()) {
+            $this->config['listing'] = [];
+            return;
+        }
+
         $order = $this->getOrder();
 
         $this->config['listing'] = [
             'order_id' => $order->getEntityId(),
             'order_number' => $order->getIncrementId(),
-            'items' => array_filter($this->getItemConfig($order), function($var){return !is_null($var);} ),
+            'items' => array_filter($this->getItemConfig($order), function ($var) {
+                return !is_null($var);
+            }),
             'existing_rate' => $this->getExistingRateForOrder($order),
             'fetch_updated_rate' => [
                 'api_key' => $this->getCreateListingApiKey(),
@@ -178,7 +190,7 @@ class Listing implements ArgumentInterface
 
     /**
      * @param $order
-     * @return array
+     * @return array|false
      */
     private function getExistingRateForOrder($order)
     {
@@ -186,6 +198,14 @@ class Listing implements ArgumentInterface
         $quote = $this->quoteRepository->get($quoteId, [$order->getStoreId()]);
         $shippingAddress = $quote->getShippingAddress();
         $shippingRate = $shippingAddress->getShippingRateByCode($order->getShippingMethod());
+
+        if ($shippingRate === false) {
+            return [
+                "carrier_title" => "-",
+                "method_title" => "-",
+                "price" => 0.0
+            ];
+        }
 
         return [
             "carrier_title" => $shippingRate->getCarrierTitle(),
@@ -196,7 +216,7 @@ class Listing implements ArgumentInterface
 
     /**
      * @param \Magento\Sales\Api\Data\OrderInterface $order
-     * @return array
+     * @return array|null
      */
     private function getItemConfig($order)
     {
@@ -207,6 +227,10 @@ class Listing implements ArgumentInterface
             $productId = $item->getProductId();
             /** @var Product $product */
             $product = $item->getProduct();
+
+            if ($product === null) {
+                return null;
+            }
 
             $imgUrl = $this->imageHelper
                 ->init($product, 'product_page_image_small')

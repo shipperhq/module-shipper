@@ -579,7 +579,9 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
                     $rate->setPrice($rateDetails['price'] * $baseRate);
 
-                    $rate->setNypAmount($rateDetails['nypAmount'] * $baseRate);
+                    if (array_key_exists('nypAmount', $rateDetails)) {
+                        $rate->setNypAmount($rateDetails['nypAmount'] * $baseRate);
+                    }
 
                     if (array_key_exists('carrier_type', $rateDetails)) {
                         $rate->setCarrierType($rateDetails['carrier_type']);

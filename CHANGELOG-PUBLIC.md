@@ -400,3 +400,7 @@ SHQ18-2198 Support syncronisation from multiple API keys
 SHQ18-2587 Added support for uShip NYP Amount (Price less fees) and improved uniqueness of shipmentId
 
 
+## 20.31.2 (2019-09-12)
+SHQ18-2576/SHQ18-2577/SHQ18-2613 Fix multiple issues with missing data
+
+

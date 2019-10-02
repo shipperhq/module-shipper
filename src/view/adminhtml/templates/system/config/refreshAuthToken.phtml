@@ -1,0 +1,52 @@
+<?php
+/*
+ * Shipper HQ
+ *
+ * @category ShipperHQ
+ * @package ShipperHQ_Shipper
+ * @copyright Copyright (c) 2019 Zowta LTD and Zowta LLC (http://www.ShipperHQ.com)
+ * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @author ShipperHQ Team sales@shipperhq.com
+ */
+
+/** @var \ShipperHQ\Shipper\Block\Adminhtml\System\Config\RefreshAuthToken $block */
+?>
+<script>
+require(['prototype'], function(){
+
+//<![CDATA[
+    function refreshAuthToken() {
+        var validationMessage = $('validation_result');
+
+        new Ajax.Request('<?= $block->escapeJs($block->escapeUrl($block->getAjaxUrl())) ?>', {
+            onSuccess: function(response) {
+                var result = '<?= $block->escapeJs($block->escapeHtml(__('Error retrieving new authorization token'))) ?>';
+                try {
+                    if (response.responseText.isJSON()) {
+                        response = response.responseText.evalJSON();
+                        result = response.message;
+                    }
+                    if (response.valid == 1) {
+                        validationMessage.removeClassName('hidden').addClassName('success')
+                    } else {
+                        validationMessage.removeClassName('hidden').addClassName('error')
+                    }
+                } catch (e) {
+                    validationMessage.removeClassName('hidden').addClassName('error')
+                }
+                validationMessage.update(result);
+            }
+        });
+    }
+
+    window.refreshAuthToken = refreshAuthToken;
+//]]>
+
+});
+</script>
+<div class="actions actions-validate-vat">
+    <div id="validation_result" class="refresh-auth-button hidden"></div>
+    <button onclick="javascript:refreshAuthToken(); return false;" class="action-refresh-auth" type="button" id="<?= $block->escapeHtmlAttr($block->getHtmlId()) ?>">
+        <span><?= $block->escapeHtml($block->getButtonLabel()) ?></span>
+    </button>
+</div>

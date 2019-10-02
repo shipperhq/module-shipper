@@ -404,3 +404,7 @@ SHQ18-2587 Added support for uShip NYP Amount (Price less fees) and improved uni
 SHQ18-2576/SHQ18-2577/SHQ18-2613 Fix multiple issues with missing data
 
 
+## 20.31.3 (2019-10-02)
+SHQ18-2693 Fix exception when using Magento API
+
+

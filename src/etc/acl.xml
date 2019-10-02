@@ -40,6 +40,7 @@
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_other_settings">
                         <resource id="ShipperHQ_Shipper::synchronize" title="Synchronize ShipperHQ" sortOrder="20"/>
+                        <resource id="ShipperHQ_Shipper::refreshAuthToken" title="Refresh ShipperHQ Authorization Token" sortOrder="25"/>
                     </resource>
                 </resource>
                 <resource id="Magento_Sales::sales">

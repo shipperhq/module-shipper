@@ -783,7 +783,8 @@ class ShipperMapper
     public function getCustomerGroupId($items)
     {
         if (!empty($items)) {
-            return $items[0]->getQuote()->getCustomerGroupId();
+            $item = reset($items);
+            return $item->getQuote()->getCustomerGroupId();
         }
         return null;
     }

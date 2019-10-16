@@ -408,3 +408,7 @@ SHQ18-2576/SHQ18-2577/SHQ18-2613 Fix multiple issues with missing data
 SHQ18-2693 Fix exception when using Magento API
 
 
+## 20.31.4 (2019-10-16)
+SHQ18-2787 Fix for exception when getting customer group
+
+

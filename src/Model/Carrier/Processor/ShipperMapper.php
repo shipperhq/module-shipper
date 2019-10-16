@@ -783,8 +783,15 @@ class ShipperMapper
     public function getCustomerGroupId($items)
     {
         if (!empty($items)) {
-            return $items[0]->getQuote()->getCustomerGroupId();
+            // SHQ18-2787 Thanks to https://github.com/tristanhofman for this fix.
+            // Ensure items array at 0 exists
+            $item = reset($items);
+
+            if ($item) {
+                return $item->getQuote()->getCustomerGroupId();
+            }
         }
+
         return null;
     }
 

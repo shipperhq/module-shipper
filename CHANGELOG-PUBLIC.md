@@ -412,3 +412,7 @@ SHQ18-2693 Fix exception when using Magento API
 SHQ18-2787 Fix for exception when getting customer group
 
 
+## 20.31.5 (2019-10-30)
+SHQ18-2575 Allow custom admin shipping price of 0
+
+

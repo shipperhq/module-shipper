@@ -134,7 +134,9 @@ class SaveShippingAdmin implements ObserverInterface
                         $additionalDetail
                     );
                     $shippingMethod = $orderData['shipping_method'];
-                    if (!empty($orderData['custom_price'])) {
+
+                    //SHQ18-2575 Changed to check array key exists instead of !empty
+                    if (array_key_exists('custom_price', $orderData)) {
                         $this->processAdminShipping($orderData, $quote);
                     }
                     $additionalDetailArray = $additionalDetail->convertToArray();

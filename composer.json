@@ -2,7 +2,7 @@
     "name": "shipperhq/module-shipper",
     "description": "Magento Shipping integration with ShipperHQ",
     "type": "magento2-module",
-    "version": "20.31.5",
+    "version": "20.31.6",
     "license": [
         "OSL-3.0",
         "AFL-3.0"
@@ -54,7 +54,7 @@
         "friendsofphp/php-cs-fixer": "~2.1.1",
         "lusitanian/oauth": "~0.8.10",
         "sebastian/phpcpd": "2.0.4",
-        "mikey179/vfsStream": "^1.6",
+        "mikey179/vfsstream": "^1.6",
         "phpro/grumphp": "^0.12.1",
         "theseer/phpdox": "^0.10.1",
         "phploc/phploc": "^4.0",

@@ -416,3 +416,7 @@ SHQ18-2787 Fix for exception when getting customer group
 SHQ18-2575 Allow custom admin shipping price of 0
 
 
+## 20.31.6 (2019-10-31)
+M2-63 changed modules in require-dev to lcase
+
+

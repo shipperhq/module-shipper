@@ -849,11 +849,15 @@ class ShipperMapper
     /**
      * Return site specific information
      *
-     * @return array
+     * @param null $storeId
+     * @param null $ipAddress
+     *
+     * @return WS\Shared\SiteDetails
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getSiteDetails($storeId = null, $ipAddress = null)
     {
-        $edition = $this->productMetadata->getEdition();
+        $edition = $this->shipperDataHelper->getConfigValue('carriers/shipper/magento_edition');
         $url = $this->storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_LINK);
         $mobilePrepend = $this->shipperDataHelper->isMobile($this->httpHeader->getHttpUserAgent()) ? 'm' : '';
 
@@ -889,7 +893,11 @@ class ShipperMapper
     /**
      * Set up values for ShipperHQ getAllowedMethods()
      *
+     * @param null $storeId
+     * @param null $ipAddress
+     *
      * @return string
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getCredentialsTranslation($storeId = null, $ipAddress = null)
     {
@@ -934,8 +942,23 @@ class ShipperMapper
         return $order->getRealOrderId();
     }
 
+    /**
+     * Gets the version number. E.g 2.3.0
+     *
+     * @return string
+     */
     public function getMagentoVersion()
     {
         return $this->productMetadata->getVersion();
+    }
+
+    /**
+     * Gets the edition. E.g Commerce/Enterprise/Community
+     *
+     * @return string
+     */
+    public function getMagentoEdition()
+    {
+        return $this->productMetadata->getEdition();
     }
 }

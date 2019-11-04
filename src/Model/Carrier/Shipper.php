@@ -1010,6 +1010,13 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             'carriers/shipper/magento_version',
             $this->shipperMapper->getMagentoVersion()
         );
+
+        //SHQ18-2680 Persist edition to config  to increase efficiency of future requests
+        $this->carrierConfigHandler->saveConfig(
+            'carriers/shipper/magento_edition',
+            $this->shipperMapper->getMagentoEdition()
+        );
+
         return $allowedMethods;
     }
 

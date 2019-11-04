@@ -420,3 +420,7 @@ SHQ18-2575 Allow custom admin shipping price of 0
 M2-63 changed modules in require-dev to lcase
 
 
+## 20.32.0 (2019-11-04)
+SHQ18-2680 Minor performance enhancement
+
+

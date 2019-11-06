@@ -424,3 +424,7 @@ M2-63 changed modules in require-dev to lcase
 SHQ18-2680 Minor performance enhancement
 
 
+## 20.32.1 (2019-11-06)
+SHQ18-2851 Fix issue with email variables not being set
+
+

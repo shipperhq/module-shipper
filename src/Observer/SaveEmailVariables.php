@@ -86,17 +86,15 @@ class SaveEmailVariables implements ObserverInterface
             $orderDetail = $this->carrierGroupHelper->getOrderCarrierGroupInfo($order->getId());
             if (count($orderDetail) > 0) {
                 foreach ($orderDetail as $orderData) {
-                    if (isset($orderData['delivery_date'])) {
-                        $data['deliveryDate']           = array_key_exists('delivery_date', $orderData) ? $orderData['delivery_date'] : '';
-                        $data['customerCarrier']        = array_key_exists('customer_carrier', $orderData) ? $orderData['customer_carrier']: '';
-                        $data['customerCarrierAccount'] = array_key_exists('customer_carrier_account', $orderData) ? $orderData['customer_carrier_account'] : '';
-                        $data['customerCarrierPh']      = array_key_exists('customer_carrier_ph', $orderData) ? $orderData['customer_carrier_ph'] : '';
-                        $data['liftgateRequired']       = array_key_exists('liftgate_required', $orderData) ? $orderData['liftgate_required'] : '';
-                        $data['notifyRequired']         = array_key_exists('notify_required', $orderData) ? $orderData['notify_required'] : '';
-                        $data['insideDelivery']         = array_key_exists('inside_delivery', $orderData) ? $orderData['inside_delivery'] : '';
-                        $data['limitedDelivery']        = array_key_exists('limited_delivery', $orderData) ? $orderData['limited_delivery'] : '';
-                        break;
-                    }
+                    $data['deliveryDate']           = array_key_exists('delivery_date', $orderData) ? $orderData['delivery_date'] : '';
+                    $data['customerCarrier']        = array_key_exists('customer_carrier', $orderData) ? $orderData['customer_carrier']: '';
+                    $data['customerCarrierAccount'] = array_key_exists('customer_carrier_account', $orderData) ? $orderData['customer_carrier_account'] : '';
+                    $data['customerCarrierPh']      = array_key_exists('customer_carrier_ph', $orderData) ? $orderData['customer_carrier_ph'] : '';
+                    $data['liftgateRequired']       = array_key_exists('liftgate_required', $orderData) ? $orderData['liftgate_required'] : '';
+                    $data['notifyRequired']         = array_key_exists('notify_required', $orderData) ? $orderData['notify_required'] : '';
+                    $data['insideDelivery']         = array_key_exists('inside_delivery', $orderData) ? $orderData['inside_delivery'] : '';
+                    $data['limitedDelivery']        = array_key_exists('limited_delivery', $orderData) ? $orderData['limited_delivery'] : '';
+                    break;
                 }
             } else {
                 $quoteShippingAddress = $this->carrierGroupHelper->getQuoteShippingAddressFromOrder($order);

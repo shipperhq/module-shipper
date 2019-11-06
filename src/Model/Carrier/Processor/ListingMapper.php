@@ -135,7 +135,7 @@ class ListingMapper
             $listingInfo = new ListingInfo($carrier, $sender, $recipient, $listingArray, $siteDetails);
 
         }
-        catch (Exception $e) {
+        catch (\Exception $e) {
             $this->shipperLogger->postCritical('ShipperHQ Shipper', 'Listing issue', $e->getMessage());
         }
 
@@ -222,7 +222,7 @@ class ListingMapper
             $fileContent = $this->mediaDirectory->readFile($fullPath);
             $encodedContent = base64_encode($fileContent);
             $piece->setImage($encodedContent);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->shipperLogger->postCritical('ShipperHQ', 'Exception during image upload to listing', $e->getMessage());
         }
 

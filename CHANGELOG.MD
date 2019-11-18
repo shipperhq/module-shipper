@@ -428,3 +428,7 @@ SHQ18-2680 Minor performance enhancement
 SHQ18-2851 Fix issue with email variables not being set
 
 
+## 20.33.0 (2019-11-18)
+SHQ18-2284 PHP 7.3 compatibility
+
+

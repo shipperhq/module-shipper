@@ -345,7 +345,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                                 'Attribute ' . $attribute->code . ' does not exist.',
                                 ''
                             );
-                            continue;
+                            break;
                         }
                         $existingAttributeInfo = $this->attributeOptionManagement->getItems($attribute->code);
                         if (is_array($existingAttributeInfo)) {

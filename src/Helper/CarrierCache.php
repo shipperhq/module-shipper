@@ -38,6 +38,7 @@ namespace ShipperHQ\Shipper\Helper;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\CacheInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Framework\Serialize\SerializerInterface;
 
 class CarrierCache
 {
@@ -51,18 +52,23 @@ class CarrierCache
      * @var bool
      */
     private $useCache = false;
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
 
     /**
      * @param CacheInterface $cache
      * @param ScopeConfigInterface $config
      */
-    public function __construct(CacheInterface $cache, ScopeConfigInterface $config)
+    public function __construct(CacheInterface $cache, ScopeConfigInterface $config, SerializerInterface $serializer)
     {
         $this->cache = $cache;
         $this->useCache = $config->isSetFlag(
             'carriers/shipper/always_use_cache',
             ScopeInterface::SCOPE_STORE
         );
+        $this->serializer = $serializer;
     }
 
     /**
@@ -82,7 +88,7 @@ class CarrierCache
         if ($this->useCache) {
             $cachedResult = $this->cache->load($key);
         }
-        return $cachedResult ? unserialize($cachedResult) : $cachedResult;
+        return $cachedResult ? $this->unserialize($cachedResult) : $cachedResult;
     }
 
     /**
@@ -119,7 +125,7 @@ class CarrierCache
     {
         if ($this->useCache && $this->responseCanBeCached($response)) {
             $key = $this->getQuotesCacheKey($requestParams, $carrierCode);
-            $this->cache->save(serialize($response), $key, [self::CACHE_TAG]);
+            $this->cache->save($this->serialize($response), $key, [self::CACHE_TAG]);
         }
         return $this;
     }
@@ -132,5 +138,13 @@ class CarrierCache
     public function cleanDownCachedRates()
     {
         $this->cache->clean([self::CACHE_TAG]);
+    }
+
+    public function serialize($variable) {
+        return $this->serializer->serialize($variable);
+    }
+
+    public function unserialize($variable) {
+        return $this->serializer->unserialize($variable);
     }
 }

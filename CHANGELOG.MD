@@ -432,3 +432,7 @@ SHQ18-2851 Fix issue with email variables not being set
 SHQ18-2284 PHP 7.3 compatibility
 
 
+## 20.34.0 (2019-11-20)
+SHQ18-2869 Process rate response as array
+
+

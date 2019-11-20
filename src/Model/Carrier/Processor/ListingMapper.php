@@ -318,7 +318,7 @@ class ListingMapper
     {
         $incrementId = $order->getIncrementId();
         $storeUrl = $this->getStoreUrl($order->getStoreId());
-        $storeUrlHash = md5($storeUrl);
+        $storeUrlHash =  hash('sha256', $storeUrl);
         return "$storeUrlHash-$incrementId";
     }
 

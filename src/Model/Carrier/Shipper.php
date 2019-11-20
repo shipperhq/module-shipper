@@ -379,7 +379,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      */
     private function getQuotes()
     {
-        $requestString = serialize($this->shipperRequest);
+        $requestString = $this->carrierCache->serialize($this->shipperRequest);
         $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
         $timeout = $this->restHelper->getWebserviceTimeout();
         if (!$resultSet) {
@@ -415,8 +415,11 @@ class Shipper extends AbstractCarrier implements CarrierInterface
     {
         $debugRequest = $this->shipperRequest;
 
+        // SHQ18-2869 process response as array
+        $shipperResponse = $this->object_to_array($shipperResponse);
+
         $debugData = ['request' => json_encode($debugRequest, JSON_PRETTY_PRINT), 'response' => $shipperResponse];
-        if (!is_object($shipperResponse)) {
+        if (!is_object($shipperResponse) && !is_array($shipperResponse)) {
             $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ did not return a response', $debugData);
 
             return $this->returnGeneralError(
@@ -430,7 +433,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
         //first check and save globals for display purposes
         $globals = [];
-        if (is_object($shipperResponse) && isset($shipperResponse->globalSettings)) {
+        if(is_array($shipperResponse) && array_key_exists('globalSettings', $shipperResponse)) {
             $globals = $this->shipperRateHelper->extractGlobalSettings($shipperResponse);
             $globals['transaction'] = $transactionId;
             $this->shipperDataHelper->setGlobalSettings($globals);
@@ -441,15 +444,15 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         // If no rates are found return error message
         if (!empty($shipperResponse->errors)) {
             $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ returned an error', $debugData);
-            if (isset($shipperResponse->errors)) {
-                foreach ($shipperResponse->errors as $error) {
+            if (isset($shipperResponse['errors'])) {
+                foreach ($shipperResponse['errors'] as $error) {
                     $this->appendError($result, $error, $this->_code, $this->getConfigData('title'));
                 }
             }
             return $result;
         }
 
-        if (isset($shipperResponse->carrierGroups)) {
+        if (isset($shipperResponse['carrierGroups'])) {
             $carrierRates = $this->processRatesResponse($shipperResponse, $transactionId);
         } else {
             $carrierRates = [];
@@ -708,7 +711,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
     private function processRatesResponse($shipperResponse, $transactionId)
     {
-        $carrierGroups = $shipperResponse->carrierGroups;
+        $carrierGroups = $shipperResponse['carrierGroups'];
         $ratesArray = [];
 
         $timezone = $this->shipperDataHelper->getConfigValue('general/locale/timezone');
@@ -723,15 +726,17 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
         $splitCarrierGroupDetail = [];
         foreach ($carrierGroups as $carrierGroup) {
+
             $carrierGroupDetail = $this->shipperRateHelper->extractCarrierGroupDetail(
                 $carrierGroup,
                 $transactionId,
                 $configSettings
             );
-            $this->setCarriergroupOnItems($carrierGroupDetail, $carrierGroup->products);
+            $this->setCarriergroupOnItems($carrierGroupDetail, $carrierGroup['products']);
             //Pass off each carrier group to helper to decide best fit to process it.
             //Push result back into our array
-            foreach ($carrierGroup->carrierRates as $carrierRate) {
+            foreach ($carrierGroup['carrierRates'] as $carrierRate) {
+
                 $this->carrierConfigHandler->saveCarrierResponseDetails($carrierRate, $carrierGroupDetail);
                 $carrierResultWithRates = $this->shipperRateHelper->extractShipperHQRates(
                     $carrierRate,
@@ -749,9 +754,10 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         }
 
         //check for configuration here for display
-        if ($shipperResponse->mergedRateResponse) {
+        if (isset($shipperResponse['mergedRateResponse'])) {
             $mergedRatesArray = [];
-            foreach ($shipperResponse->mergedRateResponse->carrierRates as $carrierRate) {
+            foreach ($shipperResponse['mergedRateResponse']['carrierRates'] as $carrierRate) {
+
                 $this->carrierConfigHandler->saveCarrierResponseDetails($carrierRate, null);
                 $mergedResultWithRates = $this->shipperRateHelper->extractShipperHQMergedRates(
                     $carrierRate,
@@ -764,7 +770,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             $ratesArray = $mergedRatesArray;
         }
 
-        $carriergroupDescriber = $shipperResponse->globalSettings->carrierGroupDescription;
+        $carriergroupDescriber = $shipperResponse['globalSettings']['carrierGroupDescription'];
         if ($carriergroupDescriber != '') {
             $this->carrierConfigHandler->saveConfig(
                 $this->shipperDataHelper->getCarrierGroupDescPath(),
@@ -787,7 +793,6 @@ class Shipper extends AbstractCarrier implements CarrierInterface
     {
         $rateItems = [];
         foreach ($productInRateResponse as $item) {
-            $item = (array)$item;
             $rateItems[$item['sku']] = $item['qty'];
         }
 
@@ -868,6 +873,20 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         $this->packageHelper->saveQuotePackages($addressId, $shipmentArray);
     }
 
+    private function object_to_array($obj)
+    {
+        if(is_object($obj)) $obj = (array) $obj;
+
+        if(is_array($obj)) {
+            $new = array();
+            foreach($obj as $key => $val) {
+                $new[$key] = $this->object_to_array($val);
+            }
+        }
+        else $new = $obj;
+        return $new;
+    }
+
     /**
      * Get result of request
      *
@@ -920,7 +939,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
         foreach ($credentialsPerStore as $storeId => $credentials) {
             $allMethodsRequest = $credentials;
-            $requestString = serialize($allMethodsRequest);
+            $requestString = $this->carrierCache->serialize($allMethodsRequest);
             $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
             $timeout = $this->restHelper->getWebserviceTimeout();
             if (!$resultSet) {
@@ -933,10 +952,10 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             }
 
             //Todo add store name to log output
-            $allowedMethodResponse = $resultSet['result'];
+            $allowedMethodResponse = $this->object_to_array($resultSet['result']);
             $debugData = $resultSet['debug'];
             $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Allowed methods response', $debugData);
-            if (!is_object($allowedMethodResponse)) {
+            if (!is_array($allowedMethodResponse)) {
                 $this->shipperLogger->postInfo(
                     'Shipperhq_Shipper',
                     'Allowed Methods: No or invalid response received from Shipper HQ',
@@ -948,21 +967,21 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                     . $shipperHQ;
 
                 return $result;
-            } elseif (!empty($allowedMethodResponse->errors)) {
+            } elseif (isset($allowedMethodResponse['errors']) && !empty($allowedMethodResponse['errors'])) {
                 $this->shipperLogger->postInfo(
                     'Shipperhq_Shipper',
                     'Allowed methods: response contained following errors',
                     $allowedMethodResponse
                 );
                 $error = 'ShipperHQ Error: ';
-                foreach ($allowedMethodResponse->errors as $anError) {
-                    if (isset($anError->internalErrorMessage)) {
-                        $error .= ' ' . $anError->internalErrorMessage;
-                    } elseif (isset($anError->externalErrorMessage) && $anError->externalErrorMessage != '') {
-                        $error .= ' ' . $anError->externalErrorMessage;
+                foreach ($allowedMethodResponse['errors'] as $anError) {
+                    if (isset($anError['internalErrorMessage'])) {
+                        $error .= ' ' . $anError['internalErrorMessage'];
+                    } elseif (isset($anError['externalErrorMessage']) && $anError['externalErrorMessage'] != '') {
+                        $error .= ' ' . $anError['externalErrorMessage'];
                     }
                     //SHQ16-1708
-                    if (isset($anError->errorCode) && $anError->errorCode == '3') {
+                    if (isset($anError['errorCode']) && $anError['errorCode'] == '3') {
                         $this->carrierConfigHandler->saveConfig(
                             \ShipperHQ\Shipper\Model\System\Message\Credentials::SHIPPERHQ_INVALID_CREDENTIALS_SUPPLIED,
                             1
@@ -973,7 +992,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                 $result['error'] = $error;
 
                 return $result;
-            } elseif (empty($allowedMethodResponse->carrierMethods)) {
+            } elseif (empty($allowedMethodResponse['carrierMethods'])) {
                 $this->shipperLogger->postInfo(
                     'Shipperhq_Shipper',
                     'Allowed methods web service did not return any carriers or shipping methods',

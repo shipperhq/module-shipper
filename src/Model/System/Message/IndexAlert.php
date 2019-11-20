@@ -68,7 +68,7 @@ class IndexAlert implements \Magento\Framework\Notification\MessageInterface
      */
     public function getIdentity()
     {
-        return md5('SHIPPERHQ_INDEX_ALERT');
+        return hash('sha256','SHIPPERHQ_INDEX_ALERT');
     }
 
     /**

@@ -58,9 +58,9 @@ class CarrierConfigHandler
 
     public function saveCarrierResponseDetails($carrierRate, $carrierGroupDetail = null)
     {
-        $carrierCode = $carrierRate->carrierCode;
-        $sort = isset($carrierRate->sortOrder) ? $carrierRate->sortOrder : false;
-        $this->dynamicCarrierConfig($carrierCode, $carrierRate->carrierTitle, $sort);
+        $carrierCode = $carrierRate['carrierCode'];
+        $sort = isset($carrierRate['sortOrder']) ? $carrierRate['sortOrder'] : false;
+        $this->dynamicCarrierConfig($carrierCode, $carrierRate['carrierTitle'], $sort);
 
         $this->populateCarrierLevelDetails((array)$carrierRate, $carrierGroupDetail);
     }

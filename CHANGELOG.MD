@@ -440,3 +440,7 @@ SHQ18-2869 Process rate response as array
 SHQ18-2788 500 Error when missing BackupCarriers / SHQ18-2761 Carrier Logos not Showing
 
 
+## 20.34.2 (2019-11-21)
+SHQ18-2940 Update composer dependencies
+
+

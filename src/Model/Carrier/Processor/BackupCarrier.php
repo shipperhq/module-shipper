@@ -90,10 +90,11 @@ class BackupCarrier
         }
 
         $result = $carrier->collectRates($rawRequest);
+        $numberOfResults = $result ? count($result) : 0;
         $this->shipperLogger->postInfo(
             'Shipperhq_Shipper',
             'Backup carrier result: ',
-            'returned ' . count($result) . ' results'
+            'returned ' . $numberOfResults . ' results'
         );
 
         if ($tempEnabledCarrier) {

@@ -436,3 +436,7 @@ SHQ18-2284 PHP 7.3 compatibility
 SHQ18-2869 Process rate response as array
 
 
+## 20.34.1 (2019-11-21)
+SHQ18-2788 500 Error when missing BackupCarriers / SHQ18-2761 Carrier Logos not Showing
+
+

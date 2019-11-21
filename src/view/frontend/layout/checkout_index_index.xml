@@ -10,7 +10,6 @@
         <css src="ShipperHQ_Shipper::css/shipperhq-checkout.css"/>
         <css src="ShipperHQ_Shipper::css/featherlight.min.css"/>
         <css src="ShipperHQ_Shipper::css/featherlight.gallery.min.css"/>
-        <link src="ShipperHQ_Shipper::images/carriers" rel="shq-carriers-logos-path" />
     </head>
     <body>
         <referenceBlock name="checkout.root">

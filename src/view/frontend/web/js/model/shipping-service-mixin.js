@@ -90,44 +90,51 @@ define(
         };
 
         var addCarrierLogos = function (viewModel, methodTable) {
-            var logosBasePath = document.querySelector('[rel=shq-carriers-logos-path]').href;
-            if (/^http/.test(logosBasePath) && viewModel.rates().length) {
-                _.each(viewModel.rates(), function (method) {
-                    if (
-                        method.extension_attributes &&
-                        method.extension_attributes.hide_notifications &&
-                        method.extension_attributes.hide_notifications === "1"
-                    ) {
-                        return
-                    }
-
-                    // SHQ18-1823 don't show logos for non ShipperHQ methods or errors
-                    if (method.error_message !== "" || method.carrier_code.toString().indexOf("shq") === -1) {
-                        return
-                    }
-
-                    var row = findMethodRow(methodTable, method);
-                    var label = row.find('.col-carrier');
-                    if (label.length) {
-                        var strippedCarrierCode = method.carrier_code.toString().replace(/^shq|[^a-z]/ig, '');
-                        var manifestEntries = manifest.filter(function (el) {
-                            return el.toLowerCase() === strippedCarrierCode.toLowerCase()
-                        });
-                        if (manifestEntries.length > 0) {
-                            var logoFile = manifestEntries.shift();
-                            var logo = logosBasePath + '/' + logoFile + '.png';
-                        } else {
-                            logo = logosBasePath + '/smpkg.png';
-                            if (/pickup/i.test(method.carrier_code)) {
-                                logo = logoBasePath + '/pickup.png';
-                            } else if (/freight/i.test(method.carrier_code)) {
-                                logo = logosBasePath + '/freight.png';
-                            }
+            var cssLink = document.querySelector('link[rel=stylesheet][href*=shipperhq-checkout]');
+            // SHQ18-2761 - We had to change the logic to work around a core bug that will be resolved in M2.3.5
+            if (cssLink && cssLink.href) {
+                var cssThemePath = cssLink.href;
+                var themeShqPath = cssThemePath.split("/");
+                themeShqPath.splice(-2,2,'images','carriers');
+                var logosBasePath = themeShqPath.join("/");
+                if (/^http/.test(logosBasePath) && viewModel.rates().length) {
+                    _.each(viewModel.rates(), function (method) {
+                        if (
+                            method.extension_attributes &&
+                            method.extension_attributes.hide_notifications &&
+                            method.extension_attributes.hide_notifications === "1"
+                        ) {
+                            return
                         }
-                        var img = $('<div class="shq-method-carrier-logo"><img src="' + logo + '" alt="' + method.carrier_title + '"/></div><div class="shq-method-carrier-title">' + method.carrier_title + '</div>')
-                        label.html(img)
-                    }
-                });
+
+                        // SHQ18-1823 don't show logos for non ShipperHQ methods or errors
+                        if (method.error_message !== "" || method.carrier_code.toString().indexOf("shq") === -1) {
+                            return
+                        }
+
+                        var row = findMethodRow(methodTable, method);
+                        var label = row.find('.col-carrier');
+                        if (label.length) {
+                            var strippedCarrierCode = method.carrier_code.toString().replace(/^shq|[^a-z]/ig, '');
+                            var manifestEntries = manifest.filter(function (el) {
+                                return el.toLowerCase() === strippedCarrierCode.toLowerCase()
+                            });
+                            if (manifestEntries.length > 0) {
+                                var logoFile = manifestEntries.shift();
+                                var logo = logosBasePath + '/' + logoFile + '.png';
+                            } else {
+                                logo = logosBasePath + '/smpkg.png';
+                                if (/pickup/i.test(method.carrier_code)) {
+                                    logo = logoBasePath + '/pickup.png';
+                                } else if (/freight/i.test(method.carrier_code)) {
+                                    logo = logosBasePath + '/freight.png';
+                                }
+                            }
+                            var img = $('<div class="shq-method-carrier-logo"><img src="' + logo + '" alt="' + method.carrier_title + '"/></div><div class="shq-method-carrier-title">' + method.carrier_title + '</div>')
+                            label.html(img)
+                        }
+                    });
+                }
             }
         };
 

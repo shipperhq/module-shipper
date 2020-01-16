@@ -42,6 +42,8 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Quote\Setup\QuoteSetupFactory;
 use Magento\Sales\Setup\SalesSetupFactory;
+use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
+
 
 /**
  * @codeCoverageIgnore
@@ -68,10 +70,12 @@ class InstallData implements InstallDataInterface
      * @var SalesSetupFactory
      */
     protected $salesSetupFactory;
+
     /**
      * @var \Magento\Framework\App\Config\Storage\WriterInterface
      */
     private $configStorageWriter;
+
     /**
      * Customer setup factory
      *
@@ -80,26 +84,35 @@ class InstallData implements InstallDataInterface
     private $customerSetupFactory;
 
     /**
+     * @var AttributeCollectionFactory
+     */
+    private $attributeCollectionFactory;
+
+    /**
      * Init
      *
-     * @param CategorySetupFactory $categorySetupFactory
-     * @param QuoteSetupFactory $quoteSetupFactory
-     * @param SalesSetupFactory $salesSetupFactory
-     * @param \Magento\Framework\App\Config\MutableScopeConfigInterface $mutableConfig
-     * @param CustomerSetupFactory $customerSetupFactory
+     * @param CategorySetupFactory                                  $categorySetupFactory
+     * @param QuoteSetupFactory                                     $quoteSetupFactory
+     * @param SalesSetupFactory                                     $salesSetupFactory
+     * @param \Magento\Framework\App\Config\Storage\WriterInterface $configStorageWriter
+     * @param CustomerSetupFactory                                  $customerSetupFactory
+     * @param AttributeCollectionFactory                            $attributeCollectionFactory
      */
     public function __construct(
         CategorySetupFactory $categorySetupFactory,
         QuoteSetupFactory $quoteSetupFactory,
         SalesSetupFactory $salesSetupFactory,
         \Magento\Framework\App\Config\Storage\WriterInterface $configStorageWriter,
-        CustomerSetupFactory $customerSetupFactory
+        CustomerSetupFactory $customerSetupFactory,
+        AttributeCollectionFactory $attributeCollectionFactory
     ) {
         $this->categorySetupFactory = $categorySetupFactory;
         $this->quoteSetupFactory = $quoteSetupFactory;
         $this->salesSetupFactory = $salesSetupFactory;
         $this->configStorageWriter = $configStorageWriter;
         $this->customerSetupFactory = $customerSetupFactory;
+        $this->attributeCollectionFactory = $attributeCollectionFactory
+            ?: \Magento\Framework\App\ObjectManager::getInstance()->get(AttributeCollectionFactory::class);
     }
 
     /**
@@ -183,16 +196,25 @@ class InstallData implements InstallDataInterface
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
             $migrated = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId, 'migration-shipping');
+            $existingAttributeIds = [];
+
             if ($migrated !== false) {
+                $existingAttributeIds = $this->getNonShqAttributeIds($catalogSetup, 'migration-shipping', $attributeSetId);
                 $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-shipping');
             }
 
-            $catalogSetup->addAttributeGroup($entityTypeId, $attributeSetId, 'Shipping', '99');
+            // SHQ18-2929 In M2.3.3 this group already exists. Don't create a duplicate
+            if (!$catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId, 'Shipping')) {
+                $catalogSetup->addAttributeGroup($entityTypeId, $attributeSetId, 'Shipping', '99');
+            }
 
             $attributeGroupId = $catalogSetup->getAttributeGroupId($entityTypeId, $attributeSetId, 'Shipping');
 
+            $ourAttributeIds = [];
+
             foreach ($stdAttributeCodes as $code => $sort) {
                 $attributeId = $catalogSetup->getAttributeId($entityTypeId, $code);
+                $ourAttributeIds[] = $attributeId;
                 $catalogSetup->addAttributeToGroup(
                     $entityTypeId,
                     $attributeSetId,
@@ -200,6 +222,21 @@ class InstallData implements InstallDataInterface
                     $attributeId,
                     $sort
                 );
+            }
+
+            // SHQ18-2825 Add any attributes that were in migration-shipping that were not our attributes back
+            if (count($existingAttributeIds)) {
+                $attributeIdsToAdd = array_diff($existingAttributeIds, $ourAttributeIds);
+
+                foreach ($attributeIdsToAdd as $attributeId) {
+                    $catalogSetup->addAttributeToGroup(
+                        $entityTypeId,
+                        $attributeSetId,
+                        $attributeGroupId,
+                        $attributeId,
+                        10
+                    );
+                }
             }
         };
 
@@ -648,12 +685,11 @@ class InstallData implements InstallDataInterface
 
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
-            $migrated = $catalogSetup->getAttributeGroup(
-                $entityTypeId,
-                $attributeSetId,
-                'migration-dimensional-shipping'
-            );
+            $migrated = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId,'migration-dimensional-shipping');
+            $existingDimAttributeIds = [];
+
             if ($migrated !== false) {
+                $existingDimAttributeIds = $this->getNonShqAttributeIds($catalogSetup, 'migration-dimensional-shipping', $attributeSetId);
                 $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-dimensional-shipping');
             }
 
@@ -673,8 +709,11 @@ class InstallData implements InstallDataInterface
                 'Dimensional Shipping'
             );
 
+            $ourDimAttributeIds = [];
+
             foreach ($dimAttributeCodes as $code => $sort) {
                 $attributeId = $catalogSetup->getAttributeId($entityTypeId, $code);
+                $ourDimAttributeIds[] = $attributeId;
                 $catalogSetup->addAttributeToGroup(
                     $entityTypeId,
                     $attributeSetId,
@@ -682,6 +721,21 @@ class InstallData implements InstallDataInterface
                     $attributeId,
                     $sort
                 );
+            }
+
+            // SHQ18-2825 Add any attributes that were in migration-dimensional-shipping that were not our attributes back
+            if (count($existingDimAttributeIds)) {
+                $attributeIdsToAdd = array_diff($existingDimAttributeIds, $ourDimAttributeIds);
+
+                foreach ($attributeIdsToAdd as $attributeId) {
+                    $catalogSetup->addAttributeToGroup(
+                        $entityTypeId,
+                        $attributeSetId,
+                        $attributeGroupId,
+                        $attributeId,
+                        10
+                    );
+                }
             }
         };
 
@@ -795,7 +849,10 @@ class InstallData implements InstallDataInterface
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
             $migrated = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId, 'migration-freight-shipping');
+            $existingFreightAttributeIds = [];
+
             if ($migrated !== false) {
+                $existingFreightAttributeIds = $this->getNonShqAttributeIds($catalogSetup, 'migration-freight-shipping',$attributeSetId);
                 $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-freight-shipping');
             }
 
@@ -815,8 +872,11 @@ class InstallData implements InstallDataInterface
                 'Freight Shipping'
             );
 
+            $ourFreightAttributeIds = [];
+
             foreach ($freightAttributeCodes as $code => $sort) {
                 $attributeId = $catalogSetup->getAttributeId($entityTypeId, $code);
+                $ourFreightAttributeIds[] = $attributeId;
                 $catalogSetup->addAttributeToGroup(
                     $entityTypeId,
                     $attributeSetId,
@@ -825,6 +885,51 @@ class InstallData implements InstallDataInterface
                     $sort
                 );
             }
+
+            // SHQ18-2825 Add any attributes that were in migration-freight-shipping that were not our attributes back
+            if (count($existingFreightAttributeIds)) {
+                $attributeIdsToAdd = array_diff($existingFreightAttributeIds, $ourFreightAttributeIds);
+
+                foreach ($attributeIdsToAdd as $attributeId) {
+                    $catalogSetup->addAttributeToGroup(
+                        $entityTypeId,
+                        $attributeSetId,
+                        $attributeGroupId,
+                        $attributeId,
+                        10
+                    );
+                }
+            }
         };
+    }
+
+    /**
+     * SHQ18-2825 Gets all attribute IDs for a given attribute group
+     *
+     * @param $attributeGroupName
+     * @param $attributeSetId
+     *
+     * @return array
+     */
+    private function getNonShqAttributeIds($catalogSetup, $attributeGroupName, $attributeSetId)
+    {
+        $entityTypeId = $catalogSetup->getEntityTypeId(\Magento\Catalog\Model\Product::ENTITY);
+
+        $attributeGroupId = $catalogSetup->getAttributeGroupId(
+            $entityTypeId,
+            $attributeSetId,
+            $attributeGroupName
+        );
+
+        $collection = $this->attributeCollectionFactory->create();
+        $collection->setAttributeGroupFilter($attributeGroupId);
+
+        $allAttributeIds = [];
+
+        foreach ($collection->getItems() as $attribute) {
+            $allAttributeIds[] = $attribute->getAttributeId();
+        }
+
+        return $allAttributeIds;
     }
 }

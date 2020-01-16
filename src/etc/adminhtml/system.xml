@@ -102,7 +102,7 @@
                     <label>Hide Carrier Logos</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <tooltip>
-                        Carriers may include notifications when their live rates have been modified. Set to yes if you wish to hide these notifications.
+                        The carriers logo is shown to the right of the shipping rate in checkoout. Setting this option will hide that logo.
                     </tooltip>
                 </field>
                 <field id="display_transaction" translate="label" type="select" sortOrder="320" showInDefault="1"

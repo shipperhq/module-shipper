@@ -42,6 +42,7 @@ use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Quote\Setup\QuoteSetupFactory;
 use Magento\Sales\Setup\SalesSetupFactory;
+use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
 
 class UpgradeData implements UpgradeDataInterface
 {
@@ -65,20 +66,28 @@ class UpgradeData implements UpgradeDataInterface
      * @var SalesSetupFactory
      */
     protected $salesSetupFactory;
+
     /**
      * Customer setup factory
      *
      * @var CustomerSetupFactory
      */
     private $customerSetupFactory;
+
     /**
      * \Magento\Framework\App\ProductMetadata
      */
     private $productMetadata;
+
     /**
      * @var \Magento\Framework\App\Config\Storage\WriterInterface
      */
     private $configStorageWriter;
+
+    /**
+     * @var AttributeCollectionFactory
+     */
+    private $attributeCollectionFactory;
 
     /**
      * @param CategorySetupFactory $categorySetupFactory
@@ -94,7 +103,8 @@ class UpgradeData implements UpgradeDataInterface
         SalesSetupFactory $salesSetupFactory,
         CustomerSetupFactory $customerSetupFactory,
         \Magento\Framework\App\ProductMetadata $productMetadata,
-        \Magento\Framework\App\Config\Storage\WriterInterface $configStorageWriter
+        \Magento\Framework\App\Config\Storage\WriterInterface $configStorageWriter,
+        AttributeCollectionFactory $attributeCollectionFactory
     ) {
         $this->categorySetupFactory = $categorySetupFactory;
         $this->quoteSetupFactory = $quoteSetupFactory;
@@ -102,6 +112,8 @@ class UpgradeData implements UpgradeDataInterface
         $this->customerSetupFactory = $customerSetupFactory;
         $this->productMetadata = $productMetadata;
         $this->configStorageWriter = $configStorageWriter;
+        $this->attributeCollectionFactory = $attributeCollectionFactory
+            ?: \Magento\Framework\App\ObjectManager::getInstance()->get(AttributeCollectionFactory::class);
     }
 
     /**
@@ -512,12 +524,11 @@ class UpgradeData implements UpgradeDataInterface
 
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
-            $migrated = $catalogSetup->getAttributeGroup(
-                $entityTypeId,
-                $attributeSetId,
-                'migration-dimensional-shipping'
-            );
+            $migrated = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId, 'migration-dimensional-shipping');
+            $existingDimAttributeIds = [];
+
             if ($migrated !== false) {
+                $existingDimAttributeIds = $this->getNonShqAttributeIds($catalogSetup, 'migration-dimensional-shipping', $attributeSetId);
                 $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-dimensional-shipping');
             }
 
@@ -537,8 +548,11 @@ class UpgradeData implements UpgradeDataInterface
                 'Dimensional Shipping'
             );
 
+            $ourDimAttributeIds = [];
+
             foreach ($dimAttributeCodes as $code => $sort) {
                 $attributeId = $catalogSetup->getAttributeId($entityTypeId, $code);
+                $ourDimAttributeIds[] = $attributeId;
                 $catalogSetup->addAttributeToGroup(
                     $entityTypeId,
                     $attributeSetId,
@@ -546,6 +560,21 @@ class UpgradeData implements UpgradeDataInterface
                     $attributeId,
                     $sort
                 );
+            }
+
+            // SHQ18-2825 Add any attributes that were in migration-dimensional-shipping that were not our attributes back
+            if (count($existingDimAttributeIds)) {
+                $attributeIdsToAdd = array_diff($existingDimAttributeIds, $ourDimAttributeIds);
+
+                foreach ($attributeIdsToAdd as $attributeId) {
+                    $catalogSetup->addAttributeToGroup(
+                        $entityTypeId,
+                        $attributeSetId,
+                        $attributeGroupId,
+                        $attributeId,
+                        10
+                    );
+                }
             }
         };
     }
@@ -640,7 +669,10 @@ class UpgradeData implements UpgradeDataInterface
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
             $migrated = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId, 'migration-freight-shipping');
+            $existingFreightAttributeIds = [];
+
             if ($migrated !== false) {
+                $existingFreightAttributeIds = $this->getNonShqAttributeIds($catalogSetup, 'migration-freight-shipping',$attributeSetId);
                 $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-freight-shipping');
             }
 
@@ -660,8 +692,11 @@ class UpgradeData implements UpgradeDataInterface
                 'Freight Shipping'
             );
 
+            $ourFreightAttributeIds = [];
+
             foreach ($freightAttributeCodes as $code => $sort) {
                 $attributeId = $catalogSetup->getAttributeId($entityTypeId, $code);
+                $ourFreightAttributeIds[] = $attributeId;
                 $catalogSetup->addAttributeToGroup(
                     $entityTypeId,
                     $attributeSetId,
@@ -669,6 +704,21 @@ class UpgradeData implements UpgradeDataInterface
                     $attributeId,
                     $sort
                 );
+            }
+
+            // SHQ18-2825 Add any attributes that were in migration-freight-shipping that were not our attributes back
+            if (count($existingFreightAttributeIds)) {
+                $attributeIdsToAdd = array_diff($existingFreightAttributeIds, $ourFreightAttributeIds);
+
+                foreach ($attributeIdsToAdd as $attributeId) {
+                    $catalogSetup->addAttributeToGroup(
+                        $entityTypeId,
+                        $attributeSetId,
+                        $attributeGroupId,
+                        $attributeId,
+                        10
+                    );
+                }
             }
         };
     }
@@ -731,5 +781,35 @@ class UpgradeData implements UpgradeDataInterface
                 );
             }
         };
+    }
+
+    /**
+     * SHQ18-2825 Gets all attribute IDs for a given attribute group
+     *
+     * @param $attributeGroupName
+     * @param $attributeSetId
+     *
+     * @return array
+     */
+    private function getNonShqAttributeIds($catalogSetup, $attributeGroupName, $attributeSetId)
+    {
+        $entityTypeId = $catalogSetup->getEntityTypeId(\Magento\Catalog\Model\Product::ENTITY);
+
+        $attributeGroupId = $catalogSetup->getAttributeGroupId(
+            $entityTypeId,
+            $attributeSetId,
+            $attributeGroupName
+        );
+
+        $collection = $this->attributeCollectionFactory->create();
+        $collection->setAttributeGroupFilter($attributeGroupId);
+
+        $allAttributeIds = [];
+
+        foreach ($collection->getItems() as $attribute) {
+            $allAttributeIds[] = $attribute->getAttributeId();
+        }
+
+        return $allAttributeIds;
     }
 }

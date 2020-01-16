@@ -444,3 +444,7 @@ SHQ18-2788 500 Error when missing BackupCarriers / SHQ18-2761 Carrier Logos not 
 SHQ18-2940 Update composer dependencies
 
 
+## 20.35.0 (2020-01-16)
+SHQ18-2929 Dont create duplicate attribute group, SHQ18-2825 Ensure migrated data from M1 migrates correctly, SHQ18-597 Uninstall script for use with composer
+
+

@@ -90,13 +90,9 @@ define(
         };
 
         var addCarrierLogos = function (viewModel, methodTable) {
-            var cssLink = document.querySelector('link[rel=stylesheet][href*=shipperhq-checkout]');
-            // SHQ18-2761 - We had to change the logic to work around a core bug that will be resolved in M2.3.5
-            if (cssLink && cssLink.href) {
-                var cssThemePath = cssLink.href;
-                var themeShqPath = cssThemePath.split("/");
-                themeShqPath.splice(-2,2,'images','carriers');
-                var logosBasePath = themeShqPath.join("/");
+            var logoPathElement = document.querySelector('link[rel=shq-carriers-logos-path]');
+            if (logoPathElement && logoPathElement.href) {
+                var logosBasePath = logoPathElement.href;
                 if (/^http/.test(logosBasePath) && viewModel.rates().length) {
                     _.each(viewModel.rates(), function (method) {
                         if (
@@ -135,6 +131,8 @@ define(
                         }
                     });
                 }
+            } else {
+                console.info("SHIPPERHQ NOTICE: Carrier logos will not load. The link[rel=shq-carriers-logos-path] element could not be found or is invalid")
             }
         };
 

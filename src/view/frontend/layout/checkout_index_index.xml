@@ -12,6 +12,9 @@
         <css src="ShipperHQ_Shipper::css/featherlight.gallery.min.css"/>
     </head>
     <body>
+        <referenceBlock name="head.additional">
+            <block class="Magento\Framework\View\Element\Template" name="shipperhq_static_resource_locator" template="ShipperHQ_Shipper::checkout/static_resource_locator.phtml"/>
+        </referenceBlock>
         <referenceBlock name="checkout.root">
             <arguments>
                 <argument name="jsLayout" xsi:type="array">

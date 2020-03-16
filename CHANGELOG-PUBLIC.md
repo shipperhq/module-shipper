@@ -448,3 +448,7 @@ SHQ18-2940 Update composer dependencies
 SHQ18-2929 Dont create duplicate attribute group, SHQ18-2825 Ensure migrated data from M1 migrates correctly, SHQ18-597 Uninstall script for use with composer
 
 
+## 20.35.1 (2020-03-16)
+MNB-138 Fix for carrier logos not showing when CSS bundling enabled
+
+

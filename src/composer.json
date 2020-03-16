@@ -2,7 +2,7 @@
   "name": "shipperhq/module-shipper",
   "description": "Magento Shipping integration with ShipperHQ",
   "type": "magento2-module",
-  "version": "20.35.0",
+  "version": "20.35.1",
   "license": [
     "OSL-3.0",
     "AFL-3.0"
@@ -63,6 +63,7 @@
     "jakub-onderka/php-parallel-lint": "^0.9.2",
     "jakub-onderka/php-console-highlighter": "^0.3.2",
     "magento-ecg/coding-standard": "^3.1",
-    "symfony/dependency-injection": ">3.4.26"
+    "symfony/dependency-injection": ">3.4.26",
+    "symfony/proxy-manager-bridge": ">3.4.26"
   }
 }

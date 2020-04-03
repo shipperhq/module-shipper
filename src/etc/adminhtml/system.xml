@@ -121,15 +121,6 @@
                         Only request ShipperHQ rates when the zipcode field has been entered
                     </tooltip>
                 </field>
-                <!-- SHQ16-2419 added default setting always_use_cache -->
-                <!--<field id="use_cache" translate="label" type="select" sortOrder="330" showInDefault="1"-->
-                <!--showInWebsite="1" showInStore="0">-->
-                <!--<label>Enable Caching of ShipperHQ Rates</label>-->
-                <!--<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>-->
-                <!--<tooltip>-->
-                <!--Enable to reduce number of requests to ShipperHQ for duplicate rate requests.-->
-                <!--</tooltip>-->
-                <!--</field>-->
                 <field id="ws_timeout" translate="label" type="text" sortOrder="335" showInDefault="1" showInWebsite="1"
                        showInStore="1">
                     <label>Timeout (seconds)</label>

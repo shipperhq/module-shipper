@@ -277,7 +277,6 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         }
         $initVal = microtime(true);
 
-        $this->cacheEnabled = $this->getConfigFlag('use_cache');
         $this->setRequest($request);
 
         $this->result = $this->getQuotes();

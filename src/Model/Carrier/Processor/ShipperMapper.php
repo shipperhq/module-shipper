@@ -370,19 +370,7 @@ class ShipperMapper
                 $magentoItem->getProduct()->getTypeId();
             $stdAttributes = array_merge($this->getDimensionalAttributes($magentoItem), self::$stdAttributeNames);
             $options = $this->populateCustomOptions($magentoItem);
-            $weight = $magentoItem->getWeight();
-            if ($weight === null) { //SHIPPERHQ-1855
-                if ($productType != \Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL &&
-                    $productType != \Magento\Downloadable\Model\Product\Type::TYPE_DOWNLOADABLE) {
-                    $this->shipperLogger->postCritical(
-                        'ShipperHQ',
-                        'Item weight is null, using 0',
-                        'Please review the product configuration for Sku '
-                        . $magentoItem->getSku() . ' as product has NULL weight'
-                    );
-                }
-                $weight = 0;
-            }
+            $weight = $this->getAdjustedItemWeight($magentoItem);
             $warehouseDetails = $this->getWarehouseDetails($magentoItem);
             $pickupLocationDetails = $this->getPickupLocationDetails($magentoItem);
             $itemAttributes = '';
@@ -404,7 +392,7 @@ class ShipperMapper
 
             if ($qty < 1 && $qty > 0) {
                 $qty = 1; //SHQ18-438
-                $weight = $weight * $magentoItem->getQty();
+                $weight = ($weight !== null && $weight != 0) ? $weight * $magentoItem->getQty() : $weight;
 
                 $this->shipperLogger->postInfo(
                     'ShipperHQ_Shipper',
@@ -960,5 +948,29 @@ class ShipperMapper
     public function getMagentoEdition()
     {
         return $this->productMetadata->getEdition();
+    }
+
+    /**
+     * @param $magentoItem
+     * @return null
+     */
+    private function getAdjustedItemWeight($magentoItem)
+    {
+        $weight = $magentoItem->getWeight();
+
+        if ($weight === null || $weight == 0) {
+            // Log the "raw" value of the weight field
+            $weightLogString = $weight === null ? "EMPTY" : (string)$weight;
+            $this->shipperLogger->postInfo(
+                'ShipperHQ_Shipper',
+                "Item {$magentoItem->getSku()} weight is $weightLogString." .
+                "The web service will substitute the account's Default Weight",
+                'SKU: ' . $magentoItem->getSku() . ' Weight: ' . $weightLogString
+            );
+
+            return null;
+        }
+
+        return $weight;
     }
 }

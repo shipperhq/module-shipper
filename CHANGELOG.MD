@@ -452,3 +452,7 @@ SHQ18-2929 Dont create duplicate attribute group, SHQ18-2825 Ensure migrated dat
 MNB-138 Fix for carrier logos not showing when CSS bundling enabled
 
 
+## 20.36.0 (2020-04-03)
+MNB-176 Reset delivery date on new rate request. MNB-231 Set weight to null on 0 weight products
+
+

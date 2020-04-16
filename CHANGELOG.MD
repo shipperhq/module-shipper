@@ -456,3 +456,7 @@ MNB-138 Fix for carrier logos not showing when CSS bundling enabled
 MNB-176 Reset delivery date on new rate request. MNB-231 Set weight to null on 0 weight products
 
 
+## 20.36.1 (2020-04-16)
+MNB-221 Change dimensional rule to shipping rule
+
+

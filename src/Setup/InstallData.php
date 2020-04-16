@@ -538,7 +538,7 @@ class InstallData implements InstallDataInterface
             'type' => 'int',
             'backend' => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
             'frontend' => '',
-            'label' => 'ShipperHQ Dimensional Rule Group',
+            'label' => 'ShipperHQ Packing Rule',
             'input' => 'select',
             'global' => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
             'visible' => true,

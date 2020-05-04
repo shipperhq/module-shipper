@@ -33,15 +33,6 @@
         <plugin name="shipperhq_shipping_plugin_shipping_method_converter"
                 type="ShipperHQ\Shipper\Plugin\Cart\ShippingMethodConverterPlugin" sortOrder="20"/>
     </type>
-    <!--SHQ16-1851 remove until grid is resolved and removed columns from uicomponent -->
-    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
-        <plugin
-                name="sales_order_shipperhq_columns"
-                type="ShipperHQ\Shipper\Plugin\Order\CollectionFactory"
-                sortOrder="100"
-                disabled="false"
-        />
-    </type>
     <type name="ShipperHQ\Shipper\Plugin\Checkout\ShippingInformationPlugin">
         <arguments>
             <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>

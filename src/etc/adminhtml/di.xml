@@ -15,6 +15,12 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <plugin name="sales_order_shipperhq_columns"
+                type="ShipperHQ\Shipper\Plugin\Order\CollectionFactory"
+                sortOrder="100"
+                disabled="false" />
+    </type>
 
     <virtualType name="Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\Pool">
         <arguments>

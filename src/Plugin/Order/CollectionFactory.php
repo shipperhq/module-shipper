@@ -48,35 +48,35 @@ class CollectionFactory
 
     /**
      * @param \Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory $subject
-     * @param \Closure $proceed
+     * @param \Magento\Sales\Model\ResourceModel\Order\Grid\Collection $collection
      * @param $requestName
      * @return mixed
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function aroundGetReport(
+    public function afterGetReport(
         \Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory $subject,
-        \Closure $proceed,
+        $collection,
         $requestName
     ) {
-        $result = $proceed($requestName);
         if ($requestName == 'sales_order_grid_data_source') {
-            if ($result instanceof \Magento\Sales\Model\ResourceModel\Order\Grid\Collection) {
-                $select = $result->getSelect();
+            if ($collection instanceof \Magento\Sales\Model\ResourceModel\Order\Grid\Collection) {
                 // SHQ18-944 Need to alias columns to simpler names to pass Magento's field validation rules
-                $select->joinLeft(
+                // MNB-279 Renamed to match actual names in DB. This fixes filtering in order grid
+                $collection->getSelect()->joinLeft(
                     ['shipper_order_join' => $this->resource->getTableName('shipperhq_order_detail_grid')],
-                    'main_table.entity_id' . '=shipper_order_join.' . 'order_id',
+                    'main_table.entity_id = shipper_order_join.order_id',
                     [
-                        'shipperhq_order_carrier_group' => 'shipper_order_join.carrier_group',
-                        'shipperhq_order_delivery_date' => 'shipper_order_join.delivery_date',
-                        'shipperhq_order_dispatch_date' => 'shipper_order_join.dispatch_date',
-                        'shipperhq_order_time_slot' => 'shipper_order_join.time_slot',
-                        'shipperhq_order_pickup_location' => 'shipper_order_join.pickup_location',
-                        'shipperhq_order_carrier_type' => 'shipper_order_join.carrier_type',
+                        'carrier_group' => 'shipper_order_join.carrier_group',
+                        'delivery_date' => 'shipper_order_join.delivery_date',
+                        'dispatch_date' => 'shipper_order_join.dispatch_date',
+                        'time_slot' => 'shipper_order_join.time_slot',
+                        'pickup_location' => 'shipper_order_join.pickup_location',
+                        'carrier_type' => 'shipper_order_join.carrier_type'
                     ]
                 );
             }
         }
-        return $result;
+
+        return $collection;
     }
 }

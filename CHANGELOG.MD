@@ -460,3 +460,7 @@ MNB-176 Reset delivery date on new rate request. MNB-231 Set weight to null on 0
 MNB-221 Change dimensional rule to shipping rule
 
 
+## 20.37.0 (2020-05-04)
+MNB-279 Fix filtering in admin order grid
+
+

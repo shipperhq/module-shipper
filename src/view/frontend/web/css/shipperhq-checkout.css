@@ -118,10 +118,19 @@ form.methods-shipping input.shq-input {
     vertical-align: middle;
     padding-top: 15px;
     padding-bottom: 15px;
+    border-top: none;
 }
 
 .table-checkout-shipping-method tbody tr td.col-carrier{
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+}
+
+.table-checkout-shipping-method tbody tr {
+    border-top: 1px solid #ccc;
+}
+
+.table-checkout-shipping-method tbody tr:first-child {
+    border-top: none;
 }

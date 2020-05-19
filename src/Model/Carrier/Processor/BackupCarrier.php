@@ -90,7 +90,7 @@ class BackupCarrier
         }
 
         $result = $carrier->collectRates($rawRequest);
-        $numberOfResults = $result ? count($result) : 0;
+        $numberOfResults = $result ? count($result->getAllRates()) : 0;
         $this->shipperLogger->postInfo(
             'Shipperhq_Shipper',
             'Backup carrier result: ',

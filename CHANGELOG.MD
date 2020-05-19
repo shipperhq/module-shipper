@@ -464,3 +464,7 @@ MNB-221 Change dimensional rule to shipping rule
 MNB-279 Fix filtering in admin order grid
 
 
+## 20.37.1 (2020-05-19)
+MNB-292 Fix issue with backup carrier not switching off. MNB-302 Fix alignment of UI table on checkout when tooltips enabled
+
+

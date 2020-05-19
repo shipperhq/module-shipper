@@ -52,21 +52,30 @@ class Authorization
      */
     private $jsonDecoder;
 
+    /**
+     * @var LogAssist
+     */
+    private $shipperLogger;
+
     /** @var bool */
     private $isConfigCacheFlushScheduled = false;
 
     /**
      * Authorization constructor.
      * @param ReinitableConfigInterface $configReader
+     * @param WriterInterface $configWriter
      * @param \Magento\Framework\Json\DecoderInterface $jsonDecoder
      * @param GraphQLClient $graphqlClient
+     * @param DateTime $dateTime
+     * @param LogAssist $shipperLogger
      */
     public function __construct(
         ReinitableConfigInterface $configReader,
         WriterInterface $configWriter,
         \Magento\Framework\Json\DecoderInterface $jsonDecoder,
         GraphQLClient $graphqlClient,
-        DateTime $dateTime
+        DateTime $dateTime,
+        LogAssist $shipperLogger
     )
     {
         $this->configReader = $configReader;
@@ -74,6 +83,7 @@ class Authorization
         $this->jsonDecoder = $jsonDecoder;
         $this->graphqlClient = $graphqlClient;
         $this->dateTime = $dateTime;
+        $this->shipperLogger = $shipperLogger;
     }
 
     /**
@@ -85,11 +95,12 @@ class Authorization
      * all three of these values are persisted to configuration.
      *
      * @param bool $cachedOnly
-     * @return mixed|string
-     * @throws \ReflectionException
+     * @return string
      */
     public function getSecretToken(bool $cachedOnly = false)
     {
+        $FAILURE = '';
+
         if ($cachedOnly || !$this->isNewSecretTokenSuggested()) {
             return $this->getStoredSecretToken();
         }
@@ -97,16 +108,20 @@ class Authorization
         $params = [
             'client_id' =>  $this->getApiKey(),
             'client_secret' => $this->getAuthCode(),
-                'grant_type' => 'client_credentials'
+            'grant_type' => 'client_credentials'
         ];
 
-        $url = $this->getEndpoint();
-        $client = new \Zend_Http_Client();
-        $client->setUri($url);
-        $client->setConfig(['maxredirects' => 0, 'timeout' => 30]);
-        $client->setParameterGet($params);
-        $response = $client->request();
-        $result = $response->getBody();
+        try {
+            $initVal = microtime(true);
+            $result = $this->sendTokenRequest($params);
+            $elapsed = microtime(true) - $initVal;
+            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Auth Request time elapsed', $elapsed);
+            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Auth Request and Response', $this->prepAuthRequestForLogging($params, $result));
+        }
+        catch (\Exception $e) {
+            $this->shipperLogger->postCritical('Shipperhq_Shipper', 'Auth Request failed with Exception', $e->getMessage());
+            return $FAILURE;
+        }
 
 
         $tokenResult = $this->jsonDecoder->decode($result);
@@ -135,7 +150,7 @@ class Authorization
             }
         }
 
-        return '';
+        return $FAILURE;
     }
 
     /**
@@ -293,5 +308,63 @@ class Authorization
     {
         $this->isConfigCacheFlushScheduled = true;
         return $this;
+    }
+
+    /**
+     * @param array $params
+     * @return string
+     * @throws \Zend_Http_Client_Exception
+     */
+    private function sendTokenRequest(array $params): string
+    {
+        $url = $this->getEndpoint();
+        $client = new \Zend_Http_Client();
+        $client->setUri($url);
+        $client->setConfig(['maxredirects' => 0, 'timeout' => 30]);
+        $client->setParameterGet($params);
+        $response = $client->request();
+        $result = $response->getBody();
+        return $result;
+    }
+
+    /**
+     * @param array $params
+     * @param string $result
+     * @return mixed
+     */
+    private function prepAuthRequestForLogging(array $params, string $result)
+    {
+        $sanitizedParams = $this->sanitizeAuthCode($params);
+        $sanitizedResult = $this->sanitizeAuthToken($result);
+        return [
+            "url" => $this->getEndpoint(),
+            "params" => $sanitizedParams,
+            "result" => $sanitizedResult
+        ];
+    }
+
+    /**
+     * @param $params
+     * @return mixed
+     */
+    private function sanitizeAuthCode($params)
+    {
+        if (isset($params['client_secret'])) {
+            $params['client_secret'] = 'SANITIZED';
+        }
+        return $params;
+    }
+
+    /**
+     * @param string $result
+     * @return mixed
+     */
+    private function sanitizeAuthToken($result)
+    {
+        $decodedResult = $this->jsonDecoder->decode($result);
+        if (isset($decodedResult['token'])) {
+            $decodedResult['token'] = 'SANITIZED';
+        }
+        return $decodedResult;
     }
 }

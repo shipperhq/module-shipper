@@ -59,13 +59,14 @@ class RefreshAuthToken extends \ShipperHQ\Shipper\Controller\Adminhtml\RefreshAu
 
         $this->configHelper->runScheduledCleaningNow();
 
-        try {
-            $result = $this->authHelper->getSecretToken() == '' ? false : true;
+        $result = false;
+        if (!empty($this->authHelper->getSecretToken())) {
+            $result = true;
             $message = __('ShipperHQ Authorization Token Successfully Updated');
-        } catch (\Exception $e) {
-            $result = false;
+        } else {
             $message = __('ShipperHQ Authorization Token Could Not Be Updated');
         }
+
         /** @var \Magento\Framework\Controller\Result\Json $resultJson */
         $resultJson = $this->resultJsonFactory->create();
         return $resultJson->setData([

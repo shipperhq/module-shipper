@@ -20,6 +20,7 @@ define([], function() {
     "fedEx",
     "fedExFreight",
     "fedExLocation",
+    "fedExSameDay",
     "flavorCloud",
     "freight",
     "generic",

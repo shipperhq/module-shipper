@@ -468,3 +468,7 @@ MNB-279 Fix filtering in admin order grid
 MNB-292 Fix issue with backup carrier not switching off. MNB-302 Fix alignment of UI table on checkout when tooltips enabled
 
 
+## 20.38.0 (2020-06-08)
+MNB-358 Sync attributes from all API keys. MNB-271 Remove URL and sandbox mode
+
+

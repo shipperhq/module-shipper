@@ -188,6 +188,8 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     /**
      * Get latest attribute data and perform changes required
      *
+     * MNB-358 Modified to sync shipping groups and boxes from all API keys present inc. from other scopes
+     *
      * @return array
      */
     private function getLatestAttributeData()
@@ -204,7 +206,16 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         $credentialsPerStore = $this->shipperMapper->getAllCredentialsTranslation();
 
         $resultSetArray = [];
-        $origins = [];
+
+        $attributesToSyncFromAllApiKeys = [
+            'shipperhq_warehouse',
+            'shipperhq_poss_boxes',
+            'shipperhq_shipping_group',
+            'shipperhq_dim_group',
+            'shipperhq_master_boxes'
+        ];
+
+        $attributesFromAllApiKeys = [];
 
         foreach ($credentialsPerStore as $credentials) {
             $resultSetArray[] = $this->send($synchronizeUrl, $credentials);
@@ -218,14 +229,8 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                 }
                 $attributes = $resultObject->attributeTypes;
                 foreach ($attributes as $attribute) {
-                    if ($attribute->code == "shipperhq_warehouse") {
-                        $originObjArr = $attribute->attributes;
-                        foreach ($originObjArr as $origin) {
-                            if (!array_key_exists($origin->name, $origins)) {
-                                $origins[$origin->name] = $origin;
-                            }
-                        }
-                        break;
+                    if (in_array($attribute->code, $attributesToSyncFromAllApiKeys)) {
+                        $this->extractAttribute($attribute, $attributesFromAllApiKeys);
                     }
                 }
             }
@@ -236,7 +241,8 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
              * Merge in the origins from all API keys present in M2 configuration
              */
             if ($this->validateAllAtrributesResponse($allAttributesResponse)) {
-                $this->mergeOriginsToMasterResponse($allAttributesResponse, $origins);
+                $this->mergeAttributesToMasterResponse($allAttributesResponse, $attributesFromAllApiKeys);
+
                 $result = $allAttributesResponse->attributeTypes;
             }
         }
@@ -245,19 +251,42 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * Merges in the array of origins from all found API keys
+     * Extracts attributes for a single API key and saves them to an array that holds attribute data for all API keys present
+     *
+     * @param $apiKeysAttributes
+     * @param $allApiKeyAttributes
+     */
+    private function extractAttribute($apiKeysAttributes, &$allApiKeyAttributes)
+    {
+        $attributeObjArr = $apiKeysAttributes->attributes;
+        $attributeCode = $apiKeysAttributes->code;
+        $allApiKeyAttributeValues = array_key_exists($attributeCode, $allApiKeyAttributes) ? $allApiKeyAttributes[$attributeCode] : [];
+
+        foreach ($attributeObjArr as $attribute) {
+            if (!array_key_exists($attribute->name, $allApiKeyAttributeValues)) {
+                $allApiKeyAttributeValues[$attribute->name] = $attribute;
+            }
+        }
+
+        if (count($allApiKeyAttributeValues) > 0) {
+            $allApiKeyAttributes[$attributeCode] = $allApiKeyAttributeValues;
+        }
+    }
+
+    /**
+     * Merges in the array of attributes matching the attributeCode from all found API keys
      *
      * @param $masterResponse
-     * @param $allWebsiteOrigins
+     * @param $allWebsiteAttributes
+     * @param $attributeCode
      */
-    private function mergeOriginsToMasterResponse(&$masterResponse, $allWebsiteOrigins)
+    private function mergeAttributesToMasterResponse(&$masterResponse, $allWebsiteAttributes)
     {
         $attributes = $masterResponse->attributeTypes;
 
         foreach ($attributes as $attribute) {
-            if ($attribute->code == "shipperhq_warehouse") {
-                $attribute->attributes = $allWebsiteOrigins;
-                break;
+            if (array_key_exists($attribute->code, $allWebsiteAttributes)) {
+                $attribute->attributes = $allWebsiteAttributes[$attribute->code];
             }
         }
     }

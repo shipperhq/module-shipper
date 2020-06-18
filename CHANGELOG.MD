@@ -472,3 +472,7 @@ MNB-292 Fix issue with backup carrier not switching off. MNB-302 Fix alignment o
 MNB-358 Sync attributes from all API keys. MNB-271 Remove URL and sandbox mode
 
 
+## 20.38.1 (2020-06-18)
+MNB-386 Prevent negative values in admin shipping. MNB-440 Add disptach date to email variables
+
+

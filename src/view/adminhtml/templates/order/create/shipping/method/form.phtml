@@ -70,8 +70,7 @@
             </div>
             <div class="admin__field">
                 <label for="customPrice" class=""><?php echo 'Price'; ?></label>
-                <input name="customPrice" type="text" class="customPrice validate-zero-or-greater" id="customPrice"
-                       size="5" class="admin__control-text"/>
+                <input name="customPrice" type="text" class="admin__control-text input-text validate-zero-or-greater" id="customPrice" size="5" />
             </div>
             <div class="admin__field">
                 <button type="button" title="<?php /* @escapeNotVerified */
@@ -152,6 +151,12 @@
                 alert('Custom shipping price field can only contain price data');
                 return false;
             }
+
+            if (price < 0) {
+                alert('Custom shipping price must be zero or greater');
+                return false;
+            }
+
             this.loadArea(['shipping_method', 'totals', 'billing_method'], true, data);
         }
 

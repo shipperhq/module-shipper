@@ -87,6 +87,7 @@ class SaveEmailVariables implements ObserverInterface
             if (count($orderDetail) > 0) {
                 foreach ($orderDetail as $orderData) {
                     $data['deliveryDate']           = array_key_exists('delivery_date', $orderData) ? $orderData['delivery_date'] : '';
+                    $data['dispatchDate']           = array_key_exists('dispatch_date', $orderData) ? $orderData['dispatch_date'] : '';
                     $data['customerCarrier']        = array_key_exists('customer_carrier', $orderData) ? $orderData['customer_carrier']: '';
                     $data['customerCarrierAccount'] = array_key_exists('customer_carrier_account', $orderData) ? $orderData['customer_carrier_account'] : '';
                     $data['customerCarrierPh']      = array_key_exists('customer_carrier_ph', $orderData) ? $orderData['customer_carrier_ph'] : '';
@@ -108,6 +109,7 @@ class SaveEmailVariables implements ObserverInterface
                     if (count($quoteAddressData) > 0) {
                         foreach ($quoteAddressData as $quoteAddressDetail) {
                             $data['deliveryDate']           = array_key_exists('delivery_date', $quoteAddressDetail) ? $quoteAddressDetail['delivery_date'] : '';
+                            $data['dispatchDate']           = array_key_exists('dispatch_date', $quoteAddressDetail) ? $quoteAddressDetail['dispatch_date'] : '';
                             $data['customerCarrier']        = array_key_exists('customer_carrier', $quoteAddressDetail) ? $quoteAddressDetail['customer_carrier'] : '';
                             $data['customerCarrierAccount'] = array_key_exists('customer_carrier_account', $quoteAddressDetail) ? $quoteAddressDetail['customer_carrier_account'] : '';
                             $data['customerCarrierPh']      = array_key_exists('customer_carrier_ph', $quoteAddressDetail) ? $quoteAddressDetail['customer_carrier_ph'] : '';

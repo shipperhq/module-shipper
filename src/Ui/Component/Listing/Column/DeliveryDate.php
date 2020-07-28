@@ -35,6 +35,7 @@
 
 namespace ShipperHQ\Shipper\Ui\Component\Listing\Column;
 
+use Magento\Framework\Stdlib\BooleanUtils;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
@@ -54,6 +55,11 @@ class DeliveryDate extends Column
      * @var \Magento\Framework\Stdlib\DateTime\DateTime
      */
     private $date;
+
+    /**
+     * @var BooleanUtils
+     */
+    private $booleanUtils;
 
     /**
      *  \Magento\Framework\App\ProductMetadataInterface
@@ -80,6 +86,7 @@ class DeliveryDate extends Column
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
         TimezoneInterface $timezone,
+        BooleanUtils $booleanUtils,
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
         array $components = [],
         array $data = []
@@ -88,6 +95,7 @@ class DeliveryDate extends Column
         $this->date = $date;
         $this->productMetadata = $productMetadata;
         $this->timezone = $timezone;
+        $this->booleanUtils = $booleanUtils;
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
@@ -106,11 +114,18 @@ class DeliveryDate extends Column
                 foreach ($orderGridDetails as $orderDetail) {
                     if ($orderDetail->getDeliveryDate() != '') {
                         $deliveryDate = $orderDetail->getDeliveryDate();
-                        $date = $this->timezone->date($this->date->timestamp($deliveryDate), null, false);
-                        if (isset($this->getConfiguration()['timezone']) && !$this->getConfiguration()['timezone']) {
-                            $date = $this->timezone->date($this->date->timestamp($deliveryDate), null, false);
+
+                        $date = $this->timezone->date(new \DateTime($deliveryDate));
+
+                        $timezone = isset($this->getConfiguration()['timezone'])
+                            ? $this->booleanUtils->convert($this->getConfiguration()['timezone'])
+                            : true;
+
+                        if (!$timezone) {
+                            $date = new \DateTime($item[$this->getData('name')]);
                         }
-                        $item[$this->getData('name')] = $date->format('Y-m-d H:i:s');
+
+                        $item[$this->getData('name')] = $date->format('Y-m-d');
                     }
                 }
             }

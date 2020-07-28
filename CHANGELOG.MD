@@ -476,3 +476,7 @@ MNB-358 Sync attributes from all API keys. MNB-271 Remove URL and sandbox mode
 MNB-386 Prevent negative values in admin shipping. MNB-440 Add disptach date to email variables
 
 
+## 20.38.2 (2020-07-28)
+MNB-459 Fix filtering by delivery and dispatch date in order grid
+
+

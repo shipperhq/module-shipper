@@ -43,6 +43,7 @@
                 <password backend_model="Magento\Config\Model\Config\Backend\Encrypted"></password>
                 <invalid_credentials_supplied>0</invalid_credentials_supplied>
                 <url>http://sandbox.shipperhq.com/v1/</url>
+                <!--<url>http://localhost:8080/shipperhq-ws/v1/</url>-->
                 <live_url>https://api.shipperhq.com/v1/</live_url>
                 <secure_url>https://api.shipperhq.com/v1/</secure_url>
                 <postorder_url>https://postapi.shipperhq.com/v3/graphql/</postorder_url>
@@ -59,7 +60,7 @@
                 <ws_timeout>30</ws_timeout>
                 <use_cache>0</use_cache>
                 <always_use_cache>1</always_use_cache>
-                <extension_version>20.38.1</extension_version>
+                <extension_version>20.38.2</extension_version>
                 <allowed_methods></allowed_methods>
                 <magento_version></magento_version>
             </shipper>

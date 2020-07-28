@@ -35,6 +35,7 @@
 
 namespace ShipperHQ\Shipper\Ui\Component\Listing\Column;
 
+use Magento\Framework\Stdlib\BooleanUtils;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
@@ -56,18 +57,24 @@ class DispatchDate extends Column
     private $date;
 
     /**
+     * @var BooleanUtils
+     */
+    private $booleanUtils;
+
+    /**
      * @var TimezoneInterface
      */
     private $timezone;
 
     /**
-     * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
+     * @param \ShipperHQ\Shipper\Helper\CarrierGroup      $carrierGroupHelper
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
-     * @param ContextInterface $context
-     * @param UiComponentFactory $uiComponentFactory
-     * @param TimezoneInterface $timezone
-     * @param array $components
-     * @param array $data
+     * @param ContextInterface                            $context
+     * @param UiComponentFactory                          $uiComponentFactory
+     * @param TimezoneInterface                           $timezone
+     * @param BooleanUtils                                $booleanUtils
+     * @param array                                       $components
+     * @param array                                       $data
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
@@ -75,20 +82,19 @@ class DispatchDate extends Column
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
         TimezoneInterface $timezone,
+        BooleanUtils $booleanUtils,
         array $components = [],
         array $data = []
     ) {
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->date = $date;
         $this->timezone = $timezone;
+        $this->booleanUtils = $booleanUtils;
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
     /**
-     * Prepare Data Source
-     *
-     * @param array $dataSource
-     * @return array
+     *  @inheritdoc
      */
     public function prepareDataSource(array $dataSource)
     {
@@ -99,11 +105,18 @@ class DispatchDate extends Column
                 foreach ($orderGridDetails as $orderDetail) {
                     if ($orderDetail->getDispatchDate() != '') {
                         $dispatchDate = $orderDetail->getDispatchDate();
-                        $date = $this->timezone->date($this->date->timestamp($dispatchDate), null, false);
-                        if (isset($this->getConfiguration()['timezone']) && !$this->getConfiguration()['timezone']) {
-                            $date = $this->timezone->date($this->date->timestamp($dispatchDate), null, false);
+
+                        $date = $this->timezone->date(new \DateTime($dispatchDate));
+
+                        $timezone = isset($this->getConfiguration()['timezone'])
+                            ? $this->booleanUtils->convert($this->getConfiguration()['timezone'])
+                            : true;
+
+                        if (!$timezone) {
+                            $date = new \DateTime($item[$this->getData('name')]);
                         }
-                        $item[$this->getData('name')] = $date->format('Y-m-d H:i:s');
+
+                        $item[$this->getData('name')] = $date->format('Y-m-d');
                     }
                 }
             }

@@ -62,6 +62,7 @@
                        showInWebsite="1" showInStore="0">
                     <label>Environment Scope</label>
                     <source_model>ShipperHQ\Shipper\Model\Backend\Config\Source\EnvironmentScope</source_model>
+                    <comment>Select the environment scope you have configured in ShipperHQ dashboard</comment>
                 </field>
                 <field id="api_key" translate="label" type="obscure" sortOrder="120" showInDefault="1" showInWebsite="1"
                        showInStore="1">
@@ -94,7 +95,7 @@
                     <label>Custom Shipping Rates in Admin</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <tooltip>
-                        Add fields to specify a custom shipping rate for orders placed in admin
+                        Allow admin users to set a custom shipping rate when placing orders via the admin panel
                     </tooltip>
                 </field>
                 <field id="hide_notify" translate="label" type="select" sortOrder="310" showInDefault="1"
@@ -118,13 +119,14 @@
                     <label>Require Zipcode To Request Rates</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <tooltip>
-                        Only request ShipperHQ rates when the zipcode field has been entered
+                        Only request shipping rates from ShipperHQ if a zipcode has been entered in the cart or checkout.
+                        This helps to lower the number of API requests
                     </tooltip>
                 </field>
                 <field id="ws_timeout" translate="label" type="text" sortOrder="335" showInDefault="1" showInWebsite="1"
                        showInStore="1">
                     <label>Timeout (seconds)</label>
-                    <tooltip>Time allowed for ShipperHQ to respond before using backup carrier rates.</tooltip>
+                    <tooltip>Set timeout period in seconds to wait for ShipperHQ to return rates before calling backup carrier</tooltip>
                 </field>
                 <field id="refresh_auth_key" translate="button_label" sortOrder="336" showInDefault="1" showInWebsite="0" showInStore="0">
                     <button_label>Refresh Authorization Token</button_label>
@@ -144,6 +146,7 @@
                        showInWebsite="1" showInStore="0">
                     <label>Handling Fee</label>
                     <validate>validate-number validate-zero-or-greater</validate>
+                    <tooltip>Enter fee or leave blank for no fee</tooltip>
                 </field>
                 <field id="sallowspecific" translate="label" type="select" sortOrder="430" showInDefault="1"
                        showInWebsite="1" showInStore="0">
@@ -164,10 +167,12 @@
                     <label>Show Method if Not Applicable</label>
                     <frontend_class>shipping-skip-hide</frontend_class>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <tooltip>Display notification from ShipperHQ if no rates are returned</tooltip>
                 </field>
                 <field id="specificerrmsg" translate="label" type="textarea" sortOrder="520" showInDefault="1"
                        showInWebsite="1" showInStore="1">
                     <label>Displayed Error Message</label>
+                    <tooltip>Text to be displayed if ShipperHQ does not return a response</tooltip>
                 </field>
                 <field id="sort_order" translate="label" type="text" sortOrder="520" showInDefault="1" showInWebsite="1"
                        showInStore="0">
@@ -177,6 +182,7 @@
                        showInStore="0">
                     <label>Debug</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Enable additional logging and front end display to aid debugging</comment>
                 </field>
             </group>
         </section>

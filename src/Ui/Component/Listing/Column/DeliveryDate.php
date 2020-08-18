@@ -115,15 +115,7 @@ class DeliveryDate extends Column
                     if ($orderDetail->getDeliveryDate() != '') {
                         $deliveryDate = $orderDetail->getDeliveryDate();
 
-                        $date = $this->timezone->date(new \DateTime($deliveryDate));
-
-                        $timezone = isset($this->getConfiguration()['timezone'])
-                            ? $this->booleanUtils->convert($this->getConfiguration()['timezone'])
-                            : true;
-
-                        if (!$timezone) {
-                            $date = new \DateTime($item[$this->getData('name')]);
-                        }
+                        $date = $this->timezone->date(new \DateTime($deliveryDate), null, false, false);
 
                         $item[$this->getData('name')] = $date->format('Y-m-d');
                     }

@@ -106,15 +106,7 @@ class DispatchDate extends Column
                     if ($orderDetail->getDispatchDate() != '') {
                         $dispatchDate = $orderDetail->getDispatchDate();
 
-                        $date = $this->timezone->date(new \DateTime($dispatchDate));
-
-                        $timezone = isset($this->getConfiguration()['timezone'])
-                            ? $this->booleanUtils->convert($this->getConfiguration()['timezone'])
-                            : true;
-
-                        if (!$timezone) {
-                            $date = new \DateTime($item[$this->getData('name')]);
-                        }
+                        $date = $this->timezone->date(new \DateTime($dispatchDate), null, false, false);
 
                         $item[$this->getData('name')] = $date->format('Y-m-d');
                     }

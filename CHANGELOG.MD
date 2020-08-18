@@ -480,3 +480,7 @@ MNB-386 Prevent negative values in admin shipping. MNB-440 Add disptach date to 
 MNB-459 Fix filtering by delivery and dispatch date in order grid
 
 
+## 20.38.3 (2020-08-18)
+MNB-618 Fix delivery and dispatch date showing wrong dates in order grid
+
+

@@ -109,8 +109,16 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
             $carrierCode = $shipment['carrier_code'];
             $carrierGroupId = $shipment['carrier_group_id'];
 
+            /*
+             * MNB-604 Need to ensure remove any rates from requests with only 1 origin if we now have > 1 origin and
+             * so now have merged rates. Merged rates are stored with carriercode_methodcode
+             */
+            $carrierCodeExplArr = explode("_", $carrierCode);
+            $carrierCodeExpl = $carrierCodeExplArr[0];
+
             //Delete any existing packages for this set of rates
             unset($sessionPackages[$shippingAddressId][$carrierGroupId][$carrierCode]);
+            unset($sessionPackages[$shippingAddressId][$carrierGroupId][$carrierCodeExpl]);
         }
 
         foreach ($shipmentArray as $shipment) {

@@ -484,3 +484,7 @@ MNB-459 Fix filtering by delivery and dispatch date in order grid
 MNB-618 Fix delivery and dispatch date showing wrong dates in order grid
 
 
+## 20.39.0 (2020-08-20)
+MNB-604 Add support for box comments for merged rates
+
+

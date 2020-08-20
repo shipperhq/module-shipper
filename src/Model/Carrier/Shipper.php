@@ -621,6 +621,12 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                             $rate->setCarriergroup($carrierGroupDetail['checkoutDescription']);
                         }
                     }
+
+                    // MNB-604 Will be a merged rate. Each rate could have different shipments so set on rate rather than carrier
+                    if (array_key_exists('shipments', $rateDetails) && isset($rateDetails['shipments'])) {
+                        $this->persistShipments($rateDetails['shipments']);
+                    }
+
                     $result->append($rate);
                 }
                 if (isset($carrierRate['shipments'])) {

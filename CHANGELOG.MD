@@ -488,3 +488,7 @@ MNB-618 Fix delivery and dispatch date showing wrong dates in order grid
 MNB-604 Add support for box comments for merged rates
 
 
+## 20.39.1 (2020-09-15)
+MNB-578 Improved Logging
+
+

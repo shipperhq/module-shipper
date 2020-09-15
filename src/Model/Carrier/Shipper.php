@@ -281,7 +281,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
         $this->result = $this->getQuotes();
         $elapsed = microtime(true) - $initVal;
-        $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Long lapse', $elapsed);
+        $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Long lapse', $elapsed);
 
         return $this->getResult();
     }
@@ -389,7 +389,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                 $timeout
             );
             $elapsed = microtime(true) - $initVal;
-            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Short lapse', $elapsed);
+            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Short lapse', $elapsed);
 
             if (!$resultSet['result']) {
                 $backupRates = $this->backupCarrier->getBackupCarrierRates(
@@ -401,7 +401,11 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                 }
             }
             $this->carrierCache->setCachedQuotes($requestString, $resultSet, $this->getCarrierCode());
+        } else {
+            $this->shipperLogger->postInfo('Shipperhq_Shipper',
+                'Found Cached Rates in Magento Cache For This Cart', 'Not Requesting Rates From ShipperHQ');
         }
+
         $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Rate request and result', $resultSet['debug']);
         return $this->parseShipperResponse($resultSet['result']);
     }

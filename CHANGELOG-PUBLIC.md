@@ -492,3 +492,7 @@ MNB-604 Add support for box comments for merged rates
 MNB-578 Improved Logging
 
 
+## 20.39.2 (2020-09-17)
+MNB-605 Add unique index to ShipperHQ sales order grid table
+
+

@@ -35,6 +35,7 @@
 
 namespace ShipperHQ\Shipper\Setup;
 
+use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UpgradeSchemaInterface;
@@ -1084,7 +1085,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'Address Valid Status'
                 )->addIndex(
                     $installer->getIdxName('shipperhq_order_detail_grid', ['order_id']),
-                    ['order_id']
+                    ['order_id'],
+                    AdapterInterface::INDEX_TYPE_UNIQUE
                 )->addIndex(
                     $installer->getIdxName('shipperhq_order_detail_grid', ['carrier_group']),
                     ['carrier_group']
@@ -1133,6 +1135,25 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     $orderDetailGridTable,
                     $installer->getIdxName('shipperhq_order_detail_grid', ['order_id']),
                     ['order_id']
+                );
+            }
+
+            // MNB-605 Prevent duplicate entries. Adding unique index
+            if (version_compare($context->getVersion(), '1.1.22') < 0) {
+                $connection = $installer->getConnection(self::$connectionName);
+
+                $connection->dropIndex($orderDetailGridTable, $installer->getIdxName(
+                    'shipperhq_order_detail_grid',
+                    ['order_id']
+                ));
+
+                $this->cleanOrderGridTable($installer);
+
+                $connection->addIndex(
+                    $orderDetailGridTable,
+                    $installer->getIdxName('shipperhq_order_detail_grid', ['order_id']),
+                    ['order_id'],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
                 );
             }
         }

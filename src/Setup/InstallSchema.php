@@ -1030,7 +1030,8 @@ class InstallSchema implements InstallSchemaInterface
                     'Carrier Type'
                 )->addIndex(
                     $installer->getIdxName('shipperhq_order_detail_grid', ['order_id']),
-                    ['order_id']
+                    ['order_id'],
+                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
                 )->addIndex(
                     $installer->getIdxName('shipperhq_order_detail_grid', ['carrier_group']),
                     ['carrier_group']

@@ -1084,9 +1084,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     ['nullable' => true],
                     'Address Valid Status'
                 )->addIndex(
-                    $installer->getIdxName('shipperhq_order_detail_grid', ['order_id']),
+                    $installer->getIdxName('shipperhq_order_detail_grid', ['order_id'], AdapterInterface::INDEX_TYPE_UNIQUE),
                     ['order_id'],
-                    AdapterInterface::INDEX_TYPE_UNIQUE
+                    ['type' => AdapterInterface::INDEX_TYPE_UNIQUE]
                 )->addIndex(
                     $installer->getIdxName('shipperhq_order_detail_grid', ['carrier_group']),
                     ['carrier_group']

@@ -496,3 +496,7 @@ MNB-578 Improved Logging
 MNB-605 Add unique index to ShipperHQ sales order grid table
 
 
+## 20.39.3 (2020-10-19)
+MNB-726 Fix issue around calendar showing cached rates when no rates are returned
+
+

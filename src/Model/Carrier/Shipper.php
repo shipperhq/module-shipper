@@ -381,6 +381,10 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         $requestString = $this->carrierCache->serialize($this->shipperRequest);
         $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
         $timeout = $this->restHelper->getWebserviceTimeout();
+
+        // MNB-726 Want to know if is request due to date select so can set error on rate if fails
+        $isDateSelect = $this->shipperRequest->getDeliveryDate() != null;
+
         if (!$resultSet) {
             $initVal = microtime(true);
             $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive(
@@ -407,14 +411,16 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         }
 
         $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Rate request and result', $resultSet['debug']);
-        return $this->parseShipperResponse($resultSet['result']);
+        return $this->parseShipperResponse($resultSet['result'], $isDateSelect);
     }
 
     /**
      * @param $shipperResponse
+     * @param $isDateSelect
+     *
      * @return Mage_Shipping_Model_Rate_Result
      */
-    private function parseShipperResponse($shipperResponse)
+    private function parseShipperResponse($shipperResponse, $isDateSelect)
     {
         $debugRequest = $this->shipperRequest;
 
@@ -492,7 +498,8 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                     $carrierRate['code'],
                     $carrierRate['title'],
                     $carriergroupId,
-                    $carrierGroupDetail
+                    $carrierGroupDetail,
+                    $isDateSelect
                 );
                 continue;
             }
@@ -663,12 +670,17 @@ class Shipper extends AbstractCarrier implements CarrierInterface
     }
 
     /**
-     *
      * Generate error message from ShipperHQ response.
      * Display of error messages per carrier is managed in SHQ configuration
      *
-     * @param $result
-     * @param $errorDetails
+     * @param      $result
+     * @param      $errorDetails
+     * @param      $carrierCode
+     * @param      $carrierTitle
+     * @param null $carrierGroupId
+     * @param null $carrierGroupDetail
+     * @param bool $isDateSelect If set to true, will append error to results regardless of the debug flag in admin
+     *
      * @return Mage_Shipping_Model_Rate_Result
      */
     private function appendError(
@@ -677,7 +689,8 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         $carrierCode,
         $carrierTitle,
         $carrierGroupId = null,
-        $carrierGroupDetail = null
+        $carrierGroupDetail = null,
+        $isDateSelect = false
     ) {
 
         if (is_object($errorDetails)) {
@@ -696,6 +709,9 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                 && $errorDetails['externalErrorMessage'] != ''
             ) {
                 $errorMessage = $errorDetails['externalErrorMessage'];
+            } elseif ($isDateSelect) {
+                // MNB-726 Should really never fall in here. If no rates return for specific date, something has gone wrong.
+                $errorMessage = $this->getConfigData('specificerrmsg');
             }
 
             if ($errorMessage) {

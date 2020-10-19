@@ -35,6 +35,7 @@
 
 namespace ShipperHQ\Shipper\Setup;
 
+use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
@@ -1029,9 +1030,9 @@ class InstallSchema implements InstallSchemaInterface
                     ['nullable' => true],
                     'Carrier Type'
                 )->addIndex(
-                    $installer->getIdxName('shipperhq_order_detail_grid', ['order_id']),
+                    $installer->getIdxName('shipperhq_order_detail_grid', ['order_id'], AdapterInterface::INDEX_TYPE_UNIQUE),
                     ['order_id'],
-                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                    ['type' => AdapterInterface::INDEX_TYPE_UNIQUE]
                 )->addIndex(
                     $installer->getIdxName('shipperhq_order_detail_grid', ['carrier_group']),
                     ['carrier_group']

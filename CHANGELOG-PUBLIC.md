@@ -504,3 +504,7 @@ MNB-726 Fix issue around calendar showing cached rates when no rates are returne
  MNB-764 Fix filtering in order grid for international date formats
 
 
+## 20.39.5 (2020-11-11)
+MNB-808 fix php 7.4 deprecation issue
+
+

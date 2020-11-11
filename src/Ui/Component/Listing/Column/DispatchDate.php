@@ -35,10 +35,8 @@
 
 namespace ShipperHQ\Shipper\Ui\Component\Listing\Column;
 
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Locale\Bundle\DataBundle;
 use Magento\Framework\Locale\ResolverInterface;
-use Magento\Framework\Stdlib\BooleanUtils;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;

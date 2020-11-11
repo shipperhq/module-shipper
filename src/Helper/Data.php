@@ -271,7 +271,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return $isCheckout;
     }
-    
+
     public function encode($data)
     {
         return $this->jsonHelper->jsonEncode($data);
@@ -416,6 +416,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $boxText .= __('Package') . ' #' . ($count++);
 
             if ($box != null) {
+                $box = is_object($box) ? $box->getData() : $box; // MNB-808 PHP7.4 compatibility
                 $declaredValue = array_key_exists('declaredValue', $box) ? $box['declaredValue'] : $box['declared_value'];
 
                 $boxText .= ' Box name: ' . $box['package_name'];

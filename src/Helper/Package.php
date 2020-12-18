@@ -246,7 +246,7 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $packages = [];
 
-        if (array_key_exists($shippingAddressId, $sessionData)) {
+        if (!empty($sessionData) && array_key_exists($shippingAddressId, $sessionData)) {
             if (array_key_exists($carrierGroupId, $sessionData[$shippingAddressId])) {
                 if (array_key_exists($carrierCode, $sessionData[$shippingAddressId][$carrierGroupId])) {
                     $packages = $sessionData[$shippingAddressId][$carrierGroupId][$carrierCode];

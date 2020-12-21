@@ -119,9 +119,9 @@ class InstallSchema implements InstallSchemaInterface
                     ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'quote_address_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    50,
-                    ['nullable' => false],
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    10,
+                    ['nullable' => false, 'unsigned' => true],
                     'address id'
                 )->addColumn(
                     'carrier_group_id',
@@ -332,8 +332,18 @@ class InstallSchema implements InstallSchemaInterface
                     ['quote_address_id']
                 )->setComment(
                     'ShipperHQ Quote Carrier Group Information'
+                )->addForeignKey(
+                    $installer->getFkName(
+                        'shipperhq_quote_address_detail',
+                        'quote_address_id',
+                        'quote_address',
+                        'address_id'
+                    ),
+                    'quote_address_id',
+                    $installer->getTable('quote_address'),
+                    'address_id',
+                    \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
-            //Foreign key to quote address table - if permitted
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
@@ -350,7 +360,7 @@ class InstallSchema implements InstallSchemaInterface
                     'order_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     10,
-                    ['nullable' => false, 'default' => '0', 'unsigned' => true],
+                    ['nullable' => false, 'unsigned' => true],
                     'Order ID'
                 )->addColumn(
                     'carrier_group_id',
@@ -555,6 +565,17 @@ class InstallSchema implements InstallSchemaInterface
                     ['order_id']
                 )->setComment(
                     'ShipperHQ Order Carrier Group Information'
+                )->addForeignKey(
+                    $installer->getFkName(
+                        'shipperhq_order_detail',
+                        'order_id',
+                        'sales_order',
+                        'entity_id'
+                    ),
+                    'order_id',
+                    $installer->getTable('sales_order'),
+                    'entity_id',
+                    \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
@@ -570,9 +591,9 @@ class InstallSchema implements InstallSchemaInterface
                     ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'quote_item_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    50,
-                    ['nullable' => false, 'default' => ''],
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    10,
+                    ['nullable' => false, 'unsigned' => true],
                     'Quote Item ID'
                 )->addColumn(
                     'carrier_group_id',
@@ -597,6 +618,17 @@ class InstallSchema implements InstallSchemaInterface
                     ['quote_item_id']
                 )->setComment(
                     'ShipperHQ Quote Item Carrier Group Information'
+                )->addForeignKey(
+                    $installer->getFkName(
+                        'shipperhq_quote_item_detail',
+                        'quote_item_id',
+                        'quote_item',
+                        'item_id'
+                    ),
+                    'quote_item_id',
+                    $installer->getTable('quote_item'),
+                    'item_id',
+                    \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
 
             $installer->getConnection(self::$connectionName)->createTable($table);
@@ -613,9 +645,9 @@ class InstallSchema implements InstallSchemaInterface
                     ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'quote_address_item_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    50,
-                    ['nullable' => false, 'default' => ''],
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    10,
+                    ['nullable' => false, 'unsigned' => true],
                     'Quote Address Item ID'
                 )->addColumn(
                     'carrier_group_id',
@@ -640,6 +672,17 @@ class InstallSchema implements InstallSchemaInterface
                     ['quote_address_item_id']
                 )->setComment(
                     'ShipperHQ Quote Address Item Carrier Group Information'
+                )->addForeignKey(
+                    $installer->getFkName(
+                        'shipperhq_quote_address_item_detail',
+                        'quote_address_item_id',
+                        'quote_address_item',
+                        'address_item_id'
+                    ),
+                    'quote_address_item_id',
+                    $installer->getTable('quote_address_item'),
+                    'address_item_id',
+                    \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
 
             $installer->getConnection(self::$connectionName)->createTable($table);
@@ -656,9 +699,9 @@ class InstallSchema implements InstallSchemaInterface
                     ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
                 )->addColumn(
                     'order_item_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    50,
-                    ['nullable' => false, 'default' => ''],
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    10,
+                    ['nullable' => false, 'unsigned' => true],
                     'Order Item ID'
                 )->addColumn(
                     'carrier_group_id',
@@ -683,135 +726,19 @@ class InstallSchema implements InstallSchemaInterface
                     ['order_item_id']
                 )->setComment(
                     'ShipperHQ Order Item Carrier Group Information'
-                );
-
-            $installer->getConnection(self::$connectionName)->createTable($table);
-        }
-
-        $quotePackagesTable = $installer->getTable('shipperhq_quote_packages');
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($quotePackagesTable)) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($quotePackagesTable);
-
-            $table
-                ->addColumn(
-                    'package_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    null,
-                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
-                )->addColumn(
-                    'quote_address_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    50,
-                    ['nullable' => false, 'default' => ''],
-                    'address id'
-                )->addColumn(
-                    'carrier_group_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
-                    'Carrier Group ID'
-                )->addColumn(
-                    'carrier_code',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
-                    'Carrier Code'
-                )->addColumn(
-                    'package_name',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
-                    'Package Name'
-                )->addColumn(
-                    'length',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Package length'
-                )->addColumn(
-                    'width',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Package width'
-                )->addColumn(
-                    'height',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Package height'
-                )->addColumn(
-                    'weight',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Package weight'
-                )->addColumn(
-                    'declared_value',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Package declared value'
-                )->addColumn(
-                    'surcharge_price',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Surcharge price'
-                )->addIndex(
-                    $installer->getIdxName('shipperhq_quote_packages', ['quote_address_id']),
-                    ['quote_address_id']
-                )->setComment(
-                    'ShipperHQ Quote Address Package Information'
-                );
-            $installer->getConnection(self::$connectionName)->createTable($table);
-        }
-
-        $quotePackageItemsTable = $installer->getTable('shipperhq_quote_package_items');
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($quotePackageItemsTable)) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($quotePackageItemsTable);
-
-            $table
-                ->addColumn(
-                    'package_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    50,
-                    ['nullable' => false, 'default' => 0, 'unsigned' => true]
-                )->addColumn(
-                    'sku',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
-                    'SKU'
-                )->addColumn(
-                    'qty_packed',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Qty packed'
-                )->addColumn(
-                    'weight_packed',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Weight packed'
-                )->addIndex(
-                    $installer->getIdxName('shipperhq_quote_package_items', ['package_id']),
-                    ['package_id']
-                )->setComment(
-                    'ShipperHQ Quote Address Package Items Information'
                 )->addForeignKey(
                     $installer->getFkName(
-                        'shipperhq_quote_package_items',
-                        'package_id',
-                        'shipperhq_quote_packages',
-                        'package_id'
+                        'shipperhq_order_item_detail',
+                        'order_item_id',
+                        'sales_order_item',
+                        'item_id'
                     ),
-                    'package_id',
-                    $quotePackagesTable,
-                    'package_id',
+                    'order_item_id',
+                    $installer->getTable('sales_order_item'),
+                    'item_id',
                     \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
+
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
@@ -829,7 +756,7 @@ class InstallSchema implements InstallSchemaInterface
                     'order_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     10,
-                    ['nullable' => false, 'default' => '0', 'unsigned' => true],
+                    ['nullable' => false, 'unsigned' => true],
                     'Order ID'
                 )->addColumn(
                     'carrier_group_id',
@@ -890,6 +817,17 @@ class InstallSchema implements InstallSchemaInterface
                     ['order_id']
                 )->setComment(
                     'ShipperHQ Quote Address Package Information'
+                )->addForeignKey(
+                    $installer->getFkName(
+                        'shipperhq_order_packages',
+                        'order_id',
+                        'sales_order',
+                        'entity_id'
+                    ),
+                    'order_id',
+                    $installer->getTable('sales_order'),
+                    'entity_id',
+                    \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
@@ -955,7 +893,7 @@ class InstallSchema implements InstallSchemaInterface
                     'order_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     10,
-                    ['nullable' => false, 'default' => '0', 'unsigned' => true],
+                    ['nullable' => false, 'unsigned' => true],
                     'Order ID'
                 )->addColumn(
                     'carrier_group',
@@ -1038,6 +976,17 @@ class InstallSchema implements InstallSchemaInterface
                     ['carrier_group']
                 )->setComment(
                     'ShipperHQ Order Grid Information'
+                )->addForeignKey(
+                    $installer->getFkName(
+                        'shipperhq_order_detail_grid',
+                        'order_id',
+                        'sales_order',
+                        'entity_id'
+                    ),
+                    'order_id',
+                    $installer->getTable('sales_order'),
+                    'entity_id',
+                    \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
 
             $installer->getConnection(self::$connectionName)->createTable($table);

@@ -58,6 +58,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
     {
         $installer = $setup;
         $installer->startSetup();
+        $isFreshInstall = $context->getVersion() == ""; // MNB-809 if empty safe to assume InstallSchema has just been run
 
         //1.0.6
         $addressDetailTable = $installer->getTable('shipperhq_quote_address_detail');
@@ -253,7 +254,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
-        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.0.10', '<')) {
             $connection = $installer->getConnection(self::$connectionName);
             $connection->modifyColumn(
                 $setup->getTable('shipperhq_quote_address_detail'),
@@ -269,7 +270,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
         }
 
         //1.0.11 - SHQ16-1967
-        if (version_compare($context->getVersion(), '1.0.11', '<')) {
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.0.11', '<')) {
             if (!$installer->getConnection(self::$connectionName)->tableColumnExists(
                 $addressDetailTable,
                 'limited_delivery'
@@ -480,7 +481,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
         }
 
         //1.0.11 - SHQ16-1967
-        if (version_compare($context->getVersion(), '1.0.11', '<')) {
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.0.11', '<')) {
             if (!$installer->getConnection(self::$connectionName)->tableColumnExists(
                 $orderDetailTable,
                 'limited_delivery'
@@ -500,7 +501,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             }
         }
 
-        if (version_compare($context->getVersion(), '1.0.13', '<')) {
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.0.13', '<')) {
             $connection = $installer->getConnection(self::$connectionName);
             $connection->modifyColumn(
                 $setup->getTable('shipperhq_order_detail'),
@@ -559,7 +560,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
-        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.0.10', '<')) {
             $connection = $installer->getConnection(self::$connectionName);
             $connection->modifyColumn(
                 $setup->getTable('shipperhq_quote_item_detail'),
@@ -617,7 +618,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
-        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.0.10', '<')) {
             $installer->getConnection(self::$connectionName)->modifyColumn(
                 $setup->getTable('shipperhq_quote_address_item_detail'),
                 'quote_address_item_id',
@@ -673,7 +674,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
-        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.0.10', '<')) {
             $installer->getConnection(self::$connectionName)->modifyColumn(
                 $setup->getTable('shipperhq_order_item_detail'),
                 'order_item_id',
@@ -685,162 +686,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 ]
             );
             $this->addIndexToTable($installer, 'shipperhq_order_item_detail', ['order_item_id']);
-        }
-
-        $packagesTable = $installer->getTable('shipperhq_quote_packages');
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($packagesTable)) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($packagesTable);
-
-            $table
-                ->addColumn(
-                    'package_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    null,
-                    ['primary' => true, 'nullable' => false, 'unsigned' => true, 'auto_increment' => true]
-                )->addColumn(
-                    'quote_address_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    50,
-                    ['nullable' => false, 'default' => ''],
-                    'address id'
-                )->addColumn(
-                    'carrier_group_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
-                    'Carrier Group ID'
-                )->addColumn(
-                    'carrier_code',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
-                    'Carrier Code'
-                )->addColumn(
-                    'package_name',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
-                    'Package Name'
-                )->addColumn(
-                    'length',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Package length'
-                )->addColumn(
-                    'width',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Package width'
-                )->addColumn(
-                    'height',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Package height'
-                )->addColumn(
-                    'weight',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Package weight'
-                )->addColumn(
-                    'declared_value',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Package declared value'
-                )->addColumn(
-                    'surcharge_price',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Surcharge price'
-                )->addIndex(
-                    $installer->getIdxName('shipperhq_quote_packages', ['quote_address_id']),
-                    ['quote_address_id']
-                )->setComment(
-                    'ShipperHQ Quote Address Package Information'
-                );
-            $installer->getConnection(self::$connectionName)->createTable($table);
-        }
-
-        if (version_compare($context->getVersion(), '1.0.10', '<')) {
-            $installer->getConnection(self::$connectionName)->modifyColumn(
-                $setup->getTable('shipperhq_quote_packages'),
-                'quote_address_id',
-                [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    'length' => 50,
-                    'nullable' => false,
-                    'default' => '',
-                ]
-            );
-            $this->addIndexToTable($installer, 'shipperhq_quote_packages', ['quote_address_id']);
-        }
-
-        $packageItemsTable = $installer->getTable('shipperhq_quote_package_items');
-        if (!$installer->getConnection(self::$connectionName)->isTableExists($packageItemsTable)) {
-            $table = $installer->getConnection(self::$connectionName)->newTable($packageItemsTable);
-
-            $table
-                ->addColumn(
-                    'package_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    50,
-                    ['nullable' => false, 'default' => 0, 'unsigned' => true]
-                )->addColumn(
-                    'sku',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
-                    ['nullable' => false],
-                    'SKU'
-                )->addColumn(
-                    'qty_packed',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Qty packed'
-                )->addColumn(
-                    'weight_packed',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_FLOAT,
-                    null,
-                    ['nullable' => true],
-                    'Weight packed'
-                )->addIndex(
-                    $installer->getIdxName('shipperhq_quote_package_items', ['package_id']),
-                    ['package_id']
-                )->setComment(
-                    'ShipperHQ Quote Address Package Items Information'
-                )->addForeignKey(
-                    $installer->getFkName(
-                        'shipperhq_quote_package_items',
-                        'package_id',
-                        'shipperhq_quote_packages',
-                        'package_id'
-                    ),
-                    'package_id',
-                    $packagesTable,
-                    'package_id',
-                    \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
-                );
-            $installer->getConnection(self::$connectionName)->createTable($table);
-        }
-
-        if (version_compare($context->getVersion(), '1.0.10', '<')) {
-            $installer->getConnection(self::$connectionName)->modifyColumn(
-                $setup->getTable('shipperhq_quote_package_items'),
-                'package_id',
-                [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    'length' => 50,
-                    'nullable' => false,
-                    'default' => 0,
-                    'unsigned' => true
-                ]
-            );
-            $this->addIndexToTable($installer, 'shipperhq_quote_package_items', ['package_id']);
         }
 
         $orderPackagesTable = $installer->getTable('shipperhq_order_packages');
@@ -922,7 +767,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
-        if (version_compare($context->getVersion(), '1.0.13', '<')) {
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.0.13', '<')) {
             $installer->getConnection(self::$connectionName)->modifyColumn(
                 $setup->getTable('shipperhq_order_packages'),
                 'order_id',
@@ -986,7 +831,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $installer->getConnection(self::$connectionName)->createTable($table);
         }
 
-        if (version_compare($context->getVersion(), '1.0.10', '<')) {
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.0.10', '<')) {
             $installer->getConnection(self::$connectionName)->modifyColumn(
                 $setup->getTable('shipperhq_order_package_items'),
                 'package_id',
@@ -1096,7 +941,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
             $installer->getConnection(self::$connectionName)->createTable($table);
         } else {
-            if (version_compare($context->getVersion(), '1.0.9') < 0) {
+            if (!$isFreshInstall && version_compare($context->getVersion(), '1.0.9') < 0) {
                 $connection = $installer->getConnection(self::$connectionName);
 
                 $connection->modifyColumn(
@@ -1117,7 +962,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 );
             }
 
-            if (version_compare($context->getVersion(), '1.0.13') < 0) {
+            if (!$isFreshInstall && version_compare($context->getVersion(), '1.0.13') < 0) {
                 $connection = $installer->getConnection(self::$connectionName);
                 $connection->modifyColumn(
                     $setup->getTable('shipperhq_order_detail_grid'),
@@ -1139,7 +984,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             }
 
             // MNB-605 Prevent duplicate entries. Adding unique index
-            if (version_compare($context->getVersion(), '1.1.22') < 0) {
+            if (!$isFreshInstall && version_compare($context->getVersion(), '1.1.22') < 0) {
                 $connection = $installer->getConnection(self::$connectionName);
 
                 $connection->dropIndex($orderDetailGridTable, $installer->getIdxName(
@@ -1158,17 +1003,32 @@ class UpgradeSchema implements UpgradeSchemaInterface
             }
         }
 
-        if (version_compare($context->getVersion(), '1.0.14') < 0) {
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.0.14') < 0) {
             $this->cleanOrderGridTable($installer);
         }
 
-        if (version_compare($context->getVersion(), '1.1.18') < 0) {
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.1.18') < 0) {
             $this->addValidatedAddressColumns($installer, 'shipperhq_quote_address_detail');
             $this->addValidatedAddressColumns($installer, 'shipperhq_order_detail');
         }
 
-        if (version_compare($context->getVersion(), '1.1.20') < 0) {
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.1.20') < 0) {
             $this->addCarrierTypeToOrderDetailGrid($installer);
+        }
+
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.1.23', '<')) {
+            $this->changeIdColumnToInteger($installer, 'shipperhq_quote_address_detail', 'quote_address_id');
+            $this->changeIdColumnToInteger($installer, 'shipperhq_quote_item_detail', 'quote_item_id');
+            $this->changeIdColumnToInteger($installer, 'shipperhq_quote_address_item_detail', 'quote_address_item_id');
+            $this->changeIdColumnToInteger($installer, 'shipperhq_order_item_detail', 'order_item_id');
+            $this->changeIdColumnToInteger($installer, 'shipperhq_order_packages', 'order_id');
+            $this->changeIdColumnToInteger($installer, 'shipperhq_order_detail_grid', 'order_id');
+
+            $this->addForeignKeysToTables($installer);
+        }
+
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.1.24', '<')) {
+            $this->dropQuotePackageTables($installer);
         }
 
         $installer->endSetup();
@@ -1296,6 +1156,154 @@ class UpgradeSchema implements UpgradeSchemaInterface
         foreach ($duplicateShqOrderGrids as $shqOrderGridEntry) {
             $condition = ['id =?' => $shqOrderGridEntry['id']];
             $setup->getConnection(self::$connectionName)->delete($shqOrderGridTable, $condition);
+        }
+    }
+
+    private function changeIdColumnToInteger(SchemaSetupInterface $setup, $tableName, $columnName)
+    {
+        $setup->getConnection()->modifyColumn(
+            $setup->getTable($tableName),
+            $columnName,
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                'length' => 10,
+                'nullable' => false,
+                'unsigned' => true
+            ]
+        );
+    }
+
+    private function addForeignKeysToTables(SchemaSetupInterface $setup)
+    {
+        $setup->getConnection(self::$connectionName)->addForeignKey(
+            $setup->getFkName(
+                'shipperhq_quote_address_detail',
+                'quote_address_id',
+                'quote_address',
+                'address_id'
+            ),
+            $setup->getTable('shipperhq_quote_address_detail'),
+            'quote_address_id',
+            $setup->getTable('quote_address'),
+            'address_id',
+            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+        );
+
+        $setup->getConnection(self::$connectionName)->addForeignKey(
+            $setup->getFkName(
+                'shipperhq_order_detail',
+                'order_id',
+                'sales_order',
+                'entity_id'
+            ),
+            $setup->getTable('shipperhq_order_detail'),
+            'order_id',
+            $setup->getTable('sales_order'),
+            'entity_id',
+            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+        );
+
+        $setup->getConnection(self::$connectionName)->addForeignKey(
+            $setup->getFkName(
+                'shipperhq_quote_item_detail',
+                'quote_item_id',
+                'quote_item',
+                'item_id'
+            ),
+            $setup->getTable('shipperhq_quote_item_detail'),
+            'quote_item_id',
+            $setup->getTable('quote_item'),
+            'item_id',
+            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+        );
+
+        $setup->getConnection(self::$connectionName)->addForeignKey(
+            $setup->getFkName(
+                'shipperhq_quote_address_item_detail',
+                'quote_address_item_id',
+                'quote_address_item',
+                'address_item_id'
+            ),
+            $setup->getTable('shipperhq_quote_address_item_detail'),
+            'quote_address_item_id',
+            $setup->getTable('quote_address_item'),
+            'address_item_id',
+            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+        );
+
+        $setup->getConnection(self::$connectionName)->addForeignKey(
+            $setup->getFkName(
+                'shipperhq_order_item_detail',
+                'order_item_id',
+                'sales_order_item',
+                'item_id'
+            ),
+            $setup->getTable('shipperhq_order_item_detail'),
+            'order_item_id',
+            $setup->getTable('sales_order_item'),
+            'item_id',
+            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+        );
+
+        $setup->getConnection(self::$connectionName)->addForeignKey(
+            $setup->getFkName(
+                'shipperhq_order_packages',
+                'order_id',
+                'sales_order',
+                'entity_id'
+            ),
+            $setup->getTable('shipperhq_order_packages'),
+            'order_id',
+            $setup->getTable('sales_order'),
+            'entity_id',
+            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+        );
+
+        $setup->getConnection(self::$connectionName)->addForeignKey(
+            $setup->getFkName(
+                'shipperhq_order_detail_grid',
+                'order_id',
+                'sales_order',
+                'entity_id'
+            ),
+            $setup->getTable('shipperhq_order_detail_grid'),
+            'order_id',
+            $setup->getTable('sales_order'),
+            'entity_id',
+            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+        );
+    }
+
+    /**
+     * MNB-881 No longer used. Quote packages stored in session
+     *
+     * @param SchemaSetupInterface $setup
+     */
+    private function dropQuotePackageTables(SchemaSetupInterface $setup)
+    {
+        $connection = $setup->getConnection(self::$connectionName);
+
+        $quotePackagesTable = $connection->getTableName("shipperhq_quote_packages");
+        $quoteItemsPackagesTable = $connection->getTableName("shipperhq_quote_package_items");
+
+        if (!$connection->isTableExists($quotePackagesTable) || !$connection->isTableExists($quoteItemsPackagesTable)) {
+            return;
+        }
+
+        $rowsCountPackage = $connection->fetchOne(
+            $connection->select()->from($quotePackagesTable, 'COUNT(*)')
+        );
+
+        if (!$rowsCountPackage) {
+            $connection->dropTable('shipperhq_quote_packages');
+        }
+
+        $rowsCountItem = $connection->fetchOne(
+            $connection->select()->from($quoteItemsPackagesTable, 'COUNT(*)')
+        );
+
+        if (!$rowsCountItem) {
+            $connection->dropTable('shipperhq_quote_package_items');
         }
     }
 }

@@ -512,3 +512,7 @@ MNB-808 fix php 7.4 deprecation issue
 MNB-916 Fix warning generated in package processing
 
 
+## 20.39.7 (2020-12-21)
+MNB-861 Tidy up DB. MNB-448 Fix carrier logos showing on date and accessorial change.
+
+

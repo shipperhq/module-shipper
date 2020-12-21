@@ -110,7 +110,7 @@ define(
                         }
 
                         // SHQ18-1823 don't show logos for non ShipperHQ methods or errors
-                        if (method.error_message !== "" || method.carrier_code.toString().indexOf("shq") === -1) {
+                        if (method.error_message || method.carrier_code.toString().indexOf("shq") === -1) {
                             return
                         }
 

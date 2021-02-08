@@ -516,3 +516,7 @@ MNB-916 Fix warning generated in package processing
 MNB-861 Tidy up DB. MNB-448 Fix carrier logos showing on date and accessorial change.
 
 
+## 20.39.8 (2021-02-08)
+MNB-887 Fix issue with AV attributes showing on frontend
+
+

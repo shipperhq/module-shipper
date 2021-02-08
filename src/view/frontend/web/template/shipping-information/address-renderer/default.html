@@ -25,16 +25,14 @@
 <!-- ko text: getCountryName(address().countryId) --><!-- /ko --><br/>
 <!-- ko text: address().telephone --><!-- /ko --><br/>
 <!-- ko foreach: { data: address().customAttributes, as: 'element' } -->
-<!-- ko foreach: { data: Object.keys(element), as: 'attribute' } -->
-<!-- ko if: element[attribute].attribute_code != 'destination_type' && element[attribute].attribute_code != 'validation_status' -->
-<!-- ko if: element[attribute].value != null -->
-<!-- ko text: element[attribute].value --><!-- /ko --><br/>
-<!-- /ko -->
-<!-- ko if: element[attribute].value == null -->
-<!-- ko text: element[attribute] --><!-- /ko --><br/>
-<!-- /ko -->
-<!-- /ko -->
-<!-- /ko -->
+    <!-- ko if: element.attribute_code != 'destination_type' && element.attribute_code != 'validation_status' -->
+        <!-- ko if: element.value != null -->
+            <!-- ko text: element.value --><!-- /ko --><br/>
+        <!-- /ko -->
+        <!-- ko if: element.value == null -->
+            <!-- ko text: element.attribute_code --><!-- /ko --><br/>
+        <!-- /ko -->
+    <!-- /ko -->
 <!-- /ko -->
 
 <!-- /ko -->

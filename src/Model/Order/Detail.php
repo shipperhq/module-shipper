@@ -67,7 +67,7 @@ class Detail extends \Magento\Framework\Model\AbstractExtensibleModel
     const ADDRESS_VALID = 'address_valid';
 
     /**
-     * @var \ShipperHQ\Shipper\Model\ResourceModel\Order\Detail\Collection
+     * @var /ShipperHQ\Shipper\Model\ResourceModel\Order\Detail\Collection
      */
     private $orderDetailCollection;
 

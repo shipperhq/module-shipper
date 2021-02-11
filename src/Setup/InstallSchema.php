@@ -618,18 +618,20 @@ class InstallSchema implements InstallSchemaInterface
                     ['quote_item_id']
                 )->setComment(
                     'ShipperHQ Quote Item Carrier Group Information'
-                )->addForeignKey(
-                    $installer->getFkName(
-                        'shipperhq_quote_item_detail',
-                        'quote_item_id',
-                        'quote_item',
-                        'item_id'
-                    ),
-                    'quote_item_id',
-                    $installer->getTable('quote_item'),
-                    'item_id',
-                    \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
                 );
+                // TODO: MNB-1060 removing this FK as it's causing issues with certain checkout flows.  Will revisit in MNB-1064
+//                ->addForeignKey(
+//                    $installer->getFkName(
+//                        'shipperhq_quote_item_detail',
+//                        'quote_item_id',
+//                        'quote_item',
+//                        'item_id'
+//                    ),
+//                    'quote_item_id',
+//                    $installer->getTable('quote_item'),
+//                    'item_id',
+//                    \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+//                );
 
             $installer->getConnection(self::$connectionName)->createTable($table);
         }

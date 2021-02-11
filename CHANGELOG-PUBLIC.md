@@ -520,3 +520,7 @@ MNB-861 Tidy up DB. MNB-448 Fix carrier logos showing on date and accessorial ch
 MNB-887 Fix issue with AV attributes showing on frontend
 
 
+## 20.40.0 (2021-02-11)
+MNB-1060 remove a problematic FK
+
+

@@ -1031,6 +1031,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->dropQuotePackageTables($installer);
         }
 
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.1.25', '<')) {
+            $this->dropForeignKeysMNB1060($installer);
+        }
+
         $installer->endSetup();
     }
 
@@ -1203,19 +1207,20 @@ class UpgradeSchema implements UpgradeSchemaInterface
             \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
         );
 
-        $setup->getConnection(self::$connectionName)->addForeignKey(
-            $setup->getFkName(
-                'shipperhq_quote_item_detail',
-                'quote_item_id',
-                'quote_item',
-                'item_id'
-            ),
-            $setup->getTable('shipperhq_quote_item_detail'),
-            'quote_item_id',
-            $setup->getTable('quote_item'),
-            'item_id',
-            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
-        );
+        // MNB-1060, need to drop the FK for now, this can be revisited in MNB-1064
+//        $setup->getConnection(self::$connectionName)->addForeignKey(
+//            $setup->getFkName(
+//                'shipperhq_quote_item_detail',
+//                'quote_item_id',
+//                'quote_item',
+//                'item_id'
+//            ),
+//            $setup->getTable('shipperhq_quote_item_detail'),
+//            'quote_item_id',
+//            $setup->getTable('quote_item'),
+//            'item_id',
+//            \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+//        );
 
         $setup->getConnection(self::$connectionName)->addForeignKey(
             $setup->getFkName(
@@ -1271,6 +1276,22 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $setup->getTable('sales_order'),
             'entity_id',
             \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+        );
+    }
+
+    // MNB-1060, need to drop the FK for now, this can be revisited in MNB-1064
+    private function dropForeignKeysMNB1060(SchemaSetupInterface $setup)
+    {
+        $fkName = $setup->getFkName(
+            'shipperhq_quote_item_detail',
+            'quote_item_id',
+            'quote_item',
+            'item_id'
+        );
+        // dropForeignKey checks for existence first so we don't have to
+        $setup->getConnection(self::$connectionName)->dropForeignKey(
+            $setup->getTable('shipperhq_quote_item_detail'),
+            $fkName
         );
     }
 

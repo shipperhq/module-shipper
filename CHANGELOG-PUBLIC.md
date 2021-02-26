@@ -524,3 +524,7 @@ MNB-887 Fix issue with AV attributes showing on frontend
 MNB-1060 remove a problematic FK
 
 
+## 20.40.1 (2021-02-26)
+MNB-24 Updated proxy-manager-bridge version in composer.lock
+
+

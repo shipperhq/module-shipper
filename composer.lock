@@ -4074,7 +4074,7 @@
                 "symfony/finder": "~2.7|~3.0",
                 "symfony/options-resolver": "~2.7|~3.0",
                 "symfony/process": "~2.7|~3.0",
-                "symfony/proxy-manager-bridge": "~2.7|~3.0",
+                "symfony/proxy-manager-bridge": ">3.4.26",
                 "symfony/yaml": "~2.7|~3.0"
             },
             "require-dev": {

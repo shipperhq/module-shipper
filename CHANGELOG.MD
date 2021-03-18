@@ -528,3 +528,7 @@ MNB-1060 remove a problematic FK
 MNB-24 Updated proxy-manager-bridge version in composer.lock
 
 
+## 20.40.2 (2021-03-18)
+MNB-1114 Fix for missing data in order grid, order comments and order
+
+

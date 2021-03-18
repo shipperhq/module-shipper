@@ -140,14 +140,8 @@ class CarrierGroup extends Data
     public function saveCarrierGroupInformation($shippingAddress, $shippingMethod, array $additionalDetail = [])
     {
         //admin and front end orders use method
-        //SHQ18-1391 - need to ensure rate matches on code and price. If more than 1, then use latest
-        $foundRate = false;
-        $shippingPrice = $shippingAddress->getShippingAmount();
-        foreach ($shippingAddress->getShippingRatesCollection() as $rate) {
-            if ($rate->getCode() == $shippingMethod && $rate->getPrice() == $shippingPrice) {
-                $foundRate = $rate;
-            }
-        }
+        //MNB-1114 undo a change made for SHQ18-1391; no longer compare method price
+        $foundRate = $shippingAddress->getShippingRateByCode($shippingMethod);
 
         if ($foundRate && $foundRate->getCarriergroupShippingDetails() != '') {
             $shipDetails = $this->shipperDataHelper->decodeShippingDetails(

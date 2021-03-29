@@ -540,3 +540,7 @@ RIV-443 Add place order support for order management feature
 RIV-443 Update composer to require new libraries
 
 
+## 20.42.0 (2021-03-29)
+RIV-443 Fix lib-graphql dependency
+
+

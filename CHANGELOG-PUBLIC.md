@@ -536,3 +536,7 @@ MNB-1114 Fix for missing data in order grid, order comments and order
 RIV-443 Add place order support for order management feature
 
 
+## 20.41.1 (2021-03-29)
+RIV-443 Update composer to require new libraries
+
+

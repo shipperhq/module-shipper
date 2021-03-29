@@ -39,6 +39,7 @@ use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Webapi\Exception;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
+use ShipperHQ\Shipper\Model\Synchronizer;
 
 /**
  * Shipping data helper
@@ -262,9 +263,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $result;
     }
 
+    public function getStoreQuoteOrder()
+    {
+        $result = false;
+        if ($this->getDefaultConfigValue('carriers/shipper/STORE_QUOTE_ORDER')) {
+            $result = true;
+        }
+        return $result;
+    }
+
     public function isCheckout($quote)
     {
-
         $isCheckout = $this->checkoutSession->getIsCheckout();
         if ($quote->getIsMultiShipping()) {
             return true;
@@ -475,7 +484,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getAttribute($attribute_code, $store = null)
     {
-
         $product = $this->productFactory->create();
         $attribute = $product->getResource()->getAttribute($attribute_code);
         if ($store === null || $store == '') {
@@ -515,7 +523,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getAddressKey($shippingAddress)
     {
-
         $addressArray = [
             implode(',', $shippingAddress->getStreet()),
             $shippingAddress->getCity(),
@@ -701,5 +708,20 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         return $storeIds;
+    }
+
+    /**
+     * Checks if the feature is enabled
+     *
+     * @param $feature String
+     *
+     * @return bool
+     */
+    public function getFeatureEnabled($feature)
+    {
+        $featuresConfig = $this->getConfigValue(Synchronizer::FEATURES_ENABLED_CONFIG);
+        $featuresEnabled = explode('|', $featuresConfig);
+
+        return in_array($feature, $featuresEnabled);
     }
 }

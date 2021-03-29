@@ -19,7 +19,8 @@ use ShipperHQ\GraphQL\Request\SecureHeaders;
  */
 class GraphQLHelper
 {
-    const SHIPPERHQ_ENDPOINT_PATH = 'carriers/shipper/postorder_url';
+    const SHIPPERHQ_POSTORDER_ENDPOINT_PATH = 'carriers/shipper/postorder_url';
+    const SHIPPERHQ_ENDPOINT_PATH = 'carriers/shipper/graphql_url';
     const SHIPPERHQ_TIMEOUT_PATH = 'carriers/shipper/ws_timeout';
     const SHIPPERHQ_SERVER_API_KEY_PATH = 'carriers/shipper/api_key';
     const SHIPPERHQ_SERVER_SCOPE_PATH = 'carriers/shipper/environment_scope';
@@ -41,21 +42,21 @@ class GraphQLHelper
     ) {
         $this->config = $config;
         $this->authHelper = $authHelper;
-
     }
 
     /**
+     * @param null $sessionId
+     *
      * @return SecureHeaders
      */
-    public function buildRequestHeader()
+    public function buildRequestHeader($sessionId = 'None')
     {
         $secretToken = $this->authHelper->getSecretToken();
         $shqScope = $this->config->getValue(self::SHIPPERHQ_SERVER_SCOPE_PATH);
-        $cartSessionId = 'None';
+        $cartSessionId = $sessionId;
 
         return new SecureHeaders($secretToken, $shqScope, $cartSessionId);
     }
-
 
     /**
      * @return mixed
@@ -68,9 +69,17 @@ class GraphQLHelper
     /**
      * @return mixed
      */
+    public function getPostorderEndpoint()
+    {
+        return $this->config->getValue(self::SHIPPERHQ_POSTORDER_ENDPOINT_PATH);
+    }
+
+    /**
+     * @return mixed
+     */
     public function getListingEndpoint()
     {
-        return $this->config->getValue(self::SHIPPERHQ_ENDPOINT_PATH) .'/label';
+        return $this->config->getValue(self::SHIPPERHQ_POSTORDER_ENDPOINT_PATH) . '/label';
     }
 
     /**

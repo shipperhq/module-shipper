@@ -532,3 +532,7 @@ MNB-24 Updated proxy-manager-bridge version in composer.lock
 MNB-1114 Fix for missing data in order grid, order comments and order
 
 
+## 20.41.0 (2021-03-29)
+RIV-443 Add place order support for order management feature
+
+

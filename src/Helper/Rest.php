@@ -64,10 +64,10 @@ class Rest
         \ShipperHQ\Lib\Helper\Rest $restHelper,
         ScopeConfigInterface $config
     ) {
-
         $this->restHelper = $restHelper;
         $this->config = $config;
         $this->restHelper->setBaseUrl($this->getGatewayUrl());
+        $this->restHelper->setBasePostorderUrl($this->getPostOrderGatewayUrl());
     }
 
     /**
@@ -89,6 +89,19 @@ class Rest
             'carriers/shipper/sandbox_mode',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         ) ? $test : $live;
+    }
+
+    /**
+     * Returns place order endpoint
+     *
+     * @return string
+     */
+    private function getPostOrderGatewayUrl()
+    {
+        return $this->cleanUpUrl($this->config->getValue(
+            'carriers/shipper/postorder_rest_url',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ));
     }
 
     private function cleanUpUrl($urlStart)
@@ -119,6 +132,15 @@ class Rest
         return $this->restHelper->getRateGatewayUrl();
     }
 
+    /**
+     * Retrieve url for place order
+     * @return string
+     */
+    public function getPlaceorderGatewayUrl()
+    {
+        return $this->restHelper->getPlaceOrderUrl();
+    }
+
     /*
      * Retrieve configured timeout for webservice
      */
@@ -135,7 +157,6 @@ class Rest
 
     public function getWebserviceTimeout()
     {
-
         if (self::$wsTimeout == null) {
             $timeout = $this->config->getValue(
                 'carriers/shipper/ws_timeout',

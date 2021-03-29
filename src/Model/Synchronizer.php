@@ -448,7 +448,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                             $configValue = $this->shipperDataHelper->getDefaultConfigValue(
                                 'carriers/shipper/' . $globalSetting->code
                             );
-                            if ($configValue != $value) {
+                            if ($configValue != $value || is_null($configValue)) {
                                 $result[] = [
                                     'attribute_type' => 'global_setting',
                                     'attribute_code' => $globalSetting->code,

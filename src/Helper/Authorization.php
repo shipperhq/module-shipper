@@ -13,10 +13,14 @@ namespace ShipperHQ\Shipper\Helper;
 
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Key;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use Lcobucci\JWT\Validation\Validator;
 use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use ShipperHQ\GraphQL\Client\GraphQLClient;
+use ShipperHQ\GraphQL\Helpers\LoggingHelper;
 use ShipperHQ\GraphQL\Response\CreateSecretToken;
 
 /**
@@ -24,10 +28,11 @@ use ShipperHQ\GraphQL\Response\CreateSecretToken;
  */
 class Authorization
 {
-    const SHIPPERHQ_ENDPOINT_PATH = GraphQLHelper::SHIPPERHQ_ENDPOINT_PATH;
+    const SHIPPERHQ_POSTORDER_ENDPOINT_PATH = GraphQLHelper::SHIPPERHQ_POSTORDER_ENDPOINT_PATH;
     const SHIPPERHQ_TIMEOUT_PATH = GraphQLHelper::SHIPPERHQ_TIMEOUT_PATH;
     const SHIPPERHQ_SERVER_SCOPE_PATH = GraphQLHelper::SHIPPERHQ_SERVER_SCOPE_PATH;
     const SHIPPERHQ_SERVER_API_KEY_PATH = GraphQLHelper::SHIPPERHQ_SERVER_API_KEY_PATH;
+    const SHIPPERHQ_ENDPOINT_PATH = GraphQLHelper::SHIPPERHQ_ENDPOINT_PATH;
     const SHIPPERHQ_TOKEN_ENDPOINT_PATH = 'carriers/shipper/token_url';
     const SHIPPERHQ_SERVER_AUTH_CODE_PATH = 'carriers/shipper/password';
     const SHIPPERHQ_SERVER_SECRET_TOKEN_PATH = 'carriers/shipper/secret_token';
@@ -47,27 +52,28 @@ class Authorization
     /** @var DateTime */
     private $dateTime;
 
-    /**
-     * @var \Magento\Framework\Json\DecoderInterface
-     */
+    /** @var \Magento\Framework\Json\DecoderInterface */
     private $jsonDecoder;
 
-    /**
-     * @var LogAssist
-     */
+    /** @var LogAssist */
     private $shipperLogger;
 
     /** @var bool */
     private $isConfigCacheFlushScheduled = false;
 
+    /** @var LoggingHelper */
+    private $graphqlLoggingHelper;
+
     /**
      * Authorization constructor.
-     * @param ReinitableConfigInterface $configReader
-     * @param WriterInterface $configWriter
+     *
+     * @param ReinitableConfigInterface                $configReader
+     * @param WriterInterface                          $configWriter
      * @param \Magento\Framework\Json\DecoderInterface $jsonDecoder
-     * @param GraphQLClient $graphqlClient
-     * @param DateTime $dateTime
-     * @param LogAssist $shipperLogger
+     * @param GraphQLClient                            $graphqlClient
+     * @param DateTime                                 $dateTime
+     * @param LogAssist                                $shipperLogger
+     * @param LoggingHelper                            $graphqlLoggingHelper
      */
     public function __construct(
         ReinitableConfigInterface $configReader,
@@ -75,15 +81,16 @@ class Authorization
         \Magento\Framework\Json\DecoderInterface $jsonDecoder,
         GraphQLClient $graphqlClient,
         DateTime $dateTime,
-        LogAssist $shipperLogger
-    )
-    {
+        LogAssist $shipperLogger,
+        LoggingHelper $graphqlLoggingHelper
+    ) {
         $this->configReader = $configReader;
         $this->configWriter = $configWriter;
         $this->jsonDecoder = $jsonDecoder;
         $this->graphqlClient = $graphqlClient;
         $this->dateTime = $dateTime;
         $this->shipperLogger = $shipperLogger;
+        $this->graphqlLoggingHelper = $graphqlLoggingHelper;
     }
 
     /**
@@ -105,52 +112,68 @@ class Authorization
             return $this->getStoredSecretToken();
         }
 
-        $params = [
-            'client_id' =>  $this->getApiKey(),
-            'client_secret' => $this->getAuthCode(),
-            'grant_type' => 'client_credentials'
-        ];
-
         try {
             $initVal = microtime(true);
-            $result = $this->sendTokenRequest($params);
+            $tokenResult = $this->graphqlClient->createSecretToken(
+                $this->getApiKey(),
+                $this->getAuthCode(),
+                $this->getEndpoint(),
+                $this->getTimeout()
+            );
             $elapsed = microtime(true) - $initVal;
             $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Auth Request time elapsed', $elapsed);
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Auth Request and Response', $this->prepAuthRequestForLogging($params, $result));
-        }
-        catch (\Exception $e) {
+            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Auth Request and Response', $this->graphqlLoggingHelper->prepAuthResponseForLogging($tokenResult));
+        } catch (\Exception $e) {
             $this->shipperLogger->postCritical('Shipperhq_Shipper', 'Auth Request failed with Exception', $e->getMessage());
             return $FAILURE;
         }
 
+        if ($tokenResult && isset($tokenResult['result']) && $tokenResult['result'] instanceof CreateSecretToken) {
+            $result = $tokenResult['result'];
+            $data = $result->getData();
 
-        $tokenResult = $this->jsonDecoder->decode($result);
-        if ($tokenResult && isset($tokenResult['token'])) {
+            if ($data && $data->getCreateSecretToken() && $data->getCreateSecretToken()->getToken()) {
+                $tokenStr = $data->getCreateSecretToken()->getToken();
 
-            $tokenStr = $tokenResult['token'];
-            if ($tokenStr) {
-
-                $token = (new Parser())->parse($tokenStr);
-                $verified = $token->verify(new Sha256(), $this->getAuthCode());
-                $currentTime = $this->dateTime->gmtTimestamp();
-                $issuedAt = $token->getClaim('iat');
-                $expiresAt = $token->getClaim('exp');
-                $apiKey = $token->getClaim('api_key');
-                $publicToken = $token->getClaim('public_token');
-
-                if ($verified && $apiKey == $this->getApiKey() && $issuedAt <= $currentTime && $currentTime <= $expiresAt) {
-                    $this->writeToConfig(self::SHIPPERHQ_SERVER_SECRET_TOKEN_PATH, $tokenStr);
-                    $this->writeToConfig(self::SHIPPERHQ_SERVER_PUBLIC_TOKEN_PATH, $publicToken);
-                    // Timestamps are always UTC but let's be explicit so it's clear that we expect UTC here
-                    $expiresAt = (new \DateTime("@$expiresAt", new \DateTimeZone("UTC")))->format('c');
-                    $this->writeToConfig(self::SHIPPERHQ_SERVER_TOKEN_EXPIRES_PATH, $expiresAt);
-
-                    return $tokenStr;
-                }
+                return $this->persistNewToken($tokenStr) ? $tokenStr : $FAILURE;
             }
         }
 
         return $FAILURE;
+    }
+
+    /**
+     * @param string $tokenStr
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    private function persistNewToken(string $tokenStr): bool
+    {
+        try {
+            $token = (new Parser())->parse($tokenStr);
+            $verified = $this->isSecretTokenValid($tokenStr);
+
+            $currentTime = $this->dateTime->gmtTimestamp();
+            $issuedAt = $token->claims()->get('iat')->getTimestamp();
+            $expiresAt = $token->claims()->get('exp')->getTimestamp();
+            $apiKey = $token->claims()->get('api_key');
+            $publicToken = $token->claims()->get('public_token');
+
+            if ($verified && $apiKey == $this->getApiKey() && $issuedAt <= $currentTime && $currentTime <= $expiresAt) {
+                $this->writeToConfig(self::SHIPPERHQ_SERVER_SECRET_TOKEN_PATH, $tokenStr);
+                $this->writeToConfig(self::SHIPPERHQ_SERVER_PUBLIC_TOKEN_PATH, $publicToken);
+                // Timestamps are always UTC but let's be explicit so it's clear that we expect UTC here
+                $expiresAt = (new \DateTime("@$expiresAt", new \DateTimeZone("UTC")))->format('c');
+                $this->writeToConfig(self::SHIPPERHQ_SERVER_TOKEN_EXPIRES_PATH, $expiresAt);
+
+                return true;
+            }
+        } catch (\Exception $e) {
+            $this->shipperLogger->postCritical('Shipperhq_Shipper', 'Error getting new authorization token', $e->getMessage());
+        }
+
+        return false;
     }
 
     /**
@@ -186,15 +209,23 @@ class Authorization
     }
 
     /**
-     * Checks if the secret token has a valid signature
+     * Checks if the secret token has a valid signature. Will use stored secret token if no tokenString passed in
+     *
+     * @param null $tokenStr
      *
      * @return bool
      */
-    public function isSecretTokenValid(): bool
+    public function isSecretTokenValid($tokenStr = null): bool
     {
-        $tokenStr = $this->getStoredSecretToken();
+        if ($tokenStr == null) {
+            $tokenStr = $this->getStoredSecretToken();
+        }
+
         $token = (new Parser())->parse($tokenStr);
-        return $token->verify(new Sha256(), $this->getAuthCode());
+        $validator = new Validator();
+        $signer = new Key($this->getAuthCode());
+
+        return $validator->validate($token, new SignedWith(new Sha256(), $signer));
     }
 
     /**
@@ -262,7 +293,7 @@ class Authorization
      */
     private function getEndpoint()
     {
-        return $this->getConfigValue(self::SHIPPERHQ_TOKEN_ENDPOINT_PATH);
+        return $this->getConfigValue(self::SHIPPERHQ_ENDPOINT_PATH);
     }
 
     /**
@@ -291,80 +322,11 @@ class Authorization
     }
 
     /**
-     * @param \DateTime $expiration
-     * @return Authorization
-     */
-    private function setTokenExpires(\DateTime $expiration): Authorization
-    {
-        $expiration = $expiration->format('c');
-        $this->writeToConfig(self::SHIPPERHQ_SERVER_TOKEN_EXPIRES_PATH, $expiration);
-        return $this;
-    }
-
-    /**
      * @return Authorization
      */
     private function scheduleConfigCacheFlush(): Authorization
     {
         $this->isConfigCacheFlushScheduled = true;
         return $this;
-    }
-
-    /**
-     * @param array $params
-     * @return string
-     * @throws \Zend_Http_Client_Exception
-     */
-    private function sendTokenRequest(array $params): string
-    {
-        $url = $this->getEndpoint();
-        $client = new \Zend_Http_Client();
-        $client->setUri($url);
-        $client->setConfig(['maxredirects' => 0, 'timeout' => 30]);
-        $client->setParameterGet($params);
-        $response = $client->request();
-        $result = $response->getBody();
-        return $result;
-    }
-
-    /**
-     * @param array $params
-     * @param string $result
-     * @return mixed
-     */
-    private function prepAuthRequestForLogging(array $params, string $result)
-    {
-        $sanitizedParams = $this->sanitizeAuthCode($params);
-        $sanitizedResult = $this->sanitizeAuthToken($result);
-        return [
-            "url" => $this->getEndpoint(),
-            "params" => $sanitizedParams,
-            "result" => $sanitizedResult
-        ];
-    }
-
-    /**
-     * @param $params
-     * @return mixed
-     */
-    private function sanitizeAuthCode($params)
-    {
-        if (isset($params['client_secret'])) {
-            $params['client_secret'] = 'SANITIZED';
-        }
-        return $params;
-    }
-
-    /**
-     * @param string $result
-     * @return mixed
-     */
-    private function sanitizeAuthToken($result)
-    {
-        $decodedResult = $this->jsonDecoder->decode($result);
-        if (isset($decodedResult['token'])) {
-            $decodedResult['token'] = 'SANITIZED';
-        }
-        return $decodedResult;
     }
 }

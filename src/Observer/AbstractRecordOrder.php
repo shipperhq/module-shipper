@@ -33,13 +33,13 @@
  * See COPYING.txt for license details.
  */
 
-
 namespace ShipperHQ\Shipper\Observer;
 
 use Magento\Framework\Event\ObserverInterface;
 use ShipperHQ\GraphQL\Response\CreateListing;
-use ShipperHQ\Shipper\Model\Listing\ListingService;
 use ShipperHQ\Shipper\Helper\Listing as ListingHelper;
+use ShipperHQ\Shipper\Helper\PostOrder;
+use ShipperHQ\Shipper\Model\Listing\ListingService;
 
 /**
  * ShipperHQ Shipper module observer
@@ -47,21 +47,32 @@ use ShipperHQ\Shipper\Helper\Listing as ListingHelper;
 abstract class AbstractRecordOrder implements ObserverInterface
 {
     /**
+     * Constant for order view feature code
+     *
+     * @var string
+     */
+    const ORDER_VIEW_FEATURE = 'order_view';
+
+    /**
      * @var \ShipperHQ\Shipper\Helper\Data
      */
     protected $shipperDataHelper;
+
     /**
      * @var \Magento\Quote\Api\CartRepositoryInterface
      */
     protected $quoteRepository;
+
     /**
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
     protected $carrierGroupHelper;
+
     /**
      * @var \ShipperHQ\Shipper\Helper\LogAssist
      */
     private $shipperLogger;
+
     /**
      * @var \ShipperHQ\Shipper\Helper\Package
      */
@@ -72,9 +83,15 @@ abstract class AbstractRecordOrder implements ObserverInterface
      */
     private $listingService;
 
-    /** @var ListingHelper */
+    /**
+     * @var ListingHelper
+     */
     private $listingHelper;
 
+    /**
+     * @var PostOrder
+     */
+    private $postOrderHelper;
 
     const USHIP_CARRIER_TYPE = 'uShip';
 
@@ -82,13 +99,15 @@ abstract class AbstractRecordOrder implements ObserverInterface
 
     /**
      * AbstractRecordOrder constructor.
-     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+     *
+     * @param \ShipperHQ\Shipper\Helper\Data             $shipperDataHelper
      * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
-     * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
-     * @param \ShipperHQ\Shipper\Helper\Package $packageHelper
-     * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
-     * @param ListingService $listingService
-     * @param ListingHelper $listingHelper
+     * @param \ShipperHQ\Shipper\Helper\LogAssist        $shipperLogger
+     * @param \ShipperHQ\Shipper\Helper\Package          $packageHelper
+     * @param \ShipperHQ\Shipper\Helper\CarrierGroup     $carrierGroupHelper
+     * @param ListingService                             $listingService
+     * @param ListingHelper                              $listingHelper
+     * @param PostOrder                                  $postOrderHelper
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
@@ -97,9 +116,9 @@ abstract class AbstractRecordOrder implements ObserverInterface
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         ListingService $listingService,
-        ListingHelper $listingHelper
-    )
-    {
+        ListingHelper $listingHelper,
+        PostOrder $postOrderHelper
+    ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->quoteRepository = $quoteRepository;
         $this->shipperLogger = $shipperLogger;
@@ -107,16 +126,17 @@ abstract class AbstractRecordOrder implements ObserverInterface
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->listingService = $listingService;
         $this->listingHelper = $listingHelper;
+        $this->postOrderHelper = $postOrderHelper;
     }
 
     public function recordOrder($order)
     {
-        //https://github.com/magento/magento2/issues/4233
+        // https://github.com/magento/magento2/issues/4233
         $quoteId = $order->getQuoteId();
-        //Merged from pull request https://github.com/shipperhq/module-shipper/pull/20 - credit to vkalchenko
+        // Merged from pull request https://github.com/shipperhq/module-shipper/pull/20 - credit to vkalchenko
         $quote = $this->quoteRepository->get($quoteId, [$order->getStoreId()]);
 
-        //SHQ18-1947 Need to find correct address to lookup carriergroup details and packed boxes when MAC
+        // SHQ18-1947 Need to find correct address to lookup carriergroup details and packed boxes when MAC
         if ($quote->getIsMultiShipping()) {
             $customerAddressId = $order->getShippingAddress()->getCustomerAddressId();
 
@@ -137,12 +157,16 @@ abstract class AbstractRecordOrder implements ObserverInterface
         $this->carrierGroupHelper->recordOrderItems($order);
         $this->packageHelper->saveOrderPackages($order, $shippingAddress);
 
+        // RIV-443 Save order details to OMS
+        if ($this->shipperDataHelper->getStoreQuoteOrder()) {
+            $this->postOrderHelper->handleOrder($order, $shippingAddress, $quoteId);
+        }
+
         $shippingMethod = $order->getShippingMethod();
         $shippingRate = $shippingAddress->getShippingRateByCode($shippingMethod);
         if ($shippingRate) {
             list($carrierCode, $method) = explode('_', $shippingMethod, 2);
             $carrierType = $shippingRate->getCarrierType();
-
 
             if ($carrierType == self::USHIP_CARRIER_TYPE &&
                 $this->shipperDataHelper->getDefaultConfigValue('carriers/shipper/create_listing') &&
@@ -156,7 +180,7 @@ abstract class AbstractRecordOrder implements ObserverInterface
             }
         }
 
-        //Merged rates or display as single carrier
+        // Merged rates or display as single carrier
         if (strstr($shippingMethod, 'shqshared_')) {
             $orderDetailArray = $this->carrierGroupHelper->loadOrderDetailByOrderId($order->getId());
             //SHQ16- Review for splits
@@ -228,7 +252,7 @@ abstract class AbstractRecordOrder implements ObserverInterface
                 $carrierCode
             );
 
-            //SHQ18-1620 Change to numerical UPS code for Magento labelling support
+            // SHQ18-1620 Change to numerical UPS code for Magento labelling support
             if ($carrierType == "ups") {
                 $method = $this->shipperDataHelper->mapToMagentoUPSMethodCode($method);
             }

@@ -38,6 +38,7 @@ namespace ShipperHQ\Shipper\Observer;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use ShipperHQ\Shipper\Helper\Listing as ListingHelper;
+use ShipperHQ\Shipper\Helper\PostOrder;
 
 /**
  * ShipperHQ Shipper module observer
@@ -55,14 +56,16 @@ class RecordOrder extends AbstractRecordOrder implements ObserverInterface
     private $checkoutSession;
 
     /**
-     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
-     * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
-     * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
-     * @param \Magento\Sales\Model\OrderFactory $orderFactory
-     * @param \Magento\Checkout\Model\Session $checkoutSession
-     * @param \Magento\Customer\Model\AddressFactory $addressFactory
-     * @param \ShipperHQ\Shipper\Helper\Package $packageHelper
-     * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
+     * @param \ShipperHQ\Shipper\Helper\Data                  $shipperDataHelper
+     * @param \Magento\Quote\Api\CartRepositoryInterface      $quoteRepository
+     * @param \ShipperHQ\Shipper\Helper\LogAssist             $shipperLogger
+     * @param \Magento\Sales\Model\OrderFactory               $orderFactory
+     * @param \Magento\Checkout\Model\Session                 $checkoutSession
+     * @param \ShipperHQ\Shipper\Helper\Package               $packageHelper
+     * @param \ShipperHQ\Shipper\Helper\CarrierGroup          $carrierGroupHelper
+     * @param \ShipperHQ\Shipper\Model\Listing\ListingService $listingService
+     * @param ListingHelper                                   $listingHelper
+     * @param PostOrder                                       $postOrder
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
@@ -73,12 +76,13 @@ class RecordOrder extends AbstractRecordOrder implements ObserverInterface
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \ShipperHQ\Shipper\Model\Listing\ListingService $listingService,
-        ListingHelper $listingHelper
+        ListingHelper $listingHelper,
+        PostOrder $postOrder
     ) {
-        
+
         $this->orderFactory = $orderFactory;
         $this->checkoutSession = $checkoutSession;
-        parent::__construct($shipperDataHelper, $quoteRepository, $shipperLogger, $packageHelper, $carrierGroupHelper, $listingService, $listingHelper);
+        parent::__construct($shipperDataHelper, $quoteRepository, $shipperLogger, $packageHelper, $carrierGroupHelper, $listingService, $listingHelper, $postOrder);
     }
 
     /**

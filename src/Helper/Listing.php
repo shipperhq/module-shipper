@@ -35,8 +35,8 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
+use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use ShipperHQ\Shipper\Model\Listing\ListingService;
-use \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 
 /**
  * Listing Helper
@@ -50,6 +50,7 @@ class Listing
 
     /**
      * Listing constructor.
+     *
      * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      */
     public function __construct(OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository)

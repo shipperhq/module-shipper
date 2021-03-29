@@ -90,7 +90,8 @@ class CarrierConfigHandler
      */
     public function saveConfig($path, $value, $scope = 'default', $scopeId = 0, $refreshRequired = true)
     {
-        if ($this->shipperDataHelper->getConfigValue($path) != $value) {
+        $check = $this->shipperDataHelper->getConfigValue($path);
+        if ($check != $value || is_null($check)) {
             $this->resourceConfig->saveConfig(rtrim($path, '/'), $value, $scope, $scopeId);
             if ($refreshRequired) {
                 $this->shipperDataHelper->getCheckout()->setConfigUpdated(true);

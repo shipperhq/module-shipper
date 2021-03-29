@@ -47,6 +47,8 @@
                 <live_url>https://api.shipperhq.com/v1/</live_url>
                 <secure_url>https://api.shipperhq.com/v1/</secure_url>
                 <postorder_url>https://postapi.shipperhq.com/v3/graphql/</postorder_url>
+                <postorder_rest_url>https://postapi.shipperhq.com/v1/</postorder_rest_url>
+                <graphql_url>https://rms.shipperhq.com</graphql_url>
                 <token_url>https://shipperhq.com/oauth/ec/token/</token_url>
                 <model>ShipperHQ\Shipper\Model\Carrier\Shipper</model>
                 <sandbox_mode>0</sandbox_mode>
@@ -60,7 +62,7 @@
                 <ws_timeout>30</ws_timeout>
                 <use_cache>0</use_cache>
                 <always_use_cache>1</always_use_cache>
-                <extension_version>20.40.2</extension_version>
+                <extension_version>20.41.0</extension_version>
                 <allowed_methods></allowed_methods>
                 <magento_version></magento_version>
             </shipper>

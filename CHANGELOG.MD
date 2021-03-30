@@ -548,3 +548,7 @@ RIV-443 Fix lib-graphql dependency
 RIV-443 Require updated library
 
 
+## 20.42.2 (2021-03-30)
+RIV-443 Fix issues with Postorder
+
+

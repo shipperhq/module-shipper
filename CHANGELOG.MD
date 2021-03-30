@@ -544,3 +544,7 @@ RIV-443 Update composer to require new libraries
 RIV-443 Fix lib-graphql dependency
 
 
+## 20.42.1 (2021-03-30)
+RIV-443 Require updated library
+
+

@@ -840,6 +840,11 @@ class InstallSchema implements InstallSchemaInterface
 
             $table
                 ->addColumn(
+                    'id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    10,
+                    ['nullable' => false, 'unsigned' => true, 'auto_increment' => true, 'primary' => true, 'comment' => 'Primary Key']
+                )->addColumn(
                     'package_id',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     50,

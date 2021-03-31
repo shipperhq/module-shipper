@@ -8,31 +8,32 @@
   ~ @author ShipperHQ Team sales@shipperhq.com
   -->
 
-<!-- ko if: (visible()) -->
-<!-- ko text: address().prefix --><!-- /ko --> <!-- ko text: address().firstname --><!-- /ko -->
-<!-- ko text: address().lastname --><!-- /ko --> <!-- ko text: address().suffix --><!-- /ko --><br/>
-<!-- ko foreach: { data: address().extension_attributes, as: 'element' } -->
-<!-- ko foreach: { data: Object.keys(element), as: 'attribute' } -->
-<!-- ko if: attribute == 'location_address' && element[attribute] != null &&  element[attribute] != '' -->
-<!-- ko text: element[attribute] --><!-- /ko --><br/>
-<br/>
-<!-- /ko -->
-<!-- /ko -->
-<!-- /ko -->
-<!-- ko text: address().street --><!-- /ko --><br/>
-<!-- ko text: address().city --><!-- /ko -->, <!-- ko text: address().region --><!-- /ko --> <!-- ko text: address().postcode --><!-- /ko -->
-<br/>
-<!-- ko text: getCountryName(address().countryId) --><!-- /ko --><br/>
-<!-- ko text: address().telephone --><!-- /ko --><br/>
-<!-- ko foreach: { data: address().customAttributes, as: 'element' } -->
-    <!-- ko if: element.attribute_code != 'destination_type' && element.attribute_code != 'validation_status' -->
-        <!-- ko if: element.value != null -->
-            <!-- ko text: element.value --><!-- /ko --><br/>
-        <!-- /ko -->
-        <!-- ko if: element.value == null -->
-            <!-- ko text: element.attribute_code --><!-- /ko --><br/>
-        <!-- /ko -->
-    <!-- /ko -->
-<!-- /ko -->
+<if args="visible()">
+    <text args="address().prefix"/> <text args="address().firstname"/> <text args="address().middlename"/>
+    <text args="address().lastname"/> <text args="address().suffix"/><br/>
 
-<!-- /ko -->
+    <each args="data: address().extension_attributes, as: 'element'">
+        <!-- ko foreach: { data: Object.keys(element), as: 'attribute' } -->
+            <!-- ko if: attribute == 'location_address' && element[attribute] != null &&  element[attribute] != '' -->
+                <!-- ko text: element[attribute] --><!-- /ko --><br/>
+                <br/>
+            <!-- /ko -->
+        <!-- /ko -->
+    </each>
+    <text args="_.values(address().street).join(', ')"/><br/>
+    <text args="address().city "/>, <span text="address().region"></span> <text args="address().postcode"/><br/>
+    <text args="getCountryName(address().countryId)"/><br/>
+    <a if="address().telephone" attr="'href': 'tel:' + address().telephone" text="address().telephone"></a><br/>
+
+    <each args="data: address().customAttributes, as: 'element'">
+        <!-- ko if: element.attribute_code != 'destination_type' && element.attribute_code != 'validation_status' -->
+            <!-- ko if: element.value != null -->
+                <!-- ko text: element.value --><!-- /ko --><br/>
+            <!-- /ko -->
+            <!-- ko if: element.value == null -->
+                <!-- ko text: element.attribute_code --><!-- /ko --><br/>
+            <!-- /ko -->
+        <!-- /ko -->
+        <br/>
+    </each>
+</if>

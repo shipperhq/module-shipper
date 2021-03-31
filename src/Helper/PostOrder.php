@@ -149,13 +149,26 @@ class PostOrder
     private function getPlaceorderRequest($order, $rate)
     {
         $carrierGroupDetails = $this->shipperDataHelper->decodeShippingDetails($rate->getCarriergroupShippingDetails());
+        $transactionId = "";
+
+        if (array_key_exists('transaction', $carrierGroupDetails)) {
+            $transactionId = $carrierGroupDetails['transaction'];
+        } elseif (is_array($carrierGroupDetails) && is_array($carrierGroupDetails[array_key_first($carrierGroupDetails)])) {
+            // We've got a merged / rate shopped rate
+            foreach ($carrierGroupDetails as $carrierGroupDetail) {
+                if (array_key_exists('transaction', $carrierGroupDetail)) {
+                    $transactionId = $carrierGroupDetail['transaction'];
+                    break;
+                }
+            }
+        }
 
         $request = $this->placeOrderRequestFactory->create([
             'orderNumber'  => $order->getIncrementId(),
             'totalCharges' => $rate->getPrice(),
             'carrierCode'  => $rate->getCarrier(),
             'methodCode'   => $rate->getMethod(),
-            'transId'      => $carrierGroupDetails['transaction']
+            'transId'      => $transactionId
         ]);
 
         $request->setCredentials($this->shipperMapper->getCredentials());

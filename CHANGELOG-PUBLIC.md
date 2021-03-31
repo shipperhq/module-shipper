@@ -552,3 +552,7 @@ RIV-443 Require updated library
 RIV-443 Fix issues with Postorder
 
 
+## 20.43.0 (2021-03-31)
+MNB-1186 Fix issue with obtaining transaction id on placeorder. MNB-1111 Add primary key to order items table. MNB-1102 Update address templates
+
+

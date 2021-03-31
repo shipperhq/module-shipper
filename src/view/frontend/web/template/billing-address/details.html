@@ -8,17 +8,15 @@
   ~ @author ShipperHQ Team sales@shipperhq.com
   -->
 
-<div class="billing-address-details" data-bind="if: isAddressDetailsVisible() && currentBillingAddress()">
-    <!-- ko text: currentBillingAddress().prefix --><!-- /ko --> <!-- ko text: currentBillingAddress().firstname -->
-    <!-- /ko -->
-    <!-- ko text: currentBillingAddress().lastname --><!-- /ko --> <!-- ko text: currentBillingAddress().suffix -->
-    <!-- /ko --><br/>
-    <!-- ko text: currentBillingAddress().street --><!-- /ko --><br/>
-    <!-- ko text: currentBillingAddress().city --><!-- /ko -->, <!-- ko text: currentBillingAddress().region -->
-    <!-- /ko --> <!-- ko text: currentBillingAddress().postcode --><!-- /ko --><br/>
-    <!-- ko text: getCountryName(currentBillingAddress().countryId) --><!-- /ko --><br/>
-    <!-- ko text: currentBillingAddress().telephone --><!-- /ko --><br/>
-    <!-- ko foreach: { data: currentBillingAddress().customAttributes, as: 'element' } -->
+<div if="isAddressDetailsVisible() && currentBillingAddress()" class="billing-address-details">
+    <text args="currentBillingAddress().prefix"/> <text args="currentBillingAddress().firstname"/> <text args="currentBillingAddress().middlename"/>
+    <text args="currentBillingAddress().lastname"/> <text args="currentBillingAddress().suffix"/><br/>
+    <text args="_.values(currentBillingAddress().street).join(', ')"/><br/>
+    <text args="currentBillingAddress().city "/>, <span text="currentBillingAddress().region"></span> <text args="currentBillingAddress().postcode"/><br/>
+    <text args="getCountryName(currentBillingAddress().countryId)"/><br/>
+    <a if="currentBillingAddress().telephone" attr="'href': 'tel:' + currentBillingAddress().telephone" text="currentBillingAddress().telephone"></a><br/>
+
+    <each args="data: currentBillingAddress().customAttributes, as: 'element'">
         <!-- ko if: element.attribute_code != 'destination_type' && element.attribute_code != 'validation_status' -->
             <!-- ko if: element.value != null -->
                 <!-- ko text: element.value --><!-- /ko --><br/>
@@ -27,10 +25,12 @@
                 <!-- ko text: element.attribute_code --><!-- /ko --><br/>
             <!-- /ko -->
         <!-- /ko -->
-    <!-- /ko -->
-    <button type="button"
+    </each>
+
+    <button visible="!isAddressSameAsShipping()"
+            type="button"
             class="action action-edit-address"
-            data-bind="visible: !isAddressSameAsShipping(), click: editAddress">
-        <span data-bind="i18n: 'Edit'"></span>
+            click="editAddress">
+        <span translate="'Edit'"></span>
     </button>
 </div>

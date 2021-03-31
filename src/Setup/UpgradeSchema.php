@@ -1035,6 +1035,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->dropForeignKeysMNB1060($installer);
         }
 
+        if (!$isFreshInstall && version_compare($context->getVersion(), '1.1.26', '<')) {
+            $this->addPrimaryKeyToOrderPackageItems($installer);
+        }
+
         $installer->endSetup();
     }
 
@@ -1293,6 +1297,25 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $setup->getTable('shipperhq_quote_item_detail'),
             $fkName
         );
+    }
+
+    // MNB-1111 Table was missing primary key. Need to add one to ensure performant
+    private function addPrimaryKeyToOrderPackageItems(SchemaSetupInterface $setup)
+    {
+        $table = $setup->getTable("shipperhq_order_package_items");
+        $setup->getConnection(self::$connectionName)
+            ->addColumn(
+                $table,
+                'id',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    'unsigned' => true,
+                    'nullable' => false,
+                    'auto_increment' => true,
+                    'primary' => true,
+                    'comment' => 'Primary Key'
+                ]
+            );
     }
 
     /**

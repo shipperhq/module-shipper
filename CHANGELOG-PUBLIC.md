@@ -556,3 +556,7 @@ RIV-443 Fix issues with Postorder
 MNB-1186 Fix issue with obtaining transaction id on placeorder. MNB-1111 Add primary key to order items table. MNB-1102 Update address templates
 
 
+## 20.43.1 (2021-04-22)
+MNB-1204 Fix issue around date select requesting rates for all carriers and errors showing when shouldnt
+
+

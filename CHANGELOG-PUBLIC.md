@@ -560,3 +560,7 @@ MNB-1186 Fix issue with obtaining transaction id on placeorder. MNB-1111 Add pri
 MNB-1204 Fix issue around date select requesting rates for all carriers and errors showing when shouldnt
 
 
+## 20.43.2 (2021-04-29)
+MNB-1260 Fix billing template to address MDVA-33289
+
+

@@ -42,6 +42,8 @@ namespace ShipperHQ\Shipper\Model\Carrier;
  * @package ShipperHQ_Shipper
  */
 
+use Magento\Framework\App\State;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Quote\Model\Quote\Address\RateResult\Error;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
@@ -50,6 +52,7 @@ use Magento\Shipping\Model\Carrier\CarrierInterface;
 use Magento\Shipping\Model\Rate\Result;
 use ShipperHQ\Shipper\Helper\Config;
 use ShipperHQ\WS\Client;
+use Magento\Framework\App\Area;
 
 class Shipper extends AbstractCarrier implements CarrierInterface
 {
@@ -165,6 +168,10 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      * @var \Magento\Checkout\Model\Session
      */
     private $checkoutSession;
+    /**
+     * @var State
+     */
+    private $appState;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
@@ -212,6 +219,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         \ShipperHQ\Lib\AllowedMethods\Helper $allowedMethodsHelper,
         \Magento\Checkout\Model\Session $checkoutSession,
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
+        State $appState,
         array $data = []
     ) {
 
@@ -234,6 +242,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         $this->allowedMethodsHelper = $allowedMethodsHelper;
         $this->checkoutSession = $checkoutSession;
         $this->packageHelper = $packageHelper;
+        $this->appState = $appState;
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
     }
 
@@ -382,8 +391,17 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         $resultSet = $this->carrierCache->getCachedQuotes($requestString, $this->getCarrierCode());
         $timeout = $this->restHelper->getWebserviceTimeout();
 
+        // MNB-1251 Need to know if we're in the admin panel. If we are, we don't want to show errors
+        $isAdminRequest = false;
+
+        try {
+            $isAdminRequest = $this->appState->getAreaCode() === Area::AREA_ADMINHTML;
+        } catch (LocalizedException $e) {
+            $this->shipperLogger->postCritical('Shipperhq_Shipper', 'Error Determining If In Admin', $e->getMessage());
+        }
+
         // MNB-726 Want to know if is request due to date select so can set error on rate if fails
-        $isDateSelect = $this->shipperRequest->getDeliveryDate() != null;
+        $isDateSelect = $this->shipperRequest->getDeliveryDate() != null && !$isAdminRequest;
 
         if (!$resultSet) {
             $initVal = microtime(true);

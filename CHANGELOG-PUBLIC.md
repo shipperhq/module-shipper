@@ -564,3 +564,7 @@ MNB-1204 Fix issue around date select requesting rates for all carriers and erro
 MNB-1260 Fix billing template to address MDVA-33289
 
 
+## 20.43.3 (2021-06-07)
+MNB-1251 Add check for if in admin panel
+
+

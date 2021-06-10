@@ -221,6 +221,13 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                                 $order->getStatus()
                             ));
                         }
+
+                        if ($carrier_group['carrierType'] == 'customerAccount') {
+                            $this->orderStatusHistoryRepository->save($order->addStatusHistoryComment(
+                                $this->shipperDataHelper->getCustomerCarrierBreakdownText($carrier_group),
+                                $order->getStatus()
+                            ));
+                        }
                     }
                 }
             } catch (\Exception $e) {

@@ -568,3 +568,7 @@ MNB-1260 Fix billing template to address MDVA-33289
 MNB-1251 Add check for if in admin panel
 
 
+## 20.44.0 (2021-06-10)
+MNB-1303 Add note to order containing customer account carrier details
+
+

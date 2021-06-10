@@ -441,6 +441,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $boxText;
     }
 
+    public function getCustomerCarrierBreakdownText($carrierGroup)
+    {
+        $carrierText  = $carrierGroup['name'] . '<br />';
+        $carrierText .= 'Customer Carrier: ' . $carrierGroup['customer_carrier'] . '<br />';
+        $carrierText .= 'Customer Carrier Phone: ' . $carrierGroup['customer_carrier_ph'] . '<br />';
+        $carrierText .= 'Customer Carrier Account Number: ' . $carrierGroup['customer_carrier_account'];
+
+        return $carrierText;
+    }
+
     public function getProductBreakdownText($box)
     {
         $productText = '';

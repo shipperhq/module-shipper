@@ -153,7 +153,7 @@ class PostOrder
 
         if (array_key_exists('transaction', $carrierGroupDetails)) {
             $transactionId = $carrierGroupDetails['transaction'];
-        } elseif (is_array($carrierGroupDetails) && is_array($carrierGroupDetails[array_key_first($carrierGroupDetails)])) {
+        } elseif (is_array($carrierGroupDetails) && array_key_first($carrierGroupDetails) && is_array($carrierGroupDetails[array_key_first($carrierGroupDetails)])) {
             // We've got a merged / rate shopped rate
             foreach ($carrierGroupDetails as $carrierGroupDetail) {
                 if (array_key_exists('transaction', $carrierGroupDetail)) {

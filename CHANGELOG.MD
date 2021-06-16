@@ -572,3 +572,7 @@ MNB-1251 Add check for if in admin panel
 MNB-1303 Add note to order containing customer account carrier details
 
 
+## 20.44.1 (2021-06-16)
+MNB-1337 Fix issue when switching from backup to live rates
+
+

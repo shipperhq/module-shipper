@@ -36,7 +36,10 @@
 namespace ShipperHQ\Shipper\Plugin\Shipping;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Shipping\Model\Rate\Result;
 use Magento\Store\Model\ScopeInterface;
+use ShipperHQ\Shipper\Helper\LogAssist;
+use ShipperHQ\Shipper\Model\Carrier\Processor\BackupCarrier;
 
 class ShippingPlugin
 {
@@ -46,12 +49,26 @@ class ShippingPlugin
     private $config;
 
     /**
+     * @var LogAssist
+     */
+    private $shipperLogger;
+
+    /**
+     * @var BackupCarrier
+     */
+    private $backupCarrier;
+
+    /**
      * ShippingPlugin constructor.
      * @param ScopeConfigInterface $config
+     * @param LogAssist $shipperLogger ;
+     * @param BackupCarrier $backupCarrier
      */
-    public function __construct(ScopeConfigInterface $config)
+    public function __construct(ScopeConfigInterface $config, LogAssist $shipperLogger, BackupCarrier $backupCarrier)
     {
         $this->config = $config;
+        $this->shipperLogger = $shipperLogger;
+        $this->backupCarrier = $backupCarrier;
     }
 
     /**
@@ -69,17 +86,74 @@ class ShippingPlugin
         \Closure $proceed,
         $carrierCode,
         \Magento\Quote\Model\Quote\Address\RateRequest $request
-    ) {
+    )
+    {
         $limitCarrier = $request->getLimitCarrier();
         $path = 'carriers/' . $carrierCode . '/model';
         $carrierModel = $this->config->getValue($path, ScopeInterface::SCOPE_STORES);
+
         if ($limitCarrier === null &&
             $carrierModel == 'ShipperHQ\Shipper\Model\Carrier\Shipper' &&
             $carrierCode !== 'shipper'
         ) {
             return $subject;
         }
+
+        if ($this->isUsingBackupRates($carrierCode, $limitCarrier)) {
+            $this->shipperLogger->postInfo(
+                'Shipperhq_Shipper',
+                'Checkout rated with backup carrier, continuing with backup rates',
+                'Attempting to use backup carrier: ' . $limitCarrier[0]
+            );
+            /** @var Result $backupRates */
+            $backupRates = $this->backupCarrier->getBackupCarrierRates(
+                $request,
+                $this->config->getValue('carriers/shipper/backup_carrier', ScopeInterface::SCOPE_STORES)
+            );
+            if ($backupRates) {
+                $subject->getResult()->append($backupRates);
+                return $subject;
+            } else {
+                $this->shipperLogger->postWarning(
+                    'Shipperhq_Shipper',
+                    'Failed to fetch backup rates',
+                    'Attempting to use backup carrier: ' . $limitCarrier[0]
+                );
+            }
+        }
         $result = $proceed($carrierCode, $request);
         return $result;
+    }
+
+    /**
+     * When fetching rates for the checkout page magento will not set the $limitCarrier.  However when proceeding to
+     * payment or place order it will limitCarrier to the carrier that the user selected.
+     *
+     * When initial rates were offered via backup carrier, then all other rate requests for that cart session should
+     * continue to use the backup carrier. This method offers a fairly accurate way to detect if backup rates are
+     * required.
+     *
+     * If SHQ is active, but the backup carrier is being used to get rates we can infer backup rates were triggered on
+     * the checkout.  Further if the backup carrier is inactive, that implies the carrier is not in normal use but is
+     * intended as a backup only carrier.
+     *
+     * @param string $carrierCode
+     * @param string|null $limitCarrier
+     * @return bool
+     */
+    private function isUsingBackupRates($carrierCode, $limitCarrier)
+    {
+        if (!$limitCarrier || !$limitCarrier === $carrierCode) {
+            return false;
+        }
+
+        $isSHQActive = $this->config->isSetFlag('carriers/shipper/active', ScopeInterface::SCOPE_STORES);
+        $backupCarrierValue = $this->config->getValue('carriers/shipper/backup_carrier', ScopeInterface::SCOPE_STORES);
+        $backupCarrierActive = $this->config->isSetFlag("carriers/$backupCarrierValue/active", ScopeInterface::SCOPE_STORES);
+
+        return $isSHQActive
+            && $backupCarrierValue
+            && $backupCarrierValue === $limitCarrier
+            && !$backupCarrierActive;
     }
 }

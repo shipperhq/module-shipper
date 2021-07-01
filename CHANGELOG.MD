@@ -576,3 +576,7 @@ MNB-1303 Add note to order containing customer account carrier details
 MNB-1337 Fix issue when switching from backup to live rates
 
 
+## 20.44.2 (2021-07-01)
+MNB-1385 Add check for zip required for destination
+
+

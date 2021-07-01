@@ -42,6 +42,7 @@ namespace ShipperHQ\Shipper\Model\Carrier;
  * @package ShipperHQ_Shipper
  */
 
+use Magento\Directory\Helper\Data\Proxy;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote\Address\RateRequest;
@@ -172,6 +173,10 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      * @var State
      */
     private $appState;
+    /**
+     * @var Proxy
+     */
+    private $directoryHelper;
 
     /**
      * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
@@ -220,6 +225,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         \Magento\Checkout\Model\Session $checkoutSession,
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
         State $appState,
+        Proxy $directoryHelper,
         array $data = []
     ) {
 
@@ -243,6 +249,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         $this->checkoutSession = $checkoutSession;
         $this->packageHelper = $packageHelper;
         $this->appState = $appState;
+        $this->directoryHelper = $directoryHelper;
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
     }
 
@@ -276,14 +283,29 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             return false;
         }
 
-        if ($request->getDestPostcode() === null && $this->getConfigFlag(self::IGNORE_EMPTY_ZIP)) {
+        /*
+         * MNB-1385 Changed to check if the country requires a zipcode.
+         * Also now checks if city is present for countries which do not require a zipcode
+         */
+        if (empty($request->getDestPostcode()) && $this->getConfigFlag(self::IGNORE_EMPTY_ZIP)
+            && !$this->directoryHelper->isZipCodeOptional($request->getDestCountryId())) {
             $this->shipperLogger->postDebug(
                 'Shipperhq_Shipper',
                 'Ignoring rate request',
-                'Configuration settings are to ignore requests as zipcode is empty'
+                'Configuration settings are to ignore requests as zipcode is empty and is required for country: ' . $request->getDestCountryId()
+            );
+            return false;
+        } else if (empty($request->getDestCity()) && $this->getConfigFlag(self::IGNORE_EMPTY_ZIP)
+            && $this->directoryHelper->isZipCodeOptional($request->getDestCountryId())) {
+
+            $this->shipperLogger->postDebug(
+                'Shipperhq_Shipper',
+                'Ignoring rate request',
+                'Configuration settings are to ignore requests as city is empty and is required for country: ' . $request->getDestCountryId()
             );
             return false;
         }
+
         $initVal = microtime(true);
 
         $this->setRequest($request);

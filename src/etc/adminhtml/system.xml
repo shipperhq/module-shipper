@@ -116,10 +116,11 @@
                 </field>
                 <field id="ignore_empty_zip" translate="label" type="select" sortOrder="325" showInDefault="1"
                        showInWebsite="1" showInStore="0">
-                    <label>Require Zipcode To Request Rates</label>
+                    <label>Require Meaningful Address To Request Rates</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <tooltip>
                         Only request shipping rates from ShipperHQ if a zipcode has been entered in the cart or checkout.
+                        If zipcodes are not used in the destination country, instead check that a city has been entered.
                         This helps to lower the number of API requests
                     </tooltip>
                 </field>

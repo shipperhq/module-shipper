@@ -102,8 +102,9 @@ class PostOrder
         if ($shippingAddress) {
             if ($rate = $shippingAddress->getShippingRateByCode($shippingAddress->getShippingMethod())) {
                 $initVal = microtime(true);
+                $request = $this->getPlaceorderRequest($order, $rate);
                 $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive(
-                    $this->getPlaceorderRequest($order, $rate),
+                    $request,
                     $this->restHelper->getPlaceorderGatewayUrl(),
                     $this->restHelper->getWebserviceTimeout()
                 );
@@ -116,9 +117,9 @@ class PostOrder
                     [
                             'result'      => $resultSet,
                             'orderNumber' => $orderNumber,
-                            'price'       => $rate->getPrice(),
-                            'method'      => $rate->getMethod(),
-                            'carrier'     => $rate->getCarrier(),
+                            'price'       => $request->totalCharges,
+                            'method'      => $request->methodCode,
+                            'carrier'     => $request->carrierCode,
                             'endPoint'    => $this->restHelper->getPlaceorderGatewayUrl(),
                             'timeout'     => $this->restHelper->getWebserviceTimeout(),
                             'Lapsed Time' => $elapsed
@@ -150,6 +151,7 @@ class PostOrder
     {
         $carrierGroupDetails = $this->shipperDataHelper->decodeShippingDetails($rate->getCarriergroupShippingDetails());
         $transactionId = "";
+        $methodCode = $rate->getMethod();
 
         if (array_key_exists('transaction', $carrierGroupDetails)) {
             $transactionId = $carrierGroupDetails['transaction'];
@@ -163,11 +165,18 @@ class PostOrder
             }
         }
 
+        $ignoreCarriers = ['shqshared', 'multicarrier'];
+
+        // MNB-1429 Ensure sending method code that's not been altered by Magento
+        if (!in_array($rate->getCarrier(), $ignoreCarriers) && array_key_exists('code', $carrierGroupDetails)) {
+            $methodCode = $carrierGroupDetails['code'];
+        }
+
         $request = $this->placeOrderRequestFactory->create([
             'orderNumber'  => $order->getIncrementId(),
             'totalCharges' => $rate->getPrice(),
             'carrierCode'  => $rate->getCarrier(),
-            'methodCode'   => $rate->getMethod(),
+            'methodCode'   => $methodCode,
             'transId'      => $transactionId
         ]);
 

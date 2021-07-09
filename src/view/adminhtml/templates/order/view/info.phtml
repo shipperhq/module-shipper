@@ -20,11 +20,18 @@ $viewModel = $block->getData('viewModel');
 <script>
     window.shqConfig = <?= /* @escapeNotVerified */ $viewModel->getSerializedConfig() ?>;
 </script>
-<?php echo $this->getChildHtml('order_shipping_view_orig') ?>
-<?php echo $this->getChildHtml('postorder_info') ?>
-<?php
-if ($viewModel->showListingButton()) {
-    echo $this->getChildHtml('shipperhq_shipper_listing_modal');
-}
-?>
-
+<div class="admin__page-section-item order-shipping-method">
+    <style>
+        .order-shipping-method > * {
+            width: 100%;
+        }
+    </style>
+    <?php echo $this->getChildHtml('order_shipping_view_orig') ?>
+    <?php echo $this->getChildHtml('postorder_info') ?>
+    <?php echo $this->getChildHtml('shipperhq_orderview_block'); ?>
+    <?php
+    if ($viewModel->showListingButton()) {
+        echo $this->getChildHtml('shipperhq_shipper_listing_modal');
+    }
+    ?>
+</div>

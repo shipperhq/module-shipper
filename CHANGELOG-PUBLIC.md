@@ -580,3 +580,7 @@ MNB-1337 Fix issue when switching from backup to live rates
 MNB-1385 Add check for zip required for destination
 
 
+## 20.44.3 (2021-07-09)
+MNB-1429 Ensure correct method code is passed to shipping insights
+
+

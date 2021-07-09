@@ -11,13 +11,13 @@ Description
 -----------
 ShipperHQ will install as a simple shipping carrier in Magento 2. To get started you'll need to sign up for a ShipperHQ account at [ShipperHQ](https://shipperhq.com/magento2).
 
-There's no cost for the extension and ShipperHQ is free for 30 days.
+There's no cost for the extension and ShipperHQ is free for 15 days.
 
 Once installed, you can configure with your ShipperHQ platform credentials to provide multiple carrier rates and manage complex shipping rules via our ShipperHQ dashboard.
 
 Compatibility
 -------------
-- Magento >= 2.2
+- Magento >= 2.3
 
 - Supports both Magento Opensource (Community) and Magento Commerce (Enterprise)
 
@@ -35,7 +35,26 @@ We recommend you also install our logging module
 2. composer update
 3. bin/magento setup:upgrade
 
-Further information is available from [ShipperHQ documentation](http://docs.shipperhq.com/installing-magento-2-shipperhq-extension/)
+Configure ShipperHQ for shipping rates on your Magento 2 Store
+-------------------------
+If you don't have a ShipperHQ account:
+
+1. Sign up for a free trial at www.shipperhq.com
+2. After you have signed up to ShipperHQ, follow the steps of the basic configuration wizard
+
+Connect your ShipperHQ account and get shipping rates:
+
+1. In your ShipperHQ account, navigate to > Websites > edit your existing site or Add a New one
+2. In the “eCommerce Configuration” panel, copy your API Key and Generate your Authentication Code
+3. In your Magento 2 admin, navigate to Stores > Configuration > Sales > Shipping Methods > ShipperHQ
+4. Enter the API Key and the Authentication Code you have copied from step 2
+5. Make sure to update the Enabled dropdown to “Yes”
+6. Save the store configuration settings
+7. You should see "1 carriers have been updated from ShipperHQ"
+
+Your ShipperHQ account is now connected to your Magento 2 store, and you will now be able to show ShipperHQ shipping rates in your cart and checkout. 
+
+To continue setting up your ShipperHQ account to match your shipping requirements, see [ShipperHQ documentation](http://docs.shipperhq.com/installing-magento-2-shipperhq-extension/)
 
 Support
 -------

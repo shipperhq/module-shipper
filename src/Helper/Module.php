@@ -69,7 +69,8 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
         'ShipperHQ' => 'ShipperHQ_Shipper',
         'Freight Options' => 'ShipperHQ_Option',
         'Date & Calendar' => 'ShipperHQ_Calendar',
-        'In-store Pickup' => 'ShipperHQ_Pickup'
+        'In-store Pickup' => 'ShipperHQ_Pickup',
+        'Shipping Insights' => 'ShipperHQ_Orderview'
     ];
 
     /**

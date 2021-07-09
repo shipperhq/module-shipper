@@ -137,11 +137,7 @@ class CarrierConfigHandler
             $this->cleanUpCarrierConfig();
         }
         foreach ($carrierConfig as $carrierCode => $config) {
-            $this->saveCarrierTitle($carrierCode, $config['title']);
-            $this->saveConfig('carriers/' . $carrierCode . '/active', 1);
-            if (array_key_exists('sortOrder', $config)) {
-                $this->saveConfig('carriers/' . $carrierCode . '/sort_order', $config['sortOrder']);
-            }
+            $this->dynamicCarrierConfig($carrierCode, $config['title'], $config['sortOrder']);
         }
     }
 

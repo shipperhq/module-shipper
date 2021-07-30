@@ -157,13 +157,14 @@ abstract class AbstractRecordOrder implements ObserverInterface
         $this->carrierGroupHelper->recordOrderItems($order);
         $this->packageHelper->saveOrderPackages($order, $shippingAddress);
 
-        // RIV-443 Save order details to OMS
-        if ($this->shipperDataHelper->getStoreQuoteOrder()) {
+        $shippingMethod = $order->getShippingMethod();
+        $shippingRate = $shippingAddress->getShippingRateByCode($shippingMethod);
+
+        // RIV-443 Save order details to OMS / MNB-1464 Ensure only saving for SHQ methods
+        if (strstr($shippingRate->getCarrier(), 'shq') && $this->shipperDataHelper->getStoreQuoteOrder()) {
             $this->postOrderHelper->handleOrder($order, $shippingAddress, $quoteId);
         }
 
-        $shippingMethod = $order->getShippingMethod();
-        $shippingRate = $shippingAddress->getShippingRateByCode($shippingMethod);
         if ($shippingRate) {
             list($carrierCode, $method) = explode('_', $shippingMethod, 2);
             $carrierType = $shippingRate->getCarrierType();

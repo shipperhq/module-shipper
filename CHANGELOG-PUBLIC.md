@@ -584,3 +584,7 @@ MNB-1385 Add check for zip required for destination
 MNB-1429 Ensure correct method code is passed to shipping insights
 
 
+## 20.45.0 (2021-07-30)
+MNB-1471 Add cache timeout. MNB-1465 Ensure order comment containing packing info is accurate. MNB-1464 Dont send details to Shipping Insights for non SHQ methods
+
+

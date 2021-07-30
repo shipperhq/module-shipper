@@ -57,6 +57,8 @@ class CarrierCache
      */
     private $serializer;
 
+    private $cacheTimeout;
+
     /**
      * @param CacheInterface $cache
      * @param ScopeConfigInterface $config
@@ -69,6 +71,10 @@ class CarrierCache
             ScopeInterface::SCOPE_STORE
         );
         $this->serializer = $serializer;
+        $this->cacheTimeout = $config->getValue(
+            'carriers/shipper/cache_timeout',
+            ScopeInterface::SCOPE_STORE
+        );
     }
 
     /**
@@ -125,7 +131,7 @@ class CarrierCache
     {
         if ($this->useCache && $this->responseCanBeCached($response)) {
             $key = $this->getQuotesCacheKey($requestParams, $carrierCode);
-            $this->cache->save($this->serialize($response), $key, [self::CACHE_TAG]);
+            $this->cache->save($this->serialize($response), $key, [self::CACHE_TAG], $this->cacheTimeout);
         }
         return $this;
     }

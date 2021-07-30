@@ -129,7 +129,12 @@
                     <label>Timeout (seconds)</label>
                     <tooltip>Set timeout period in seconds to wait for ShipperHQ to return rates before calling backup carrier</tooltip>
                 </field>
-                <field id="refresh_auth_key" translate="button_label" sortOrder="336" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="cache_timeout" translate="label" type="text" sortOrder="340" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Cache Lifetime (seconds)</label>
+                    <tooltip>Set cache time to live in seconds. Default is 300 seconds (5 minutes)</tooltip>
+                </field>
+                <field id="refresh_auth_key" translate="button_label" sortOrder="350" showInDefault="1" showInWebsite="0" showInStore="0">
                     <button_label>Refresh Authorization Token</button_label>
                     <frontend_model>ShipperHQ\Shipper\Block\Adminhtml\System\Config\RefreshAuthToken</frontend_model>
                 </field>

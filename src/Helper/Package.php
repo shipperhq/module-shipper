@@ -241,6 +241,8 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * Finds the packages/boxes saved in the session
      *
+     * MNB-1465 Switched order of if/else. Now will favour carrier_method code over just carrier
+     *
      * @param $sessionData
      * @param $shippingAddressId
      * @param $methodCode
@@ -255,10 +257,10 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
 
         if (!empty($sessionData) && array_key_exists($shippingAddressId, $sessionData)) {
             if (array_key_exists($carrierGroupId, $sessionData[$shippingAddressId])) {
-                if (array_key_exists($carrierCode, $sessionData[$shippingAddressId][$carrierGroupId])) {
-                    $packages = $sessionData[$shippingAddressId][$carrierGroupId][$carrierCode];
-                } elseif (array_key_exists($carrierCode . '_' . $methodCode, $sessionData[$shippingAddressId][$carrierGroupId])) {
+                if (array_key_exists($carrierCode . '_' . $methodCode, $sessionData[$shippingAddressId][$carrierGroupId])) {
                     $packages = $sessionData[$shippingAddressId][$carrierGroupId][$carrierCode . '_' . $methodCode];
+                } elseif (array_key_exists($carrierCode, $sessionData[$shippingAddressId][$carrierGroupId])) {
+                    $packages = $sessionData[$shippingAddressId][$carrierGroupId][$carrierCode];
                 }
             }
         }

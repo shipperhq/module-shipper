@@ -588,3 +588,7 @@ MNB-1429 Ensure correct method code is passed to shipping insights
 MNB-1471 Add cache timeout. MNB-1465 Ensure order comment containing packing info is accurate. MNB-1464 Dont send details to Shipping Insights for non SHQ methods
 
 
+## 20.45.1 (2021-08-04)
+MNB-1493 Move UK out of list of countries where postcode is optional
+
+

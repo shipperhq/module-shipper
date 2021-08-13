@@ -592,3 +592,7 @@ MNB-1471 Add cache timeout. MNB-1465 Ensure order comment containing packing inf
 MNB-1493 Move UK out of list of countries where postcode is optional
 
 
+## 20.45.2 (2021-08-13)
+MNB-1340 Fix for incorrect dispatch date showing in admin
+
+

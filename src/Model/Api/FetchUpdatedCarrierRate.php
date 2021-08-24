@@ -65,8 +65,7 @@ class FetchUpdatedCarrierRate implements FetchUpdatedCarrierRateInterface
         ProductRepository $productRepository,
         ItemFactory $quoteItemFactory,
         RateFactory $rateFactory
-    )
-    {
+    ) {
         $this->orderRepository = $orderRepository;
         $this->quoteRepository = $quoteRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;

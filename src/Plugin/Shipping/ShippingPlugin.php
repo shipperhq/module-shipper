@@ -86,8 +86,7 @@ class ShippingPlugin
         \Closure $proceed,
         $carrierCode,
         \Magento\Quote\Model\Quote\Address\RateRequest $request
-    )
-    {
+    ) {
         $limitCarrier = $request->getLimitCarrier();
         $path = 'carriers/' . $carrierCode . '/model';
         $carrierModel = $this->config->getValue($path, ScopeInterface::SCOPE_STORES);

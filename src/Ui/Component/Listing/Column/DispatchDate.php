@@ -151,7 +151,7 @@ class DispatchDate extends Column
     }
 
     /**
-     *  @inheritdoc
+     * @inheritdoc
      */
     public function prepareDataSource(array $dataSource)
     {

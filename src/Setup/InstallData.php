@@ -44,7 +44,6 @@ use Magento\Quote\Setup\QuoteSetupFactory;
 use Magento\Sales\Setup\SalesSetupFactory;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
 
-
 /**
  * @codeCoverageIgnore
  */
@@ -685,7 +684,7 @@ class InstallData implements InstallDataInterface
 
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
-            $migrated = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId,'migration-dimensional-shipping');
+            $migrated = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId, 'migration-dimensional-shipping');
             $existingDimAttributeIds = [];
 
             if ($migrated !== false) {
@@ -852,7 +851,7 @@ class InstallData implements InstallDataInterface
             $existingFreightAttributeIds = [];
 
             if ($migrated !== false) {
-                $existingFreightAttributeIds = $this->getNonShqAttributeIds($catalogSetup, 'migration-freight-shipping',$attributeSetId);
+                $existingFreightAttributeIds = $this->getNonShqAttributeIds($catalogSetup, 'migration-freight-shipping', $attributeSetId);
                 $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-freight-shipping');
             }
 

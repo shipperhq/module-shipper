@@ -69,7 +69,7 @@ class Credentials implements \Magento\Framework\Notification\MessageInterface
      */
     public function getIdentity()
     {
-        return hash('sha256','SHIPPERHQ_CREDENTIALS_INVALID');
+        return hash('sha256', 'SHIPPERHQ_CREDENTIALS_INVALID');
     }
 
     /**

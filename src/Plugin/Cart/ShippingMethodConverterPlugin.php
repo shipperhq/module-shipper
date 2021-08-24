@@ -64,7 +64,6 @@ class ShippingMethodConverterPlugin
         $result,
         \Magento\Quote\Model\Quote\Address\Rate $rateModel,
         $quoteCurrencyCode
-
     ) {
 
         $extensionAttributes = $result->getExtensionAttributes();

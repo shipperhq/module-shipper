@@ -43,8 +43,7 @@ class Integration
         IntegrationService $integrationService,
         OauthService $oauthService,
         AuthorizationService $authorizationService
-    )
-    {
+    ) {
         $this->integrationService = $integrationService;
         $this->oauthService = $oauthService;
         $this->authorizationService = $authorizationService;

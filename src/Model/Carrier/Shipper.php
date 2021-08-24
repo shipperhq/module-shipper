@@ -42,7 +42,7 @@ namespace ShipperHQ\Shipper\Model\Carrier;
  * @package ShipperHQ_Shipper
  */
 
-use Magento\Directory\Helper\Data\Proxy;
+use Magento\Directory\Helper\Data;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote\Address\RateRequest;
@@ -174,32 +174,36 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      */
     private $appState;
     /**
-     * @var Proxy
+     * @var Data
      */
     private $directoryHelper;
 
     /**
-     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
-     * @param \ShipperHQ\Shipper\Helper\Rest $restHelper
-     * @param \ShipperHQ\Shipper\Helper\CarrierCache $carrierCache
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
-     * @param \Psr\Log\LoggerInterface $logger
-     * @param Config $configHelper
-     * @param Processor\ShipperMapper $shipperMapper
-     * @param Processor\CarrierConfigHandler $carrierConfigHandler
-     * @param Processor\BackupCarrier $backupCarrier
-     * @param \Magento\Framework\Registry $registry
-     * @param Client\WebServiceClientFactory $shipperWSClientFactory
-     * @param \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory
-     * @param \Magento\Shipping\Model\Rate\ResultFactory $resultFactory
+     * @param \ShipperHQ\Shipper\Helper\Data                              $shipperDataHelper
+     * @param \ShipperHQ\Shipper\Helper\Rest                              $restHelper
+     * @param \ShipperHQ\Shipper\Helper\CarrierCache                      $carrierCache
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface          $scopeConfig
+     * @param \ShipperHQ\Shipper\Helper\LogAssist                         $shipperLogger
+     * @param \Psr\Log\LoggerInterface                                    $logger
+     * @param Config                                                      $configHelper
+     * @param Processor\ShipperMapper                                     $shipperMapper
+     * @param Processor\CarrierConfigHandler                              $carrierConfigHandler
+     * @param Processor\BackupCarrier                                     $backupCarrier
+     * @param \Magento\Framework\Registry                                 $registry
+     * @param Client\WebServiceClientFactory                              $shipperWSClientFactory
+     * @param \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory  $rateErrorFactory
+     * @param \Magento\Shipping\Model\Rate\ResultFactory                  $resultFactory
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
-     * @param \ShipperHQ\Lib\Rate\Helper $shipperWSRateHelper
-     * @param \ShipperHQ\Lib\Rate\ConfigSettingsFactory $configSettingsFactory
-     * @param \Magento\Framework\Event\ManagerInterface $eventManager
-     * @param \Magento\Checkout\Model\Session $checkoutSession
-     * @param \ShipperHQ\Shipper\Helper\Package $packageHelper
-     * @param array $data
+     * @param \ShipperHQ\Shipper\Helper\CarrierGroup                      $carrierGroupHelper
+     * @param \ShipperHQ\Lib\Rate\Helper                                  $shipperLibRateHelper
+     * @param \ShipperHQ\Lib\Rate\ConfigSettingsFactory                   $configSettingsFactory
+     * @param \Magento\Framework\Event\ManagerInterface                   $eventManager
+     * @param \ShipperHQ\Lib\AllowedMethods\Helper                        $allowedMethodsHelper
+     * @param \Magento\Checkout\Model\Session                             $checkoutSession
+     * @param \ShipperHQ\Shipper\Helper\Package                           $packageHelper
+     * @param State                                                       $appState
+     * @param Data                                                        $directoryHelper
+     * @param array                                                       $data
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
@@ -225,7 +229,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         \Magento\Checkout\Model\Session $checkoutSession,
         \ShipperHQ\Shipper\Helper\Package $packageHelper,
         State $appState,
-        Proxy $directoryHelper,
+        Data $directoryHelper,
         array $data = []
     ) {
 
@@ -295,7 +299,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                 'Configuration settings are to ignore requests as zipcode is empty and is required for country: ' . $request->getDestCountryId()
             );
             return false;
-        } else if (empty($request->getDestCity()) && $this->getConfigFlag(self::IGNORE_EMPTY_ZIP)
+        } elseif (empty($request->getDestCity()) && $this->getConfigFlag(self::IGNORE_EMPTY_ZIP)
             && $this->directoryHelper->isZipCodeOptional($request->getDestCountryId())) {
 
             $this->shipperLogger->postDebug(
@@ -446,8 +450,11 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             }
             $this->carrierCache->setCachedQuotes($requestString, $resultSet, $this->getCarrierCode());
         } else {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper',
-                'Found Cached Rates in Magento Cache For This Cart', 'Not Requesting Rates From ShipperHQ');
+            $this->shipperLogger->postInfo(
+                'Shipperhq_Shipper',
+                'Found Cached Rates in Magento Cache For This Cart',
+                'Not Requesting Rates From ShipperHQ'
+            );
         }
 
         $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Rate request and result', $resultSet['debug']);
@@ -482,7 +489,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
         //first check and save globals for display purposes
         $globals = [];
-        if(is_array($shipperResponse) && array_key_exists('globalSettings', $shipperResponse)) {
+        if (is_array($shipperResponse) && array_key_exists('globalSettings', $shipperResponse)) {
             $globals = $this->shipperRateHelper->extractGlobalSettings($shipperResponse);
             $globals['transaction'] = $transactionId;
             $this->shipperDataHelper->setGlobalSettings($globals);
@@ -940,15 +947,18 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
     private function object_to_array($obj)
     {
-        if(is_object($obj)) $obj = (array) $obj;
+        if (is_object($obj)) {
+            $obj = (array) $obj;
+        }
 
-        if(is_array($obj)) {
-            $new = array();
-            foreach($obj as $key => $val) {
+        if (is_array($obj)) {
+            $new = [];
+            foreach ($obj as $key => $val) {
                 $new[$key] = $this->object_to_array($val);
             }
+        } else {
+            $new = $obj;
         }
-        else $new = $obj;
         return $new;
     }
 

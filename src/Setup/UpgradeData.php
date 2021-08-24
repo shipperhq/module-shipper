@@ -672,7 +672,7 @@ class UpgradeData implements UpgradeDataInterface
             $existingFreightAttributeIds = [];
 
             if ($migrated !== false) {
-                $existingFreightAttributeIds = $this->getNonShqAttributeIds($catalogSetup, 'migration-freight-shipping',$attributeSetId);
+                $existingFreightAttributeIds = $this->getNonShqAttributeIds($catalogSetup, 'migration-freight-shipping', $attributeSetId);
                 $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-freight-shipping');
             }
 

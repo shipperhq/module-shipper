@@ -134,8 +134,7 @@ class ListingMapper
 
             $listingInfo = new ListingInfo($carrier, $sender, $recipient, $listingArray, $siteDetails);
 
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->shipperLogger->postCritical('ShipperHQ Shipper', 'Listing issue', $e->getMessage());
         }
 
@@ -162,7 +161,7 @@ class ListingMapper
 
         $items = (array)$order->getAllItems(); // Coerce into being an array
 
-        if(count($withItems)) {
+        if (count($withItems)) {
 
             // TODO: Refactor to extract
             $withItems = array_reduce($withItems, function ($carry, $item) {
@@ -275,7 +274,7 @@ class ListingMapper
 
         list($carrierCode, $method) = explode('_', $shippingMethod, 2);
 
-        $carrier = new Carrier($carrierType,$carrierCode);
+        $carrier = new Carrier($carrierType, $carrierCode);
         return $carrier;
     }
 
@@ -292,7 +291,7 @@ class ListingMapper
         $siteDetails = new RMSSiteDetails(
             $this->scopeConfig->getValue('carriers/shipper/extension_version', 'store', $storeId),
             'Magento 2 ' . $edition,
-            $this->scopeConfig->getValue('carriers/shipper/magento_version', 'store', $storeId ),
+            $this->scopeConfig->getValue('carriers/shipper/magento_version', 'store', $storeId),
             $url,
             '' //TODO efficient way to get the IP address, old way was through getting the quote object. There has to be a less expensive way
         );
@@ -321,5 +320,4 @@ class ListingMapper
         $storeUrlHash =  hash('sha256', $storeUrl);
         return "$storeUrlHash-$incrementId";
     }
-
 }

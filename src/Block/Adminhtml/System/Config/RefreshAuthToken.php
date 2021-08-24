@@ -9,6 +9,7 @@
  * @author ShipperHQ Team sales@shipperhq.com
  */
 namespace ShipperHQ\Shipper\Block\Adminhtml\System\Config;
+
 /**
  * Refresh authorisation button renderer
  */

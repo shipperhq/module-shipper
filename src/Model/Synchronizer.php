@@ -293,7 +293,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
 
     /**
      * Validates the attribute response is valid and contains data TODO: log store name as this is now potenitally per store
-     * 
+     *
      * @param $response
      *
      * @return bool

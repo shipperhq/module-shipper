@@ -158,15 +158,14 @@ class Config extends AbstractConfig implements ConfigInterface
      * @param null $scope
      * @param null $scopeId
      */
-    public
-    function writeToConfig($path, $value, $scope = null, $scopeId = null)
+    public function writeToConfig($path, $value, $scope = null, $scopeId = null)
     {
         $currentValue = $this->getConfigValue(...array_filter([$path, $scope, $scopeId]));
         if ($value === $currentValue) {
             return;
         }
 
-        $args = array_filter([$path, $value, $scope, $scopeId], function($e) {
+        $args = array_filter([$path, $value, $scope, $scopeId], function ($e) {
             return !is_null($e);
         });
         $this->configWriter->save(...$args);
@@ -181,8 +180,7 @@ class Config extends AbstractConfig implements ConfigInterface
      * @param null $scope
      * @param null $scopeId
      */
-    public
-    function deleteFromConfig($path, $scope = null, $scopeId = null)
+    public function deleteFromConfig($path, $scope = null, $scopeId = null)
     {
         //        $currentValue = $this->getConfigValue(...array_filter([$path, $scope, $scopeId]));
         //        if ($value === $currentValue) {
@@ -192,7 +190,7 @@ class Config extends AbstractConfig implements ConfigInterface
 
         $args = array_filter([$path, $scope, $scopeId]);
         $this->configWriter->delete(...$args);
-        array_splice($args, 1, 0, array(null)); // Insert a null Value field at position 1, move the other elements down
+        array_splice($args, 1, 0, [null]); // Insert a null Value field at position 1, move the other elements down
         $this->localConfig->setValue(...$args); // Be setting to null we indicate value should be fetched again
         $this->scheduleConfigCacheClean();
     }
@@ -204,8 +202,7 @@ class Config extends AbstractConfig implements ConfigInterface
      * @param null $scopeCode
      * @return mixed
      */
-    public
-    function getConfigValue($path, $scopeType = null, $scopeCode = null)
+    public function getConfigValue($path, $scopeType = null, $scopeCode = null)
     {
         $args = array_filter([$path, $scopeType, $scopeCode]); // drop any null arguments
 
@@ -215,8 +212,7 @@ class Config extends AbstractConfig implements ConfigInterface
     /**
      * Try to use sparingly. Will flush the cache immediately if there are uncommitted changes.
      */
-    public
-    function runScheduledCleaningNow()
+    public function runScheduledCleaningNow()
     {
         $this->cleanConfigCacheIfScheduled();
     }
@@ -224,8 +220,7 @@ class Config extends AbstractConfig implements ConfigInterface
     /**
      * @return Config
      */
-    private
-    function scheduleConfigCacheClean(): Config
+    private function scheduleConfigCacheClean(): Config
     {
         $this->isConfigCacheCleanScheduled = true;
         return $this;
@@ -235,8 +230,7 @@ class Config extends AbstractConfig implements ConfigInterface
      * Cleans the config if a change has been made since the last read
      * @return Config
      */
-    private
-    function cleanConfigCacheIfScheduled(): Config
+    private function cleanConfigCacheIfScheduled(): Config
     {
         if ($this->isConfigCacheCleanScheduled) {
             $this->localConfig->clean();

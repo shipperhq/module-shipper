@@ -89,8 +89,7 @@ class Listing implements ArgumentInterface
         CarrierGroup $carrierGroupHelper,
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
         QuoteRepository $quoteRepository
-    )
-    {
+    ) {
         $this->imageHelper = $imageHelper;
         $this->productRepository = $productRepository;
         $this->coreRegistry = $coreRegistry;
@@ -150,8 +149,7 @@ class Listing implements ArgumentInterface
         foreach ($orderDetailArray as $orderDetail) {
             $cgArray = $this->shipperDataHelper->decodeShippingDetails($orderDetail->getCarrierGroupDetail());
             foreach ($cgArray as $key => $cgDetail) {
-                if (
-                    (isset($cgDetail['listing_created']) && $cgDetail['listing_created'] === ListingService::LISTING_CREATED)
+                if ((isset($cgDetail['listing_created']) && $cgDetail['listing_created'] === ListingService::LISTING_CREATED)
                     || isset($cgDetail['listing_id'])
                 ) {
                     return true;

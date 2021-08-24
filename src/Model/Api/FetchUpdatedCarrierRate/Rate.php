@@ -178,6 +178,4 @@ class Rate implements RateInterface
         $this->nypAmount = $nypAmount;
         return $this;
     }
-
-
 }

@@ -146,11 +146,13 @@ class CarrierCache
         $this->cache->clean([self::CACHE_TAG]);
     }
 
-    public function serialize($variable) {
+    public function serialize($variable)
+    {
         return $this->serializer->serialize($variable);
     }
 
-    public function unserialize($variable) {
+    public function unserialize($variable)
+    {
         return $this->serializer->unserialize($variable);
     }
 }

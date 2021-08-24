@@ -75,8 +75,7 @@ class CreateListing implements CreateListingInterface
         ShippingConfig $shippingConfig,
         ProductRepository $productRepository,
         ItemFactory $quoteItemFactory
-    )
-    {
+    ) {
         $this->listingService = $listingService;
         $this->orderRepository = $orderRepository;
         $this->quoteRepository = $quoteRepository;

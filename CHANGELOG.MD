@@ -596,3 +596,11 @@ MNB-1493 Move UK out of list of countries where postcode is optional
 MNB-1340 Fix for incorrect dispatch date showing in admin
 
 
+## 20.45.3 (2021-08-24)
+MNB-1576 Magento coding standards
+
+
+## 20.45.3 (2021-08-24)
+MNB-1576 Magento coding standards
+
+

@@ -101,8 +101,7 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
         Serializer $serializer,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
-    )
-    {
+    ) {
         $this->shipperLogger = $shipperLogger;
         $this->listingMapper = $listingMapper;
         $this->graphqlHelper = $graphqlHelper;
@@ -274,5 +273,4 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
 
         return $success;
     }
-
 }

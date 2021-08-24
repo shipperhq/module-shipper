@@ -27,8 +27,8 @@ class Item implements ItemInterface
     /**
      * Item constructor.
      */
-    public function __construct() {
-
+    public function __construct()
+    {
     }
 
     /**
@@ -62,5 +62,4 @@ class Item implements ItemInterface
     {
         $this->qty = $qty;
     }
-
 }

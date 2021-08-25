@@ -1002,9 +1002,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
                 $connection->addIndex(
                     $orderDetailGridTable,
-                    $installer->getIdxName('shipperhq_order_detail_grid', ['order_id']),
+                    $installer->getIdxName('shipperhq_order_detail_grid', ['order_id'], AdapterInterface::INDEX_TYPE_UNIQUE),
                     ['order_id'],
-                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                    AdapterInterface::INDEX_TYPE_UNIQUE
                 );
 
                 $connection->dropIndex(

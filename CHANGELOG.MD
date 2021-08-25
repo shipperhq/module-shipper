@@ -604,3 +604,11 @@ MNB-1576 Magento coding standards
 MNB-1576 Magento coding standards
 
 
+## 20.45.4 (2021-08-25)
+MNB-1575 Fix compilation error
+
+
+## 20.45.4 (2021-08-25)
+MNB-1575 Fix compilation error
+
+

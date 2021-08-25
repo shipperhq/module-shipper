@@ -85,11 +85,6 @@
                 sortOrder="10"
                 disabled="false"/>
     </type>
-    <type name="Magento\Directory\Helper\Data">
-        <arguments>
-            <argument name="directoryHelper" xsi:type="object">Magento\Directory\Helper\Proxy</argument>
-        </arguments>
-    </type>
     <!--
     /**
      * SHQ16-2375 specify connection name of sales to support split database, otherwise uses default

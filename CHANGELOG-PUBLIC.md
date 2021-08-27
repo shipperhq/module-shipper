@@ -612,3 +612,7 @@ MNB-1575 Fix compilation error
 MNB-1575 Fix compilation error
 
 
+## 20.45.5 (2021-08-27)
+MNB-1592 move logic to prevent exception when order has no shipping rate
+
+

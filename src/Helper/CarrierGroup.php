@@ -485,7 +485,7 @@ class CarrierGroup extends Data
                     }
                 }
                 if (array_key_exists('freightQuoteId', $cgrp) && $cgrp['freightQuoteId'] != '') {
-                    $carriergroupText .= ' Quote Id: ' . $cgrp['freightQuoteId'];
+                    $carriergroupText .= '<br /> Quote ID: ' . $cgrp['freightQuoteId'];
                 }
                 if (array_key_exists('listing_created', $cgrp) && $cgrp['listing_created'] != '') {
                     if ($cgrp['listing_created'] === ListingService::LISTING_CREATED && array_key_exists('listing_id', $cgrp) && $cgrp['listing_id'] != '') {

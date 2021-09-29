@@ -616,3 +616,7 @@ MNB-1575 Fix compilation error
 MNB-1592 move logic to prevent exception when order has no shipping rate
 
 
+## 20.45.6 (2021-09-29)
+MNB-1597 Fix issue with pickup carrier logo failing to render
+
+

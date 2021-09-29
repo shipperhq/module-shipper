@@ -127,7 +127,7 @@ define(
                             } else {
                                 logo = logosBasePath + '/smpkg.png';
                                 if (/pickup/i.test(method.carrier_code)) {
-                                    logo = logoBasePath + '/pickup.png';
+                                    logo = logosBasePath + '/pickup.png';
                                 } else if (/freight/i.test(method.carrier_code)) {
                                     logo = logosBasePath + '/freight.png';
                                 }

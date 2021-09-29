@@ -246,7 +246,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                 $result = $allAttributesResponse->attributeTypes;
             }
         }
-        
+
         return $result;
     }
 
@@ -301,7 +301,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     private function validateAllAtrributesResponse($response)
     {
         $validResponse = false;
-        
+
         $this->shipperLogger->postDebug(
             'Shipperhq_Shipper',
             'Latest attributes response',
@@ -343,10 +343,10 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         } else {
             $validResponse = true;
         }
-        
+
         return $validResponse;
     }
-    
+
     private function send($url, $request = null)
     {
         $timeout = $this->restHelper->getWebserviceTimeout();
@@ -397,7 +397,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                             if ($option->getLabel() == $latestValue->name) {
                                 $found = true;
                                 unset($trackValues[$key]);
-                                continue;
+                                break;
                             }
                         }
                         if (!$found) {
@@ -683,7 +683,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
             $moduleAlert = implode(', ', $missingModules);
             $this->shipperLogger->postWarning(
                 'ShipperHQ Shipper',
-                'IMPORTANT! You may be missing modules from your ShipperHQ installation. 
+                'IMPORTANT! You may be missing modules from your ShipperHQ installation.
                 This could cause missing features or unexpected behaviour. Modules missing could include: ',
                 $missingModules
             );

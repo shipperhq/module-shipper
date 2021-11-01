@@ -987,6 +987,12 @@ class UpgradeSchema implements UpgradeSchemaInterface
             if (!$isFreshInstall && version_compare($context->getVersion(), '1.1.22') < 0) {
                 $connection = $installer->getConnection(self::$connectionName);
 
+                $connection->addIndex(
+                    $orderDetailGridTable,
+                    'SHIPPERHQ_TEMP_PATCH_INDEX',
+                    ['order_id']
+                );
+
                 $connection->dropIndex($orderDetailGridTable, $installer->getIdxName(
                     'shipperhq_order_detail_grid',
                     ['order_id']
@@ -996,9 +1002,14 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
                 $connection->addIndex(
                     $orderDetailGridTable,
-                    $installer->getIdxName('shipperhq_order_detail_grid', ['order_id']),
+                    $installer->getIdxName('shipperhq_order_detail_grid', ['order_id'], AdapterInterface::INDEX_TYPE_UNIQUE),
                     ['order_id'],
-                    \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+                    AdapterInterface::INDEX_TYPE_UNIQUE
+                );
+
+                $connection->dropIndex(
+                    $orderDetailGridTable,
+                    'SHIPPERHQ_TEMP_PATCH_INDEX'
                 );
             }
         }

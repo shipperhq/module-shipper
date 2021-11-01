@@ -620,3 +620,7 @@ MNB-1592 move logic to prevent exception when order has no shipping rate
 MNB-1597 Fix issue with pickup carrier logo failing to render
 
 
+## 20.45.7 (2021-11-01)
+MNB-1836 Fix issue in upgrade script around foreign key requires index
+
+

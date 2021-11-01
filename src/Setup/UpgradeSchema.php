@@ -987,6 +987,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             if (!$isFreshInstall && version_compare($context->getVersion(), '1.1.22') < 0) {
                 $connection = $installer->getConnection(self::$connectionName);
 
+                // MNB-1836 Need to create a temp index because order_id is referenced in a FK so requires an index
                 $connection->addIndex(
                     $orderDetailGridTable,
                     'SHIPPERHQ_TEMP_PATCH_INDEX',

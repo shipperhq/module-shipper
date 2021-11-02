@@ -624,3 +624,11 @@ MNB-1597 Fix issue with pickup carrier logo failing to render
 MNB-1836 Fix issue in upgrade script around foreign key requires index
 
 
+## 20.45.8 (2021-11-02)
+MNB-1797 Fix unit tests to work with Magento 2.3+
+
+
+## 20.45.8 (2021-11-02)
+MNB-1797 Fix unit tests to work with Magento 2.3+
+
+

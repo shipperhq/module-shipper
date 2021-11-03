@@ -632,3 +632,7 @@ MNB-1797 Fix unit tests to work with Magento 2.3+
 MNB-1797 Fix unit tests to work with Magento 2.3+
 
 
+## 20.45.9 (2021-11-03)
+MNB-1583 Update admin sales order item view to not use a plugin to add columns
+
+

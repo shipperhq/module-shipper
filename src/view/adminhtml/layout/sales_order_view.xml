@@ -9,7 +9,8 @@
   ~ @author ShipperHQ Team sales@shipperhq.com
   -->
 
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
         <css src="ShipperHQ_Shipper::css/shipperhq-admin.css"/>
     </head>
@@ -18,8 +19,10 @@
             <action method="setTemplate">
                 <argument name="template" xsi:type="string">ShipperHQ_Shipper::order/view/info.phtml</argument>
             </action>
-            <block class="ShipperHQ\Shipper\Block\Adminhtml\Order\View\Info" name="postorder_info" template="ShipperHQ_Shipper::order/view/shq_info.phtml"/>
-            <block class="Magento\Sales\Block\Adminhtml\Order\AbstractOrder" name="order_shipping_view_orig" template="Magento_Shipping::order/view/info.phtml"/>
+            <block class="ShipperHQ\Shipper\Block\Adminhtml\Order\View\Info" name="postorder_info"
+                   template="ShipperHQ_Shipper::order/view/shq_info.phtml"/>
+            <block class="Magento\Sales\Block\Adminhtml\Order\AbstractOrder" name="order_shipping_view_orig"
+                   template="Magento_Shipping::order/view/info.phtml"/>
             <arguments>
                 <argument name="viewModel" xsi:type="object">ShipperHQ\Shipper\ViewModel\Listing</argument>
             </arguments>
@@ -32,18 +35,20 @@
                     <item name="carriergroup_shipping" xsi:type="string" translate="true">Shipping Method</item>
                 </argument>
             </arguments>
-            <block class="ShipperHQ\Shipper\Block\Adminhtml\Order\View\Items\Column" name="column_carriergroup" template="ShipperHQ_Shipper::order/view/carriergroup.phtml" group="column"/>
-            <block class="ShipperHQ\Shipper\Block\Adminhtml\Order\View\Items\Column" name="column_carriergroup_shipping" template="ShipperHQ_Shipper::order/view/carriergroup_shipping.phtml" group="column"/>
-            <!-- using plugin instead due to following issue -->
-            <!--https://github.com/magento/magento2/issues/3724 -->
-            <!--<referenceBlock name="default">-->
-            <!--<arguments>-->
-            <!--<argument name="columns" xsi:type="array">-->
-            <!--<item name="carriergroup" xsi:type="string" translate="false">col-carriergroup</item>-->
-            <!--<item name="carriergroup_shipping" xsi:type="string" translate="false">col-carriergroup_shipping</item>-->
-            <!--</argument>-->
-            <!--</arguments>-->
-            <!--</referenceBlock>-->
+            <block class="ShipperHQ\Shipper\Block\Adminhtml\Order\View\Items\Column" name="column_carriergroup"
+                   template="ShipperHQ_Shipper::order/view/carriergroup.phtml" group="column"/>
+            <block class="ShipperHQ\Shipper\Block\Adminhtml\Order\View\Items\Column" name="column_carriergroup_shipping"
+                   template="ShipperHQ_Shipper::order/view/carriergroup_shipping.phtml" group="column"/>
+            <referenceBlock name="default_order_items_renderer">
+                <arguments>
+                    <argument name="columns" xsi:type="array">
+                        <item name="carriergroup" xsi:type="string" translate="false">col-carriergroup</item>
+                        <item name="carriergroup_shipping" xsi:type="string" translate="false">
+                            col-carriergroup_shipping
+                        </item>
+                    </argument>
+                </arguments>
+            </referenceBlock>
         </referenceBlock>
     </body>
 </page>

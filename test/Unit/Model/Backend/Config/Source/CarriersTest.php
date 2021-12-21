@@ -1,99 +1,72 @@
 <?php
-/**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
+
+/*
+ * Shipper HQ
+ *
+ * @category ShipperHQ
+ * @package ShipperHQ_Shipper
+ * @copyright Copyright (c) 2020 Zowta LTD and Zowta LLC (http://www.ShipperHQ.com)
+ * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @author ShipperHQ Team sales@shipperhq.com
  */
+
+declare(strict_types=1);
+
 namespace ShipperHQ\Shipper\Test\Unit\Model\Backend\Config\Source;
-use Magento\Framework\TestFramework\Unit\Helper\ObjectManager as ObjectManagerHelper;
 
-class CarriersTest extends \PHPUnit_Framework_TestCase
+use Fooman\PhpunitBridge\BaseUnitTestCase;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
+use Magento\Shipping\Model\Config;
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
+class CarriersTest extends BaseUnitTestCase
 {
+
+    protected $scopeConfig;
+
+    protected $shippingConfig;
+
+    protected $carriersMock;
+
+    protected $storeManager;
+
     /**
-     * @var \ShipperHQ\Shipper\Model\Backend\Config\Source\EnvironmentScope
+     * @inheritdoc
      */
-    protected $model;
-
-    /** @var ObjectManagerHelper */
-    protected $objectManagerHelper;
-
-//    protected function setUp()
-//    {
-//        $this->objectManagerHelper = new ObjectManagerHelper($this);
-//        $carrier = $this->getMock(
-//            'Magento\OfflineShipping\Model\Carrier\Freeshipping',
-//            ['isTrackingAvailable', 'getConfigData'],
-//            [],
-//            '',
-//            false
-//        );
-//        $carrier->expects(
-//            $this->once()
-//        )->method(
-//                'getConfigData'
-//            )->with(
-//                'title'
-//            )->will(
-//                $this->returnValue('configdata')
-//            );
-//
-//
-//        $config = $this->getMock('Magento\Shipping\Model\Config', ['getAllCarriers'], [], '', false);
-//        $config->expects(
-//            $this->once()
-//        )->method(
-//                'getAllCarriers'
-//            )->will(
-//                $this->returnValue(['free' => $carrier])
-//            );
-//
-//        $this->model = $this->objectManagerHelper->getObject('ShipperHQ\Shipper\Model\Backend\Config\Source\Carriers',
-//            ['shippingConfig' =>$config]);
-//    }
-
-
+    protected function setUp(): void
+    {
+        $this->scopeConfig = $this->getMockForAbstractClass(ScopeConfigInterface::class);
+        $this->shippingConfig = $this->createMock(Config::class);
+        $this->storeManager = $this->getMockForAbstractClass(StoreManagerInterface::class);
+    }
 
     public function testToOptionArray()
     {
-        $helper = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
+        $store = $this->getMockBuilder(StoreInterface::class)
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
 
-        $carrier = $this->getMock(
-            'Magento\OfflineShipping\Model\Carrier\Freeshipping',
-            ['isTrackingAvailable', 'getConfigData'],
-            [],
-            '',
-            false
-        );
+        $this->storeManager->method('getStore')
+            ->with()
+            ->willReturn($store);
 
-        $config = $this->getMock('Magento\Shipping\Model\Config', ['getAllCarriers'], [], '', false);
-        $config->expects(
-            $this->once()
-        )->method(
-            'getAllCarriers'
-        )->with(
-            null
-        )->will(
-            $this->returnValue(['free' => $carrier])
-        );
+        $expectedArray = ['shipper' => ""];
 
-        $shipHelper = $this->getMock('\ShipperHQ\Shipper\Helper\Data', ['getConfigValue'], [], '', false);
-        $shipHelper->expects(
-            $this->atLeastOnce()
-        )->method(
-                'getConfigValue'
-            )->will(
-                $this->returnValue('configValue')
-            );
+        $this->shippingConfig->expects($this->once())
+            ->method('getAllCarriers')
+            ->willReturn($expectedArray);
 
+        $helper = new ObjectManager($this);
 
-
-        /** @var 'ShipperHQ\Shipper\Model\Backend\Config\Source\Carriers' $model */
+        /** @var \ShipperHQ\Shipper\Model\Backend\Config\Source\Carriers $model */
         $model = $helper->getObject(
             'ShipperHQ\Shipper\Model\Backend\Config\Source\Carriers',
-            ['shippingConfig' =>$config, 'shipperDataHelper' => $shipHelper]
+            ['storeManager' => $this->storeManager, 'config' => $this->scopeConfig, 'shippingConfig' => $this->shippingConfig]
         );
         $response = [];
-        $response[] =  ['value' => false, 'label' => 'No Carrier'];
-        $response[] =  ['value' => 'free', 'label' => 'configValue'];
+        $response[] = ['value' => false, 'label' => 'No Carrier'];
 
         $this->assertEquals($response, $model->toOptionArray());
     }

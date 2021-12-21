@@ -640,3 +640,7 @@ MNB-1583 Update admin sales order item view to not use a plugin to add columns
 RIV-530 submit address with placeOrder
 
 
+## 20.45.11 (2021-12-21)
+RIV-530 Update composer to use new library
+
+

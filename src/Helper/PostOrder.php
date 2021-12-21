@@ -38,6 +38,7 @@ namespace ShipperHQ\Shipper\Helper;
 use ShipperHQ\Shipper\Model\Carrier\Processor\ShipperMapper;
 use ShipperHQ\WS\Client\WebServiceClientFactory;
 use ShipperHQ\WS\PostOrder\Placeorder\Request\PlaceOrderRequestFactory;
+use ShipperHQ\WS\Shared\BasicAddressFactory;
 
 /**
  * PostOrder Helper
@@ -65,6 +66,11 @@ class PostOrder
     private $shipperDataHelper;
 
     /**
+     * @var WS\Shared\BasicAddressFactory
+     */
+    private $basicAddressFactory;
+
+    /**
      * PostOrder constructor.
      *
      * @param LogAssist                $shipperLogger
@@ -73,6 +79,7 @@ class PostOrder
      * @param PlaceOrderRequestFactory $placeOrderRequestFactory
      * @param ShipperMapper            $shipperMapper
      * @param Data                     $shipperDataHelper
+     * @param BasicAddressFactory      $basicAddressFactory
      */
     public function __construct(
         LogAssist $shipperLogger,
@@ -80,7 +87,8 @@ class PostOrder
         Rest $restHelper,
         PlaceOrderRequestFactory $placeOrderRequestFactory,
         ShipperMapper $shipperMapper,
-        Data $shipperDataHelper
+        Data $shipperDataHelper,
+        BasicAddressFactory $basicAddressFactory
     ) {
         $this->shipperLogger = $shipperLogger;
         $this->shipperWSClientFactory = $shipperWSClientFactory;
@@ -88,6 +96,7 @@ class PostOrder
         $this->shipperMapper = $shipperMapper;
         $this->placeOrderRequestFactory = $placeOrderRequestFactory;
         $this->shipperDataHelper = $shipperDataHelper;
+        $this->basicAddressFactory = $basicAddressFactory;
     }
 
     /**
@@ -176,12 +185,44 @@ class PostOrder
             'orderNumber'  => $order->getIncrementId(),
             'totalCharges' => $rate->getPrice(),
             'carrierCode'  => $rate->getCarrier(),
-            'methodCode'   => $methodCode,
-            'transId'      => $transactionId
+            'methodCode'   => $rate->getMethod(),
+            'transId'      => $transactionId,
+            'recipient'    => $this->getRecipient($order->getShippingAddress())
         ]);
 
         $request->setCredentials($this->shipperMapper->getCredentials());
 
         return $request;
     }
+
+    /**
+     * Get values for recipient
+     *
+     * @param $request
+     * @return array
+     */
+    private function getRecipient($shippingAddress)
+    {
+
+        $region = $shippingAddress->getRegionCode();
+
+        if ($region === null) {
+            $region = "";
+        }
+
+        $street = $shippingAddress->getStreetLine(1);
+        $street2 = $shippingAddress->getStreetLine(2);
+        $recipient = $this->basicAddressFactory->create([
+            'city' => $shippingAddress->getCity() === null ? '' : $shippingAddress->getCity(),
+            'country' => $shippingAddress->getCountryId() === null ? '' : $shippingAddress->getCountryId(),
+            'region' => $region,
+            'street' => $street === null || !is_string($street) ? '' : str_replace("\n", ' ', $street),
+            'street2' => $street2 == null || !is_string($street2) ? '' : str_replace("\n", ' ', $street2),
+            'zipcode' => $shippingAddress->getPostcode() === null ? '' : $shippingAddress->getPostcode()
+        ]);
+
+
+        return $recipient;
+    }
+
 }

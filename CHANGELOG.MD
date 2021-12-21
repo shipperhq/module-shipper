@@ -636,3 +636,7 @@ MNB-1797 Fix unit tests to work with Magento 2.3+
 MNB-1583 Update admin sales order item view to not use a plugin to add columns
 
 
+## 20.45.10 (2021-12-21)
+RIV-530 submit address with placeOrder
+
+

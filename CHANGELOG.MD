@@ -644,3 +644,7 @@ RIV-530 submit address with placeOrder
 RIV-530 Update composer to use new library
 
 
+## 20.46.0 (2022-01-13)
+MNB-2023 Remove support for custom options in rate request
+
+

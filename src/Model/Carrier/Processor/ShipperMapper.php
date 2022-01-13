@@ -369,16 +369,11 @@ class ShipperMapper
                 $magentoItem->getProductType() :
                 $magentoItem->getProduct()->getTypeId();
             $stdAttributes = array_merge($this->getDimensionalAttributes($magentoItem), self::$stdAttributeNames);
-            $options = $this->populateCustomOptions($magentoItem);
             $weight = $this->getAdjustedItemWeight($magentoItem);
             $warehouseDetails = $this->getWarehouseDetails($magentoItem);
             $pickupLocationDetails = $this->getPickupLocationDetails($magentoItem);
             $itemAttributes = '';
-            if ($options) {
-                $itemAttributes = array_merge($this->populateAttributes($stdAttributes, $magentoItem), $options);
-            } else {
-                $itemAttributes = $this->populateAttributes($stdAttributes, $magentoItem);
-            }
+            $itemAttributes = $this->populateAttributes($stdAttributes, $magentoItem);
 
             if ($this->taxHelper->discountTax() && $magentoItem->getTaxPercent() > 0) {
                 $discountAmount = round($magentoItem->getDiscountAmount() / ($magentoItem->getTaxPercent()/100+1), 2);
@@ -467,31 +462,6 @@ class ShipperMapper
             $attributes = [self::$alt_length, self::$alt_height, self::$alt_width];
         }
         return $attributes;
-    }
-
-    /**
-     * Reads attributes from the item
-     *
-     * @param $reqdAttributeNames
-     * @param $item
-     * @return array
-     */
-    public function populateCustomOptions($item)
-    {
-        $option_values = [];
-        $options = $this->productConfiguration->getCustomOptions($item);
-        $value = '';
-        foreach ($options as $customOption) {
-            $value .= strip_tags(html_entity_decode($customOption['value'])); //SHQ16-2435
-        }
-        if ($value != '') {
-            $option_values[] = [
-                'name' => 'shipperhq_custom_options',
-                'value' => $value
-            ];
-            return $option_values;
-        }
-        return false;
     }
 
     /*

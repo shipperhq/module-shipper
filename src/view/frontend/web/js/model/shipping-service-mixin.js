@@ -167,15 +167,22 @@ define(
         var initialLoad = true;
 
         return function (target) {
+
             var setShippingRates = target.setShippingRates;
             target.setShippingRates = wrapper.wrap(setShippingRates, function (fn, ratesData) {
                 fn(ratesData); // Call original method
 
-                // M2.2 has split shipping methods into their own module. Wait for up to 2.5s for it to load
+                // M2.2+ has split shipping methods into their own module. Wait for up to 2.5s for it to load
                 appendSHQDataWhenLoaded(10, 250, 0);
 
-                // SHQ18-860 clear selected shipping method on reload
-                if (initialLoad) {
+                /*
+                SHQ18-860 clear selected shipping method on reload
+                MNB-1467 Added check we're on shipping step. Refreshing page on payment step caused loss of shipping method
+                This could interfere with custom checkouts / modified checkouts using non standard steps!
+                 */
+                var shippingHashes = ["#shipping", "#", ""]
+
+                if (initialLoad && shippingHashes.includes(window.location.hash)) {
                     // SHQ18-1143 - In M2.1 if there's only one method it's hardcoded to be checked
                     selectShippingMethodAction(
                         ratesData.length == 1

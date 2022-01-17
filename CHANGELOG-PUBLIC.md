@@ -648,3 +648,7 @@ RIV-530 Update composer to use new library
 MNB-2023 Remove support for custom options in rate request
 
 
+## 20.46.1 (2022-01-17)
+MNB-1467 Fix for shipping showing as not yet calculated on payment step
+
+

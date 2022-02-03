@@ -40,11 +40,6 @@ use Magento\Bundle\Model\Product\Price as Price;
 use ShipperHQ\WS;
 use ShipperHQ\WS\Rate\Request;
 
-/**
- * Class ShipperMapper
- * @package ShipperHQ\Shipper\Model\Carrier\Processor
- * @SuppressWarnings(PHPMD.UnusedPrivateField)
- */
 class ShipperMapper
 {
     private static $ecommerceType = 'magento';

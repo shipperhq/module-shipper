@@ -58,7 +58,6 @@ class Hidable extends AbstractModifier
      */
     protected $productAttributeGroupRepository;
 
-
     /**
      * Attribute codes that need to have logic added to make them hidable
      * @var array $hidableAttrs
@@ -69,7 +68,6 @@ class Hidable extends AbstractModifier
         'ship_box_tolerance',
         'ship_separately'
     ];
-
 
     /**
      * Hidable's constructor.

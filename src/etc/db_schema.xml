@@ -1,0 +1,339 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="shipperhq_synchronize" resource="default" engine="innodb" comment="ShipperHQ Synchronize data table">
+        <column xsi:type="int" name="synch_id" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="Synch ID"/>
+        <column xsi:type="text" name="attribute_code" nullable="false" comment="Attribute code"/>
+        <column xsi:type="text" name="attribute_type" nullable="false" comment="Type of synch data"/>
+        <column xsi:type="text" name="value" nullable="true" comment="Synchronize data value"/>
+        <column xsi:type="text" name="status" nullable="false" comment="Synch status"/>
+        <column xsi:type="datetime" name="date_added" on_update="false" nullable="false"
+                comment="Synch entry date stamp"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="synch_id"/>
+        </constraint>
+        <index referenceId="SHIPPERHQ_SYNCHRONIZE_SYNCH_ID" indexType="btree">
+            <column name="synch_id"/>
+        </index>
+    </table>
+    <table name="shipperhq_quote_address_detail" resource="default" engine="innodb"
+           comment="ShipperHQ Quote Carrier Group Information">
+        <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>
+        <column xsi:type="int" name="quote_address_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="address id"/>
+        <column xsi:type="text" name="carrier_group_id" nullable="false" comment="carrier group id"/>
+        <column xsi:type="text" name="carrier_type" nullable="true" comment="Carrier Type"/>
+        <column xsi:type="text" name="carrier_id" nullable="true" comment="Carrier ID"/>
+        <column xsi:type="text" name="carrier_group" nullable="true" comment="Carrier Group"/>
+        <column xsi:type="text" name="carrier_group_detail" nullable="true" comment="Carrier Group Detail"/>
+        <column xsi:type="text" name="carrier_group_html" nullable="true"
+                comment="Carrier Group Information Formatted"/>
+        <column xsi:type="date" name="dispatch_date" comment="Dispatch Date"/>
+        <column xsi:type="date" name="delivery_date" comment="Delivery Date"/>
+        <column xsi:type="text" name="time_slot" nullable="true" comment="Time Slot"/>
+        <column xsi:type="text" name="pickup_location" nullable="true" comment="Pickup Location"/>
+        <column xsi:type="text" name="pickup_location_id" nullable="true" comment="Pickup Location ID"/>
+        <column xsi:type="text" name="pickup_latitude" nullable="true" comment="Pickup Latitude"/>
+        <column xsi:type="text" name="pickup_longitude" nullable="true" comment="Pickup Longitude"/>
+        <column xsi:type="text" name="pickup_email" nullable="true" comment="Pickup Email"/>
+        <column xsi:type="text" name="pickup_contact" nullable="true" comment="Pickup Contact Name"/>
+        <column xsi:type="text" name="pickup_email_option" nullable="true" comment="Pickup Email Option"/>
+        <column xsi:type="text" name="is_checkout" nullable="true" comment="Checkout flag"/>
+        <column xsi:type="text" name="delivery_comments" nullable="true" comment="Delivery Comments"/>
+        <column xsi:type="text" name="destination_type" nullable="true" comment="Destination Type"/>
+        <column xsi:type="text" name="liftgate_required" nullable="true" comment="Liftgate Required"/>
+        <column xsi:type="text" name="notify_required" nullable="true" comment="Notify Required"/>
+        <column xsi:type="text" name="inside_delivery" nullable="true" comment="Inside Delivery"/>
+        <column xsi:type="text" name="freight_quote_id" nullable="true" comment="Freight Quote ID"/>
+        <column xsi:type="text" name="customer_carrier" nullable="true" comment="Customer Carrier"/>
+        <column xsi:type="text" name="customer_carrier_account" nullable="true"
+                comment="Customer Carrier Account Number"/>
+        <column xsi:type="text" name="customer_carrier_ph" nullable="true" comment="Customer Carrier Phone Number"/>
+        <column xsi:type="text" name="address_valid" nullable="true" comment="Address Valid Status"/>
+        <column xsi:type="varchar" name="limited_delivery" nullable="true" length="10" comment="Limited Delivery"/>
+        <column xsi:type="varchar" name="validated_shipping_street" nullable="true" length="255"
+                comment="Validated Shipping Street"/>
+        <column xsi:type="varchar" name="validated_shipping_street2" nullable="true" length="255"
+                comment="Validated Shipping Street 2"/>
+        <column xsi:type="varchar" name="validated_shipping_city" nullable="true" length="40"
+                comment="Validated Shipping City"/>
+        <column xsi:type="varchar" name="validated_shipping_postcode" nullable="true" length="20"
+                comment="Validated Shipping Postcode"/>
+        <column xsi:type="varchar" name="validated_shipping_region" nullable="true" length="40"
+                comment="Validated Shipping Region"/>
+        <column xsi:type="varchar" name="validated_shipping_country" nullable="true" length="30"
+                comment="Validated Shipping Country"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="SHIPPERHQ_QUOTE_ADDR_DETAIL_QUOTE_ADDR_ID_QUOTE_ADDR_ADDR_ID"
+                    table="shipperhq_quote_address_detail" column="quote_address_id" referenceTable="quote_address"
+                    referenceColumn="address_id" onDelete="CASCADE"/>
+        <index referenceId="SHIPPERHQ_QUOTE_ADDRESS_DETAIL_QUOTE_ADDRESS_ID" indexType="btree">
+            <column name="quote_address_id"/>
+        </index>
+    </table>
+    <table name="shipperhq_order_detail" resource="default" engine="innodb"
+           comment="ShipperHQ Order Carrier Group Information">
+        <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>
+        <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Order ID"/>
+        <column xsi:type="text" name="carrier_group_id" nullable="false" comment="carrier group id"/>
+        <column xsi:type="text" name="carrier_type" nullable="true" comment="Carrier Type"/>
+        <column xsi:type="text" name="carrier_id" nullable="true" comment="Carrier ID"/>
+        <column xsi:type="text" name="carrier_group" nullable="true" comment="Carrier Group"/>
+        <column xsi:type="text" name="carrier_group_detail" nullable="true" comment="Carrier Group Detail"/>
+        <column xsi:type="text" name="carrier_group_html" nullable="true"
+                comment="Carrier Group Information Formatted"/>
+        <column xsi:type="date" name="dispatch_date" comment="Dispatch Date"/>
+        <column xsi:type="date" name="delivery_date" comment="Delivery Date"/>
+        <column xsi:type="text" name="time_slot" nullable="true" comment="Time Slot"/>
+        <column xsi:type="text" name="pickup_location" nullable="true" comment="Pickup Location"/>
+        <column xsi:type="text" name="pickup_location_id" nullable="true" comment="Pickup Location ID"/>
+        <column xsi:type="text" name="pickup_latitude" nullable="true" comment="Pickup Latitude"/>
+        <column xsi:type="text" name="pickup_longitude" nullable="true" comment="Pickup Longitude"/>
+        <column xsi:type="text" name="pickup_email" nullable="true" comment="Pickup Email"/>
+        <column xsi:type="text" name="pickup_contact" nullable="true" comment="Pickup Contact Name"/>
+        <column xsi:type="text" name="pickup_email_option" nullable="true" comment="Pickup Email Option"/>
+        <column xsi:type="text" name="delivery_comments" nullable="true" comment="Delivery Comments"/>
+        <column xsi:type="text" name="destination_type" nullable="true" comment="Destination Type"/>
+        <column xsi:type="text" name="liftgate_required" nullable="true" comment="Liftgate Required"/>
+        <column xsi:type="text" name="notify_required" nullable="true" comment="Notify Required"/>
+        <column xsi:type="text" name="inside_delivery" nullable="true" comment="Inside Delivery"/>
+        <column xsi:type="text" name="freight_quote_id" nullable="true" comment="Freight Quote ID"/>
+        <column xsi:type="text" name="customer_carrier" nullable="true" comment="Customer Carrier"/>
+        <column xsi:type="text" name="customer_carrier_account" nullable="true"
+                comment="Customer Carrier Account Number"/>
+        <column xsi:type="text" name="customer_carrier_ph" nullable="true" comment="Customer Carrier Phone Number"/>
+        <column xsi:type="text" name="address_valid" nullable="true" comment="Address Valid Status"/>
+        <column xsi:type="varchar" name="limited_delivery" nullable="true" length="10" comment="Limited Delivery"/>
+        <column xsi:type="varchar" name="validated_shipping_street" nullable="true" length="255"
+                comment="Validated Shipping Street"/>
+        <column xsi:type="varchar" name="validated_shipping_street2" nullable="true" length="255"
+                comment="Validated Shipping Street 2"/>
+        <column xsi:type="varchar" name="validated_shipping_city" nullable="true" length="40"
+                comment="Validated Shipping City"/>
+        <column xsi:type="varchar" name="validated_shipping_postcode" nullable="true" length="20"
+                comment="Validated Shipping Postcode"/>
+        <column xsi:type="varchar" name="validated_shipping_region" nullable="true" length="40"
+                comment="Validated Shipping Region"/>
+        <column xsi:type="varchar" name="validated_shipping_country" nullable="true" length="30"
+                comment="Validated Shipping Country"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="SHIPPERHQ_ORDER_DETAIL_ORDER_ID_SALES_ORDER_ENTITY_ID"
+                    table="shipperhq_order_detail" column="order_id" referenceTable="sales_order"
+                    referenceColumn="entity_id" onDelete="CASCADE"/>
+        <index referenceId="SHIPPERHQ_ORDER_DETAIL_ORDER_ID" indexType="btree">
+            <column name="order_id"/>
+        </index>
+    </table>
+    <table name="shipperhq_quote_item_detail" resource="default" engine="innodb"
+           comment="ShipperHQ Quote Item Carrier Group Information">
+        <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>
+        <column xsi:type="int" name="quote_item_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Quote Item ID"/>
+        <column xsi:type="text" name="carrier_group_id" nullable="false" comment="carrier group id"/>
+        <column xsi:type="text" name="carrier_group" nullable="true" comment="Carrier Group"/>
+        <column xsi:type="text" name="carrier_group_shipping" nullable="true" comment="Shipping Details"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <index referenceId="SHIPPERHQ_QUOTE_ITEM_DETAIL_QUOTE_ITEM_ID" indexType="btree">
+            <column name="quote_item_id"/>
+        </index>
+    </table>
+    <table name="shipperhq_quote_address_item_detail" resource="default" engine="innodb"
+           comment="ShipperHQ Quote Address Item Carrier Group Information">
+        <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>
+        <column xsi:type="int" name="quote_address_item_id" padding="10" unsigned="true" nullable="false"
+                identity="false" comment="Quote Address Item ID"/>
+        <column xsi:type="text" name="carrier_group_id" nullable="false" comment="carrier group id"/>
+        <column xsi:type="text" name="carrier_group" nullable="true" comment="Carrier Group"/>
+        <column xsi:type="text" name="carrier_group_shipping" nullable="true" comment="Shipping Details"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="FK_E1301E0064CFC579A2F23E1A9AA3DECC"
+                    table="shipperhq_quote_address_item_detail" column="quote_address_item_id"
+                    referenceTable="quote_address_item" referenceColumn="address_item_id" onDelete="CASCADE"/>
+        <index referenceId="SHIPPERHQ_QUOTE_ADDRESS_ITEM_DETAIL_QUOTE_ADDRESS_ITEM_ID" indexType="btree">
+            <column name="quote_address_item_id"/>
+        </index>
+    </table>
+    <table name="shipperhq_order_item_detail" resource="default" engine="innodb"
+           comment="ShipperHQ Order Item Carrier Group Information">
+        <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>
+        <column xsi:type="int" name="order_item_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Order Item ID"/>
+        <column xsi:type="text" name="carrier_group_id" nullable="false" comment="carrier group id"/>
+        <column xsi:type="text" name="carrier_group" nullable="true" comment="Carrier Group"/>
+        <column xsi:type="text" name="carrier_group_shipping" nullable="true" comment="Shipping Details"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="FK_D59BEBD7DC112893EB24E3B0167EF56D"
+                    table="shipperhq_order_item_detail" column="order_item_id" referenceTable="sales_order_item"
+                    referenceColumn="item_id" onDelete="CASCADE"/>
+        <index referenceId="SHIPPERHQ_ORDER_ITEM_DETAIL_ORDER_ITEM_ID" indexType="btree">
+            <column name="order_item_id"/>
+        </index>
+    </table>
+    <table name="shipperhq_order_packages" resource="default" engine="innodb"
+           comment="ShipperHQ Quote Address Package Information">
+        <column xsi:type="int" name="package_id" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="Package_id"/>
+        <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Order ID"/>
+        <column xsi:type="text" name="carrier_group_id" nullable="false" comment="Carrier Group ID"/>
+        <column xsi:type="text" name="carrier_code" nullable="false" comment="Carrier Code"/>
+        <column xsi:type="text" name="package_name" nullable="false" comment="Package Name"/>
+        <column xsi:type="float" name="length" scale="0" precision="10" unsigned="false" nullable="true"
+                comment="Package length"/>
+        <column xsi:type="float" name="width" scale="0" precision="10" unsigned="false" nullable="true"
+                comment="Package width"/>
+        <column xsi:type="float" name="height" scale="0" precision="10" unsigned="false" nullable="true"
+                comment="Package height"/>
+        <column xsi:type="float" name="weight" scale="0" precision="10" unsigned="false" nullable="true"
+                comment="Package weight"/>
+        <column xsi:type="float" name="declared_value" scale="0" precision="10" unsigned="false" nullable="true"
+                comment="Package declared value"/>
+        <column xsi:type="float" name="surcharge_price" scale="0" precision="10" unsigned="false" nullable="true"
+                comment="Surcharge price"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="package_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="SHIPPERHQ_ORDER_PACKAGES_ORDER_ID_SALES_ORDER_ENTITY_ID"
+                    table="shipperhq_order_packages" column="order_id" referenceTable="sales_order"
+                    referenceColumn="entity_id" onDelete="CASCADE"/>
+        <index referenceId="SHIPPERHQ_ORDER_PACKAGES_ORDER_ID" indexType="btree">
+            <column name="order_id"/>
+        </index>
+    </table>
+    <table name="shipperhq_order_package_items" resource="default" engine="innodb"
+           comment="ShipperHQ Quote Address Package Items Information">
+        <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>
+        <column xsi:type="int" name="package_id" padding="10" unsigned="true" nullable="false" identity="false"
+                default="0" comment="Package_id"/>
+        <column xsi:type="text" name="sku" nullable="false" comment="SKU"/>
+        <column xsi:type="float" name="qty_packed" scale="0" precision="10" unsigned="false" nullable="true"
+                comment="Qty packed"/>
+        <column xsi:type="float" name="weight_packed" scale="0" precision="10" unsigned="false" nullable="true"
+                comment="Weight packed"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="FK_90229CAB8ACAE06D7B0DE067E949286D"
+                    table="shipperhq_order_package_items" column="package_id" referenceTable="shipperhq_order_packages"
+                    referenceColumn="package_id" onDelete="CASCADE"/>
+        <index referenceId="SHIPPERHQ_ORDER_PACKAGE_ITEMS_PACKAGE_ID" indexType="btree">
+            <column name="package_id"/>
+        </index>
+    </table>
+    <table name="shipperhq_order_detail_grid" resource="default" engine="innodb"
+           comment="ShipperHQ Order Grid Information">
+        <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>
+        <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Order ID"/>
+        <column xsi:type="varchar" name="carrier_group" nullable="true" length="255" comment="Carrier Group(s)"/>
+        <column xsi:type="date" name="dispatch_date" comment="Dispatch Date"/>
+        <column xsi:type="date" name="delivery_date" comment="Delivery Date"/>
+        <column xsi:type="text" name="time_slot" nullable="true" comment="Time Slot"/>
+        <column xsi:type="text" name="pickup_location" nullable="true" comment="Pickup Location"/>
+        <column xsi:type="text" name="delivery_comments" nullable="true" comment="Delivery Comments"/>
+        <column xsi:type="text" name="destination_type" nullable="true" comment="Destination Type"/>
+        <column xsi:type="text" name="liftgate_required" nullable="true" comment="Liftgate Required"/>
+        <column xsi:type="text" name="notify_required" nullable="true" comment="Notify Required"/>
+        <column xsi:type="text" name="inside_delivery" nullable="true" comment="Inside Delivery"/>
+        <column xsi:type="text" name="address_valid" nullable="true" comment="Address Valid Status"/>
+        <column xsi:type="varchar" name="carrier_type" nullable="true" length="255" comment="Carrier Type"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="SHIPPERHQ_ORDER_DETAIL_GRID_ORDER_ID_SALES_ORDER_ENTITY_ID"
+                    table="shipperhq_order_detail_grid" column="order_id" referenceTable="sales_order"
+                    referenceColumn="entity_id" onDelete="CASCADE"/>
+        <constraint xsi:type="unique" referenceId="SHIPPERHQ_ORDER_DETAIL_GRID_ORDER_ID">
+            <column name="order_id"/>
+        </constraint>
+        <index referenceId="SHIPPERHQ_ORDER_DETAIL_GRID_CARRIER_GROUP" indexType="btree">
+            <column name="carrier_group"/>
+        </index>
+    </table>
+
+    <table name="quote_address" resource="default">
+        <!-- ShipperHQ Address Validation Attributes Start. v1.0.5 -->
+        <column xsi:type="text" name="destination_type" nullable="true" comment="ShipperHQ Address Type"/>
+        <column xsi:type="text" name="validation_status" nullable="true" comment="ShipperHQ Address Validation Status"/>
+        <!-- ShipperHQ Address Validation Attributes End. -->
+        <!-- ShipperHQ Core Entity Attributes Start. v1.0.0 -->
+        <column xsi:type="text" name="carrier_type" nullable="true" comment="ShipperHQ Carrier Type"/>
+        <column xsi:type="text" name="carrier_id" nullable="true" comment="ShipperHQ Carrier ID"/>
+        <column xsi:type="text" name="carriergroup_shipping_details" nullable="true" comment="ShipperHQ Carrier Group Details"/>
+        <column xsi:type="smallint" name="is_checkout" default="0" nullable="false" comment="ShipperHQ Checkout Flag"/>
+        <column xsi:type="smallint" name="split_rates" default="0" nullable="false" comment="ShipperHQ Split Rates Flag"/>
+        <column xsi:type="smallint" name="checkout_display_merged" default="1" nullable="false" comment="ShipperHQ Checkout Display Type"/>
+        <column xsi:type="text" name="carriergroup_shipping_html" nullable="true" comment="ShipperHQ Carrier Group HTML"/>
+        <!-- ShipperHQ Core Entity Attributes End. -->
+
+
+    </table>
+
+    <table name="quote_address_rate" resource="default">
+        <!-- ShipperHQ Delivery Date Attributes Start. v1.0.7 -->
+        <column xsi:type="date" name="shq_dispatch_date" nullable="true" comment="ShipperHQ Dispatch Date"/>
+        <column xsi:type="date" name="shq_delivery_date" nullable="true" comment="ShipperHQ Delivery Date"/>
+        <!-- ShipperHQ Delivery Date Attributes End -->
+        <!-- ShipperHQ Core Entity Attributes Start. v1.0.0 -->
+        <column xsi:type="text" name="carrier_type" nullable="true" comment="ShipperHQ Carrier Type"/>
+        <column xsi:type="text" name="carrier_id" nullable="true" comment="ShipperHQ Carrier ID"/>
+        <column xsi:type="text" name="carriergroup_id" nullable="true" comment="ShipperHQ Carrier Group ID"/>
+        <column xsi:type="text" name="carriergroup" nullable="true" comment="ShipperHQ Carrier Group"/>
+        <column xsi:type="text" name="carriergroup_shipping_details" nullable="true" comment="ShipperHQ Carrier Group Details"/>
+        <!-- ShipperHQ Core Entity Attributes End. -->
+
+    </table>
+
+    <table name="quote_address_item" resource="default">
+        <!-- ShipperHQ Core Entity Attributes Start. v1.0.0 -->
+        <column xsi:type="text" name="carriergroup_id" nullable="true" comment="ShipperHQ Carrier Group ID"/>
+        <column xsi:type="text" name="carriergroup" nullable="true" comment="ShipperHQ Carrier Group"/>
+        <column xsi:type="text" name="carriergroup_shipping" nullable="true" comment="ShipperHQ Shipping Description"/>
+        <!-- ShipperHQ Core Entity Attributes End. -->
+
+    </table>
+
+    <table name="quote_item" resource="default">
+        <!-- ShipperHQ Core Entity Attributes Start. v1.0.0 -->
+        <column xsi:type="text" name="carriergroup_id" nullable="true" comment="ShipperHQ Carrier Group ID"/>
+        <column xsi:type="text" name="carriergroup" nullable="true" comment="ShipperHQ Carrier Group"/>
+        <column xsi:type="text" name="carriergroup_shipping" nullable="true" comment="ShipperHQ Shipping Description"/>
+        <!-- ShipperHQ Core Entity Attributes End. -->
+
+    </table>
+
+    <table name="sales_order" resource="default">
+        <!-- ShipperHQ Address Validation Attributes Start. v1.0.5 -->
+        <column xsi:type="text" name="destination_type" nullable="true" comment="ShipperHQ Address Type"/>
+        <column xsi:type="text" name="validation_status" nullable="true" comment="ShipperHQ Address Validation Status"/>
+        <!-- ShipperHQ Address Validation Attributes End. -->
+        <!-- ShipperHQ Core Entity Attributes Start. v1.0.0 -->
+        <column xsi:type="text" name="carrier_type" nullable="true" comment="ShipperHQ Carrier Type"/>
+        <column xsi:type="text" name="carrier_id" nullable="true" comment="ShipperHQ Carrier ID"/>
+        <column xsi:type="text" name="carriergroup_shipping_details" nullable="true" comment="ShipperHQ Carrier Group Details"/>
+        <column xsi:type="text" name="carriergroup_shipping_html" nullable="true" comment="ShipperHQ Carrier Group HTML"/>
+        <!-- ShipperHQ Core Entity Attributes End. -->
+    </table>
+
+    <table name="sales_order_item" resource="default">
+        <!-- ShipperHQ Core Entity Attributes Start. v1.0.0 -->
+        <column xsi:type="text" name="carriergroup_id" nullable="true" comment="ShipperHQ Carrier Group ID"/>
+        <column xsi:type="text" name="carriergroup" nullable="true" comment="ShipperHQ Carrier Group ID"/>
+        <column xsi:type="text" name="carriergroup_shipping" nullable="true" comment="ShipperHQ Shipping Description"/>
+        <!-- ShipperHQ Core Entity Attributes End. -->
+
+    </table>
+
+</schema>

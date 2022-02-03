@@ -48,6 +48,7 @@ use Magento\Quote\Model\Quote\Address\RateResult\Error;
 use Magento\Shipping\Model\Carrier\AbstractCarrier;
 use Magento\Shipping\Model\Carrier\CarrierInterface;
 use Magento\Shipping\Model\Rate\Result;
+use ShipperHQ\Shipper\Service\Backend\GetAdminShipData;
 
 class Shipperadmin extends AbstractCarrier implements CarrierInterface
 {
@@ -68,9 +69,9 @@ class Shipperadmin extends AbstractCarrier implements CarrierInterface
      */
     private $shipperLogger;
     /**
-     * @var \Magento\Framework\Registry
+     * @var GetAdminShipData
      */
-    private $registry;
+    private $getAdminShipData;
     /**
      * @var JsonHelper
      */
@@ -79,7 +80,7 @@ class Shipperadmin extends AbstractCarrier implements CarrierInterface
     /**
      * @param JsonHelper $jsonHelper
      * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
-     * @param \Magento\Framework\Registry $registry
+     * @param GetAdminShipData $getAdminShipData
      * @param \Magento\Shipping\Model\Rate\ResultFactory $resultFactory
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
@@ -90,7 +91,7 @@ class Shipperadmin extends AbstractCarrier implements CarrierInterface
     public function __construct(
         JsonHelper $jsonHelper,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Magento\Framework\Registry $registry,
+        GetAdminShipData $getAdminShipData,
         \Magento\Shipping\Model\Rate\ResultFactory $resultFactory,
         \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -100,7 +101,7 @@ class Shipperadmin extends AbstractCarrier implements CarrierInterface
     ) {
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
         $this->shipperLogger = $shipperLogger;
-        $this->registry = $registry;
+        $this->getAdminShipData = $getAdminShipData;
         $this->rateFactory = $resultFactory;
         $this->rateMethodFactory = $rateMethodFactory;
         $this->jsonHelper = $jsonHelper;
@@ -117,34 +118,34 @@ class Shipperadmin extends AbstractCarrier implements CarrierInterface
     {
         $result = $this->rateFactory->create();
 
-        if ($shipData = $this->registry->registry('shqadminship_data')) {
-            foreach ($shipData->getData() as $carrierGroupId => $rateInfo) {
-                $carrierGroupShippingDetail = [
-                    "checkoutDescription" => '',//$rateInfo['carriergroup'],
-                    "name" => '',//$rateInfo['carriergroup'],
-                    "carrierGroupId" => '',//$carrierGroupId,
-                    "carrierType" => "custom_admin",
-                    "carrierTitle" => $this->getConfigData('title'),
-                    "carrier_code" => $this->_code,
-                    "carrierName" => __('Custom Shipping'),
-                    "methodTitle" => $rateInfo['customCarrier'],
-                    "price" => $rateInfo['customPrice'],
-                    "cost" => $rateInfo['customPrice'],
-                    "code" => 'adminshipping',
-                    "transaction" => ''
-                ];
-                $method = $this->rateMethodFactory->create();
-                $method->setCarrier($this->_code);
-                $method->setPrice($rateInfo['customPrice']);
-                $method->setCarrierTitle($this->getConfigData('title'));
-                $method->setMethod('adminshipping');
-                $method->setMethodTitle($rateInfo['customCarrier']);
-                $method->setCarriergroupId($carrierGroupId);
-                $method->setCarriergroupShippingDetails(
-                    $this->jsonHelper->jsonEncode($carrierGroupShippingDetail)
-                );
-                $result->append($method);
-            }
+        $shipData = $this->getAdminShipData->execute();
+        if ($shipData) {
+            $carrierGroupShippingDetail = [
+                "checkoutDescription" => '',//$rateInfo['carriergroup'],
+                "name" => '',//$rateInfo['carriergroup'],
+                "carrierGroupId" => '',//$carrierGroupId,
+                "carrierType" => "custom_admin",
+                "carrierTitle" => $this->getConfigData('title'),
+                "carrier_code" => $this->_code,
+                "carrierName" => __('Custom Shipping'),
+                "methodTitle" => $shipData->getCustomCarrier(),
+                "price" => $shipData->getCustomPrice(),
+                "cost" => $shipData->getCustomPrice(),
+                "code" => 'adminshipping',
+                "transaction" => ''
+            ];
+            $method = $this->rateMethodFactory->create();
+            $method->setCarrier($this->_code);
+            $method->setPrice($shipData->getCustomPrice());
+            $method->setCarrierTitle($this->getConfigData('title'));
+            $method->setMethod('adminshipping');
+            $method->setMethodTitle($shipData->getCustomCarrier());
+            $method->setCarriergroupId(0);
+            $method->setCarriergroupShippingDetails(
+                $this->jsonHelper->jsonEncode($carrierGroupShippingDetail)
+            );
+            $result->append($method);
+
             $this->shipperLogger->postDebug(
                 'Shipperhq_Shipper',
                 'ShipperHQ Admin - created custom shipping rate ',

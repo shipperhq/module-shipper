@@ -40,6 +40,9 @@ use Magento\Framework\DataObject\Factory as DataObjectFactory;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Store\Model\ScopeInterface;
+use ShipperHQ\Shipper\Service\Backend\SetAdminShipData;
+use ShipperHQ\Shipper\Service\Backend\UnsetAdminShipData;
+use ShipperHQ\Shipper\Model\Backend\AdminShipDataFactory;
 
 /**
  * ShipperHQ Shipper module observer
@@ -56,9 +59,13 @@ class SaveShippingAdmin implements ObserverInterface
      */
     private $shipperLogger;
     /**
-     * @var \Magento\Framework\Registry
+     * @var SetAdminShipData
      */
-    private $registry;
+    private $setAdminShipData;
+    /**
+     * @var UnsetAdminShipData
+     */
+    private $unsetAdminShipData;
     /**
      * @var \ShipperHQ\Common\Model\Quote\Service
      */
@@ -74,34 +81,43 @@ class SaveShippingAdmin implements ObserverInterface
      */
     private $objectFactory;
     /**
+     * @var AdminShipDataFactory
+     */
+    private $adminShipDataFactory;
+    /**
      * @var ScopeConfigInterface
      */
     private $config;
 
     /**
      * @param ScopeConfigInterface $config
-     * @param  \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
-     * @param  \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
-     * @param \Magento\Framework\Registry $registry
+     * @param \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
+     * @param \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
+     * @param SetAdminShipData $setAdminShipData
+     * @param UnsetAdminShipData $unsetAdminShipData
      * @param \ShipperHQ\Common\Model\Quote\Service $quoteService
      * @param \Magento\Framework\Event\ManagerInterface $eventManager
-     * @param  DataObjectFactory $objectFactory
+     * @param DataObjectFactory $objectFactory
      */
     public function __construct(
         ScopeConfigInterface $config,
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Magento\Framework\Registry $registry,
+        SetAdminShipData $setAdminShipData,
+        UnsetAdminShipData $unsetAdminShipData,
         \ShipperHQ\Common\Model\Quote\Service $quoteService,
         \Magento\Framework\Event\ManagerInterface $eventManager,
-        DataObjectFactory $objectFactory
+        DataObjectFactory $objectFactory,
+        AdminShipDataFactory $adminShipDataFactory
     ) {
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->shipperLogger = $shipperLogger;
-        $this->registry = $registry;
+        $this->setAdminShipData = $setAdminShipData;
+        $this->unsetAdminShipData = $unsetAdminShipData;
         $this->quoteService = $quoteService;
         $this->eventManager = $eventManager;
         $this->objectFactory = $objectFactory;
+        $this->adminShipDataFactory = $adminShipDataFactory;
         $this->config = $config;
     }
 
@@ -156,29 +172,26 @@ class SaveShippingAdmin implements ObserverInterface
     private function processAdminShipping($data, $quote)
     {
         $found = false;
-        $customCarrierGroupData = [];
+        /** @var \ShipperHQ\Shipper\Model\Backend\AdminShipData $adminShipData */
+        $adminShipData = $this->adminShipDataFactory->create();
         if (isset($data['custom_price'])) {
-            $adminData = ['customPrice' => $data['custom_price']];
+            $adminShipData->setCustomPrice($data['custom_price']);
             if (isset($data['custom_description'])) {
-                $adminData['customCarrier'] = $data['custom_description'];
+                $adminShipData->setCustomCarrier($data['custom_description']);
                 $found = true;
             }
-            //use CG id here
-            $customCarrierGroupData[] = $adminData;
         }
 
         if ($found) {
             $shippingAddress = $quote->getShippingAddress();
             $this->quoteService->cleanDownRates($shippingAddress, 'shipperadmin', '');
-            $detail = $this->objectFactory->create();
-            $detail->addData($customCarrierGroupData);
-            $this->registry->register('shqadminship_data', $detail);
+            $this->setAdminShipData->execute($adminShipData);
             $storedLimitCarrier = $shippingAddress->getLimitCarrier();
             $shippingAddress->setLimitCarrier('shipperadmin');
             $rateFound = $shippingAddress->requestShippingRates();
             $shippingAddress->setLimitCarrier($storedLimitCarrier);
         } else {
-            $this->registry->unregister('shqadminship_data');
+            $this->unsetAdminShipData->execute();
         }
     }
 }

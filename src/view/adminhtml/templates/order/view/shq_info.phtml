@@ -16,7 +16,8 @@
 <?php $cgInfo = $this->getCarrierGroupBreakdownText(); ?>
 
 <?php $order = $block->getOrder() ?>
-<?php if ($order->getIsVirtual()) : return '';endif; ?>
+<?php if ($order->getIsVirtual()): return '';
+endif; ?>
 
 <?php if ($cgInfo): ?>
     <?php /* Shipping Method */ ?>

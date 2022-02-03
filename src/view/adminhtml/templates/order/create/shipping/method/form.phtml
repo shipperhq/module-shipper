@@ -47,8 +47,10 @@
                                         <?php echo $block->escapeHtml($_rate->getMethodTitle() ? $_rate->getMethodTitle() : $_rate->getMethodDescription()) ?>
                                         -
                                         <strong>
-                                            <?php $_excl = $block->getShippingPrice($_rate->getPrice(),
-                                                $this->helper('Magento\Tax\Helper\Data')->displayShippingPriceIncludingTax()); ?>
+                                            <?php $_excl = $block->getShippingPrice(
+                                                $_rate->getPrice(),
+                                                $this->helper('Magento\Tax\Helper\Data')->displayShippingPriceIncludingTax()
+                                            ); ?>
                                             <?php $_incl = $block->getShippingPrice($_rate->getPrice(), true); ?>
 
                                             <?php /* @escapeNotVerified */

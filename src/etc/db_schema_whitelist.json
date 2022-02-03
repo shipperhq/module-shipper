@@ -1,0 +1,277 @@
+{
+    "shipperhq_synchronize": {
+        "column": {
+            "synch_id": true,
+            "attribute_code": true,
+            "attribute_type": true,
+            "value": true,
+            "status": true,
+            "date_added": true
+        },
+        "index": {
+            "SHIPPERHQ_SYNCHRONIZE_SYNCH_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "shipperhq_quote_address_detail": {
+        "column": {
+            "id": true,
+            "quote_address_id": true,
+            "carrier_group_id": true,
+            "carrier_type": true,
+            "carrier_id": true,
+            "carrier_group": true,
+            "carrier_group_detail": true,
+            "carrier_group_html": true,
+            "dispatch_date": true,
+            "delivery_date": true,
+            "time_slot": true,
+            "pickup_location": true,
+            "pickup_location_id": true,
+            "pickup_latitude": true,
+            "pickup_longitude": true,
+            "pickup_email": true,
+            "pickup_contact": true,
+            "pickup_email_option": true,
+            "is_checkout": true,
+            "delivery_comments": true,
+            "destination_type": true,
+            "liftgate_required": true,
+            "notify_required": true,
+            "inside_delivery": true,
+            "freight_quote_id": true,
+            "customer_carrier": true,
+            "customer_carrier_account": true,
+            "customer_carrier_ph": true,
+            "address_valid": true,
+            "limited_delivery": true,
+            "validated_shipping_street": true,
+            "validated_shipping_street2": true,
+            "validated_shipping_city": true,
+            "validated_shipping_postcode": true,
+            "validated_shipping_region": true,
+            "validated_shipping_country": true
+        },
+        "index": {
+            "SHIPPERHQ_QUOTE_ADDRESS_DETAIL_QUOTE_ADDRESS_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "SHIPPERHQ_QUOTE_ADDR_DETAIL_QUOTE_ADDR_ID_QUOTE_ADDR_ADDR_ID": true
+        }
+    },
+    "shipperhq_order_detail": {
+        "column": {
+            "id": true,
+            "order_id": true,
+            "carrier_group_id": true,
+            "carrier_type": true,
+            "carrier_id": true,
+            "carrier_group": true,
+            "carrier_group_detail": true,
+            "carrier_group_html": true,
+            "dispatch_date": true,
+            "delivery_date": true,
+            "time_slot": true,
+            "pickup_location": true,
+            "pickup_location_id": true,
+            "pickup_latitude": true,
+            "pickup_longitude": true,
+            "pickup_email": true,
+            "pickup_contact": true,
+            "pickup_email_option": true,
+            "delivery_comments": true,
+            "destination_type": true,
+            "liftgate_required": true,
+            "notify_required": true,
+            "inside_delivery": true,
+            "freight_quote_id": true,
+            "customer_carrier": true,
+            "customer_carrier_account": true,
+            "customer_carrier_ph": true,
+            "address_valid": true,
+            "limited_delivery": true,
+            "validated_shipping_street": true,
+            "validated_shipping_street2": true,
+            "validated_shipping_city": true,
+            "validated_shipping_postcode": true,
+            "validated_shipping_region": true,
+            "validated_shipping_country": true
+        },
+        "index": {
+            "SHIPPERHQ_ORDER_DETAIL_ORDER_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "SHIPPERHQ_ORDER_DETAIL_ORDER_ID_SALES_ORDER_ENTITY_ID": true
+        }
+    },
+    "shipperhq_quote_item_detail": {
+        "column": {
+            "id": true,
+            "quote_item_id": true,
+            "carrier_group_id": true,
+            "carrier_group": true,
+            "carrier_group_shipping": true
+        },
+        "index": {
+            "SHIPPERHQ_QUOTE_ITEM_DETAIL_QUOTE_ITEM_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "shipperhq_quote_address_item_detail": {
+        "column": {
+            "id": true,
+            "quote_address_item_id": true,
+            "carrier_group_id": true,
+            "carrier_group": true,
+            "carrier_group_shipping": true
+        },
+        "index": {
+            "SHIPPERHQ_QUOTE_ADDRESS_ITEM_DETAIL_QUOTE_ADDRESS_ITEM_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_E1301E0064CFC579A2F23E1A9AA3DECC": true
+        }
+    },
+    "shipperhq_order_item_detail": {
+        "column": {
+            "id": true,
+            "order_item_id": true,
+            "carrier_group_id": true,
+            "carrier_group": true,
+            "carrier_group_shipping": true
+        },
+        "index": {
+            "SHIPPERHQ_ORDER_ITEM_DETAIL_ORDER_ITEM_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_D59BEBD7DC112893EB24E3B0167EF56D": true
+        }
+    },
+    "shipperhq_order_packages": {
+        "column": {
+            "package_id": true,
+            "order_id": true,
+            "carrier_group_id": true,
+            "carrier_code": true,
+            "package_name": true,
+            "length": true,
+            "width": true,
+            "height": true,
+            "weight": true,
+            "declared_value": true,
+            "surcharge_price": true
+        },
+        "index": {
+            "SHIPPERHQ_ORDER_PACKAGES_ORDER_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "SHIPPERHQ_ORDER_PACKAGES_ORDER_ID_SALES_ORDER_ENTITY_ID": true
+        }
+    },
+    "shipperhq_order_package_items": {
+        "column": {
+            "id": true,
+            "package_id": true,
+            "sku": true,
+            "qty_packed": true,
+            "weight_packed": true
+        },
+        "index": {
+            "SHIPPERHQ_ORDER_PACKAGE_ITEMS_PACKAGE_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_90229CAB8ACAE06D7B0DE067E949286D": true
+        }
+    },
+    "shipperhq_order_detail_grid": {
+        "column": {
+            "id": true,
+            "order_id": true,
+            "carrier_group": true,
+            "dispatch_date": true,
+            "delivery_date": true,
+            "time_slot": true,
+            "pickup_location": true,
+            "delivery_comments": true,
+            "destination_type": true,
+            "liftgate_required": true,
+            "notify_required": true,
+            "inside_delivery": true,
+            "address_valid": true,
+            "carrier_type": true
+        },
+        "index": {
+            "SHIPPERHQ_ORDER_DETAIL_GRID_CARRIER_GROUP": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "SHIPPERHQ_ORDER_DETAIL_GRID_ORDER_ID_SALES_ORDER_ENTITY_ID": true,
+            "SHIPPERHQ_ORDER_DETAIL_GRID_ORDER_ID": true
+        }
+    },
+    "quote_address": {
+        "column": {
+            "destination_type": true,
+            "validation_status": true,
+            "carrier_type": true,
+            "carrier_id": true,
+            "carriergroup_shipping_details": true,
+            "is_checkout": true,
+            "split_rates": true,
+            "checkout_display_merged": true,
+            "carriergroup_shipping_html": true
+        }
+    },
+    "quote_address_rate": {
+        "column": {
+            "shq_dispatch_date": true,
+            "shq_delivery_date": true,
+            "carrier_type": true,
+            "carrier_id": true,
+            "carriergroup_id": true,
+            "carriergroup": true,
+            "carriergroup_shipping_details": true
+        }
+    },
+    "quote_address_item": {
+        "column": {
+            "carriergroup_id": true,
+            "carriergroup": true,
+            "carriergroup_shipping": true
+        }
+    },
+    "quote_item": {
+        "column": {
+            "carriergroup_id": true,
+            "carriergroup": true,
+            "carriergroup_shipping": true
+        }
+    },
+    "sales_order": {
+        "column": {
+            "destination_type": true,
+            "validation_status": true,
+            "carrier_type": true,
+            "carrier_id": true,
+            "carriergroup_shipping_details": true,
+            "carriergroup_shipping_html": true
+        }
+    },
+    "sales_order_item": {
+        "column": {
+            "carriergroup_id": true,
+            "carriergroup": true,
+            "carriergroup_shipping": true
+        }
+    }
+}

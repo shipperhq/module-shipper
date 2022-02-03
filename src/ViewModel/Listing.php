@@ -63,7 +63,6 @@ class Listing implements ArgumentInterface
     /** @var \ShipperHQ\Shipper\Helper\Data */
     protected $shipperDataHelper;
 
-
     /** @var QuoteRepository */
     protected $quoteRepository;
 

@@ -656,3 +656,7 @@ MNB-1467 Fix for shipping showing as not yet calculated on payment step
 MNB-2102 Custom Admin Rates w/ Payflow // MNB-2112 declarative schema
 
 
+## 20.47.1 (2022-02-23)
+MNB-2105 update shipping method on items when selecting custom rate
+
+

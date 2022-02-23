@@ -40,6 +40,7 @@ use Magento\Framework\DataObject\Factory as DataObjectFactory;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Store\Model\ScopeInterface;
+use ShipperHQ\Shipper\Service\Backend\GetAdminShipData;
 use ShipperHQ\Shipper\Service\Backend\SetAdminShipData;
 use ShipperHQ\Shipper\Service\Backend\UnsetAdminShipData;
 use ShipperHQ\Shipper\Model\Backend\AdminShipDataFactory;
@@ -66,6 +67,10 @@ class SaveShippingAdmin implements ObserverInterface
      * @var UnsetAdminShipData
      */
     private $unsetAdminShipData;
+    /**
+     * @var GetAdminShipData
+     */
+    private $getAdminShipData;
     /**
      * @var \ShipperHQ\Common\Model\Quote\Service
      */
@@ -98,6 +103,8 @@ class SaveShippingAdmin implements ObserverInterface
      * @param \ShipperHQ\Common\Model\Quote\Service $quoteService
      * @param \Magento\Framework\Event\ManagerInterface $eventManager
      * @param DataObjectFactory $objectFactory
+     * @param AdminShipDataFactory $adminShipDataFactory
+     * @param GetAdminShipData $getAdminShipData
      */
     public function __construct(
         ScopeConfigInterface $config,
@@ -108,12 +115,14 @@ class SaveShippingAdmin implements ObserverInterface
         \ShipperHQ\Common\Model\Quote\Service $quoteService,
         \Magento\Framework\Event\ManagerInterface $eventManager,
         DataObjectFactory $objectFactory,
-        AdminShipDataFactory $adminShipDataFactory
+        AdminShipDataFactory $adminShipDataFactory,
+        GetAdminShipData $getAdminShipData
     ) {
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->shipperLogger = $shipperLogger;
         $this->setAdminShipData = $setAdminShipData;
         $this->unsetAdminShipData = $unsetAdminShipData;
+        $this->getAdminShipData = $getAdminShipData;
         $this->quoteService = $quoteService;
         $this->eventManager = $eventManager;
         $this->objectFactory = $objectFactory;
@@ -156,12 +165,23 @@ class SaveShippingAdmin implements ObserverInterface
                         $this->processAdminShipping($orderData, $quote);
                     }
                     $additionalDetailArray = $additionalDetail->convertToArray();
-                    $this->carrierGroupHelper->saveCarrierGroupInformation(
-                        $quote->getShippingAddress(),
-                        $shippingMethod,
-                        $additionalDetailArray
-                    );
-                    if (strstr($shippingMethod, 'shipperadmin') && $requestData['collect_shipping_rates'] === 1) {
+
+                    $isCustomMethodSelected = strstr($shippingMethod, 'shipperadmin');
+                    if($isCustomMethodSelected) {
+                        $shipData = $this->getAdminShipData->execute();
+                        $customMethodTitle = $shipData ? 'Custom Shipping Rate - ' . $shipData->getCustomCarrier() : 'Custom Shipping Rate';
+                        $this->carrierGroupHelper->setCustomShippingOnItems(
+                            $quote->getShippingAddress(),
+                            $customMethodTitle
+                        );
+                    } else {
+                        $this->carrierGroupHelper->saveCarrierGroupInformation(
+                            $quote->getShippingAddress(),
+                            $shippingMethod,
+                            $additionalDetailArray
+                        );
+                    }
+                    if ($isCustomMethodSelected && $requestData['collect_shipping_rates'] === 1) {
                         $observer->getRequestModel()->setPostValue('collect_shipping_rates', 0);
                     }
                 }

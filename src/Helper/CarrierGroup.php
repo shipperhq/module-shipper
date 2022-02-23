@@ -234,6 +234,18 @@ class CarrierGroup extends Data
         }
     }
 
+    public function setCustomShippingOnItems($shippingAddress, $customShipping)
+    {
+        foreach ($shippingAddress->getAllItems() as $item) {
+            $itemDetail = $this->itemDetailFactory->create();
+            $itemRecord = $itemDetail->loadDetailByItemId($item->getItemId());
+            if ($itemRecord) {
+                $itemRecord->setCarriergroupShipping($customShipping);
+                $itemRecord->save();
+            }
+        }
+    }
+
     public function saveCarrierGroupItem($item, $carrierGroupId, $carrierGroup)
     {
         $itemDetail = $this->itemDetailFactory->create();

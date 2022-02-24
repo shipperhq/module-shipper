@@ -660,3 +660,7 @@ MNB-2102 Custom Admin Rates w/ Payflow // MNB-2112 declarative schema
 MNB-2105 update shipping method on items when selecting custom rate
 
 
+## 20.47.2 (2022-02-24)
+MNB-2253 Fix SQL error when upgrading from 20.38.1 or earlier
+
+

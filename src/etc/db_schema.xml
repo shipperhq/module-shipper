@@ -255,12 +255,10 @@
         <constraint xsi:type="foreign" referenceId="SHIPPERHQ_ORDER_DETAIL_GRID_ORDER_ID_SALES_ORDER_ENTITY_ID"
                     table="shipperhq_order_detail_grid" column="order_id" referenceTable="sales_order"
                     referenceColumn="entity_id" onDelete="CASCADE"/>
-        <constraint xsi:type="unique" referenceId="SHIPPERHQ_ORDER_DETAIL_GRID_ORDER_ID">
-            <column name="order_id"/>
-        </constraint>
         <index referenceId="SHIPPERHQ_ORDER_DETAIL_GRID_CARRIER_GROUP" indexType="btree">
             <column name="carrier_group"/>
         </index>
+        <!-- MNB-2253 There's a unique index on order_id added by  -->
     </table>
 
     <table name="quote_address" resource="default">

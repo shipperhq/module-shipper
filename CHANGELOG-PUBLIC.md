@@ -664,3 +664,7 @@ MNB-2105 update shipping method on items when selecting custom rate
 MNB-2253 Fix SQL error when upgrading from 20.38.1 or earlier
 
 
+## 20.47.3 (2022-02-28)
+MNB-2270 Remove index from db_schema_whitelist.json
+
+

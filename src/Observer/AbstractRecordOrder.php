@@ -163,7 +163,8 @@ abstract class AbstractRecordOrder implements ObserverInterface
         if ($shippingRate) {
 
             // RIV-443 Save order details to OMS / MNB-1464 Ensure only saving for SHQ methods
-            if (strstr($shippingRate->getCarrier(), 'shq') && $this->shipperDataHelper->getStoreQuoteOrder()) {
+            if ($this->shipperDataHelper->getStoreQuoteOrder() &&
+                (strstr($shippingRate->getCarrier(), 'shq') || $shippingRate->getCarrier() == 'multicarrier')) {
                 $this->postOrderHelper->handleOrder($order, $shippingAddress, $quoteId);
             }
 

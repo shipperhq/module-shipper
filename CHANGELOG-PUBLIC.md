@@ -668,3 +668,7 @@ MNB-2253 Fix SQL error when upgrading from 20.38.1 or earlier
 MNB-2270 Remove index from db_schema_whitelist.json
 
 
+## 20.47.4 (2022-03-09)
+MNB-2285 Fix Shipping Insights integration
+
+

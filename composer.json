@@ -2,7 +2,7 @@
   "name": "shipperhq/module-shipper",
   "description": "Magento Shipping integration with ShipperHQ",
   "type": "magento2-module",
-  "version": "20.47.4",
+  "version": "20.47.5",
   "license": [
     "OSL-3.0",
     "AFL-3.0"

@@ -672,3 +672,7 @@ MNB-2270 Remove index from db_schema_whitelist.json
 MNB-2285 Fix Shipping Insights integration
 
 
+## 20.47.5 (2022-03-15)
+MNB-2338 Fix issue in data patch InstallDestTypeAttributes
+
+

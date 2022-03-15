@@ -65,40 +65,52 @@ class InstallDestTypeAttributes implements DataPatchInterface
     {
         /** @var QuoteSetup $quoteSetup */
         $customerSetup = $this->customerSetupFactory->create(['setup' => $this->moduleDataSetup]);
-        $destinationTypeAddressAttr = [
-            'type'     => Table::TYPE_TEXT,
-            'label'    => 'Address Type',
-            'input'    => 'select',
-            'source'   => 'ShipperHQ\Shipper\Model\Customer\Attribute\Source\AddressType',
-            'system'   => 0, // <-- important, otherwise values aren't saved.
-            // @see Magento\Customer\Model\Metadata\AddressMetadata::getCustomAttributesMetadata()
-            //            'visible' => false,
-            'required' => false,
-            'position' => 100,
-            'comment'  => 'ShipperHQ Address Type'
-        ];
-        $customerSetup->addAttribute('customer_address', 'destination_type', $destinationTypeAddressAttr);
 
-        $validationStatusAddressAttr = [
-            'type'     => Table::TYPE_TEXT,
-            'label'    => 'Address Validation',
-            'system'   => 0, // <-- important, otherwise values aren't saved.
-            // @see Magento\Customer\Model\Metadata\AddressMetadata::getCustomAttributesMetadata()
-            //            'visible' => false,
-            'required' => false,
-            'position' => 101,
-            'comment'  => 'ShipperHQ Address Validation Status'
-        ];
-        $customerSetup->addAttribute('customer_address', 'validation_status', $validationStatusAddressAttr);
-        // add attribute to form
-        /** @var  $attribute */
-        $attribute = $customerSetup->getEavConfig()->getAttribute('customer_address', 'validation_status');
-        $attribute->setData('used_in_forms', ['adminhtml_customer_address']);
-        $attribute->save();
+        $existingDestTypeAttribute = $customerSetup->getAttribute('customer_address', 'destination_type');
 
-        $attribute = $customerSetup->getEavConfig()->getAttribute('customer_address', 'destination_type');
-        $attribute->setData('used_in_forms', ['adminhtml_customer_address']);
-        $attribute->save();
+        if (empty($existingDestTypeAttribute)) {
+            $destinationTypeAddressAttr = [
+                'type'     => Table::TYPE_TEXT,
+                'label'    => 'Address Type',
+                'input'    => 'select',
+                'source'   => 'ShipperHQ\Shipper\Model\Customer\Attribute\Source\AddressType',
+                'system'   => 0, // <-- important, otherwise values aren't saved.
+                // @see Magento\Customer\Model\Metadata\AddressMetadata::getCustomAttributesMetadata()
+                //            'visible' => false,
+                'required' => false,
+                'position' => 100,
+                'comment'  => 'ShipperHQ Address Type'
+            ];
+            $customerSetup->addAttribute('customer_address', 'destination_type', $destinationTypeAddressAttr);
+
+            // add attribute to form
+            $attribute = $customerSetup->getEavConfig()->getAttribute('customer_address', 'destination_type');
+            $attribute->setData('used_in_forms', ['adminhtml_customer_address']);
+            $attribute->save();
+        }
+
+        $existingvalidationStatusAttribute = $customerSetup->getAttribute('customer_address', 'validation_status');
+
+        if (empty($existingvalidationStatusAttribute)) {
+
+            $validationStatusAddressAttr = [
+                'type'     => Table::TYPE_TEXT,
+                'label'    => 'Address Validation',
+                'system'   => 0, // <-- important, otherwise values aren't saved.
+                // @see Magento\Customer\Model\Metadata\AddressMetadata::getCustomAttributesMetadata()
+                //            'visible' => false,
+                'required' => false,
+                'position' => 101,
+                'comment'  => 'ShipperHQ Address Validation Status'
+            ];
+            $customerSetup->addAttribute('customer_address', 'validation_status', $validationStatusAddressAttr);
+
+            // add attribute to form
+            /** @var  $attribute */
+            $attribute = $customerSetup->getEavConfig()->getAttribute('customer_address', 'validation_status');
+            $attribute->setData('used_in_forms', ['adminhtml_customer_address']);
+            $attribute->save();
+        }
     }
 
     /**

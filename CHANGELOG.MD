@@ -676,3 +676,7 @@ MNB-2285 Fix Shipping Insights integration
 MNB-2338 Fix issue in data patch InstallDestTypeAttributes
 
 
+## 20.47.6 (2022-03-23)
+MNB-2342 Fix issue with storing methods containing spaces on Shipping Insights
+
+

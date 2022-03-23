@@ -180,7 +180,7 @@ class PostOrder
                 'orderNumber'  => $order->getIncrementId(),
                 'totalCharges' => $rate->getPrice(),
                 'carrierCode'  => $rate->getCarrier(),
-                'methodCode'   => $rate->getMethod(),
+                'methodCode'   => $methodCode,
                 'transId'      => $transactionId,
                 'recipient'    => $this->getRecipient($order->getShippingAddress())
             ]);

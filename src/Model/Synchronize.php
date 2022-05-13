@@ -36,25 +36,15 @@
 namespace ShipperHQ\Shipper\Model;
 
 use Magento\Framework\Model\AbstractModel;
+use ShipperHQ\Shipper\Model\ResourceModel\Synchronize as ResourceModel;
 
 class Synchronize extends AbstractModel
 {
-    /**
-     * Deletes all synch data
-     *
-     * @return \ShipperHQ\Shipper\Model\Synchronize
-     */
-    public function deleteAllSynchData()
-    {
-        $this->_getResource()->deleteAllSynchData();
-        return $this;
-    }
-
     /**
      * Define resource model
      */
     protected function _construct()
     {
-        $this->_init('ShipperHQ\Shipper\Model\ResourceModel\Synchronize');
+        $this->_init(ResourceModel::class);
     }
 }

@@ -279,7 +279,7 @@
 
     </table>
 
-    <table name="quote_address_rate" resource="default">
+    <table name="quote_shipping_rate" resource="default">
         <!-- ShipperHQ Delivery Date Attributes Start. v1.0.7 -->
         <column xsi:type="date" name="shq_dispatch_date" nullable="true" comment="ShipperHQ Dispatch Date"/>
         <column xsi:type="date" name="shq_delivery_date" nullable="true" comment="ShipperHQ Delivery Date"/>
@@ -291,7 +291,6 @@
         <column xsi:type="text" name="carriergroup" nullable="true" comment="ShipperHQ Carrier Group"/>
         <column xsi:type="text" name="carriergroup_shipping_details" nullable="true" comment="ShipperHQ Carrier Group Details"/>
         <!-- ShipperHQ Core Entity Attributes End. -->
-
     </table>
 
     <table name="quote_address_item" resource="default">

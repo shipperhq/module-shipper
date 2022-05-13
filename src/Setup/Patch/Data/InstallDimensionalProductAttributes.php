@@ -311,9 +311,9 @@ class InstallDimensionalProductAttributes implements DataPatchInterface
         ];
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
-            $migrated = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId, 'migration-dimensional-shipping');
+            $migrateGroupId = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId, 'migration-dimensional-shipping');
             $existingDimAttributeIds = [];
-            if ($migrated !== false) {
+            if ($migrateGroupId) {
                 $existingDimAttributeIds = $this->getNonShqAttributeIds($catalogSetup, 'migration-dimensional-shipping', $attributeSetId);
                 $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSetId, 'migration-dimensional-shipping');
             }

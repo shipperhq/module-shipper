@@ -37,6 +37,7 @@ namespace ShipperHQ\Shipper\Helper;
 
 use \Magento\Framework\Component\ComponentRegistrarInterface;
 use \Magento\Framework\Filesystem\Directory\ReadFactory;
+use function PHPUnit\Framework\isEmpty;
 
 /**
  * Mapper for a data arrays tranformation
@@ -92,15 +93,14 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * Maps data by specified rules
      *
-     * @param array $mapping
-     * @param array $source
+     * @param string $config
      * @return array
      */
     public function checkForMissingModules($config)
     {
         $target = [];
         $modules = $this->getInstalledModules();
-        $featuresInstalled = explode('|', $config);
+        $featuresInstalled = explode('|', (string) $config);
         foreach ($featuresInstalled as $feature) {
             if (isset($this->feature_set[$feature])) {
                 $moduleRequired = $this->feature_set[$feature];

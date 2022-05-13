@@ -142,7 +142,7 @@ class FetchUpdatedCarrierRate implements FetchUpdatedCarrierRateInterface
      */
     private function getCarrierCodesMatching($carrierCodePattern)
     {
-        $carrierCodePattern = preg_replace("/[^a-zA-Z_0-9-]/", "", $carrierCodePattern);
+        $carrierCodePattern = preg_replace("/[^a-zA-Z_0-9-]/", "", (string) $carrierCodePattern);
         $carriers = $this->shippingConfig->getAllCarriers();
         $foundCarriers = array_filter($carriers, function ($carrier) use ($carrierCodePattern) {
             return preg_match("/(^shq|^)($carrierCodePattern)(.*)/i", $carrier->getId());

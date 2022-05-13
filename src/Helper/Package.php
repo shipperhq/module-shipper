@@ -103,7 +103,7 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
             return;
         }
 
-        $sessionPackages = json_decode($this->checkoutSession->getShipperHQPackages(), true);
+        $sessionPackages = json_decode($this->checkoutSession->getShipperHQPackages() ?? "", true);
 
         foreach ($shipmentArray as $shipment) {
             $carrierCode = $shipment['carrier_code'];
@@ -113,7 +113,7 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
              * MNB-604 Need to ensure remove any rates from requests with only 1 origin if we now have > 1 origin and
              * so now have merged rates. Merged rates are stored with carriercode_methodcode
              */
-            $carrierCodeExplArr = explode("_", $carrierCode);
+            $carrierCodeExplArr = explode("_", $carrierCode ?? "");
             $carrierCodeExpl = $carrierCodeExplArr[0];
 
             //Delete any existing packages for this set of rates
@@ -172,7 +172,7 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                         $carrier_code = $carrier_group['carrier_code'];
                         $shippingMethodCode = $carrier_group['code'];
 
-                        $sessionPackages = json_decode($this->checkoutSession->getShipperHQPackages(), true);
+                        $sessionPackages = json_decode($this->checkoutSession->getShipperHQPackages() ?? "", true);
 
                         $packagesColl = $this->getPackagesFromSession(
                             $sessionPackages,

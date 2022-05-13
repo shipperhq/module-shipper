@@ -61,19 +61,17 @@ class Info extends AbstractOrder
      * @param array $data
      */
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
-        \ShipperHQ\Shipper\Helper\Package $packageHelper,
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\Registry $registry,
         \Magento\Sales\Helper\Admin $adminHelper,
+        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
+        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
+        \ShipperHQ\Shipper\Helper\Package $packageHelper,
         array $data = []
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->packageHelper = $packageHelper;
-        $this->_adminHelper = $adminHelper;
-        $this->_coreRegistry = $registry;
         parent::__construct($context, $registry, $adminHelper, $data);
     }
 
@@ -157,13 +155,13 @@ class Info extends AbstractOrder
 
     public function getFormattedDate($date, $format)
     {
-        $formattedDate = date($format, strtotime($date));
+        $formattedDate = date((string) $format, strtotime((string) $date));
         return $formattedDate;
     }
 
     public function getFormattedTimeSlot($timeSlot)
     {
-        $formattedTimeSlot = str_replace('_', ' - ', $timeSlot);
+        $formattedTimeSlot = str_replace('_', ' - ', (string) $timeSlot);
         return $formattedTimeSlot;
     }
 }

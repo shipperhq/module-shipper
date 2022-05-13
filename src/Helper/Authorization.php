@@ -11,11 +11,10 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
-use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Signer\Key;
+use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Lcobucci\JWT\Validation\Validator;
 use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
@@ -64,26 +63,30 @@ class Authorization
     /** @var LoggingHelper */
     private $graphqlLoggingHelper;
 
+    /** @var Configuration|null */
+    private $jwtConfig = null;
+
     /**
      * Authorization constructor.
      *
-     * @param ReinitableConfigInterface                $configReader
-     * @param WriterInterface                          $configWriter
+     * @param ReinitableConfigInterface $configReader
+     * @param WriterInterface $configWriter
      * @param \Magento\Framework\Json\DecoderInterface $jsonDecoder
-     * @param GraphQLClient                            $graphqlClient
-     * @param DateTime                                 $dateTime
-     * @param LogAssist                                $shipperLogger
-     * @param LoggingHelper                            $graphqlLoggingHelper
+     * @param GraphQLClient $graphqlClient
+     * @param DateTime $dateTime
+     * @param LogAssist $shipperLogger
+     * @param LoggingHelper $graphqlLoggingHelper
      */
     public function __construct(
-        ReinitableConfigInterface $configReader,
-        WriterInterface $configWriter,
+        ReinitableConfigInterface                $configReader,
+        WriterInterface                          $configWriter,
         \Magento\Framework\Json\DecoderInterface $jsonDecoder,
-        GraphQLClient $graphqlClient,
-        DateTime $dateTime,
-        LogAssist $shipperLogger,
-        LoggingHelper $graphqlLoggingHelper
-    ) {
+        GraphQLClient                            $graphqlClient,
+        DateTime                                 $dateTime,
+        LogAssist                                $shipperLogger,
+        LoggingHelper                            $graphqlLoggingHelper
+    )
+    {
         $this->configReader = $configReader;
         $this->configWriter = $configWriter;
         $this->jsonDecoder = $jsonDecoder;
@@ -104,7 +107,7 @@ class Authorization
      * @param bool $cachedOnly
      * @return string
      */
-    public function getSecretToken(bool $cachedOnly = false)
+    public function getSecretToken(bool $cachedOnly = false): string
     {
         $FAILURE = '';
 
@@ -121,7 +124,6 @@ class Authorization
                 $this->getTimeout()
             );
             $elapsed = microtime(true) - $initVal;
-            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Auth Request time elapsed', $elapsed);
             $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Auth Request and Response', $this->graphqlLoggingHelper->prepAuthResponseForLogging($tokenResult));
         } catch (\Exception $e) {
             $this->shipperLogger->postCritical('Shipperhq_Shipper', 'Auth Request failed with Exception', $e->getMessage());
@@ -151,7 +153,7 @@ class Authorization
     private function persistNewToken(string $tokenStr): bool
     {
         try {
-            $token = (new Parser())->parse($tokenStr);
+            $token = $this->getJTWConfiguration()->parser()->parse($tokenStr);
             $verified = $this->isSecretTokenValid($tokenStr);
 
             $currentTime = $this->dateTime->gmtTimestamp();
@@ -192,7 +194,7 @@ class Authorization
     public function isSecretTokenExpired(): bool
     {
         $currentTime = $this->dateTime->gmtTimestamp();
-        $expirationTime = strtotime($this->getTokenExpires());
+        $expirationTime = strtotime((string) $this->getTokenExpires());
         return $currentTime >= $expirationTime;
     }
 
@@ -204,7 +206,7 @@ class Authorization
     public function isSecretTokenExpiringSoon(): bool
     {
         $currentTime = $this->dateTime->gmtTimestamp();
-        $expirationTime = strtotime($this->getTokenExpires());
+        $expirationTime = strtotime((string) $this->getTokenExpires());
         return ($currentTime + self::SHIPPERHQ_SERVER_EXPIRING_SOON_THRESHOLD) >= $expirationTime;
     }
 
@@ -221,11 +223,11 @@ class Authorization
             $tokenStr = $this->getStoredSecretToken();
         }
 
-        $token = (new Parser())->parse($tokenStr);
-        $validator = new Validator();
-        $signer = new Key($this->getAuthCode());
+        $useConfig = $this->getJTWConfiguration();
+        $token = $useConfig->parser()->parse($tokenStr);
 
-        return $validator->validate($token, new SignedWith(new Sha256(), $signer));
+        $this->shipperLogger->postDebug("Shipperhq_Shipper", "Constraints", $useConfig->validationConstraints());
+        return $useConfig->validator()->validate($token, ...$useConfig->validationConstraints());
     }
 
     /**
@@ -328,5 +330,19 @@ class Authorization
     {
         $this->isConfigCacheFlushScheduled = true;
         return $this;
+    }
+
+    private function getJTWConfiguration(): Configuration
+    {
+        if ($this->jwtConfig === null) {
+            $this->jwtConfig = Configuration::forSymmetricSigner(
+                new Sha256(),
+                InMemory::plainText($this->getAuthCode())
+            );
+            $this->jwtConfig->setValidationConstraints(
+                new SignedWith($this->jwtConfig->signer(), $this->jwtConfig->verificationKey())
+            );
+        }
+        return $this->jwtConfig;
     }
 }

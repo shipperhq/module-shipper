@@ -35,7 +35,9 @@
 
 namespace ShipperHQ\Shipper\Model\ResourceModel\Synchronize;
 
-class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
+use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+
+class Collection extends AbstractCollection
 {
     /**
      *  Define resource model

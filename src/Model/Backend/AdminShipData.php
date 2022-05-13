@@ -37,7 +37,8 @@ namespace ShipperHQ\Shipper\Model\Backend;
  * DTO Class - do not create a resource model
  * @package ShipperHQ\Shipper\Model\Backend
  */
-class AdminShipData {
+class AdminShipData
+{
     /** @var string */
     private $customCarrier;
 

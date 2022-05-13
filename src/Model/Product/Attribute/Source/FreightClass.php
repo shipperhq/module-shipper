@@ -76,32 +76,15 @@ class FreightClass extends \Magento\Eav\Model\Entity\Attribute\Source\Config
 
     public function toOptionArray()
     {
-        $freight_class = [
-            50 => '50',
-            55 => '55',
-            60 => '60',
-            65 => '65',
-            70 => '70',
-            77.5 => '77.5',
-            85 => '85',
-            92.5 => '92.5',
-            100 => '100',
-            110 => '110',
-            125 => '125',
-            150 => '150',
-            175 => '175',
-            200 => '200',
-            250 => '250',
-            300 => '300',
-            400 => '400',
-            500 => '500',
-        ];
-
-        foreach ($freight_class as $k => $v) {
-            $arr[] = ['value' => $k, 'label' => $v];
-        }
-
-        return $arr;
+        return array_map(
+            function ($v) {
+                return ['value' => $v, 'label' => (string)$v];
+            },
+            [
+                50, 55, 60, 65, 70, 77.5, 85, 92.5, 100,
+                110, 125, 150, 175, 200, 250, 300, 400, 500,
+            ]
+        );
     }
 
     /**

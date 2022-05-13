@@ -84,8 +84,7 @@ class PostOrder
         Data                     $shipperDataHelper,
         BasicAddressFactory      $basicAddressFactory,
         CarrierGroup             $carrierGroupHelper
-    )
-    {
+    ) {
         $this->shipperLogger = $shipperLogger;
         $this->shipperWSClientFactory = $shipperWSClientFactory;
         $this->restHelper = $restHelper;
@@ -108,26 +107,28 @@ class PostOrder
             if ($rate = $shippingAddress->getShippingRateByCode($shippingAddress->getShippingMethod())) {
                 $initVal = microtime(true);
                 $request = $this->getPlaceorderRequest($order, $rate);
-                $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive(
-                    $request,
-                    $this->restHelper->getPlaceorderGatewayUrl(),
-                    $this->restHelper->getWebserviceTimeout()
-                );
-                $elapsed = microtime(true) - $initVal;
-                $this->shipperLogger->postDebug(
-                    'Shipperhq_Shipper',
-                    'PostOrder::handleOrder: success',
-                    [
-                        'result'      => $resultSet,
-                        'orderNumber' => $orderNumber,
-                        'price'       => $request->totalCharges,
-                        'method'      => $request->methodCode,
-                        'carrier'     => $request->carrierCode,
-                        'endPoint'    => $this->restHelper->getPlaceorderGatewayUrl(),
-                        'timeout'     => $this->restHelper->getWebserviceTimeout(),
-                        'Lapsed Time' => $elapsed
-                    ]
-                );
+                if ($request != null) {
+                    $resultSet = $this->shipperWSClientFactory->create()->sendAndReceive(
+                        $request,
+                        $this->restHelper->getPlaceorderGatewayUrl(),
+                        $this->restHelper->getWebserviceTimeout()
+                    );
+                    $elapsed = microtime(true) - $initVal;
+                    $this->shipperLogger->postDebug(
+                        'Shipperhq_Shipper',
+                        'PostOrder::handleOrder: success',
+                        [
+                            'result'      => $resultSet,
+                            'orderNumber' => $orderNumber,
+                            'price'       => $request->totalCharges,
+                            'method'      => $request->methodCode,
+                            'carrier'     => $request->carrierCode,
+                            'endPoint'    => $this->restHelper->getPlaceorderGatewayUrl(),
+                            'timeout'     => $this->restHelper->getWebserviceTimeout(),
+                            'Lapsed Time' => $elapsed
+                        ]
+                    );
+                }
             } else {
                 $this->shipperLogger->postDebug(
                     'Shipperhq_Shipper',
@@ -186,6 +187,13 @@ class PostOrder
             ]);
 
             $request->setCredentials($this->shipperMapper->getCredentials());
+        } else {
+            // MNB-2430 Can fall in here for admin order. Not supporting admin orders at this time
+            $this->shipperLogger->postDebug(
+                'Shipperhq_Shipper',
+                'PostOrder::getPlaceorderRequest - failed to find order details',
+                ['orderNumber' => $order->getIncrementId()]
+            );
         }
 
         return $request;

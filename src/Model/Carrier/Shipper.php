@@ -591,14 +591,14 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
                     $rate = $this->rateMethodFactory->create();
                     $rate->setCarrier($carrierRate['code']);
-                    $lengthCarrierCode = strlen($carrierRate['code']);
+                    $lengthCarrierCode = strlen((string) $carrierRate['code']);
 
                     $rate->setCarrierTitle(__($carrierRate['title']));
 
-                    $methodCombineCode = preg_replace('/&|;| /', "", $rateDetails['methodcode']);
+                    $methodCombineCode = preg_replace('/&|;| /', "", (string) $rateDetails['methodcode']);
                     //SHQ16-1520 - enforce limit on length of shipping carrier code
                     // and method code of less than 35 - M2 hard limit of 40
-                    $lengthMethodCode = strlen($methodCombineCode);
+                    $lengthMethodCode = strlen((string) $methodCombineCode);
 
                     if ($lengthCarrierCode + $lengthMethodCode > 38) {
                         $total = $lengthCarrierCode + $lengthMethodCode;

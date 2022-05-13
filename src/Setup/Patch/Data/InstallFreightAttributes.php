@@ -155,9 +155,9 @@ class InstallFreightAttributes implements DataPatchInterface
         ];
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
-            $migrated = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId, 'migration-freight-shipping');
+            $migrateGroupId = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId, 'migration-freight-shipping');
             $existingFreightAttributeIds = [];
-            if ($migrated !== false) {
+            if ($migrateGroupId) {
                 $existingFreightAttributeIds = $this->getNonShqAttributeIds(
                     $catalogSetup,
                     'migration-freight-shipping',

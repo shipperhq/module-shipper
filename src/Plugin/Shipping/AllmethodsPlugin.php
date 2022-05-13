@@ -89,7 +89,7 @@ class AllmethodsPlugin
                 in_array($carrierCode, $this->ignoreCarrierCodes)) {
                 continue;
             }
-            if (strstr($carrierCode, 'shq') && $carrierModel instanceof \ShipperHQ\Shipper\Model\Carrier\Shipper) {
+            if (strstr((string) $carrierCode, 'shq') && $carrierModel instanceof \ShipperHQ\Shipper\Model\Carrier\Shipper) {
                 $carrierMethods = $carrierModel->getAllowedMethodsByCode($carrierCode);
             } else {
                 $carrierMethods = $carrierModel->getAllowedMethods();

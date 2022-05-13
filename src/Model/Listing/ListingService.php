@@ -164,7 +164,7 @@ class ListingService extends \Magento\Framework\Model\AbstractModel
     {
         /** @var \ShipperHQ\GraphQL\Response\ResponseInterface $responseBody */
         $responseBody = $response['result'];
-        if ($responseBody instanceof $expectClass && !is_null($responseBody->getData())) {
+        if ($responseBody instanceof $expectClass && ($responseBody->getData() !== null)) {
             $responseData = $responseBody->getData();
             if (!$responseBody->getErrors() && $responseData && !$responseData->isEmpty()) {
                 return call_user_func($callback, $responseData, $context);

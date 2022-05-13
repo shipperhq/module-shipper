@@ -39,7 +39,7 @@ use Magento\Framework\Setup\UninstallInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Setup\Exception;
+use Magento\Framework\Setup\Exception;
 
 // Setup factories
 use Magento\Catalog\Setup\CategorySetupFactory;

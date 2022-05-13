@@ -29,7 +29,7 @@ class RefreshAuthToken extends \Magento\Config\Block\System\Config\Form\Field
      *
      * @return RefreshAuthToken
      */
-    public function setRefreshAuthTokenLabel($refreshAuthButtonLabel)
+    public function setRefreshAuthTokenLabel($refreshAuthButtonLabel): RefreshAuthToken
     {
         $this->_refreshAuthTokenLabel = $refreshAuthButtonLabel;
         return $this;

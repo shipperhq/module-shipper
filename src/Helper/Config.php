@@ -38,7 +38,7 @@ namespace ShipperHQ\Shipper\Helper;
 use ShipperHQ\Common\Helper\AbstractConfig;
 use ShipperHQ\Common\Model\ConfigInterface;
 use Magento\Framework\App\Cache\Manager;
-use Magento\Framework\App\Config\MutableScopeConfigInterface;
+use Magento\Framework\App\MutableScopeConfig;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 
 /**
@@ -48,7 +48,7 @@ class Config extends AbstractConfig implements ConfigInterface
 {
     /**
      * Copy of the config loaded into this process's memory
-     * @var MutableScopeConfigInterface
+     * @var MutableScopeConfig
      */
     private $localConfig;
 
@@ -70,12 +70,12 @@ class Config extends AbstractConfig implements ConfigInterface
     /**
      * Config constructor.
      *
-     * @param MutableScopeConfigInterface $localConfig
+     * @param MutableScopeConfig $localConfig
      * @param WriterInterface             $configWriter
      * @param Manager                     $cacheManager
      */
     public function __construct(
-        MutableScopeConfigInterface $localConfig,
+        MutableScopeConfig $localConfig,
         WriterInterface $configWriter,
         Manager $cacheManager
     ) {
@@ -166,7 +166,7 @@ class Config extends AbstractConfig implements ConfigInterface
         }
 
         $args = array_filter([$path, $value, $scope, $scopeId], function ($e) {
-            return !is_null($e);
+            return ($e !== null);
         });
         $this->configWriter->save(...$args);
         $this->localConfig->setValue(...$args);

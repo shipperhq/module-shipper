@@ -157,14 +157,14 @@ abstract class AbstractRecordOrder implements ObserverInterface
         $this->carrierGroupHelper->recordOrderItems($order);
         $this->packageHelper->saveOrderPackages($order, $shippingAddress);
 
-        $shippingMethod = $order->getShippingMethod();
+        $shippingMethod = (string) $order->getShippingMethod();
         $shippingRate = $shippingAddress->getShippingRateByCode($shippingMethod);
 
         if ($shippingRate) {
 
             // RIV-443 Save order details to OMS / MNB-1464 Ensure only saving for SHQ methods
             if ($this->shipperDataHelper->getStoreQuoteOrder() &&
-                (strstr($shippingRate->getCarrier(), 'shq') || $shippingRate->getCarrier() == 'multicarrier')) {
+                (strstr((string) $shippingRate->getCarrier(), 'shq') || $shippingRate->getCarrier() == 'multicarrier')) {
                 $this->postOrderHelper->handleOrder($order, $shippingAddress, $quoteId);
             }
 
@@ -184,16 +184,16 @@ abstract class AbstractRecordOrder implements ObserverInterface
         }
 
         // Merged rates or display as single carrier
-        if (strstr($shippingMethod, 'shqshared_')) {
+        if (strstr((string) $shippingMethod, 'shqshared_')) {
             $orderDetailArray = $this->carrierGroupHelper->loadOrderDetailByOrderId($order->getId());
             //SHQ16- Review for splits
             foreach ($orderDetailArray as $orderDetail) {
                 $original = $orderDetail->getCarrierType();
-                $carrierTypeArray = explode('_', $orderDetail->getCarrierType());
+                $carrierTypeArray = explode('_', (string) $orderDetail->getCarrierType());
                 if (is_array($carrierTypeArray) && isset($carrierTypeArray[1])) {
                     $orderDetail->setCarrierType($carrierTypeArray[1]);
                     //SHQ16-1026
-                    $currentShipDescription = $order->getShippingDescription();
+                    $currentShipDescription = (string) $order->getShippingDescription();
                     $shipDescriptionArray = explode('-', $currentShipDescription);
                     $cgArray = $this->shipperDataHelper->decodeShippingDetails($orderDetail->getCarrierGroupDetail());
                     foreach ($cgArray as $key => $cgDetail) {
@@ -246,9 +246,9 @@ abstract class AbstractRecordOrder implements ObserverInterface
     private function getDefaultCarrierShipMethod($shippingMethod, $shippingRate)
     {
         if ($shippingRate) {
-            list($carrierCode, $method) = explode('_', $shippingMethod, 2);
+            list($carrierCode, $method) = explode('_', (string) $shippingMethod, 2);
             $carrierType = $shippingRate->getCarrierType();
-            $carrierType = strstr($carrierType, "shqshared_") ?
+            $carrierType = strstr((string) $carrierType, "shqshared_") ?
                 str_replace('shqshared_', '', $carrierType) : $carrierType;
             $magentoCarrierCode = $this->shipperDataHelper->mapToMagentoCarrierCode(
                 $carrierType,

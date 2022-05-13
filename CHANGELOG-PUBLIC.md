@@ -680,3 +680,7 @@ MNB-2338 Fix issue in data patch InstallDestTypeAttributes
 MNB-2342 Fix issue with storing methods containing spaces on Shipping Insights
 
 
+## 20.48.0 (2022-05-13)
+MNB-2430 M2.4.4 compatibility
+
+

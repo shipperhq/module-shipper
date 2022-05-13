@@ -372,11 +372,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function extractAddressIdAndCarriergroupId(&$addressId, &$carrierGroupId)
     {
-        if (strstr($carrierGroupId, 'ma')) {
-            $addressId = str_replace('ma', '', $carrierGroupId);
+        if (strstr((string) $carrierGroupId, 'ma')) {
+            $addressId = str_replace('ma', '', (string) $carrierGroupId);
             $carrierGroupId = '';
             if (strstr($addressId, 'ZZ')) {
-                $idArray = explode('ZZ', $addressId);
+                $idArray = explode('ZZ', (string) $addressId);
                 $addressId = $idArray[0];
                 $carrierGroupId = $idArray[1];
             }
@@ -403,7 +403,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $decoded = [];
         if ($data !== null && $data != '') {
             try {
-                $result = json_decode($data);
+                $result = json_decode((string) $data);
                 if ($result !== null) {
                     $decoded = $result;
                 }
@@ -562,7 +562,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if (preg_match($uaSignatures, $data)) {
             return true;
         }
-        $mobile_ua = strtolower(substr($data, 0, 4));
+        $mobile_ua = strtolower(substr((string) $data, 0, 4));
         $mobile_agents = [
             'w3c ',
             'acs-',
@@ -729,7 +729,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getFeatureEnabled($feature)
     {
-        $featuresConfig = $this->getConfigValue(Synchronizer::FEATURES_ENABLED_CONFIG);
+        $featuresConfig = (string) $this->getConfigValue(Synchronizer::FEATURES_ENABLED_CONFIG);
         $featuresEnabled = explode('|', $featuresConfig);
 
         return in_array($feature, $featuresEnabled);

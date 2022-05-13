@@ -36,9 +36,11 @@
 namespace ShipperHQ\Shipper\Model;
 
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Model\AbstractModel;
 use ShipperHQ\WS\Client;
+use \ShipperHQ\Shipper\Model\ResourceModel\SynchronizeFactory as SynchronizeResourceModelFactory;
 
-class Synchronizer extends \Magento\Framework\Model\AbstractModel
+class Synchronizer extends AbstractModel
 {
     /**
      * Attribute add
@@ -109,9 +111,13 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      */
     private $optionDataFactory;
     /**
-     * @var \ShipperHQ\Shipper\Model\SynchronizeFactory
+     * @var SynchronizeFactory
      */
     private $synchronizeFactory;
+    /**
+     * @var SynchronizeResourceModelFactory
+     */
+    private $synchronizeResourceModelFactory;
 
     /**
      * Database connection
@@ -135,6 +141,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
      * @param \Magento\Catalog\Model\Product\Attribute\OptionManagement $attributeOptionManagement
      * @param \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory $optionDataFactory ,
      * @param SynchronizeFactory $synchronizeFactory
+     * @param SynchronizeResourceModelFactory $synchronizeResourceModelFactory
      * @param \ShipperHQ\Shipper\Helper\Module $moduleHelper
      *
      */
@@ -148,6 +155,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         \Magento\Catalog\Model\Product\Attribute\OptionManagement $attributeOptionManagement,
         \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory $optionDataFactory,
         SynchronizeFactory $synchronizeFactory,
+        SynchronizeResourceModelFactory $synchronizeResourceModelFactory,
         ResourceConnection $resource,
         \ShipperHQ\Shipper\Helper\Module $moduleHelper
     ) {
@@ -161,6 +169,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
         $this->attributeOptionManagement = $attributeOptionManagement;
         $this->optionDataFactory = $optionDataFactory;
         $this->synchronizeFactory = $synchronizeFactory;
+        $this->synchronizeResourceModelFactory = $synchronizeResourceModelFactory;
         $this->connection = $resource->getConnection();
         $this->moduleHelper = $moduleHelper;
     }
@@ -448,7 +457,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
                             $configValue = $this->shipperDataHelper->getDefaultConfigValue(
                                 'carriers/shipper/' . $globalSetting->code
                             );
-                            if ($configValue != $value || is_null($configValue)) {
+                            if ($configValue != $value || ($configValue === null)) {
                                 $result[] = [
                                     'attribute_type' => 'global_setting',
                                     'attribute_code' => $globalSetting->code,
@@ -540,8 +549,8 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
             //account for multiselect values
             $separated = [];
             foreach ($usedAttributeValues as $key => $aValue) {
-                if (strstr($aValue, ',')) {
-                    $values = explode(',', $aValue);
+                if (strstr((string) $aValue, ',')) {
+                    $values = explode(',', (string) $aValue);
                     $separated = array_merge($separated, $values);
                     unset($usedAttributeValues[$key]);
                 }
@@ -555,7 +564,8 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
     {
         $result = 0;
         try {
-            $this->synchronizeFactory->create()->deleteAllSynchData();
+            $this->synchronizeResourceModelFactory->create()->deleteAllSynchData();
+
         } catch (\Exception $e) {
             $result = false;
             $this->shipperLogger->postDebug(
@@ -573,10 +583,11 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
             return $result;
         }
 
+        $synchronizeRM = $this->synchronizeResourceModelFactory->create();
         foreach ($data as $update) {
-            $newUpdate = $this->synchronizeFactory->create();
-            $newUpdate->setData($update);
-            $newUpdate->save();
+            $synchronize = $this->synchronizeFactory->create();
+            $synchronize->setData($update);
+            $synchronizeRM->save($synchronize);
             $result++;
         }
         return $result;
@@ -712,7 +723,7 @@ class Synchronizer extends \Magento\Framework\Model\AbstractModel
             $result = $this->send($synchCheckUrl);
             $synchResult = $result['result'];
             $debugData = [
-                'result' => json_decode($result['debug']['response']),
+                'result' => json_decode((string) $result['debug']['response']),
                 'url' => $result['debug']['url']
             ];
             $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Check synchronized status', $debugData);

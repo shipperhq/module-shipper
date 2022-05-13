@@ -467,11 +467,12 @@ class ShipperMapper
     public function getWarehouseDetails($item)
     {
         $details = [];
+        /** @var string|null $itemOriginsString */
         $itemOriginsString = $item->getProduct()->getData(self::$origin);
         if ($itemOriginsString == '') {
             return $details;
         }
-        $itemOrigins = explode(',', $itemOriginsString);
+        $itemOrigins = explode(',', (string) $itemOriginsString);
         if (is_array($itemOrigins)) {
             $product = $item->getProduct();
             $attribute = $product->getResource()->getAttribute(self::$origin);
@@ -509,7 +510,7 @@ class ShipperMapper
     public function getPickupLocationDetails($item)
     {
         $details = [];
-        $itemLocationsString = $item->getProduct()->getData(self::$location);
+        $itemLocationsString = (string) $item->getProduct()->getData(self::$location);
         if ($itemLocationsString == '') {
             return $details;
         }
@@ -573,7 +574,7 @@ class ShipperMapper
                 continue;
             }
             if ($attributeType == 'select' || $attributeType == 'multiselect') {
-                $attributeString = $product->getData($attribute->getAttributeCode());
+                $attributeString = (string) $product->getData($attribute->getAttributeCode());
                 $attributeValue = explode(',', $attributeString);
                 if (is_array($attributeValue)) {
                     $valueString = [];
@@ -595,7 +596,7 @@ class ShipperMapper
                 $attributeValue = $product->getData($attributeName);
             }
 
-            if (!empty($attributeValue) && !strstr($attributeValue, self::$useDefault)) {
+            if (!empty($attributeValue) && !strstr((string) $attributeValue, self::$useDefault)) {
                 $attributes[] = [
                     'name' => $attributeName,
                     'value' => $attributeValue
@@ -624,13 +625,13 @@ class ShipperMapper
     {
         $rawCustomAttributes = explode(
             ',',
-            $this->shipperDataHelper->getConfigValue('carriers/shipper/item_attributes')
+            (string) $this->shipperDataHelper->getConfigValue('carriers/shipper/item_attributes')
         );
         $customAttributes = [];
         foreach ($rawCustomAttributes as $attribute) {
             $attribute = str_replace(' ', '', $attribute);
-            if (!in_array($attribute, self::$stdAttributeNames) &&
-                !in_array($attribute, self::$legacyAttributeNames) && $attribute != '') {
+            if (!in_array((string) $attribute, self::$stdAttributeNames) &&
+                !in_array((string) $attribute, self::$legacyAttributeNames) && $attribute != '') {
                 $customAttributes[] = $attribute;
             }
         }
@@ -665,9 +666,12 @@ class ShipperMapper
         $selectedOptions = $this->getSelectedOptions($request);
 
         $region = $request->getDestRegionCode();
+        $country = $request->getDestCountryId() === null ? '' : $request->getDestCountryId();
 
         if ($region === null) { //SHQ16-2098
             $region = "";
+        } elseif (strpos($region, $country . "-") !== false) {
+            $region = str_replace($country . "-", "", $region);
         }
 
         //SHQ16-2238 prevent sending null in the address
@@ -675,7 +679,7 @@ class ShipperMapper
             // Don't pass in street for this scenario
             $destination = $this->addressFactory->create([
                 'city' => $request->getDestCity() === null ? '' : $request->getDestCity(),
-                'country' => $request->getDestCountryId() === null ? '' : $request->getDestCountryId(),
+                'country' => $country,
                 'region' => $region,
                 'zipcode' => $request->getDestPostcode() === null ? '' : $request->getDestPostcode(),
                 'selectedOptions' => $selectedOptions
@@ -684,7 +688,7 @@ class ShipperMapper
             $street = $request->getDestStreet();
             $destination = $this->addressFactory->create([
                 'city' => $request->getDestCity() === null ? '' : $request->getDestCity(),
-                'country' => $request->getDestCountryId() === null ? '' : $request->getDestCountryId(),
+                'country' => $country,
                 'region' => $region,
                 'street' => $street === null || !is_string($street) ? '' : str_replace("\n", ' ', $street),
                 'zipcode' => $request->getDestPostcode() === null ? '' : $request->getDestPostcode(),
@@ -823,7 +827,7 @@ class ShipperMapper
                 $storeId
             ),
             'appVersion' => $this->shipperDataHelper->getConfigValue('carriers/shipper/extension_version'),
-            'ipAddress' => is_null($ipAddress) ? $mobilePrepend : $mobilePrepend . $ipAddress
+            'ipAddress' => ($ipAddress === null) ? $mobilePrepend : $mobilePrepend . $ipAddress
         ]);
         return $siteDetails;
     }

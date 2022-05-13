@@ -171,7 +171,7 @@ class Listing implements ArgumentInterface
             'order_id' => $order->getEntityId(),
             'order_number' => $order->getIncrementId(),
             'items' => array_filter($this->getItemConfig($order), function ($var) {
-                return !is_null($var);
+                return ($var !== null);
             }),
             'existing_rate' => $this->getExistingRateForOrder($order),
             'fetch_updated_rate' => [

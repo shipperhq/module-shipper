@@ -83,10 +83,10 @@ class DispatchDate extends Column
      * @param ContextInterface                            $context
      * @param UiComponentFactory                          $uiComponentFactory
      * @param TimezoneInterface                           $timezone
-     * @param array                                       $components
-     * @param array                                       $data
      * @param ResolverInterface|null                      $localeResolver
      * @param DataBundle|null                             $dataBundle
+     * @param array                                       $components
+     * @param array                                       $data
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
@@ -94,10 +94,10 @@ class DispatchDate extends Column
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
         TimezoneInterface $timezone,
-        array $components = [],
-        array $data = [],
         ResolverInterface $localeResolver,
-        DataBundle $dataBundle
+        DataBundle $dataBundle,
+        array $components = [],
+        array $data = []
     ) {
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->date = $date;

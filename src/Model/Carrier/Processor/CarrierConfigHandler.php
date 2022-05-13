@@ -42,10 +42,7 @@ class CarrierConfigHandler
      */
     private $resourceConfig;
 
-    /**
-     * @param Config $configHelper
-     *
-     */
+
     public function __construct(
         \Magento\Config\Model\ResourceModel\Config $resourceConfig,
         \Magento\Backend\Block\Template\Context $context,
@@ -91,7 +88,7 @@ class CarrierConfigHandler
     public function saveConfig($path, $value, $scope = 'default', $scopeId = 0, $refreshRequired = true)
     {
         $check = $this->shipperDataHelper->getConfigValue($path);
-        if ($check != $value || is_null($check)) {
+        if ($check != $value || ($check === null)) {
             $this->resourceConfig->saveConfig(rtrim($path, '/'), $value, $scope, $scopeId);
             if ($refreshRequired) {
                 $this->shipperDataHelper->getCheckout()->setConfigUpdated(true);

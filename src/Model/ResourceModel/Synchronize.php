@@ -35,9 +35,15 @@
 
 namespace ShipperHQ\Shipper\Model\ResourceModel;
 
-class Synchronize extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+
+class Synchronize extends AbstractDb
 {
-    public function deleteAllSynchData()
+    /**
+     * @throws LocalizedException
+     */
+    public function deleteAllSynchData(): Synchronize
     {
         $this->getConnection()->delete($this->getMainTable());
         return $this;

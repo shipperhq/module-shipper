@@ -140,9 +140,9 @@ class InstallCoreProductAttributes implements DataPatchInterface
         ];
         foreach ($attributeSetArr as $attributeSetId) {
             //SHQ16-2123 handle migrated instances from M1 to M2
-            $migrated = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId, 'migration-shipping');
+            $migrateGroupId = $catalogSetup->getAttributeGroup($entityTypeId, $attributeSetId, 'migration-shipping');
             $existingAttributeIds = [];
-            if ($migrated !== false) {
+            if ($migrateGroupId) {
                 $existingAttributeIds = $this->getNonShqAttributeIds(
                     $catalogSetup,
                     'migration-shipping',

@@ -2,7 +2,7 @@
   "name": "shipperhq/module-shipper",
   "description": "Magento Shipping integration with ShipperHQ",
   "type": "magento2-module",
-  "version": "20.47.6",
+  "version": "20.48.0",
   "license": [
     "OSL-3.0",
     "AFL-3.0"
@@ -23,12 +23,12 @@
   "require": {
     "magento/framework": ">=100.0",
     "magento/module-store": ">=100.2",
-    "shipperhq/library-ws": "^20.6.0",
-    "shipperhq/library-shipper": "^20.14",
-    "shipperhq/library-graphql": "^20.2.0",
-    "shipperhq/module-common": "^20.9.3",
+    "shipperhq/library-ws": "^20.7.0",
+    "shipperhq/library-shipper": "^20.16",
+    "shipperhq/library-graphql": "^20.4.0",
+    "shipperhq/module-common": "^20.10.0",
     "shipperhq/module-logger": "*",
-    "lcobucci/jwt": "~3.4.2"
+    "lcobucci/jwt": "^4.0"
   },
   "autoload": {
     "files": [

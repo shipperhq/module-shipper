@@ -73,7 +73,7 @@ class ListingMapper
     private static $dim_height = 'ship_height';
     private static $dim_width = 'ship_width';
     private static $dim_length = 'ship_length';
-    
+
     /**
      * ShipperMapper constructor.
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
@@ -151,7 +151,7 @@ class ListingMapper
      */
     private function mapListing(Order $order, $shippingMethod, $shippingCost, $withItems = [])
     {
-        list($carrierCode, $method) = explode('_', $shippingMethod, 2);
+        list($carrierCode, $method) = explode('_', (string) $shippingMethod, 2);
 
         $listingDetail = new ListingDetail(
             $this->getShipmentId($order),
@@ -272,7 +272,7 @@ class ListingMapper
     public function mapCarrier($shippingMethod, $carrierType)
     {
 
-        list($carrierCode, $method) = explode('_', $shippingMethod, 2);
+        list($carrierCode, $method) = explode('_', (string) $shippingMethod, 2);
 
         $carrier = new Carrier($carrierType, $carrierCode);
         return $carrier;

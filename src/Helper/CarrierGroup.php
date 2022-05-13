@@ -141,7 +141,7 @@ class CarrierGroup extends Data
     {
         // admin and front end orders use method
         // MNB-1114 undo a change made for SHQ18-1391; no longer compare method price
-        // MNB-1340 Changed to call getAllShippingRates() instead of getShippingRateByCode as the latter can get an out of date rate
+        // MNB-1340 Changed getAllShippingRates(). getShippingRateByCode can get an out of date rate
         $foundRate = false;
         foreach ($shippingAddress->getAllShippingRates() as $rate) {
             if ($rate->getCode() == $shippingMethod) {
@@ -181,10 +181,10 @@ class CarrierGroup extends Data
                 'carrier_group' => $foundRate->getCarriergroup(),
                 'carrier_id' => $foundRate->getCarrierId(),
                 'dispatch_date' => $foundRate->getShqDispatchDate() ?
-                    date('Y-m-d', strtotime($foundRate->getShqDispatchDate())) :
+                    date('Y-m-d', strtotime((string) $foundRate->getShqDispatchDate())) :
                     '',
                 'delivery_date' => $foundRate->getShqDeliveryDate() ?
-                    date('Y-m-d', strtotime($foundRate->getShqDeliveryDate())) :
+                    date('Y-m-d', strtotime((string) $foundRate->getShqDeliveryDate())) :
                     ''
             ];
 
@@ -424,7 +424,7 @@ class CarrierGroup extends Data
     public function canCheckForQuoteInformation($order)
     {
         foreach ($order->getAllStatusHistory() as $orderComment) {
-            if (strstr($orderComment->getComment(), self::NO_SHIPPERHQ_DETAIL_AVAILABLE)) {
+            if (strstr((string) $orderComment->getComment(), self::NO_SHIPPERHQ_DETAIL_AVAILABLE)) {
                 return false;
             }
         }
@@ -447,7 +447,7 @@ class CarrierGroup extends Data
                 $carriergroupText .= '<div class="shq-oinfo-carrier">';
                 if ((array_key_exists('carrierName', $cgrp) && $cgrp['carrierName'] != '')) {
                     $carriergroupText .= 'Carrier: ';
-                    $carriergroupText .= '' . strtoupper($cgrp['carrierName']);
+                    $carriergroupText .= '' . strtoupper((string) $cgrp['carrierName']);
                 }
 
                 if ((array_key_exists('customDuties', $cgrp) && $cgrp['customDuties'] != 0)) {
@@ -467,7 +467,7 @@ class CarrierGroup extends Data
                 if ((array_key_exists('pickup_date', $cgrp) && $cgrp['pickup_date'] != '')) {
                     $carriergroupText .= ' ' . $cgrp['pickup_date'];
                     if (array_key_exists('pickup_slot', $cgrp)) {
-                        $displayTimeSlot = str_replace('_', ' - ', $cgrp['pickup_slot']);
+                        $displayTimeSlot = str_replace('_', ' - ', (string) $cgrp['pickup_slot']);
                         $carriergroupText .= ' ' . $displayTimeSlot . ' ';
                     }
                 }
@@ -480,7 +480,7 @@ class CarrierGroup extends Data
                     $dateText = isset($cgrp['pickup_location']) ? __('Pickup Date') :  __('Delivery Date');
                     $carriergroupText .= '<br/>' .$dateText . ' : ' . $cgrp['delivery_date'];
                     if (array_key_exists('time_slot', $cgrp)) {
-                        $displayTimeSlot = str_replace('_', ' - ', $cgrp['time_slot']);
+                        $displayTimeSlot = str_replace('_', ' - ', (string) $cgrp['time_slot']);
                         $carriergroupText .= ' ' . $displayTimeSlot . ' ';
                     }
                 }

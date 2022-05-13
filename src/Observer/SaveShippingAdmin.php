@@ -166,8 +166,8 @@ class SaveShippingAdmin implements ObserverInterface
                     }
                     $additionalDetailArray = $additionalDetail->convertToArray();
 
-                    $isCustomMethodSelected = strstr($shippingMethod, 'shipperadmin');
-                    if($isCustomMethodSelected) {
+                    $isCustomMethodSelected = strstr((string) $shippingMethod, 'shipperadmin');
+                    if ($isCustomMethodSelected) {
                         $shipData = $this->getAdminShipData->execute();
                         $customMethodTitle = $shipData ? 'Custom Shipping Rate - ' . $shipData->getCustomCarrier() : 'Custom Shipping Rate';
                         $this->carrierGroupHelper->setCustomShippingOnItems(

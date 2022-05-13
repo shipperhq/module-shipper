@@ -81,7 +81,7 @@ class TimeSlot extends Column
                 $orderGridDetails = $this->carrierGroupHelper->loadOrderGridDetailByOrderId($item["entity_id"]);
                 foreach ($orderGridDetails as $orderDetail) {
                     if ($orderDetail->getTimeSlot()) {
-                        $timeslot = $orderDetail->getTimeSlot();
+                        $timeslot = (string) $orderDetail->getTimeSlot();
                         if (strstr($timeslot, '_')) {
                             list($start, $end) = explode('_', $timeslot, 2);
                         } else {

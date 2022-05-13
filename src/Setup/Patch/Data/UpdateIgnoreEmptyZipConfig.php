@@ -21,7 +21,8 @@ use Magento\Quote\Setup\QuoteSetupFactory;
 use Magento\Sales\Setup\SalesSetupFactory;
 
 class UpdateIgnoreEmptyZipConfig implements DataPatchInterface
-{    /**
+{
+    /**
      * @var WriterInterface
      */
     private $configStorageWriter;

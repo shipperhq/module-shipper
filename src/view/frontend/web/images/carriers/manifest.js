@@ -38,6 +38,7 @@ define([], function() {
     "ils",
     "keystoneFreight",
     "nemfFreight",
+      "nzPost",
     "pickup",
     "pitney",
     "pittOhioFreight",

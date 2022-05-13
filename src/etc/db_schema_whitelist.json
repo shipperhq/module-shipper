@@ -272,5 +272,25 @@
             "carriergroup": true,
             "carriergroup_shipping": true
         }
+    },
+    "quote_address_shipping_rate": {
+        "column": {
+            "carrier_type": true,
+            "carrier_id": true,
+            "carriergroup_id": true,
+            "carriergroup": true,
+            "carriergroup_shipping_details": true
+        }
+    },
+    "quote_shipping_rate": {
+        "column": {
+            "carrier_type": true,
+            "carrier_id": true,
+            "carriergroup_id": true,
+            "carriergroup": true,
+            "carriergroup_shipping_details": true,
+            "shq_dispatch_date": true,
+            "shq_delivery_date": true
+        }
     }
 }

@@ -63,19 +63,25 @@ class ShippingMethodManagementPlugin
      * @var \Magento\Checkout\Model\Session
      */
     private $checkoutSession;
+    /**
+     * @var \ShipperHQ\Shipper\Helper\Data
+     */
+    protected $shipperDataHelper;
 
     public function __construct(
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Magento\Checkout\Model\Session $checkoutSession
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
     ) {
         $this->quoteRepository = $quoteRepository;
         $this->addressRepository = $addressRepository;
         $this->customerSession = $customerSession;
         $this->customerRepository = $customerRepository;
         $this->checkoutSession = $checkoutSession;
+        $this->shipperDataHelper = $shipperDataHelper;
     }
 
     /**
@@ -126,6 +132,8 @@ class ShippingMethodManagementPlugin
     }
 
     /**
+     * This function looks at the default saved addresses destination_type and applies it to any new saved address
+     *
      * @param \Magento\Quote\Model\ShippingMethodManagement $subject
      * @param $cartId
      * @param AddressInterface $address
@@ -141,11 +149,13 @@ class ShippingMethodManagementPlugin
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->checkoutSession->getQuote();
 
-        // no methods applicable for empty carts or carts with virtual products
-        if ($quote->isVirtual() || 0 == $quote->getItemsCount()) {
+        // No methods applicable for empty carts or carts with virtual products
+        // MNB-2474 We don't want to assume an address type based on default if AV is enabled. Let AV do its thing
+        if ($this->shipperDataHelper->getAddressValidationEnabled()
+            || $quote->isVirtual() || 0 == $quote->getItemsCount()) {
             return [$cartId, $address];
         }
-        //if logged in, get the default address and apply address type to address
+        // If logged in, get the default address and apply address type to address
         if ($this->customerSession->isLoggedIn()) {
             $customer = $this->customerRepository->getById($this->customerSession->getCustomerId());
             if ($defaultShipping = $customer->getDefaultShipping()) {

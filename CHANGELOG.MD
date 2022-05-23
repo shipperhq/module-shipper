@@ -684,3 +684,7 @@ MNB-2342 Fix issue with storing methods containing spaces on Shipping Insights
 MNB-2430 M2.4.4 compatibility
 
 
+## 20.48.1 (2022-05-23)
+MNB-2474 Stop using default saved address destination_type for new addresses when address validation enabled
+
+

@@ -245,7 +245,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $this->scopeConfig->getValue($configField);
     }
 
-    public function getStoreDimComments()
+    public function getStoreDimComments(): bool
     {
         $result = false;
         if ($this->getDefaultConfigValue('carriers/shipper/STORE_DIM_COMMENTS')) {
@@ -254,7 +254,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $result;
     }
 
-    public function getAlwaysShowSingleCarrierTitle()
+    public function getAlwaysShowSingleCarrierTitle(): bool
     {
         $result = false;
         if ($this->getDefaultConfigValue('carriers/shipper/ALWAYS_SHOW_SINGLE_CARRIER_TITLE')) {
@@ -263,7 +263,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $result;
     }
 
-    public function getStoreQuoteOrder()
+    public function getStoreQuoteOrder(): bool
     {
         $result = false;
         if ($this->getDefaultConfigValue('carriers/shipper/STORE_QUOTE_ORDER')) {
@@ -272,7 +272,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $result;
     }
 
-    public function isCheckout($quote)
+    public function getAddressValidationEnabled(): bool
+    {
+        $result = false;
+        if ($this->getDefaultConfigValue('carriers/shipper/AV_ENABLED')) {
+            $result = true;
+        }
+        return $result;
+    }
+
+    public function isCheckout($quote): bool
     {
         $isCheckout = $this->checkoutSession->getIsCheckout();
         if ($quote->getIsMultiShipping()) {

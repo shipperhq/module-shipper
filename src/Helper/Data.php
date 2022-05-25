@@ -283,10 +283,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function isCheckout($quote): bool
     {
-        $isCheckout = $this->checkoutSession->getIsCheckout();
-        if ($quote->getIsMultiShipping()) {
-            return true;
+        $isCheckout = false;
+
+        if ($this->checkoutSession->getIsCheckout() || $quote->getIsMultiShipping()) {
+            $isCheckout = true;
         }
+
         return $isCheckout;
     }
 

@@ -353,7 +353,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         $request->setSelectedOptions($this->getSelectedOptions($shippingAddress, $existing));
 
         $isCheckout = $this->shipperDataHelper->isCheckout($this->quote);
-        $cartType = ($isCheckout !== null && $isCheckout != 1) ? "CART" : "STD";
+        $cartType = ($isCheckout != 1) ? "CART" : "STD";
         if ($this->quote->getIsMultiShipping()) {
             $cartType = 'MAC';
         }

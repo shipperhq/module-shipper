@@ -688,3 +688,7 @@ MNB-2430 M2.4.4 compatibility
 MNB-2474 Stop using default saved address destination_type for new addresses when address validation enabled
 
 
+## 20.48.2 (2022-05-25)
+MNB-2546 Fix issue with admin orders throwing errors
+
+

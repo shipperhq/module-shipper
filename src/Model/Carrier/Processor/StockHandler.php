@@ -30,6 +30,10 @@
 
 namespace ShipperHQ\Shipper\Model\Carrier\Processor;
 
+use Magento\InventoryCatalog\Model\GetStockIdForCurrentWebsite;
+use Magento\InventorySalesApi\Api\GetProductSalableQtyInterface;
+use Magento\InventoryConfigurationApi\Api\GetStockItemConfigurationInterface;
+
 class StockHandler
 {
     private static $origin = 'shipperhq_warehouse';
@@ -42,17 +46,33 @@ class StockHandler
     public $shipperLogger;
 
     /**
-     * @var \Magento\CatalogInventory\Api\StockRegistryInterface
+     * @var GetStockIdForCurrentWebsite
      */
-    public $stockRegistry;
+    private $getStockIdForCurrentWebsite;
+
+    /**
+     * @var GetProductSalableQtyInterface
+     */
+    private $getProductSalableQty;
+
+
+    /**
+     * @var GetStockItemConfigurationInterface
+     */
+    private $getStockItemConfiguration;
+
 
     public function __construct(
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry
+        GetStockIdForCurrentWebsite $getStockIdForCurrentWebsite,
+        GetProductSalableQtyInterface $getProductSalableQty,
+        GetStockItemConfigurationInterface $getStockItemConfiguration
     ) {
 
         $this->shipperLogger = $shipperLogger;
-        $this->stockRegistry = $stockRegistry;
+        $this->getStockIdForCurrentWebsite = $getStockIdForCurrentWebsite;
+        $this->getProductSalableQty = $getProductSalableQty;
+        $this->getStockItemConfiguration = $getStockItemConfiguration;
     }
 
     public function getOriginInstock($origin, $item, $product)
@@ -62,29 +82,38 @@ class StockHandler
 
     public function getInstock($item, $product)
     {
-        $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
-        if (!$stockItem->getManageStock()) {
+        $stockId = $this->getStockIdForCurrentWebsite->execute();
+        $stockItemConfiguration = $this->getStockItemConfiguration->execute($product->getSku(), $stockId);
+        $isManageStock = $stockItemConfiguration->isManageStock();
+        if (!$isManageStock) {
             return true;
         }
-        $inStock = $stockItem->getQty() !== null ? $stockItem->getQty() >= $item->getQty() : true;
+
+        $productSalableQty = $this->getProductSalableQty->execute($product->getSku(), $stockId);
+
+        $inStock = $productSalableQty !== null ? $productSalableQty >= $item->getQty() : true;
         return $inStock;
+    }
+
+    public function getInventoryCount($item, $product)
+    {
+
+        $stockId = $this->getStockIdForCurrentWebsite->execute();
+        $stockItemConfiguration = $this->getStockItemConfiguration->execute($product->getSku(), $stockId);
+        $isManageStock = $stockItemConfiguration->isManageStock();
+        if (!$isManageStock) {
+            return null;
+        }
+
+        $productSalableQty = $this->getProductSalableQty->execute($product->getSku(), $stockId);
+
+        return $productSalableQty;
+
     }
 
     public function getOriginInventoryCount($origin, $item, $product)
     {
         return $this->getInventoryCount($item, $product);
-    }
-
-    public function getInventoryCount($item, $product)
-    {
-        $stockItem = $this->stockRegistry->getStockItem($product->getId(), $product->getStore()->getWebsiteId());
-        $allowBackorder = $stockItem->getBackorders() != $stockItem::BACKORDERS_NO;
-
-        if (!$stockItem->getManageStock() || $allowBackorder) { //SHQ18-209 & SHQ18-289
-            return null;
-        } else {
-            return $stockItem->getQty();
-        }
     }
 
     public function getOriginAvailabilityDate($origin, $item, $product)

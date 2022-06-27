@@ -692,3 +692,7 @@ MNB-2474 Stop using default saved address destination_type for new addresses whe
 MNB-2546 Fix issue with admin orders throwing errors
 
 
+## 20.49.0 (2022-06-27)
+MNB-2591 use InventoryManagement instead of StockRegistry
+
+

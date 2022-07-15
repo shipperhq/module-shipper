@@ -696,3 +696,7 @@ MNB-2546 Fix issue with admin orders throwing errors
 MNB-2591 use InventoryManagement instead of StockRegistry
 
 
+## 20.49.1 (2022-07-15)
+MNB-2717 Prevent exception being thrown when configurable product with options added to cart
+
+

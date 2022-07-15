@@ -45,6 +45,7 @@ namespace ShipperHQ\Shipper\Model\Carrier;
 use Magento\Directory\Helper\Data;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Quote\Model\Quote\Address\RateResult\Error;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
@@ -65,21 +66,25 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      */
     const ACTIVE_FLAG = 'active';
 
-    /*
-     * Rate request object
-     * @var \ShipperHQ\WS\Rate\Request\RateRequest
-     */
     /**
      * Flag for check carriers for activity
      *
      * @var string
      */
     const IGNORE_EMPTY_ZIP = 'ignore_empty_zip';
+    /**
+     * @var string[]
+     */
     private static $shippingOptions = ['liftgate_required', 'notify_required', 'inside_delivery', 'destination_type'];
     /**
      * @var string
      */
     protected $_code = 'shipper';
+    /**
+     * Rate request object
+     *
+     * @var \ShipperHQ\WS\Rate\Request\RateRequest|null
+     */
     protected $shipperRequest = null;
     /**
      * Raw rate request data
@@ -124,10 +129,12 @@ class Shipper extends AbstractCarrier implements CarrierInterface
     protected $carrierGroupHelper;
     /**
      * Rate result data
-     *
-     * @var Mage_Shipping_Model_Rate_Result|null
+     * @var Result|null
      */
     protected $result = null;
+    /**
+     * @var Quote|null
+     */
     protected $quote;
     /**
      * @var \Magento\Framework\Registry
@@ -232,7 +239,6 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         Data $directoryHelper,
         array $data = []
     ) {
-
         $this->shipperDataHelper = $shipperDataHelper;
         $this->restHelper = $restHelper;
         $this->configHelper = $configHelper;
@@ -269,7 +275,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             return false;
         }
 
-        //Set quote on request so we can get store ID from quote
+        // Set quote on request so we can get store ID from quote
         if (is_array($request->getAllItems())) {
             $item = current($request->getAllItems());
             if ($item instanceof QuoteItem) {
@@ -324,12 +330,13 @@ class Shipper extends AbstractCarrier implements CarrierInterface
     /**
      * Prepare and set request to this instance
      *
-     * @param \Magento\Quote\Model\Quote\Address\RateRequest $request
+     * @param RateRequest $request
+     *
      * @return $this
      */
-    public function setRequest(\Magento\Quote\Model\Quote\Address\RateRequest $request)
+    public function setRequest(RateRequest $request)
     {
-        //SHQ16-1261 - further detail as values not on shipping address
+        // SHQ16-1261 - further detail as values not on shipping address
         if (!$this->quote) {
             $this->quote = $this->shipperDataHelper->getQuote();
         }
@@ -365,6 +372,8 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             'shipperhq_carrier_set_request',
             ['request' => $request]
         );
+
+        $this->resetDestAddressInRequest($this->quote, $request);
 
         $this->shipperRequest = $this->shipperMapper->getShipperTranslation($request);
         $this->rawRequest = $request;
@@ -407,9 +416,33 @@ class Shipper extends AbstractCarrier implements CarrierInterface
     }
 
     /**
+     * This only applies when using store pickup
+     * Will reset the destination address in the Magento shipping request to the actual shipping address rather than
+     * the store pickup location address
+     *
+     * @param Quote       $quote
+     * @param RateRequest $request
+     *
+     * @return void
+     */
+    private function resetDestAddressInRequest(Quote $quote, RateRequest $request)
+    {
+        $originalAddress = $this->shipperDataHelper->getOriginalShippingAddress($quote);
+
+        if ($originalAddress) {
+            $request->setDestCountryId($originalAddress->getCountryId());
+            $request->setDestRegionId($originalAddress->getRegionId());
+            $request->setDestRegionCode($originalAddress->getRegionCode());
+            $request->setDestStreet($originalAddress->getStreetFull());
+            $request->setDestCity($originalAddress->getCity());
+            $request->setDestPostcode($originalAddress->getPostcode());
+        }
+    }
+
+    /**
      * Do remote request for and handle errors
      *
-     * @return Mage_Shipping_Model_Rate_Result
+     * @return Result
      */
     private function getQuotes()
     {
@@ -465,7 +498,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      * @param $shipperResponse
      * @param $isDateSelect
      *
-     * @return Mage_Shipping_Model_Rate_Result
+     * @return Result
      */
     private function parseShipperResponse($shipperResponse, $isDateSelect)
     {
@@ -698,7 +731,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
     /**
      *
      * Build up an error message when no carrier rates returned
-     * @return Mage_Shipping_Model_Rate_Result
+     * @return \Magento\Shipping\Model\Rate\Result
      */
     private function returnGeneralError($message = null)
     {
@@ -728,7 +761,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      * @param null $carrierGroupDetail
      * @param bool $isDateSelect If set to true, will append error to results regardless of the debug flag in admin
      *
-     * @return Mage_Shipping_Model_Rate_Result
+     * @return \Magento\Shipping\Model\Rate\Result
      */
     private function appendError(
         $result,
@@ -1184,7 +1217,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
     /**
      * @param $ratesToAdd
-     * @return \Magento\Shipping\Model\Rate\Result
+     * @return Result
      */
     public function createMergedRate($ratesToAdd)
     {

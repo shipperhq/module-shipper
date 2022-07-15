@@ -275,7 +275,7 @@ class ShipperMapper
     /**
      * Set up values for ShipperHQ Rates Request
      *
-     * @param $magentoRequest
+     * @param \Magento\Quote\Model\Quote\Address\RateRequest $magentoRequest
      * @return \ShipperHQ\WS\Rate\Request\RateRequest
      */
     public function getShipperTranslation($magentoRequest)
@@ -316,7 +316,7 @@ class ShipperMapper
     /**
      * Format cart for from shipper for Magento
      *
-     * @param $request
+     * @param \Magento\Quote\Model\Quote\Address\RateRequest $request
      * @return array
      */
     public function getCartDetails($request)
@@ -332,7 +332,7 @@ class ShipperMapper
     /**
      * Get values for items
      *
-     * @param $request
+     * @param \Magento\Quote\Model\Quote\Address\RateRequest $request
      * @param $magentoItems
      * @param bool $childItems
      * @return array
@@ -658,7 +658,7 @@ class ShipperMapper
     /**
      * Get values for destination
      *
-     * @param $request
+     * @param \Magento\Quote\Model\Quote\Address\RateRequest $request
      * @return array
      */
     public function getDestination($request)
@@ -699,32 +699,39 @@ class ShipperMapper
         return $destination;
     }
 
-    /*
-    * Return pickup location selected
-    *
-    */
-
+    /**
+     * Return pickup location selected
+     *
+     * @param \Magento\Quote\Model\Quote\Address\RateRequest $request
+     *
+     * @return Request\Shipping\SelectedOptions
+     */
     public function getSelectedOptions($request)
     {
         $shippingOptions = $request->getSelectedOptions();
         return $this->selectedOptionsFactory->create(['options' => $shippingOptions]);
     }
 
-    /*
+    /**
      * Return selected carrierGroup id
+     *
+     * @param \Magento\Quote\Model\Quote\Address\RateRequest $request
+     *
+     * @return mixed
      */
-
     public function getCartType($request)
     {
         $cartType = $request->getCartType();
         return $cartType;
     }
 
-    /*
-   * Return selected carrier id
-   *
-   */
-
+    /**
+     * Return selected carrier id
+     *
+     * @param \Magento\Quote\Model\Quote\Address\RateRequest $request
+     *
+     * @return Request\CustomerDetails
+     */
     public function getCustomerGroupDetails($request)
     {
         $code = $this->getCustomerGroupId($request->getAllItems());

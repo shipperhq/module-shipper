@@ -30,9 +30,12 @@
 
 namespace ShipperHQ\Shipper\Model\Carrier\Processor;
 
+use Exception;
 use Magento\InventoryCatalog\Model\GetStockIdForCurrentWebsite;
+use Magento\InventoryConfigurationApi\Model\IsSourceItemManagementAllowedForProductTypeInterface;
 use Magento\InventorySalesApi\Api\GetProductSalableQtyInterface;
 use Magento\InventoryConfigurationApi\Api\GetStockItemConfigurationInterface;
+use Magento\InventoryCatalogApi\Model\GetSkusByProductIdsInterface;
 
 class StockHandler
 {
@@ -54,25 +57,37 @@ class StockHandler
      * @var GetProductSalableQtyInterface
      */
     private $getProductSalableQty;
-
+    /**
+     * @var GetSkusByProductIdsInterface
+     */
+    private $getSkusByProductIds;
 
     /**
      * @var GetStockItemConfigurationInterface
      */
     private $getStockItemConfiguration;
 
+    /**
+     * @var IsSourceItemManagementAllowedForProductTypeInterface
+     */
+    private $isSourceItemMgmtAllowedForProductType;
+
 
     public function __construct(
         \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
         GetStockIdForCurrentWebsite $getStockIdForCurrentWebsite,
         GetProductSalableQtyInterface $getProductSalableQty,
-        GetStockItemConfigurationInterface $getStockItemConfiguration
+        GetStockItemConfigurationInterface $getStockItemConfiguration,
+        GetSkusByProductIdsInterface $getSkusByProductIds,
+        IsSourceItemManagementAllowedForProductTypeInterface $isSourceItemManagementAllowedForProductType
     ) {
 
         $this->shipperLogger = $shipperLogger;
         $this->getStockIdForCurrentWebsite = $getStockIdForCurrentWebsite;
         $this->getProductSalableQty = $getProductSalableQty;
         $this->getStockItemConfiguration = $getStockItemConfiguration;
+        $this->getSkusByProductIds = $getSkusByProductIds;
+        $this->isSourceItemMgmtAllowedForProductType = $isSourceItemManagementAllowedForProductType;
     }
 
     public function getOriginInstock($origin, $item, $product)
@@ -80,35 +95,62 @@ class StockHandler
         return $this->getInstock($item, $product);
     }
 
+    /**
+     * Gets the stock status of the item. If requested qty > qty in stock then returns false. Defaults to true on error
+     *
+     * @param $item
+     * @param $product
+     *
+     * @return bool
+     */
     public function getInstock($item, $product)
     {
-        $stockId = $this->getStockIdForCurrentWebsite->execute();
-        $stockItemConfiguration = $this->getStockItemConfiguration->execute($product->getSku(), $stockId);
-        $isManageStock = $stockItemConfiguration->isManageStock();
-        if (!$isManageStock) {
-            return true;
+        try {
+            $stockId = $this->getStockIdForCurrentWebsite->execute();
+            $stockItemConfiguration = $this->getStockItemConfiguration->execute($product->getSku(), $stockId);
+            $isManageStock = $stockItemConfiguration->isManageStock();
+
+            if (!$isManageStock || !$this->isSourceItemMgmtAllowedForProductType->execute($product->getTypeId())) {
+                return true;
+            }
+
+            $sku = $this->getSkusByProductIds->execute([$product->getId()])[$product->getId()];
+            $productSalableQty = $this->getProductSalableQty->execute($sku, $stockId);
+            $inStock = $productSalableQty !== null ? $productSalableQty >= $item->getQty() : true;
+        } catch (Exception $e) {
+            $inStock = true;
         }
 
-        $productSalableQty = $this->getProductSalableQty->execute($product->getSku(), $stockId);
-
-        $inStock = $productSalableQty !== null ? $productSalableQty >= $item->getQty() : true;
         return $inStock;
     }
 
+    /**
+     * Gets the salable qty of a product
+     *
+     * @param $item
+     * @param $product
+     *
+     * @return float|null
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function getInventoryCount($item, $product)
     {
+        try {
+            $stockId = $this->getStockIdForCurrentWebsite->execute();
+            $stockItemConfiguration = $this->getStockItemConfiguration->execute($product->getSku(), $stockId);
+            $isManageStock = $stockItemConfiguration->isManageStock();
 
-        $stockId = $this->getStockIdForCurrentWebsite->execute();
-        $stockItemConfiguration = $this->getStockItemConfiguration->execute($product->getSku(), $stockId);
-        $isManageStock = $stockItemConfiguration->isManageStock();
-        if (!$isManageStock) {
-            return null;
+            if (!$isManageStock || !$this->isSourceItemMgmtAllowedForProductType->execute($product->getTypeId())) {
+                return null;
+            }
+
+            $sku = $this->getSkusByProductIds->execute([$product->getId()])[$product->getId()];
+            $productSalableQty = $this->getProductSalableQty->execute($sku, $stockId);
+        } catch (Exception $e) {
+            $productSalableQty = null;
         }
 
-        $productSalableQty = $this->getProductSalableQty->execute($product->getSku(), $stockId);
-
         return $productSalableQty;
-
     }
 
     public function getOriginInventoryCount($origin, $item, $product)

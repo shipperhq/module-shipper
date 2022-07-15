@@ -150,6 +150,14 @@ abstract class AbstractRecordOrder implements ObserverInterface
             $shippingAddress = $quote->getShippingAddress();
         }
 
+        // MNB-2230 Remove the "original" shipping address which we save when store pickup is used. No need to store it
+        $originalAddress = $this->shipperDataHelper->getOriginalShippingAddress($quote);
+
+        if ($originalAddress) {
+            $quote->removeAddress($originalAddress->getId());
+            $this->shipperLogger->postDebug('ShipperHQ Pickup', 'Removed Address', $originalAddress->getId());
+        }
+
         $order->setDestinationType($shippingAddress->getDestinationType());
         $order->setValidationStatus($shippingAddress->getValidationStatus());
 

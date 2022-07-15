@@ -37,6 +37,7 @@ namespace ShipperHQ\Shipper\Helper;
 
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Webapi\Exception;
+use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use ShipperHQ\Shipper\Model\Synchronizer;
@@ -744,5 +745,23 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $featuresEnabled = explode('|', $featuresConfig);
 
         return in_array($feature, $featuresEnabled);
+    }
+
+    /**
+     * Looks in quote_address for an address type of "shq_orig"
+     *
+     * @param $quote
+     *
+     * @return false|AddressInterface
+     */
+    public function getOriginalShippingAddress($quote)
+    {
+        foreach ($quote->getAddressesCollection() as $address) {
+            if ($address->getAddressType() == 'shq_orig') {
+                return $address;
+            }
+        }
+
+        return false;
     }
 }

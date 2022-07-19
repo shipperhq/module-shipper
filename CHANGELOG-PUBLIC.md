@@ -700,3 +700,7 @@ MNB-2591 use InventoryManagement instead of StockRegistry
 MNB-2717 Prevent exception being thrown when configurable product with options added to cart
 
 
+## 20.50.0 (2022-07-19)
+MNB-2726 fix issue when MSI uninstalled
+
+

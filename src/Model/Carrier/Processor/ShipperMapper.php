@@ -39,6 +39,7 @@ namespace ShipperHQ\Shipper\Model\Carrier\Processor;
 use Magento\Bundle\Model\Product\Price as Price;
 use ShipperHQ\WS;
 use ShipperHQ\WS\Rate\Request;
+use ShipperHQ\Shipper\Model\Carrier\Processor\StockHandler\StockHandlerInterface;
 
 class ShipperMapper
 {
@@ -177,7 +178,7 @@ class ShipperMapper
     private $shipDetailsFactory;
 
     /**
-     * @var StockHandler
+     * @var StockHandlerInterface
      */
     private $stockHandler;
 
@@ -219,7 +220,7 @@ class ShipperMapper
      * @param Request\CustomerDetailsFactory $customerDetailsFactory
      * @param \Magento\Backend\Block\Template\Context $context
      * @param Request\ShipDetailsFactory $shipDetailsFactory
-     * @param StockHandler $stockHandler
+     * @param StockHandlerFactory $stockHandlerFactory
      * @param Request\Checkout\PhysicalBuildingDetailFactory $physicalBuildingDetailFactory
      * @param Request\Checkout\StockDetailFactory $stockDetailFactory
      * @param \Magento\Tax\Helper\Data $taxHelper
@@ -242,7 +243,7 @@ class ShipperMapper
         \ShipperHQ\WS\Rate\Request\CustomerDetailsFactory $customerDetailsFactory,
         \Magento\Backend\Block\Template\Context $context,
         \ShipperHQ\WS\Rate\Request\ShipDetailsFactory $shipDetailsFactory,
-        StockHandler $stockHandler,
+        StockHandlerFactory $stockHandlerFactory,
         \ShipperHQ\WS\Rate\Request\Checkout\PhysicalBuildingDetailFactory $physicalBuildingDetailFactory,
         \ShipperHQ\WS\Rate\Request\Checkout\StockDetailFactory $stockDetailFactory,
         \Magento\Tax\Helper\Data $taxHelper,
@@ -264,12 +265,19 @@ class ShipperMapper
         $this->customerDetailsFactory = $customerDetailsFactory;
         $this->storeManager = $context->getStoreManager();
         $this->shipDetailsFactory = $shipDetailsFactory;
-        $this->stockHandler = $stockHandler;
         $this->physicalBuildingDetailFactory = $physicalBuildingDetailFactory;
         $this->stockDetailFactory = $stockDetailFactory;
         $this->taxHelper = $taxHelper;
         self::$prodAttributes = $this->shipperDataHelper->getProductAttributes();
         $this->httpHeader = $httpHeader;
+
+        $this->stockHandler = $stockHandlerFactory->create();
+
+        $this->shipperLogger->postDebug(
+            'ShipperHQ_Shipper',
+            'StockHandler selected based on installed modules',
+            get_class($this->stockHandler)
+        );
     }
 
     /**

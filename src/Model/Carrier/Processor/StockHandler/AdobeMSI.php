@@ -28,7 +28,7 @@
  * @author ShipperHQ Team sales@shipperhq.com
  */
 
-namespace ShipperHQ\Shipper\Model\Carrier\Processor;
+namespace ShipperHQ\Shipper\Model\Carrier\Processor\StockHandler;
 
 use Exception;
 use Magento\InventoryCatalog\Model\GetStockIdForCurrentWebsite;
@@ -37,16 +37,9 @@ use Magento\InventorySalesApi\Api\GetProductSalableQtyInterface;
 use Magento\InventoryConfigurationApi\Api\GetStockItemConfigurationInterface;
 use Magento\InventoryCatalogApi\Model\GetSkusByProductIdsInterface;
 
-class StockHandler
+class AdobeMSI implements StockHandlerInterface
 {
-    private static $origin = 'shipperhq_warehouse';
-    private static $location = 'shipperhq_location';
     private static $available_date = 'shipperhq_availability_date';
-
-    /**
-     * @var \ShipperHQ\Shipper\Helper\LogAssist
-     */
-    public $shipperLogger;
 
     /**
      * @var GetStockIdForCurrentWebsite
@@ -73,16 +66,21 @@ class StockHandler
     private $isSourceItemMgmtAllowedForProductType;
 
 
+    /**
+     * @param GetStockIdForCurrentWebsite $getStockIdForCurrentWebsite
+     * @param GetProductSalableQtyInterface $getProductSalableQty
+     * @param GetStockItemConfigurationInterface $getStockItemConfiguration
+     *
+     * Can't use proper type hints on the constructor otherwise the DI compiler will flip out
+     * See StockHandlerFactory
+     */
     public function __construct(
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        GetStockIdForCurrentWebsite $getStockIdForCurrentWebsite,
-        GetProductSalableQtyInterface $getProductSalableQty,
-        GetStockItemConfigurationInterface $getStockItemConfiguration,
-        GetSkusByProductIdsInterface $getSkusByProductIds,
-        IsSourceItemManagementAllowedForProductTypeInterface $isSourceItemManagementAllowedForProductType
+        $getStockIdForCurrentWebsite,
+        $getProductSalableQty,
+        $getStockItemConfiguration,
+        $getSkusByProductIds,
+        $isSourceItemManagementAllowedForProductType
     ) {
-
-        $this->shipperLogger = $shipperLogger;
         $this->getStockIdForCurrentWebsite = $getStockIdForCurrentWebsite;
         $this->getProductSalableQty = $getProductSalableQty;
         $this->getStockItemConfiguration = $getStockItemConfiguration;
@@ -124,6 +122,11 @@ class StockHandler
         return $inStock;
     }
 
+    public function getOriginInventoryCount($origin, $item, $product)
+    {
+        return $this->getInventoryCount($item, $product);
+    }
+
     /**
      * Gets the salable qty of a product
      *
@@ -151,11 +154,6 @@ class StockHandler
         }
 
         return $productSalableQty;
-    }
-
-    public function getOriginInventoryCount($origin, $item, $product)
-    {
-        return $this->getInventoryCount($item, $product);
     }
 
     public function getOriginAvailabilityDate($origin, $item, $product)

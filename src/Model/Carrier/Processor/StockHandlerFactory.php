@@ -4,6 +4,7 @@ namespace ShipperHQ\Shipper\Model\Carrier\Processor;
 
 use Magento\Framework\ObjectManagerInterface;
 use ShipperHQ\Shipper\Model\Carrier\Processor\StockHandler\StockHandlerInterface;
+use Magento\Framework\Module\Manager;
 
 class StockHandlerFactory
 {
@@ -20,10 +21,12 @@ class StockHandlerFactory
      * @param ObjectManagerInterface $objectManager
      */
     public function __construct(
-        ObjectManagerInterface $objectManager
+        ObjectManagerInterface $objectManager,
+        Manager $moduleManager
     )
     {
         $this->objectManager = $objectManager;
+        $this->moduleManager = $moduleManager;
     }
 
     /**
@@ -59,7 +62,8 @@ class StockHandlerFactory
      */
     private function isAdobeMSIInstalled(): bool
     {
-        return class_exists('Magento\InventoryCatalog\Model\GetStockIdForCurrentWebsite');
+        return class_exists('Magento\InventoryCatalog\Model\GetStockIdForCurrentWebsite')
+            && $this->moduleManager->isEnabled('Magento_InventoryCatalog');
     }
 
     /**
@@ -67,6 +71,7 @@ class StockHandlerFactory
      */
     private function isLegacyStockRegistryInstalled(): bool
     {
-        return interface_exists('Magento\CatalogInventory\Api\StockRegistryInterface');
+        return interface_exists('Magento\CatalogInventory\Api\StockRegistryInterface')
+            && $this->moduleManager->isEnabled('Magento_CatalogInventory');
     }
 }

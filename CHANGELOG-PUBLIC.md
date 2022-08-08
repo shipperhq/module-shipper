@@ -704,3 +704,7 @@ MNB-2717 Prevent exception being thrown when configurable product with options a
 MNB-2726 fix issue when MSI uninstalled
 
 
+## 20.50.1 (2022-08-08)
+MNB-2863 Fix error thrown when Magento inventory is disabled
+
+

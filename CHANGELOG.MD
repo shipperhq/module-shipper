@@ -708,3 +708,7 @@ MNB-2726 fix issue when MSI uninstalled
 MNB-2863 Fix error thrown when Magento inventory is disabled
 
 
+## 20.50.2 (2022-08-30)
+MNB-2869 Add check for street lines being present in checkout
+
+

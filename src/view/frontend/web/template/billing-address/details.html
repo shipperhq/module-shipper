@@ -18,16 +18,18 @@
     <text args="getCountryName(currentBillingAddress().countryId)"></text><br/>
     <a if="currentBillingAddress().telephone" attr="'href': 'tel:' + currentBillingAddress().telephone" text="currentBillingAddress().telephone"></a><br/>
 
-    <each args="data: currentBillingAddress().customAttributes, as: 'element'">
-        <!-- ko if: element.attribute_code != 'destination_type' && element.attribute_code != 'validation_status' -->
-            <!-- ko if: element.value != null -->
-                <!-- ko text: element.value --><!-- /ko --><br/>
+    <if args="currentBillingAddress().customAttributes">
+        <each args="data: currentBillingAddress().customAttributes, as: 'element'">
+            <!-- ko if: element.attribute_code != 'destination_type' && element.attribute_code != 'validation_status' -->
+                <!-- ko if: element.value != null -->
+                    <!-- ko text: element.value --><!-- /ko --><br/>
+                <!-- /ko -->
+                <!-- ko if: element.value == null -->
+                    <!-- ko text: element.attribute_code --><!-- /ko --><br/>
+                <!-- /ko -->
             <!-- /ko -->
-            <!-- ko if: element.value == null -->
-                <!-- ko text: element.attribute_code --><!-- /ko --><br/>
-            <!-- /ko -->
-        <!-- /ko -->
-    </each>
+        </each>
+    </if>
 
     <button visible="!isAddressSameAsShipping()"
             type="button"

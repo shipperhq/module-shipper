@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace ShipperHQ\Shipper\Setup\Patch\Data;
 
+use Magento\Catalog\Model\Product;
+use Magento\Customer\Setup\CustomerSetup;
 use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
@@ -63,7 +65,7 @@ class InstallDestTypeAttributes implements DataPatchInterface
      */
     public function apply()
     {
-        /** @var QuoteSetup $quoteSetup */
+        /** @var CustomerSetup $customerSetup */
         $customerSetup = $this->customerSetupFactory->create(['setup' => $this->moduleDataSetup]);
 
         $existingDestTypeAttribute = $customerSetup->getAttribute('customer_address', 'destination_type');
@@ -119,5 +121,14 @@ class InstallDestTypeAttributes implements DataPatchInterface
     public function getAliases()
     {
         return [];
+    }
+
+    public function revert()
+    {
+        /** @var CustomerSetup $customerSetup */
+        $customerSetup = $this->customerSetupFactory->create(['setup' => $this->moduleDataSetup]);
+
+        $customerSetup->removeAttribute('customer_address', 'destination_type');
+        $customerSetup->removeAttribute('customer_address', 'validation_status');
     }
 }

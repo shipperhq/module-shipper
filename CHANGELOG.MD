@@ -712,3 +712,7 @@ MNB-2863 Fix error thrown when Magento inventory is disabled
 MNB-2869 Add check for street lines being present in checkout
 
 
+## 20.51.0 (2022-09-14)
+MNB-2933 Fix issue with trying to access variables before they exist in templates. MNB-2865 Add revert (uninstall) methods to all setup patches
+
+

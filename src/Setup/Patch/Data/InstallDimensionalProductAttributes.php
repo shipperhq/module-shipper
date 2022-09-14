@@ -14,13 +14,15 @@ namespace ShipperHQ\Shipper\Setup\Patch\Data;
 
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Setup\CategorySetupFactory;
+use Magento\Customer\Setup\CustomerSetup;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 
-class InstallDimensionalProductAttributes implements DataPatchInterface
+class InstallDimensionalProductAttributes implements DataPatchInterface, PatchRevertableInterface
 {
     /**
      * Category setup factory
@@ -391,5 +393,45 @@ class InstallDimensionalProductAttributes implements DataPatchInterface
     public function getAliases()
     {
         return [];
+    }
+
+    public function revert()
+    {
+        /** @var \Magento\Catalog\Setup\CategorySetup $catalogSetup */
+        $catalogSetup = $this->categorySetupFactory->create(['setup' => $this->moduleDataSetup]);
+
+        $attributeCodes = [
+            'shipperhq_shipping_fee',
+            'shipperhq_handling_fee',
+            'shipperhq_volume_weight',
+            'shipperhq_declared_value',
+            'ship_separately',
+            'shipperhq_dim_group',
+            'ship_length',
+            'ship_width',
+            'ship_height',
+            'shipperhq_poss_boxes',
+            'shipperhq_malleable_product',
+            'shipperhq_master_boxes'
+        ];
+
+        foreach ($attributeCodes as $attributeCode) {
+            $catalogSetup->removeAttribute(Product::ENTITY, $attributeCode);
+        }
+
+        $entityTypeId = $catalogSetup->getEntityTypeId(Product::ENTITY);
+        $attributeSets = $catalogSetup->getAllAttributeSetIds($entityTypeId);
+
+        foreach ($attributeSets as $attributeSet) {
+            $attributeGroupId = $catalogSetup->getAttributeGroupId(
+                $entityTypeId,
+                $attributeSet,
+                'Dimensional Shipping'
+            );
+
+            if ($attributeGroupId) {
+                $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSet, $attributeGroupId);
+            }
+        }
     }
 }

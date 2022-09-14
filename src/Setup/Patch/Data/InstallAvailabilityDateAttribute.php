@@ -17,8 +17,9 @@ use Magento\Catalog\Setup\CategorySetupFactory;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 
-class InstallAvailabilityDateAttribute implements DataPatchInterface
+class InstallAvailabilityDateAttribute implements DataPatchInterface, PatchRevertableInterface
 {
     /**
      * @var ModuleDataSetupInterface $moduleDataSetup
@@ -58,6 +59,7 @@ class InstallAvailabilityDateAttribute implements DataPatchInterface
      */
     public function apply()
     {
+        /** @var \Magento\Catalog\Setup\CategorySetup $catalogSetup */
         $catalogSetup = $this->categorySetupFactory->create(['setup' => $this->moduleDataSetup]);
         $catalogSetup->addAttribute(Product::ENTITY, 'shipperhq_availability_date', [
             'type'                     => 'datetime',
@@ -85,5 +87,12 @@ class InstallAvailabilityDateAttribute implements DataPatchInterface
     public function getAliases()
     {
         return [];
+    }
+
+    public function revert()
+    {
+        /** @var \Magento\Catalog\Setup\CategorySetup $catalogSetup */
+        $catalogSetup = $this->categorySetupFactory->create(['setup' => $this->moduleDataSetup]);
+        $catalogSetup->removeAttribute(Product::ENTITY, 'shipperhq_availability_date');
     }
 }

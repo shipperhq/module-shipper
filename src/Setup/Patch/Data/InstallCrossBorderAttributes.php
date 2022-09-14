@@ -16,8 +16,9 @@ use Magento\Catalog\Model\Product;
 use Magento\Catalog\Setup\CategorySetupFactory;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 
-class InstallCrossBorderAttributes implements DataPatchInterface
+class InstallCrossBorderAttributes implements DataPatchInterface, PatchRevertableInterface
 {
     /**
      * @var ModuleDataSetupInterface $moduleDataSetup
@@ -121,5 +122,13 @@ class InstallCrossBorderAttributes implements DataPatchInterface
     public function getAliases()
     {
         return [];
+    }
+
+    public function revert()
+    {
+        /** @var \Magento\Catalog\Setup\CategorySetup $catalogSetup */
+        $catalogSetup = $this->categorySetupFactory->create(['setup' => $this->moduleDataSetup]);
+
+        $catalogSetup->removeAttribute(Product::ENTITY, 'shipperhq_hs_code');
     }
 }

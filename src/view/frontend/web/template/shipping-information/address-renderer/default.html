@@ -12,14 +12,16 @@
     <text args="address().prefix"></text> <text args="address().firstname"></text> <text args="address().middlename"></text>
     <text args="address().lastname"></text> <text args="address().suffix"></text><br/>
 
-    <each args="data: address().extension_attributes, as: 'element'">
-        <!-- ko foreach: { data: Object.keys(element), as: 'attribute' } -->
-            <!-- ko if: attribute == 'location_address' && element[attribute] != null &&  element[attribute] != '' -->
-                <!-- ko text: element[attribute] --><!-- /ko --><br/>
-                <br/>
+    <if args="address().extension_attributes">
+        <each args="data: address().extension_attributes, as: 'element'">
+            <!-- ko foreach: { data: Object.keys(element), as: 'attribute' } -->
+                <!-- ko if: attribute == 'location_address' && element[attribute] != null &&  element[attribute] != '' -->
+                    <!-- ko text: element[attribute] --><!-- /ko --><br/>
+                    <br/>
+                <!-- /ko -->
             <!-- /ko -->
-        <!-- /ko -->
-    </each>
+        </each>
+    </if>
     <if args="address().street">
         <text args="(address().street).join(', ')"></text><br/>
     </if>
@@ -27,15 +29,17 @@
     <text args="getCountryName(address().countryId)"></text><br/>
     <a if="address().telephone" attr="'href': 'tel:' + address().telephone" text="address().telephone"></a><br/>
 
-    <each args="data: address().customAttributes, as: 'element'">
-        <!-- ko if: element.attribute_code != 'destination_type' && element.attribute_code != 'validation_status' -->
-            <!-- ko if: element.value != null -->
-                <!-- ko text: element.value --><!-- /ko --><br/>
+    <if args="address().customAttributes">
+        <each args="data: address().customAttributes, as: 'element'">
+            <!-- ko if: element.attribute_code != 'destination_type' && element.attribute_code != 'validation_status' -->
+                <!-- ko if: element.value != null -->
+                    <!-- ko text: element.value --><!-- /ko --><br/>
+                <!-- /ko -->
+                <!-- ko if: element.value == null -->
+                    <!-- ko text: element.attribute_code --><!-- /ko --><br/>
+                <!-- /ko -->
             <!-- /ko -->
-            <!-- ko if: element.value == null -->
-                <!-- ko text: element.attribute_code --><!-- /ko --><br/>
-            <!-- /ko -->
-        <!-- /ko -->
-        <br/>
-    </each>
+            <br/>
+        </each>
+    </if>
 </if>

@@ -15,8 +15,9 @@ namespace ShipperHQ\Shipper\Setup\Patch\Data;
 use Magento\Catalog\Setup\CategorySetupFactory;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 
-class UpdateMustShipFreightAttribute implements DataPatchInterface
+class UpdateMustShipFreightAttribute implements DataPatchInterface, PatchRevertableInterface
 {
     /**
      * @var ModuleDataSetupInterface $moduleDataSetup
@@ -76,4 +77,6 @@ class UpdateMustShipFreightAttribute implements DataPatchInterface
     {
         return [];
     }
+
+    public function revert() {}
 }

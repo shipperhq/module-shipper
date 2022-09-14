@@ -15,8 +15,9 @@ namespace ShipperHQ\Shipper\Setup\Patch\Data;
 use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 
-class UpdateCustomerAddressDestTypeAttribute implements DataPatchInterface
+class UpdateCustomerAddressDestTypeAttribute implements DataPatchInterface, PatchRevertableInterface
 {
     /**
      * @var ModuleDataSetupInterface $moduleDataSetup
@@ -79,4 +80,6 @@ class UpdateCustomerAddressDestTypeAttribute implements DataPatchInterface
     {
         return [];
     }
+
+    public function revert() {}
 }

@@ -16,11 +16,12 @@ use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 use Magento\Quote\Setup\QuoteSetup;
 use Magento\Quote\Setup\QuoteSetupFactory;
 use Magento\Sales\Setup\SalesSetupFactory;
 
-class UpdateIgnoreEmptyZipConfig implements DataPatchInterface
+class UpdateIgnoreEmptyZipConfig implements DataPatchInterface, PatchRevertableInterface
 {
     /**
      * @var WriterInterface
@@ -68,4 +69,6 @@ class UpdateIgnoreEmptyZipConfig implements DataPatchInterface
     {
         return [];
     }
+
+    public function revert() {}
 }

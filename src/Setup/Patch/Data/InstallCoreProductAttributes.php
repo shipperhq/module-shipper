@@ -19,8 +19,9 @@ use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as Attrib
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 
-class InstallCoreProductAttributes implements DataPatchInterface
+class InstallCoreProductAttributes implements DataPatchInterface, PatchRevertableInterface
 {
     /**
      * Category setup factory
@@ -74,6 +75,7 @@ class InstallCoreProductAttributes implements DataPatchInterface
      */
     public function apply()
     {
+        /** @var \Magento\Catalog\Setup\CategorySetup $catalogSetup */
         $catalogSetup = $this->categorySetupFactory->create(['setup' => $this->moduleDataSetup]);
         /* ------ shipperhq_shipping_group -------- */
         $catalogSetup->addAttribute(Product::ENTITY, 'shipperhq_shipping_group', [
@@ -216,5 +218,33 @@ class InstallCoreProductAttributes implements DataPatchInterface
     public function getAliases()
     {
         return [];
+    }
+
+    public function revert()
+    {
+        /** @var \Magento\Catalog\Setup\CategorySetup $catalogSetup */
+        $catalogSetup = $this->categorySetupFactory->create(['setup' => $this->moduleDataSetup]);
+
+        $attributeCodes = ['shipperhq_shipping_group', 'shipperhq_warehouse', 'shipperhq_hs_code'];
+
+        foreach ($attributeCodes as $attributeCode) {
+            $catalogSetup->removeAttribute(Product::ENTITY, $attributeCode);
+        }
+
+        $entityTypeId = $catalogSetup->getEntityTypeId(Product::ENTITY);
+        $attributeSets = $catalogSetup->getAllAttributeSetIds($entityTypeId);
+
+        foreach ($attributeSets as $attributeSet) {
+            $attributeGroupId = $catalogSetup->getAttributeGroupId(
+                $entityTypeId,
+                $attributeSet,
+                'Shipping'
+            );
+
+
+            if ($attributeGroupId) {
+                $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSet, $attributeGroupId);
+            }
+        }
     }
 }

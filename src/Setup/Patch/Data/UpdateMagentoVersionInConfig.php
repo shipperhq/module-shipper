@@ -16,8 +16,9 @@ use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 
-class UpdateMagentoVersionInConfig implements DataPatchInterface
+class UpdateMagentoVersionInConfig implements DataPatchInterface, PatchRevertableInterface
 {
     /**
      * @var WriterInterface
@@ -67,4 +68,6 @@ class UpdateMagentoVersionInConfig implements DataPatchInterface
     {
         return [];
     }
+
+    public function revert() {}
 }

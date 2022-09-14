@@ -18,8 +18,9 @@ use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Catalog\Setup\CategorySetupFactory;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 
-class InstallFreightAttributes implements DataPatchInterface
+class InstallFreightAttributes implements DataPatchInterface, PatchRevertableInterface
 {
     /**
      * @var ModuleDataSetupInterface $moduleDataSetup
@@ -239,5 +240,37 @@ class InstallFreightAttributes implements DataPatchInterface
     public function getAliases()
     {
         return [];
+    }
+
+    public function revert()
+    {
+        /** @var \Magento\Catalog\Setup\CategorySetup $catalogSetup */
+        $catalogSetup = $this->categorySetupFactory->create(['setup' => $this->moduleDataSetup]);
+
+        $attributeCodes = [
+            'freight_class',
+            'shipperhq_nmfc_class',
+            'must_ship_freight',
+            'shipperhq_nmfc_sub'
+        ];
+
+        foreach ($attributeCodes as $attributeCode) {
+            $catalogSetup->removeAttribute(Product::ENTITY, $attributeCode);
+        }
+
+        $entityTypeId = $catalogSetup->getEntityTypeId(Product::ENTITY);
+        $attributeSets = $catalogSetup->getAllAttributeSetIds($entityTypeId);
+
+        foreach ($attributeSets as $attributeSet) {
+            $attributeGroupId = $catalogSetup->getAttributeGroupId(
+                $entityTypeId,
+                $attributeSet,
+                'Freight Shipping'
+            );
+
+            if ($attributeGroupId) {
+                $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSet, $attributeGroupId);
+            }
+        }
     }
 }

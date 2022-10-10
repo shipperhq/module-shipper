@@ -201,7 +201,7 @@ class CarrierGroup extends Data
 
             $encodedShipDetails = $this->shipperDataHelper->encode($arrayofShipDetails);
             $update['carrier_group_detail'] = $encodedShipDetails;
-            $update['carrier_group_html'] = $this->getCarriergroupShippingHtml($encodedShipDetails);
+            $update['carrier_group_html'] = $this->shipperDataHelper->getCarriergroupShippingHtml($encodedShipDetails);
 
             $existing = $thisAddressDetail->getData();
             $data = array_merge($existing, $update);

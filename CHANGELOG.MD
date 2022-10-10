@@ -716,3 +716,7 @@ MNB-2869 Add check for street lines being present in checkout
 MNB-2933 Fix issue with trying to access variables before they exist in templates. MNB-2865 Add revert (uninstall) methods to all setup patches
 
 
+## 20.51.1 (2022-10-10)
+RIV-1237 Add pickup address to customer order view and add option to not replace shipping address with pickup address. Fixed carriergroup_shipping_html not populating
+
+

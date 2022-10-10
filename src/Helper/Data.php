@@ -50,7 +50,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const SHIPPERHQ_SHIPPER_CARRIERGROUP_DESC_PATH = 'carriers/shipper/carriergroup_describer';
     const SHIPPERHQ_LAST_SYNC = 'carriers/shipper/last_sync';
     const SHIPPERHQ_SHIPPER_ALLOWED_METHODS_PATH = 'carriers/shipper/allowed_methods';
+
     private static $showTransId;
+    private static $replaceShippingAddress;
+
     public $magentoCarrierCodes =
         [
             'ups' => 'ups',
@@ -181,6 +184,20 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             self::$showTransId = $this->getConfigValue('carriers/shipper/display_transaction');
         }
         return self::$showTransId;
+    }
+
+    /**
+     * Should we replace the shipping address with the selected pickup locations address?
+     *
+     * @return boolean
+     */
+    public function shouldReplaceShippingAddress() :bool
+    {
+        if (self::$replaceShippingAddress == null) {
+            self::$replaceShippingAddress = $this->getConfigValue('carriers/shipper/replace_shipping_address');
+        }
+
+        return self::$replaceShippingAddress;
     }
 
     /**
@@ -399,14 +416,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $decodedDetails = self::decode($encodedDetails);
         $htmlText = '';
+
         foreach ($decodedDetails as $shipLine) {
-            if (!is_array($shipLine) || !array_key_exists('name', $shipLine)) {
+            $shipLine = (array) $shipLine;
+
+            if (!array_key_exists('name', $shipLine)) {
                 continue;
             }
             $htmlText .= $shipLine['name'] .
                 ' : ' . $shipLine['carrierTitle'] . ' - ' . $shipLine['methodTitle'] . ' ';
             $htmlText .= " " . $this->checkoutHelper->formatPrice($shipLine['price']) . '<br/>';
         }
+
         return $htmlText;
     }
 

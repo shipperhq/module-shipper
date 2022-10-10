@@ -134,6 +134,15 @@
                     <label>Cache Lifetime (seconds)</label>
                     <tooltip>Set cache time to live in seconds. Default is 300 seconds (5 minutes)</tooltip>
                 </field>
+                <field id="replace_shipping_address" translate="label" type="select" sortOrder="345" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Replace shipping address with store pickup address</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <tooltip>
+                        If you're using the store pickup feature, the shipping address is automatically set to the
+                        selected pickup store by default.
+                    </tooltip>
+                </field>
                 <field id="refresh_auth_key" translate="button_label" sortOrder="350" showInDefault="1" showInWebsite="0" showInStore="0">
                     <button_label>Refresh Authorization Token</button_label>
                     <frontend_model>ShipperHQ\Shipper\Block\Adminhtml\System\Config\RefreshAuthToken</frontend_model>

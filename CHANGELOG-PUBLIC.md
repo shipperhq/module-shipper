@@ -720,3 +720,7 @@ MNB-2933 Fix issue with trying to access variables before they exist in template
 RIV-1237 Add pickup address to customer order view and add option to not replace shipping address with pickup address. Fixed carriergroup_shipping_html not populating
 
 
+## 20.51.2 (2022-10-12)
+MNB-3061 Fix issue with packing section name and box tolerance not populating in request
+
+

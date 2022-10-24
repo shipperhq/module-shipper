@@ -67,7 +67,7 @@
                 <ws_timeout>30</ws_timeout>
                 <use_cache>0</use_cache>
                 <always_use_cache>1</always_use_cache>
-                <extension_version>20.51.2</extension_version>
+                <extension_version>20.51.3</extension_version>
                 <allowed_methods></allowed_methods>
                 <magento_version></magento_version>
                 <cache_timeout>300</cache_timeout>

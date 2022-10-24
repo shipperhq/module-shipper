@@ -724,3 +724,7 @@ RIV-1237 Add pickup address to customer order view and add option to not replace
 MNB-3061 Fix issue with packing section name and box tolerance not populating in request
 
 
+## 20.51.3 (2022-10-24)
+MNB-2992 Fix issue with no rates when product is backordered
+
+

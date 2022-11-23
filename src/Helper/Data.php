@@ -303,7 +303,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $isCheckout = false;
 
-        if ($this->checkoutSession->getIsCheckout() || $quote->getIsMultiShipping()) {
+        if ($this->checkoutSession->getIsCheckout() || $this->checkoutSession->getIsAdminCheckout()
+            || $quote->getIsMultiShipping()) {
             $isCheckout = true;
         }
 

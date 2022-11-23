@@ -43,6 +43,7 @@ namespace ShipperHQ\Shipper\Model\Carrier;
  */
 
 use Magento\Directory\Helper\Data;
+use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote;
@@ -54,7 +55,6 @@ use Magento\Shipping\Model\Carrier\CarrierInterface;
 use Magento\Shipping\Model\Rate\Result;
 use ShipperHQ\Shipper\Helper\Config;
 use ShipperHQ\WS\Client;
-use Magento\Framework\App\Area;
 
 class Shipper extends AbstractCarrier implements CarrierInterface
 {
@@ -307,7 +307,6 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             return false;
         } elseif (empty($request->getDestCity()) && $this->getConfigFlag(self::IGNORE_EMPTY_ZIP)
             && $this->directoryHelper->isZipCodeOptional($request->getDestCountryId())) {
-
             $this->shipperLogger->postDebug(
                 'Shipperhq_Shipper',
                 'Ignoring rate request',
@@ -659,7 +658,6 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                         $rateDetails['carriergroup_detail']['customDuties'] > 0 &&
                         isset($rateDetails['carriergroup_detail']['customsMessage']) &&
                         $rateDetails['carriergroup_detail']['customsMessage'] != '') {
-
                         $dutiesMessage = sprintf("$%01.2f ", $rateDetails['carriergroup_detail']['customDuties']) . $rateDetails['carriergroup_detail']['customsMessage'];
                         $rate->setCustomDuties(__($dutiesMessage));
                     }
@@ -772,7 +770,6 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         $carrierGroupDetail = null,
         $isDateSelect = false
     ) {
-
         if (is_object($errorDetails)) {
             $errorDetails = get_object_vars($errorDetails);
         }
@@ -831,7 +828,6 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
         $splitCarrierGroupDetail = [];
         foreach ($carrierGroups as $carrierGroup) {
-
             $carrierGroupDetail = $this->shipperRateHelper->extractCarrierGroupDetail(
                 $carrierGroup,
                 $transactionId,
@@ -841,7 +837,6 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             //Pass off each carrier group to helper to decide best fit to process it.
             //Push result back into our array
             foreach ($carrierGroup['carrierRates'] as $carrierRate) {
-
                 $this->carrierConfigHandler->saveCarrierResponseDetails($carrierRate, $carrierGroupDetail);
                 $carrierResultWithRates = $this->shipperRateHelper->extractShipperHQRates(
                     $carrierRate,
@@ -862,7 +857,6 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         if (isset($shipperResponse['mergedRateResponse'])) {
             $mergedRatesArray = [];
             foreach ($shipperResponse['mergedRateResponse']['carrierRates'] as $carrierRate) {
-
                 $this->carrierConfigHandler->saveCarrierResponseDetails($carrierRate, null);
                 $mergedResultWithRates = $this->shipperRateHelper->extractShipperHQMergedRates(
                     $carrierRate,
@@ -941,7 +935,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                 if ($field == 'zipcode') { // handle where it's returning zipcode instead of postcode
                     $field == 'postcode';
                 }
-                $existing['validated_shipping_' .$field] = $value;
+                $existing['validated_shipping_' . $field] = $value;
             }
         }
 

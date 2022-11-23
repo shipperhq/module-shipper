@@ -728,3 +728,7 @@ MNB-3061 Fix issue with packing section name and box tolerance not populating in
 MNB-2992 Fix issue with no rates when product is backordered
 
 
+## 20.51.4 (2022-11-23)
+MNB-3183 Fix for admin calendar reverting date to first available date
+
+

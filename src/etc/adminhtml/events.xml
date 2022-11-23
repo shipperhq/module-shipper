@@ -19,6 +19,9 @@
     <event name="checkout_submit_all_after">
         <observer name="shipperhq_record_order" instance="ShipperHQ\Shipper\Observer\RecordAdminOrder"/>
     </event>
+    <event name="controller_action_predispatch_sales_order_create_loadblock">
+        <observer name="shipperhq_set_admin_checkout" instance="ShipperHQ\Shipper\Observer\SetAdminCheckoutFlag"/>
+    </event>
 </config>
 
 

@@ -78,7 +78,6 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository,
         \Magento\Checkout\Model\Session $checkoutSession
     ) {
-
         parent::__construct($context);
         $this->orderPackageFactory = $orderPackageFactory;
         $this->shipperDataHelper = $shipperDataHelper;
@@ -116,7 +115,7 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
             $carrierCodeExplArr = explode("_", $carrierCode ?? "");
             $carrierCodeExpl = $carrierCodeExplArr[0];
 
-            //Delete any existing packages for this set of rates
+            // Delete any existing packages for this set of rates
             unset($sessionPackages[$shippingAddressId][$carrierGroupId][$carrierCode]);
             unset($sessionPackages[$shippingAddressId][$carrierGroupId][$carrierCodeExpl]);
         }
@@ -126,7 +125,7 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
             $carrierCode = $shipment['carrier_code'];
             $carrierGroupId = $shipment['carrier_group_id'];
 
-            //$carrierCode can be carrierCode_methodCode - see populateShipments()
+            // $carrierCode can be carrierCode_methodCode - see populateShipments()
             $sessionPackages[$shippingAddressId][$carrierGroupId][$carrierCode][] = $shipment;
         }
         $this->checkoutSession->setShipperHQPackages(json_encode($sessionPackages));
@@ -217,7 +216,7 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
 
                         if (strpos($order->getShippingMethod(), 'multicarrier') === 0) {
                             $this->orderStatusHistoryRepository->save($order->addStatusHistoryComment(
-                                "Shipping method for " . $carrier_group['name'] . ": " . $carrier_group['carrierTitle'] ." - ". $carrier_group['methodTitle'],
+                                "Shipping method for " . $carrier_group['name'] . ": " . $carrier_group['carrierTitle'] . " - " . $carrier_group['methodTitle'],
                                 $order->getStatus()
                             ));
                         }
@@ -235,7 +234,7 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                 $this->_logger->critical('ShipperHQ save order package error: ' . $e->getMessage());
             }
         }
-        //record without carrier group details?
+        // record without carrier group details?
     }
 
     /**
@@ -261,7 +260,36 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                     $packages = $sessionData[$shippingAddressId][$carrierGroupId][$carrierCode . '_' . $methodCode];
                 } elseif (array_key_exists($carrierCode, $sessionData[$shippingAddressId][$carrierGroupId])) {
                     $packages = $sessionData[$shippingAddressId][$carrierGroupId][$carrierCode];
+                } elseif ($carrierCode == 'shqshared') {
+                    $packages = $this->findSharedPackages($sessionData, $shippingAddressId, $methodCode, $carrierGroupId);
                 }
+            }
+        }
+
+        return $packages;
+    }
+
+    /**
+     * MNB-2930 If the carrier code is shqshared, lets do a final check and see if we can find the packages just on
+     * method code. shqshared is used when the generic carrier is in use
+     *
+     * @param $sessionData
+     * @param $shippingAddressId
+     * @param $methodCode
+     * @param $carrierGroupId
+     *
+     * @return array
+     */
+    private function findSharedPackages($sessionData, $shippingAddressId, $methodCode, $carrierGroupId): array
+    {
+        $packages = [];
+
+        $keys = array_keys($sessionData[$shippingAddressId][$carrierGroupId]);
+        foreach ($keys as $key) {
+            $codeArray = explode('_', (string) $key, 2);
+            $searchResultMethodCode = $codeArray[1];
+            if ($methodCode == $searchResultMethodCode) {
+                $packages = $sessionData[$shippingAddressId][$carrierGroupId][$key];
             }
         }
 

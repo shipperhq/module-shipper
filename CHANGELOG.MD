@@ -736,3 +736,7 @@ MNB-3183 Fix for admin calendar reverting date to first available date
 MNB-3219 Fix issue with M2 sales order grid showing incorrect year on dates
 
 
+## 20.51.6 (2022-12-12)
+MNB-2930 Fix order notes with generic carrier
+
+

@@ -114,7 +114,6 @@ class CarrierGroup extends Data
         SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
-
         $this->addressDetailFactory = $addressDetailFactory;
         $this->itemDetailFactory = $itemDetailFactory;
         $this->orderDetailFactory = $orderDetailFactory;
@@ -477,8 +476,8 @@ class CarrierGroup extends Data
                 }
 
                 if (array_key_exists('delivery_date', $cgrp) && $cgrp['delivery_date'] != '') {
-                    $dateText = isset($cgrp['pickup_location']) ? __('Pickup Date') :  __('Delivery Date');
-                    $carriergroupText .= '<br/>' .$dateText . ' : ' . $cgrp['delivery_date'];
+                    $dateText = isset($cgrp['pickup_location']) ? __('Pickup Date') : __('Delivery Date');
+                    $carriergroupText .= '<br/>' . $dateText . ' : ' . $cgrp['delivery_date'];
                     if (array_key_exists('time_slot', $cgrp)) {
                         $displayTimeSlot = str_replace('_', ' - ', (string) $cgrp['time_slot']);
                         $carriergroupText .= ' ' . $displayTimeSlot . ' ';

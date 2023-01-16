@@ -740,3 +740,7 @@ MNB-3219 Fix issue with M2 sales order grid showing incorrect year on dates
 MNB-2930 Fix order notes with generic carrier
 
 
+## 20.51.7 (2023-01-16)
+MNB-3173 Fix to ensure AdobeMSI stock handler is only used when MSI enabled and configured. MNB-3339 Update readme.
+
+

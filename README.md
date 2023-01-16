@@ -1,11 +1,11 @@
 # ShipperHQ
 Integrate Magento 2 with ShipperHQ to provide highly flexible shipping rate management.
-More information on ShipperHQ capabilities are available at www.shipperhq.com
+More information on ShipperHQ capabilities are available at <https://shipperhq.com>
 
 Facts
 -----
 - [extension on GitHub](https://github.com/shipperhq/module-shipper)
-- Magento v1.0 available for download from www.shipperhq.com
+- Magento v1.0 available for download from <https://shipperhq.com>
 
 Description
 -----------
@@ -17,9 +17,25 @@ Once installed, you can configure with your ShipperHQ platform credentials to pr
 
 Compatibility
 -------------
-- Magento >= 2.3
+This module supports and is tested against the following Magento versions:
 
-- Supports both Magento Opensource (Community) and Magento Commerce (Enterprise)
+* 2.4.5-p1
+* 2.4.5
+* 2.4.4-p2
+* 2.4.4-p1
+* 2.4.4
+* 2.4.3-p3
+* 2.4.3-p2
+* 2.4.3
+* 2.4.2
+* 2.4.1
+* 2.4.0
+
+per the [official Magento 2 requirements](https://experienceleague.adobe.com/docs/commerce-operations/installation-guide/system-requirements.html)
+
+Supports both Magento Opensource (Community) and Magento Commerce (Enterprise)
+
+Compatibility with earlier editions is possible but not maintained.
 
 Installation Instructions
 -------------------------
@@ -54,7 +70,7 @@ Connect your ShipperHQ account and get shipping rates:
 
 Your ShipperHQ account is now connected to your Magento 2 store, and you will now be able to show ShipperHQ shipping rates in your cart and checkout. 
 
-To continue setting up your ShipperHQ account to match your shipping requirements, see [ShipperHQ documentation](http://docs.shipperhq.com/installing-magento-2-shipperhq-extension/)
+To continue setting up your ShipperHQ account to match your shipping requirements, see [ShipperHQ documentation](https://docs.shipperhq.com/installing-magento-2-shipperhq-extension/)
 
 Support
 -------

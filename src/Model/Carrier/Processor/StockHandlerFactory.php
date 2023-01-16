@@ -2,9 +2,9 @@
 
 namespace ShipperHQ\Shipper\Model\Carrier\Processor;
 
+use Magento\Framework\Module\Manager;
 use Magento\Framework\ObjectManagerInterface;
 use ShipperHQ\Shipper\Model\Carrier\Processor\StockHandler\StockHandlerInterface;
-use Magento\Framework\Module\Manager;
 
 class StockHandlerFactory
 {
@@ -16,15 +16,20 @@ class StockHandlerFactory
     private $objectManager = null;
 
     /**
+     * @var Manager
+     */
+    private Manager $moduleManager;
+
+    /**
      * Factory constructor
      *
      * @param ObjectManagerInterface $objectManager
+     * @param Manager                $moduleManager
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         Manager $moduleManager
-    )
-    {
+    ) {
         $this->objectManager = $objectManager;
         $this->moduleManager = $moduleManager;
     }
@@ -39,7 +44,8 @@ class StockHandlerFactory
     {
         // TODO: We could do some sort of registry system here instead of hardcoding and then customers could BYOInventory
 
-        if ($this->isAdobeMSIInstalled()) {
+        // MNB-3173 Added check for MSI being configured as well as installed
+        if ($this->isAdobeMSIInstalled() && $this->isAdobeMSIConfigured()) {
             $injection = [
                 "getStockIdForCurrentWebsite" => $this->objectManager->create('Magento\InventoryCatalog\Model\GetStockIdForCurrentWebsite', []),
                 "getProductSalableQty" => $this->objectManager->create('Magento\InventorySalesApi\Api\GetProductSalableQtyInterface', []),
@@ -64,6 +70,25 @@ class StockHandlerFactory
     {
         return class_exists('Magento\InventoryCatalog\Model\GetStockIdForCurrentWebsite')
             && $this->moduleManager->isEnabled('Magento_InventoryCatalog');
+    }
+
+    private function isAdobeMSIConfigured(): bool
+    {
+        if (interface_exists('Magento\InventoryApi\Api\SourceRepositoryInterface') &&
+            interface_exists('Magento\InventoryApi\Api\StockRepositoryInterface')) {
+
+            // Unless there's more than one source repo MSI is not configured
+            $sourceRepo = $this->objectManager->create('\Magento\InventoryApi\Api\SourceRepositoryInterface');
+            $sourceRepoConfigured = $sourceRepo->getList()->getTotalCount() > 1;
+
+            // Unless there's more than one stock repo MSI is not configured
+            $stockRepo = $this->objectManager->create('\Magento\InventoryApi\Api\StockRepositoryInterface');
+            $stockRepoConfigured = $stockRepo->getList()->getTotalCount() > 1;
+
+            return $sourceRepoConfigured && $stockRepoConfigured;
+        }
+
+        return false;
     }
 
     /**

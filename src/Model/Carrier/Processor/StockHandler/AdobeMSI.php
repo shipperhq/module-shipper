@@ -65,7 +65,6 @@ class AdobeMSI implements StockHandlerInterface
      */
     private $isSourceItemMgmtAllowedForProductType;
 
-
     /**
      * @param GetStockIdForCurrentWebsite $getStockIdForCurrentWebsite
      * @param GetProductSalableQtyInterface $getProductSalableQty
@@ -142,7 +141,8 @@ class AdobeMSI implements StockHandlerInterface
             $stockId = $this->getStockIdForCurrentWebsite->execute();
             $stockItemConfiguration = $this->getStockItemConfiguration->execute($product->getSku(), $stockId);
             $isManageStock = $stockItemConfiguration->isManageStock();
-            $allowBackorders = $stockItemConfiguration->isUseConfigBackorders() ?? false;
+            // MNB-3173 Changed to look at getBackorders. Look at StockState->checkQty() if further issues
+            $allowBackorders = $stockItemConfiguration->getBackorders() != $stockItemConfiguration::BACKORDERS_NO;
 
             // MNB-2992 Need to check if backorders are allowed. If they are then don't pass qty back
             if (!$isManageStock || $allowBackorders ||

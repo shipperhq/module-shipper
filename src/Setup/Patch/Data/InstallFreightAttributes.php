@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace ShipperHQ\Shipper\Setup\Patch\Data;
 
 use Magento\Catalog\Model\Product;
+use Magento\Catalog\Setup\CategorySetupFactory;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory as AttributeCollectionFactory;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
-use Magento\Catalog\Setup\CategorySetupFactory;
 use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 
 class InstallFreightAttributes implements DataPatchInterface, PatchRevertableInterface
@@ -72,10 +72,11 @@ class InstallFreightAttributes implements DataPatchInterface, PatchRevertableInt
      */
     public function apply()
     {
+        /** @var \Magento\Catalog\Setup\CategorySetup $catalogSetup */
         $catalogSetup = $this->categorySetupFactory->create(['setup' => $this->moduleDataSetup]);
         /* ------ freight_class -------- */
         $catalogSetup->addAttribute(Product::ENTITY, 'freight_class', [
-            'type'                     => 'int',
+            'type'                     => 'text',
             'source'                   => 'ShipperHQ\Shipper\Model\Product\Attribute\Source\FreightClass',
             'input'                    => 'select',
             'label'                    => 'Freight Class',

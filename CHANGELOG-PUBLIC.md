@@ -744,3 +744,7 @@ MNB-2930 Fix order notes with generic carrier
 MNB-3173 Fix to ensure AdobeMSI stock handler is only used when MSI enabled and configured. MNB-3339 Update readme.
 
 
+## 20.51.8 (2023-01-30)
+SHQ23-46 Correct the datatype of freight_class attribute from int to text
+
+

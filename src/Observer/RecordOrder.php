@@ -35,10 +35,20 @@
 
 namespace ShipperHQ\Shipper\Observer;
 
+use Magento\Checkout\Model\Session;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Sales\Model\OrderFactory;
+use ShipperHQ\Shipper\Helper\Authorization;
+use ShipperHQ\Shipper\Helper\CarrierGroup;
+use ShipperHQ\Shipper\Helper\Data;
 use ShipperHQ\Shipper\Helper\Listing as ListingHelper;
+use ShipperHQ\Shipper\Helper\LogAssist;
+use ShipperHQ\Shipper\Helper\Module;
+use ShipperHQ\Shipper\Helper\Package;
 use ShipperHQ\Shipper\Helper\PostOrder;
+use ShipperHQ\Shipper\Model\Listing\ListingService;
 
 /**
  * ShipperHQ Shipper module observer
@@ -46,43 +56,57 @@ use ShipperHQ\Shipper\Helper\PostOrder;
 class RecordOrder extends AbstractRecordOrder implements ObserverInterface
 {
     /**
-     * @var \Magento\Sales\Model\OrderFactory
+     * @var OrderFactory
      */
     private $orderFactory;
 
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var Session
      */
     private $checkoutSession;
 
     /**
-     * @param \ShipperHQ\Shipper\Helper\Data                  $shipperDataHelper
-     * @param \Magento\Quote\Api\CartRepositoryInterface      $quoteRepository
-     * @param \ShipperHQ\Shipper\Helper\LogAssist             $shipperLogger
-     * @param \Magento\Sales\Model\OrderFactory               $orderFactory
-     * @param \Magento\Checkout\Model\Session                 $checkoutSession
-     * @param \ShipperHQ\Shipper\Helper\Package               $packageHelper
-     * @param \ShipperHQ\Shipper\Helper\CarrierGroup          $carrierGroupHelper
-     * @param \ShipperHQ\Shipper\Model\Listing\ListingService $listingService
-     * @param ListingHelper                                   $listingHelper
-     * @param PostOrder                                       $postOrder
+     * @param Data                    $shipperDataHelper
+     * @param CartRepositoryInterface $quoteRepository
+     * @param LogAssist               $shipperLogger
+     * @param OrderFactory            $orderFactory
+     * @param Session                 $checkoutSession
+     * @param Package                 $packageHelper
+     * @param CarrierGroup            $carrierGroupHelper
+     * @param ListingService          $listingService
+     * @param ListingHelper           $listingHelper
+     * @param PostOrder               $postOrder
+     * @param Module                  $moduleHelper
+     * @param Authorization           $authHelper
      */
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \ShipperHQ\Shipper\Helper\Package $packageHelper,
-        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
-        \ShipperHQ\Shipper\Model\Listing\ListingService $listingService,
+        Data $shipperDataHelper,
+        CartRepositoryInterface $quoteRepository,
+        LogAssist $shipperLogger,
+        OrderFactory $orderFactory,
+        Session $checkoutSession,
+        Package $packageHelper,
+        CarrierGroup $carrierGroupHelper,
+        ListingService $listingService,
         ListingHelper $listingHelper,
-        PostOrder $postOrder
+        PostOrder $postOrder,
+        Module $moduleHelper,
+        Authorization $authHelper
     ) {
-
         $this->orderFactory = $orderFactory;
         $this->checkoutSession = $checkoutSession;
-        parent::__construct($shipperDataHelper, $quoteRepository, $shipperLogger, $packageHelper, $carrierGroupHelper, $listingService, $listingHelper, $postOrder);
+        parent::__construct(
+            $shipperDataHelper,
+            $quoteRepository,
+            $shipperLogger,
+            $packageHelper,
+            $carrierGroupHelper,
+            $listingService,
+            $listingHelper,
+            $postOrder,
+            $moduleHelper,
+            $authHelper
+        );
     }
 
     /**

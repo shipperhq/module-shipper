@@ -15,8 +15,6 @@ use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Magento\Framework\App\Config\ReinitableConfigInterface;
-use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use ShipperHQ\GraphQL\Client\GraphQLClient;
 use ShipperHQ\GraphQL\Helpers\LoggingHelper;
@@ -39,26 +37,14 @@ class Authorization
     const SHIPPERHQ_SERVER_TOKEN_EXPIRES_PATH = 'carriers/shipper/token_expires';
     const SHIPPERHQ_SERVER_EXPIRING_SOON_THRESHOLD = 60 * 60; // 1 hour
 
-    /** @var ReinitableConfigInterface */
-    private $configReader;
-
-    /** @var WriterInterface */
-    private $configWriter;
-
     /** @var GraphQLClient */
     private $graphqlClient;
 
     /** @var DateTime */
     private $dateTime;
 
-    /** @var \Magento\Framework\Json\DecoderInterface */
-    private $jsonDecoder;
-
     /** @var LogAssist */
     private $shipperLogger;
-
-    /** @var bool */
-    private $isConfigCacheFlushScheduled = false;
 
     /** @var LoggingHelper */
     private $graphqlLoggingHelper;
@@ -66,46 +52,43 @@ class Authorization
     /** @var Configuration|null */
     private $jwtConfig = null;
 
+    /** @var Config */
+    private $configHelper;
+
     /**
-     * Authorization constructor.
+     * Authorization constructor
      *
-     * @param ReinitableConfigInterface $configReader
-     * @param WriterInterface $configWriter
-     * @param \Magento\Framework\Json\DecoderInterface $jsonDecoder
      * @param GraphQLClient $graphqlClient
-     * @param DateTime $dateTime
-     * @param LogAssist $shipperLogger
+     * @param DateTime      $dateTime
+     * @param LogAssist     $shipperLogger
      * @param LoggingHelper $graphqlLoggingHelper
+     * @param Config        $configHelper
      */
     public function __construct(
-        ReinitableConfigInterface                $configReader,
-        WriterInterface                          $configWriter,
-        \Magento\Framework\Json\DecoderInterface $jsonDecoder,
         GraphQLClient                            $graphqlClient,
         DateTime                                 $dateTime,
         LogAssist                                $shipperLogger,
-        LoggingHelper                            $graphqlLoggingHelper
-    )
-    {
-        $this->configReader = $configReader;
-        $this->configWriter = $configWriter;
-        $this->jsonDecoder = $jsonDecoder;
+        LoggingHelper                            $graphqlLoggingHelper,
+        Config $configHelper
+    ) {
         $this->graphqlClient = $graphqlClient;
         $this->dateTime = $dateTime;
         $this->shipperLogger = $shipperLogger;
         $this->graphqlLoggingHelper = $graphqlLoggingHelper;
+        $this->configHelper = $configHelper;
     }
 
     /**
      * Get a secret token
      * If a token exists and won't be expiring for some time then that token will be returned.  If the token is
      * expiring soon or there is not an existing token then a new one will be fetched from the Auth service.
-     *
      * When a new secret token is fetched the public token and expiration date are extracted from the secret token then
      * all three of these values are persisted to configuration.
      *
      * @param bool $cachedOnly
+     *
      * @return string
+     * @throws \Exception
      */
     public function getSecretToken(bool $cachedOnly = false): string
     {
@@ -124,6 +107,7 @@ class Authorization
                 $this->getTimeout()
             );
             $elapsed = microtime(true) - $initVal;
+            $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Auth Request time elapsed', $elapsed);
             $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Auth Request and Response', $this->graphqlLoggingHelper->prepAuthResponseForLogging($tokenResult));
         } catch (\Exception $e) {
             $this->shipperLogger->postCritical('Shipperhq_Shipper', 'Auth Request failed with Exception', $e->getMessage());
@@ -131,6 +115,7 @@ class Authorization
         }
 
         if ($tokenResult && isset($tokenResult['result']) && $tokenResult['result'] instanceof CreateSecretToken) {
+            /** @var CreateSecretToken $result */
             $result = $tokenResult['result'];
             $data = $result->getData();
 
@@ -163,11 +148,13 @@ class Authorization
             $publicToken = $token->claims()->get('public_token');
 
             if ($verified && $apiKey == $this->getApiKey() && $issuedAt <= $currentTime && $currentTime <= $expiresAt) {
-                $this->writeToConfig(self::SHIPPERHQ_SERVER_SECRET_TOKEN_PATH, $tokenStr);
-                $this->writeToConfig(self::SHIPPERHQ_SERVER_PUBLIC_TOKEN_PATH, $publicToken);
+                $this->configHelper->writeToConfig(self::SHIPPERHQ_SERVER_SECRET_TOKEN_PATH, $tokenStr);
+                $this->configHelper->writeToConfig(self::SHIPPERHQ_SERVER_SECRET_TOKEN_PATH, $tokenStr);
+                $this->configHelper->writeToConfig(self::SHIPPERHQ_SERVER_PUBLIC_TOKEN_PATH, $publicToken);
                 // Timestamps are always UTC but let's be explicit so it's clear that we expect UTC here
                 $expiresAt = (new \DateTime("@$expiresAt", new \DateTimeZone("UTC")))->format('c');
-                $this->writeToConfig(self::SHIPPERHQ_SERVER_TOKEN_EXPIRES_PATH, $expiresAt);
+                $this->configHelper->writeToConfig(self::SHIPPERHQ_SERVER_TOKEN_EXPIRES_PATH, $expiresAt);
+                $this->configHelper->runScheduledCleaningNow();
 
                 return true;
             }
@@ -183,7 +170,7 @@ class Authorization
      */
     public function getPublicToken()
     {
-        return $this->getConfigValue(self::SHIPPERHQ_SERVER_PUBLIC_TOKEN_PATH);
+        return $this->configHelper->getConfigValue(self::SHIPPERHQ_SERVER_PUBLIC_TOKEN_PATH);
     }
 
     /**
@@ -241,45 +228,11 @@ class Authorization
     }
 
     /**
-     * Wraps WriterInterface->save() but also schedules the config cache to be cleaned
-     *
-     * @param $path
-     * @param $value
-     * @param null $scope
-     * @param null $scopeId
-     */
-    private function writeToConfig($path, $value, $scope = null, $scopeId = null)
-    {
-        $args = array_filter([$path, $value, $scope, $scopeId]);
-        $this->configWriter->save(...$args);
-        $this->scheduleConfigCacheFlush();
-    }
-
-    /**
-     * Wraps ReinitableConfigInterface->getValue except allows for smartly reiniting config cache
-     * @param $path
-     * @param null $scopeType
-     * @param null $scopeCode
-     * @return mixed
-     */
-    private function getConfigValue($path, $scopeType = null, $scopeCode = null)
-    {
-        $args = array_filter([$path, $scopeType, $scopeCode]); // drop any null arguments
-
-        if ($this->isConfigCacheFlushScheduled) {
-            $this->configReader->reinit();
-            $this->isConfigCacheFlushScheduled = false;
-        }
-
-        return $this->configReader->getValue(...$args);
-    }
-
-    /**
      * @return mixed
      */
     private function getApiKey()
     {
-        return $this->getConfigValue(self::SHIPPERHQ_SERVER_API_KEY_PATH);
+        return $this->configHelper->getConfigValue(self::SHIPPERHQ_SERVER_API_KEY_PATH);
     }
 
     /**
@@ -287,7 +240,7 @@ class Authorization
      */
     private function getAuthCode()
     {
-        return $this->getConfigValue(self::SHIPPERHQ_SERVER_AUTH_CODE_PATH);
+        return $this->configHelper->getConfigValue(self::SHIPPERHQ_SERVER_AUTH_CODE_PATH);
     }
 
     /**
@@ -295,7 +248,7 @@ class Authorization
      */
     private function getEndpoint()
     {
-        return $this->getConfigValue(self::SHIPPERHQ_ENDPOINT_PATH);
+        return $this->configHelper->getConfigValue(self::SHIPPERHQ_ENDPOINT_PATH);
     }
 
     /**
@@ -303,7 +256,7 @@ class Authorization
      */
     private function getTimeout()
     {
-        return $this->getConfigValue(self::SHIPPERHQ_TIMEOUT_PATH);
+        return $this->configHelper->getConfigValue(self::SHIPPERHQ_TIMEOUT_PATH);
     }
 
     /**
@@ -311,7 +264,7 @@ class Authorization
      */
     private function getStoredSecretToken()
     {
-        return $this->getConfigValue(self::SHIPPERHQ_SERVER_SECRET_TOKEN_PATH);
+        return $this->configHelper->getConfigValue(self::SHIPPERHQ_SERVER_SECRET_TOKEN_PATH);
     }
 
     /**
@@ -320,7 +273,7 @@ class Authorization
      */
     private function getTokenExpires()
     {
-        return $this->getConfigValue(self::SHIPPERHQ_SERVER_TOKEN_EXPIRES_PATH);
+        return $this->configHelper->getConfigValue(self::SHIPPERHQ_SERVER_TOKEN_EXPIRES_PATH);
     }
 
     /**

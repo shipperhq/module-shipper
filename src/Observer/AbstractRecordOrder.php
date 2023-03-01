@@ -36,8 +36,15 @@
 namespace ShipperHQ\Shipper\Observer;
 
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
 use ShipperHQ\GraphQL\Response\CreateListing;
+use ShipperHQ\Shipper\Helper\Authorization;
+use ShipperHQ\Shipper\Helper\CarrierGroup;
+use ShipperHQ\Shipper\Helper\Data;
 use ShipperHQ\Shipper\Helper\Listing as ListingHelper;
+use ShipperHQ\Shipper\Helper\LogAssist;
+use ShipperHQ\Shipper\Helper\Module;
+use ShipperHQ\Shipper\Helper\Package;
 use ShipperHQ\Shipper\Helper\PostOrder;
 use ShipperHQ\Shipper\Model\Listing\ListingService;
 
@@ -46,12 +53,9 @@ use ShipperHQ\Shipper\Model\Listing\ListingService;
  */
 abstract class AbstractRecordOrder implements ObserverInterface
 {
-    /**
-     * Constant for order view feature code
-     *
-     * @var string
-     */
-    const ORDER_VIEW_FEATURE = 'order_view';
+    const USHIP_CARRIER_TYPE = 'uShip';
+
+    const AUTOMATIC_LISTING = 'AUTO';
 
     /**
      * @var \ShipperHQ\Shipper\Helper\Data
@@ -93,21 +97,29 @@ abstract class AbstractRecordOrder implements ObserverInterface
      */
     private $postOrderHelper;
 
-    const USHIP_CARRIER_TYPE = 'uShip';
+    /**
+     * @var Module
+     */
+    private $moduleHelper;
 
-    const AUTOMATIC_LISTING = 'AUTO';
+    /**
+     * @var Authorization
+     */
+    private $authHelper;
 
     /**
      * AbstractRecordOrder constructor.
      *
-     * @param \ShipperHQ\Shipper\Helper\Data             $shipperDataHelper
-     * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
-     * @param \ShipperHQ\Shipper\Helper\LogAssist        $shipperLogger
-     * @param \ShipperHQ\Shipper\Helper\Package          $packageHelper
-     * @param \ShipperHQ\Shipper\Helper\CarrierGroup     $carrierGroupHelper
-     * @param ListingService                             $listingService
-     * @param ListingHelper                              $listingHelper
-     * @param PostOrder                                  $postOrderHelper
+     * @param Data                    $shipperDataHelper
+     * @param CartRepositoryInterface $quoteRepository
+     * @param LogAssist               $shipperLogger
+     * @param Package                 $packageHelper
+     * @param CarrierGroup            $carrierGroupHelper
+     * @param ListingService          $listingService
+     * @param ListingHelper           $listingHelper
+     * @param PostOrder               $postOrderHelper
+     * @param Module                  $moduleHelper
+     * @param Authorization           $authHelper
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
@@ -117,7 +129,9 @@ abstract class AbstractRecordOrder implements ObserverInterface
         \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
         ListingService $listingService,
         ListingHelper $listingHelper,
-        PostOrder $postOrderHelper
+        PostOrder $postOrderHelper,
+        Module $moduleHelper,
+        Authorization $authHelper
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->quoteRepository = $quoteRepository;
@@ -127,6 +141,8 @@ abstract class AbstractRecordOrder implements ObserverInterface
         $this->listingService = $listingService;
         $this->listingHelper = $listingHelper;
         $this->postOrderHelper = $postOrderHelper;
+        $this->moduleHelper = $moduleHelper;
+        $this->authHelper = $authHelper;
     }
 
     public function recordOrder($order)
@@ -187,6 +203,20 @@ abstract class AbstractRecordOrder implements ObserverInterface
                 $listingCreated = $this->listingService->createListing($order, $shippingAddress, $carrierType);
                 if ($listingCreated !== false && $listingCreated != null) {
                     $this->listingHelper->saveListingDetailsToOrderComments($order, ListingService::LISTING_CREATED, $listingCreated->getData()->getCreateListing()->getListingId());
+                }
+            } elseif ($this->moduleHelper->isModuleEnabled("ShipperHQ_Orderview")) {
+                /*
+                 *  SHQ23-55 Calling this method will generate a new token if there is not one, or it will generate a
+                 *  new one and store it if the existing one is close to expiring or has expired
+                 */
+                try {
+                    $this->authHelper->getSecretToken();
+                } catch (\Exception $e) {
+                    $this->shipperLogger->postCritical(
+                        'Shipperhq_Shipper',
+                        'Exception when updating auth token',
+                        $e->getMessage()
+                    );
                 }
             }
         }

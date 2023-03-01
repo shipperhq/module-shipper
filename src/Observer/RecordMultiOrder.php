@@ -35,10 +35,20 @@
 
 namespace ShipperHQ\Shipper\Observer;
 
+use Magento\Checkout\Model\Session;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Sales\Model\OrderFactory;
+use ShipperHQ\Shipper\Helper\Authorization;
+use ShipperHQ\Shipper\Helper\CarrierGroup;
+use ShipperHQ\Shipper\Helper\Data;
 use ShipperHQ\Shipper\Helper\Listing as ListingHelper;
+use ShipperHQ\Shipper\Helper\LogAssist;
+use ShipperHQ\Shipper\Helper\Module;
+use ShipperHQ\Shipper\Helper\Package;
 use ShipperHQ\Shipper\Helper\PostOrder;
+use ShipperHQ\Shipper\Model\Listing\ListingService;
 
 /**
  * ShipperHQ Shipper module observer
@@ -47,40 +57,57 @@ class RecordMultiOrder extends AbstractRecordOrder implements ObserverInterface
 {
 
     /**
-     * @var \Magento\Sales\Model\OrderFactory
+     * @var OrderFactory
      */
     private $orderFactory;
 
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var Session
      */
     private $checkoutSession;
 
     /**
-     * @param \Magento\Sales\Model\OrderFactory          $orderFactory
-     * @param \ShipperHQ\Shipper\Helper\Data             $shipperDataHelper
-     * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
-     * @param \ShipperHQ\Shipper\Helper\LogAssist        $shipperLogger
-     * @param \ShipperHQ\Shipper\Helper\Package          $packageHelper
-     * @param \ShipperHQ\Shipper\Helper\CarrierGroup     $carrierGroupHelper
-     * @param \Magento\Checkout\Model\Session            $checkoutSession
+     * @param OrderFactory            $orderFactory
+     * @param Data                    $shipperDataHelper
+     * @param CartRepositoryInterface $quoteRepository
+     * @param LogAssist               $shipperLogger
+     * @param Package                 $packageHelper
+     * @param CarrierGroup            $carrierGroupHelper
+     * @param Session                 $checkoutSession
+     * @param ListingService          $listingService
+     * @param ListingHelper           $listingHelper
+     * @param PostOrder               $postOrderHelper
+     * @param Module                  $moduleHelper
+     * @param Authorization           $authHelper
      */
     public function __construct(
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \ShipperHQ\Shipper\Helper\Package $packageHelper,
-        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \ShipperHQ\Shipper\Model\Listing\ListingService $listingService,
+        OrderFactory $orderFactory,
+        Data $shipperDataHelper,
+        CartRepositoryInterface $quoteRepository,
+        LogAssist $shipperLogger,
+        Package $packageHelper,
+        CarrierGroup $carrierGroupHelper,
+        Session $checkoutSession,
+        ListingService $listingService,
         ListingHelper $listingHelper,
-        PostOrder $postOrderHelper
+        PostOrder $postOrderHelper,
+        Module $moduleHelper,
+        Authorization $authHelper
     ) {
-
         $this->orderFactory = $orderFactory;
         $this->checkoutSession = $checkoutSession;
-        parent::__construct($shipperDataHelper, $quoteRepository, $shipperLogger, $packageHelper, $carrierGroupHelper, $listingService, $listingHelper, $postOrderHelper);
+        parent::__construct(
+            $shipperDataHelper,
+            $quoteRepository,
+            $shipperLogger,
+            $packageHelper,
+            $carrierGroupHelper,
+            $listingService,
+            $listingHelper,
+            $postOrderHelper,
+            $moduleHelper,
+            $authHelper
+        );
     }
 
     /**

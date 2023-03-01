@@ -35,9 +35,9 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
-use \Magento\Framework\Component\ComponentRegistrarInterface;
-use \Magento\Framework\Filesystem\Directory\ReadFactory;
-use function PHPUnit\Framework\isEmpty;
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\Component\ComponentRegistrarInterface;
+use Magento\Framework\Filesystem\Directory\ReadFactory;
 
 /**
  * Mapper for a data arrays tranformation
@@ -49,6 +49,11 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
     const ENABLED = "enabled";
     const OUTPUT_ENABLED = "output_enabled";
     const MODULES_MISSING = 'carriers/shipper/modules_missing';
+    const MODULE_OPTION = 'ShipperHQ_Option';
+    const MODULE_CALENDAR = 'ShipperHQ_Calendar';
+    const MODULE_PICKUP = 'ShipperHQ_Pickup';
+    const MODULE_ORDERVIEW = 'ShipperHQ_Orderview';
+
     /**
      * @var ComponentRegistrarInterface
      */
@@ -66,24 +71,25 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
         'residential' => 'ShipperHQ_Option',
         'shipcal' => 'ShipperHQ_Calendar'
     ];
+
     private $modules = [
         'ShipperHQ' => 'ShipperHQ_Shipper',
-        'Freight Options' => 'ShipperHQ_Option',
-        'Date & Calendar' => 'ShipperHQ_Calendar',
-        'In-store Pickup' => 'ShipperHQ_Pickup',
-        'Shipping Insights' => 'ShipperHQ_Orderview'
+        'Freight Options' => self::MODULE_OPTION,
+        'Date & Calendar' => self::MODULE_CALENDAR,
+        'In-store Pickup' => self::MODULE_PICKUP,
+        'Shipping Insights' => self::MODULE_ORDERVIEW
     ];
 
     /**
      * Module constructor.
      * @param ComponentRegistrarInterface $componentRegistrar
      * @param ReadFactory $readFactory
-     * @param \Magento\Framework\App\Helper\Context $context
+     * @param Context $context
      */
     public function __construct(
         ComponentRegistrarInterface $componentRegistrar,
         ReadFactory $readFactory,
-        \Magento\Framework\App\Helper\Context $context
+        Context $context
     ) {
         $this->componentRegistrar = $componentRegistrar;
         $this->readFactory = $readFactory;
@@ -116,9 +122,10 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
 
     /**
      * @param bool $forDisplay
+     *
      * @return array
      */
-    public function getInstalledModules($forDisplay = false)
+    public function getInstalledModules(bool $forDisplay = false): array
     {
         $foundModules = [];
         foreach ($this->modules as $displayModuleName => $moduleName) {
@@ -128,6 +135,26 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
             }
         }
         return $foundModules;
+    }
+
+    /**
+     * Checks if a ShipperHQ module is both installed and enabled
+     *
+     * @param $moduleCode
+     *
+     * @return bool
+     */
+    public function isModuleEnabled($moduleCode): bool
+    {
+        $installed = false;
+
+        $modules = $this->getInstalledModules();
+
+        if (array_key_exists($moduleCode, $modules)) {
+            $installed = $modules[$moduleCode][self::INSTALLED] === true && $modules[$moduleCode][self::ENABLED] === true;
+        }
+
+        return $installed;
     }
 
     /**

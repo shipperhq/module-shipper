@@ -748,3 +748,7 @@ MNB-3173 Fix to ensure AdobeMSI stock handler is only used when MSI enabled and 
 SHQ23-46 Correct the datatype of freight_class attribute from int to text
 
 
+## 20.52.0 (2023-03-01)
+SHQ23-55 Auto renew auth token for uShip / Shipping Insights if its about to expire or expired. SHQ23-295 Fix issue with deadlocking on install
+
+

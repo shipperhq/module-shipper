@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace ShipperHQ\Shipper\Setup\Patch\Data;
 
-use Magento\Catalog\Model\Product;
 use Magento\Customer\Setup\CustomerSetup;
 use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Framework\DB\Ddl\Table;
@@ -84,11 +83,6 @@ class InstallDestTypeAttributes implements DataPatchInterface
                 'comment'  => 'ShipperHQ Address Type'
             ];
             $customerSetup->addAttribute('customer_address', 'destination_type', $destinationTypeAddressAttr);
-
-            // add attribute to form
-            $attribute = $customerSetup->getEavConfig()->getAttribute('customer_address', 'destination_type');
-            $attribute->setData('used_in_forms', ['adminhtml_customer_address']);
-            $attribute->save();
         }
 
         $existingvalidationStatusAttribute = $customerSetup->getAttribute('customer_address', 'validation_status');
@@ -106,12 +100,6 @@ class InstallDestTypeAttributes implements DataPatchInterface
                 'comment'  => 'ShipperHQ Address Validation Status'
             ];
             $customerSetup->addAttribute('customer_address', 'validation_status', $validationStatusAddressAttr);
-
-            // add attribute to form
-            /** @var  $attribute */
-            $attribute = $customerSetup->getEavConfig()->getAttribute('customer_address', 'validation_status');
-            $attribute->setData('used_in_forms', ['adminhtml_customer_address']);
-            $attribute->save();
         }
     }
 

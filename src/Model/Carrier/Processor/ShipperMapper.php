@@ -201,6 +201,10 @@ class ShipperMapper
      * @var Header
      */
     private $httpHeader;
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    private $storeManager;
 
     /**
      * ShipperMapper constructor.
@@ -308,7 +312,7 @@ class ShipperMapper
         if ($carrierId = $this->getCarrierId($magentoRequest)) {
             $shipperHQRequest->setCarrierId($carrierId);
         }
-        //SHQ18-774
+        // SHQ18-774
         $storeId = $this->shipperDataHelper->getStoreIdFromRequest($magentoRequest);
         $ipAddress = $magentoRequest->getIpAddress();
         $shipperHQRequest->setSiteDetails($this->getSiteDetails($storeId, $ipAddress));
@@ -339,7 +343,7 @@ class ShipperMapper
      * Get values for items
      *
      * @param RateRequest                                    $request
-     * @param                                                $magentoItems
+     * @param \Magento\Quote\Model\Quote\Address\Item[]      $magentoItems
      * @param bool                                           $childItems
      *
      * @return array
@@ -367,14 +371,13 @@ class ShipperMapper
             $fixedWeight = $magentoItem->getProduct()->getWeightType() == 1 ? true : false;
             $id = $magentoItem->getItemId() ? $magentoItem->getItemId() : $magentoItem->getQuoteItemId();
             $productType = $magentoItem->getProductType() ?
-                $magentoItem->getProductType() :
-                $magentoItem->getProduct()->getTypeId();
+                $magentoItem->getProductType() : $magentoItem->getProduct()->getTypeId();
             $stdAttributes = array_merge($this->getDimensionalAttributes($magentoItem), self::$stdAttributeNames);
             $weight = $this->getAdjustedItemWeight($magentoItem);
             $warehouseDetails = $this->getWarehouseDetails($magentoItem);
             $pickupLocationDetails = $this->getPickupLocationDetails($magentoItem);
-            $itemAttributes = '';
             $itemAttributes = $this->populateAttributes($stdAttributes, $magentoItem);
+
             if ($this->taxHelper->discountTax() && $magentoItem->getTaxPercent() > 0) {
                 $discountAmount = round(
                     $magentoItem->getDiscountAmount() / ($magentoItem->getTaxPercent() / 100 + 1),
@@ -399,6 +402,8 @@ class ShipperMapper
                     'SKU: ' . $magentoItem->getSku() . ' Weight: ' . $weight
                 );
             }
+            $storePrice = $this->getItemStorePrice($magentoItem);
+
             $formattedItem = $this->itemFactory->create([
                 'id'                          => $id,
                 'sku'                         => $magentoItem->getSku(),
@@ -410,15 +415,13 @@ class ShipperMapper
                 'discountAmount'              => (float)$discountAmount,
                 'discountPercent'             => (float)$magentoItem->getDiscountPercent(),
                 'discountedBasePrice'         => $magentoItem->getBasePrice() -
-                    ($baseDiscountAmount / $magentoItem->getQty()),
-                'discountedStorePrice'        => $magentoItem->getPrice() -
-                    ($discountAmount / $magentoItem->getQty()),
+                                                    ($baseDiscountAmount / $magentoItem->getQty()),
+                'discountedStorePrice'        => $storePrice - ($discountAmount / $magentoItem->getQty()),
                 'discountedTaxInclBasePrice'  => $magentoItem->getBasePrice() -
-                    ($baseDiscountAmount / $magentoItem->getQty()) +
-                    ($magentoItem->getBaseTaxAmount() / $magentoItem->getQty()),
-                'discountedTaxInclStorePrice' => $magentoItem->getPrice() -
-                    ($discountAmount / $magentoItem->getQty()) +
-                    ($magentoItem->getTaxAmount() / $magentoItem->getQty()),
+                                                    ($baseDiscountAmount / $magentoItem->getQty()) +
+                                                    ($magentoItem->getBaseTaxAmount() / $magentoItem->getQty()),
+                'discountedTaxInclStorePrice' => $storePrice - ($discountAmount / $magentoItem->getQty()) +
+                                                    ($magentoItem->getTaxAmount() / $magentoItem->getQty()),
                 'fixedPrice'                  => $fixedPrice,
                 'fixedWeight'                 => $fixedWeight,
                 'freeShipping'                => (bool)$magentoItem->getFreeShipping(),
@@ -426,8 +429,9 @@ class ShipperMapper
                 'baseCurrency'                => $request->getBaseCurrency()->getCurrencyCode(),
                 'storeBaseCurrency'           => $this->storeManager->getStore()->getBaseCurrencyCode(),
                 'storeCurrentCurrency'        => $this->storeManager->getStore()->getCurrentCurrencyCode(),
-                'storePrice'                  => $magentoItem->getPrice() ? $magentoItem->getPrice() : 0,
-                'taxInclBasePrice'            => $magentoItem->getBasePriceInclTax() ? $magentoItem->getBasePriceInclTax() : 0,
+                'storePrice'                  => $storePrice ? $storePrice : 0,
+                'taxInclBasePrice'            => $magentoItem->getBasePriceInclTax() ?
+                                                    $magentoItem->getBasePriceInclTax() : 0,
                 'taxInclStorePrice'           => $magentoItem->getPriceInclTax() ? $magentoItem->getPriceInclTax() : 0,
                 'taxPercentage'               => $taxPercentage,
                 'type'                        => $productType,
@@ -453,6 +457,26 @@ class ShipperMapper
         return $formattedItems;
     }
 
+    /**
+     * SHQ23-429 Need to calculate this ourselves as $item->getPrice() has a bug in it as of 2.4 whereby it always
+     * returns the base price instead of store price when multiple currencies are in use
+     *
+     * @param  \Magento\Quote\Model\Quote\Address\Item $item
+     *
+     * @return float
+     */
+    private function getItemStorePrice($item): float
+    {
+        return round($item->getRowTotal() / $item->getQty(), 2);
+    }
+
+    /**
+     * Returns length, width and height attribute values
+     *
+     * @param \Magento\Quote\Model\Quote\Address\Item $item
+     *
+     * @return array
+     */
     public function getDimensionalAttributes($item)
     {
         $attributes = [];
@@ -466,9 +490,12 @@ class ShipperMapper
         return $attributes;
     }
 
-    /*
+    /**
      * Return customer group details
      *
+     * @param \Magento\Quote\Model\Quote\Address\Item $item
+     *
+     * @return array
      */
     public function getWarehouseDetails($item)
     {
@@ -513,10 +540,13 @@ class ShipperMapper
         return $details;
     }
 
-    /*
-    * Return ship Details selected
-    *
-    */
+    /**
+     * Return ship Details selected
+     *
+     * @param \Magento\Quote\Model\Quote\Address\Item $item
+     *
+     * @return array
+     */
     public function getPickupLocationDetails($item)
     {
         $details = [];
@@ -556,15 +586,11 @@ class ShipperMapper
         return $details;
     }
 
-    /*
-    * Return cartType String
-    *
-    */
     /**
      * Reads attributes from the item
      *
      * @param $reqdAttributeNames
-     * @param $item
+     * @param \Magento\Quote\Model\Quote\Address\Item $item
      *
      * @return array
      */
@@ -615,16 +641,12 @@ class ShipperMapper
         return $attributes;
     }
 
-    /*
-    * Return cartType String
-    *
-    */
     /**
      * Set up additional attribute array
      * This takes the values from core_config_data
      * Not currently implemented for v1 Magento2.
      *
-     * @param $item
+     * @param \Magento\Quote\Model\Quote\Address\Item $item
      *
      * @return array
      */
@@ -646,20 +668,22 @@ class ShipperMapper
         return $this->populateAttributes($customAttributes, $item);
     }
 
-    /*
-    * Return Delivery Date selected
-    *
-    */
+    /**
+     * Gets inventory count, in stock status and availability date for default warehouse
+     *
+     * @param \Magento\Quote\Model\Quote\Address\Item $item
+     *
+     * @return Request\Checkout\StockDetail
+     */
     public function getDefaultWarehouseStockDetail($item)
     {
         $product = $item->getProduct();
-        $details = $this->stockDetailFactory->create([
+
+        return $this->stockDetailFactory->create([
             'inventoryCount'   => $this->stockHandler->getInventoryCount($item, $product),
             'availabilityDate' => $this->stockHandler->getAvailabilityDate($item, $product),
             'inStock'          => $this->stockHandler->getInstock($item, $product)
         ]);
-
-        return $details;
     }
 
     /**
@@ -667,7 +691,7 @@ class ShipperMapper
      *
      * @param RateRequest $request
      *
-     * @return array
+     * @return WS\Shared\Address
      */
     public function getDestination($request)
     {
@@ -719,21 +743,19 @@ class ShipperMapper
     }
 
     /**
-     * Return selected carrierGroup id
+     * Gets either CART, STD (checkout) or MAC (Multi Address Checkout)
      *
      * @param RateRequest $request
      *
-     * @return mixed
+     * @return string
      */
     public function getCartType($request)
     {
-        $cartType = $request->getCartType();
-
-        return $cartType;
+        return $request->getCartType();
     }
 
     /**
-     * Return selected carrier id
+     * Gets the customer group code
      *
      * @param RateRequest $request
      *
@@ -743,11 +765,10 @@ class ShipperMapper
     {
         $code = $this->getCustomerGroupId($request->getAllItems());
         $group = $this->groupFactory->create()->load($code);
-        $custGroupDetails = $this->customerDetailsFactory->create(
+
+        return $this->customerDetailsFactory->create(
             ['customerGroup' => $group->getCustomerGroupCode()]
         );
-
-        return $custGroupDetails;
     }
 
     public function getCustomerGroupId($items)
@@ -764,61 +785,100 @@ class ShipperMapper
         return null;
     }
 
+    /**
+     * Returns true if the address should be validated else false
+     *
+     * @param RateRequest $request
+     *
+     * @return bool|null
+     */
     public function getValidateAddress($request)
     {
         return $request->getValidateAddress();
     }
 
+    /**
+     * Return delivery date selected UTC timestamp
+     *
+     * @param RateRequest $request
+     *
+     * @return int|null
+     */
     public function getDeliveryDateUTC($request)
     {
         $timeStamp = $request->getDeliveryDateTimestamp();
         if ($timeStamp !== null) {
-            $inMilliseconds = $timeStamp * 1000;
-
-            return $inMilliseconds;
+            return $timeStamp * 1000;
         }
 
         return null;
     }
 
+    /**
+     * Return delivery date selected
+     *
+     * @param RateRequest $request
+     *
+     * @return string|null
+     */
     public function getDeliveryDate($request)
     {
         return $request->getDeliveryDate();
     }
 
+    /**
+     * Gets the pickupId and puts in a ShipDetails object
+     *
+     * @param RateRequest $request
+     *
+     * @return false|Request\ShipDetails
+     */
     public function getShipDetails($request)
     {
         $pickupId = $this->getLocation($request);
         if ($pickupId != '') {
-            $shipDetails = $this->shipDetailsFactory->create(
+            return $this->shipDetailsFactory->create(
                 ['pickupId' => $pickupId]
             );
-
-            return $shipDetails;
         }
 
         return false;
     }
 
+    /**
+     * Gets the selected pickup location if there is one
+     *
+     * @param RateRequest $request
+     *
+     * @return string|null
+     */
     public function getLocation($request)
     {
-        $selectedLocationId = $request->getLocationSelected();
-
-        return $selectedLocationId;
+        return $request->getLocationSelected();
     }
 
+    /**
+     * Return selected carrierGroup id
+     *
+     * @param RateRequest $request
+     *
+     * @return string
+     */
     public function getCarrierGroupId($request)
     {
-        $carrierGroupId = $request->getCarriergroupId();
-
-        return $carrierGroupId;
+        return $request->getCarriergroupId();
     }
 
+    /**
+     * Return selected carrier id
+     *
+     * @param RateRequest $request
+     *
+     * @return mixed
+     */
     public function getCarrierId($request)
     {
-        $carrierId = $request->getCarrierId();
-
-        return $carrierId;
+        return $request->getCarrierId();
     }
 
     /**
@@ -852,25 +912,26 @@ class ShipperMapper
 
     /**
      * Return credentials for ShipperHQ login
-     * @return array
+     *
+     * @param null|int|string $storeId
+     *
+     * @return WS\Shared\Credentials
      */
     public function getCredentials($storeId = null)
     {
-        $credentials = $this->credentialsFactory->create([
+        return $this->credentialsFactory->create([
             'apiKey'   => $this->shipperDataHelper->getConfigValue('carriers/shipper/api_key', $storeId),
             'password' => $this->shipperDataHelper->getConfigValue('carriers/shipper/password', $storeId)
         ]);
-
-        return $credentials;
     }
 
     /**
      * Set up values for ShipperHQ getAllowedMethods()
      *
-     * @param null $storeId
-     * @param null $ipAddress
+     * @param null|int|string $storeId
+     * @param null|int|string $ipAddress
      *
-     * @return string
+     * @return Request\InfoRequest
      * @throws NoSuchEntityException
      */
     public function getCredentialsTranslation($storeId = null, $ipAddress = null)
@@ -884,7 +945,9 @@ class ShipperMapper
 
     /**
      * Gets credentials from all websites/stores in Magento
+     *
      * @return array
+     * @throws NoSuchEntityException
      */
     public function getAllCredentialsTranslation()
     {
@@ -908,7 +971,7 @@ class ShipperMapper
      *
      * @param $order
      *
-     * @return mixed
+     * @return string|null
      */
     public function getMagentoOrderNumber($order)
     {
@@ -934,9 +997,9 @@ class ShipperMapper
     }
 
     /**
-     * @param $magentoItem
+     * @param \Magento\Quote\Model\Quote\Address\Item $magentoItem
      *
-     * @return null
+     * @return float|null
      */
     private function getAdjustedItemWeight($magentoItem)
     {

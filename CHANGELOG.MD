@@ -752,3 +752,7 @@ SHQ23-46 Correct the datatype of freight_class attribute from int to text
 SHQ23-55 Auto renew auth token for uShip / Shipping Insights if its about to expire or expired. SHQ23-295 Fix issue with deadlocking on install
 
 
+## 20.52.1 (2023-04-26)
+SHQ23-429 Resolve issue with store price using incorrect value when coupon code entered and non base currency selected
+
+

@@ -203,7 +203,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * Get Config Value
      *
-     * @param $configField
+     * @param string          $configField
+     * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getConfigValue($configField, $store = null)

@@ -27,6 +27,11 @@ class InstallAvailabilityDateAttribute implements DataPatchInterface, PatchRever
     private $moduleDataSetup;
 
     /**
+     * @var \Magento\Catalog\Setup\CategorySetup
+     */
+    private $categorySetupFactory;
+
+    /**
      * @param ModuleDataSetupInterface $moduleDataSetup
      */
     public function __construct(

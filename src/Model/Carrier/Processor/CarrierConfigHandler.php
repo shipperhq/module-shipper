@@ -30,23 +30,32 @@
 
 namespace ShipperHQ\Shipper\Model\Carrier\Processor;
 
+use Magento\Backend\Block\Template\Context;
+use Magento\Config\Model\ResourceModel\Config;
+use ShipperHQ\Shipper\Helper\Data;
+
 class CarrierConfigHandler
 {
     /**
-     * @var \ShipperHQ\Shipper\Helper\Data
+     * @var Data
      */
     private $shipperDataHelper;
 
     /**
-     * @var \Magento\Config\Model\ResourceModel\Config
+     * @var Config
      */
     private $resourceConfig;
 
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    private $storeManager;
+
 
     public function __construct(
-        \Magento\Config\Model\ResourceModel\Config $resourceConfig,
-        \Magento\Backend\Block\Template\Context $context,
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+        Config $resourceConfig,
+        Context $context,
+        Data $shipperDataHelper
     ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->storeManager = $context->getStoreManager();
@@ -56,7 +65,7 @@ class CarrierConfigHandler
     public function saveCarrierResponseDetails($carrierRate, $carrierGroupDetail = null)
     {
         $carrierCode = $carrierRate['carrierCode'];
-        $sort = isset($carrierRate['sortOrder']) ? $carrierRate['sortOrder'] : false;
+        $sort = $carrierRate['sortOrder'] ?? false;
         $this->dynamicCarrierConfig($carrierCode, $carrierRate['carrierTitle'], $sort);
 
         $this->populateCarrierLevelDetails((array)$carrierRate, $carrierGroupDetail);

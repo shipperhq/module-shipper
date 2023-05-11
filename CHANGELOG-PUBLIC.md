@@ -756,3 +756,7 @@ SHQ23-55 Auto renew auth token for uShip / Shipping Insights if its about to exp
 SHQ23-429 Resolve issue with store price using incorrect value when coupon code entered and non base currency selected
 
 
+## 20.53.0 (2023-05-11)
+SHQ23-531 Add support for PHP8.2
+
+

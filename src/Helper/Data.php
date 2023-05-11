@@ -81,7 +81,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $baseCurrencyRate;
     private $storeId;
     /**
-     * @var Mage_Sales_Model_Quote
+     * @var \Magento\Quote\Model\Quote
      */
     private $quote;
     /**
@@ -123,7 +123,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $checkoutHelper;
 
     public function __construct(
-        Config $shipperConfig,
         \Magento\Eav\Model\Config $eavConfig,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\App\Helper\Context $context,
@@ -136,7 +135,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Checkout\Helper\Data $checkoutHelper
     ) {
         parent::__construct($context);
-        $this->shipperConfig = $shipperConfig;
         $this->eavConfig = $eavConfig;
         $this->registry = $registry;
         $this->storeManager = $storeManager;

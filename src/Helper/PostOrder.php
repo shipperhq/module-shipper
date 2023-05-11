@@ -31,6 +31,7 @@ namespace ShipperHQ\Shipper\Helper;
 use ShipperHQ\Shipper\Model\Carrier\Processor\ShipperMapper;
 use ShipperHQ\WS\Client\WebServiceClientFactory;
 use ShipperHQ\WS\PostOrder\Placeorder\Request\PlaceOrderRequestFactory;
+use ShipperHQ\WS\Shared\BasicAddress;
 use ShipperHQ\WS\Shared\BasicAddressFactory;
 use ShipperHQ\Shipper\Helper\CarrierGroup;
 
@@ -43,26 +44,41 @@ class PostOrder
      * @var LogAssist
      */
     private $shipperLogger;
+
     /**
-     * @var Client\WebServiceClientFactory
+     * @var \ShipperHQ\WS\Client\WebServiceClientFactory
      */
     private $shipperWSClientFactory;
+
     /**
-     * @var ShipperHQ\WS\PostOrder\Placeorder\Request
+     * @var \ShipperHQ\WS\PostOrder\Placeorder\Request\PlaceOrderRequestFactory
      */
     private $placeOrderRequestFactory;
+
     /**
      * @var Data
      */
     private $shipperDataHelper;
+
     /**
      * @var \ShipperHQ\Shipper\Helper\CarrierGroup
      */
     private $carrierGroupHelper;
+
     /**
-     * @var WS\Shared\BasicAddressFactory
+     * @var \ShipperHQ\WS\Shared\BasicAddressFactory
      */
     private $basicAddressFactory;
+
+    /**
+     * @var \ShipperHQ\Shipper\Helper\Rest
+     */
+    private $restHelper;
+
+    /**
+     * @var \ShipperHQ\Shipper\Model\Carrier\Processor\ShipperMapper
+     */
+    private $shipperMapper;
 
     /**
      * PostOrder constructor.
@@ -74,6 +90,7 @@ class PostOrder
      * @param ShipperMapper            $shipperMapper
      * @param Data                     $shipperDataHelper
      * @param BasicAddressFactory      $basicAddressFactory
+     * @param CarrierGroup             $carrierGroupHelper
      */
     public function __construct(
         LogAssist                $shipperLogger,
@@ -202,9 +219,9 @@ class PostOrder
     /**
      * Get values for recipient
      *
-     * @param $request
+     * @param $shippingAddress
      *
-     * @return array
+     * @return BasicAddress
      */
     private function getRecipient($shippingAddress)
     {

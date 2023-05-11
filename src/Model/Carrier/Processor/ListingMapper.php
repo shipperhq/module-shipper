@@ -70,6 +70,11 @@ class ListingMapper
      */
     private $mediaDirectory;
 
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    private $storeManager;
+
     private static $dim_height = 'ship_height';
     private static $dim_width = 'ship_width';
     private static $dim_length = 'ship_length';

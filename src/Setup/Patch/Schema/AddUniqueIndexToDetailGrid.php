@@ -26,9 +26,9 @@ class AddUniqueIndexToDetailGrid implements SchemaPatchInterface
     private static $connectionName = 'sales';
 
     /**
-     * @var ModuleDataSetupInterface $moduleDataSetup
+     * @var SchemaSetupInterface
      */
-    private $moduleDataSetup;
+    private $schemaSetup;
 
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup

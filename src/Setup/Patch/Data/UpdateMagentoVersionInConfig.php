@@ -26,6 +26,11 @@ class UpdateMagentoVersionInConfig implements DataPatchInterface, PatchRevertabl
     private $configStorageWriter;
 
     /**
+     * @var ProductMetadata
+     */
+    private $productMetadata;
+
+    /**
      * @param ModuleDataSetupInterface $moduleDataSetup
      */
     public function __construct(

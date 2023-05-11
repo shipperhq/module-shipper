@@ -186,6 +186,11 @@ class Shipper extends AbstractCarrier implements CarrierInterface
     private $directoryHelper;
 
     /**
+     * @var \ShipperHQ\Shipper\Model\Carrier\Processor\ShipperMapper
+     */
+    private $shipperMapper;
+
+    /**
      * @param \ShipperHQ\Shipper\Helper\Data                              $shipperDataHelper
      * @param \ShipperHQ\Shipper\Helper\Rest                              $restHelper
      * @param \ShipperHQ\Shipper\Helper\CarrierCache                      $carrierCache

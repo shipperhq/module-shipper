@@ -19,8 +19,15 @@ Compatibility
 -------------
 This module supports and is tested against the following Magento versions:
 
+* 2.4.7-beta1
+* 2.4.6-p1
+* 2.4.6
+* 2.4.5-p3
+* 2.4.5-p2
 * 2.4.5-p1
 * 2.4.5
+* 2.4.4-p4
+* 2.4.4-p3
 * 2.4.4-p2
 * 2.4.4-p1
 * 2.4.4
@@ -89,7 +96,7 @@ Magento Issues Impacting ShipperHQ
 3. Only country, region and postcode are included in shipping request at checkout - you may not see correct rates returned if filtering on city or PO box addresses
     - Github Issue: https://github.com/magento/magento2/issues/3789
     - Resolved in Magento 2.1 and above for Guest checkout, logged in customers will still only see region/state, postcode and country
-4. Error thrown when using Elastic search and Magento Enterprise " error: MapperParsingException[No handler for type [array] declared on field [shipperhq_master_boxes]]"
+4. Error thrown when using Elastic search and Magento Enterprise " error: MapperParsingException[No handler for type [array] declared on field [shipperhq_master_boxes]"
     - Magento issue number/patch reference: MDVA-791 - contact Enterprise support for patch
 5. Error thrown when placing an order with some shipping methods. Root cause is that some shipping methods have shipping method codes longer than the column length on quote for shipping_method field. Field is truncating the code and order cannot be placed.
    - Github Issue: https://github.com/magento/magento2/issues/6475

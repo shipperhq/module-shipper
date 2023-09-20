@@ -53,14 +53,29 @@ class StockHandlerFactory
                 "getSkusByProductIds" => $this->objectManager->create('Magento\InventoryCatalogApi\Model\GetSkusByProductIdsInterface', []),
                 "isSourceItemManagementAllowedForProductType" => $this->objectManager->create('Magento\InventoryConfigurationApi\Model\IsSourceItemManagementAllowedForProductTypeInterface', [])
             ];
+
+            if ($this->isCustomInventoryInstalled()) {
+                return $this->objectManager->create('\ShipperHQ\CustomInventory\Model\StockHandler', $injection);
+            }
+
             return $this->objectManager->create('\ShipperHQ\Shipper\Model\Carrier\Processor\StockHandler\AdobeMSI', $injection);
         } elseif ($this->isLegacyStockRegistryInstalled()) {
             $injection = [
                 "stockRegistry" => $this->objectManager->create('Magento\CatalogInventory\Api\StockRegistryInterface', []),
             ];
+
             return $this->objectManager->create('\ShipperHQ\Shipper\Model\Carrier\Processor\StockHandler\LegacyStockRegistry', $injection);
         }
         return $this->objectManager->create('\ShipperHQ\Shipper\Model\Carrier\Processor\StockHandler\Oops', $data);
+    }
+
+    /**
+     * @return bool
+     */
+    private function isCustomInventoryInstalled(): bool
+    {
+        return class_exists('ShipperHQ\CustomInventory\Model\StockHandler')
+            && $this->moduleManager->isEnabled('ShipperHQ_CustomInventory');
     }
 
     /**

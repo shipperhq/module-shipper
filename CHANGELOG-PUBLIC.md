@@ -760,3 +760,7 @@ SHQ23-429 Resolve issue with store price using incorrect value when coupon code 
 SHQ23-531 Add support for PHP8.2
 
 
+## 20.53.1 (2023-09-20)
+SHQ23-1143 Minor enhancement to inventory logic
+
+

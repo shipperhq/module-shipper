@@ -895,7 +895,8 @@ class ShipperMapper
         $edition = $this->shipperDataHelper->getConfigValue('carriers/shipper/magento_edition');
         $url = $this->storeManager->getStore($storeId)->getBaseUrl(UrlInterface::URL_TYPE_LINK);
         $mobilePrepend = $this->shipperDataHelper->isMobile($this->httpHeader->getHttpUserAgent()) ? 'm' : '';
-        $siteDetails = $this->siteDetailsFactory->create([
+
+        return $this->siteDetailsFactory->create([
             'ecommerceCart'    => 'Magento 2 ' . $edition,
             'ecommerceVersion' => $this->shipperDataHelper->getConfigValue('carriers/shipper/magento_version'),
             'websiteUrl'       => $url,
@@ -906,8 +907,6 @@ class ShipperMapper
             'appVersion'       => $this->shipperDataHelper->getConfigValue('carriers/shipper/extension_version'),
             'ipAddress'        => ($ipAddress === null) ? $mobilePrepend : $mobilePrepend . $ipAddress
         ]);
-
-        return $siteDetails;
     }
 
     /**

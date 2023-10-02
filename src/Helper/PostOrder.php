@@ -28,6 +28,7 @@
 
 namespace ShipperHQ\Shipper\Helper;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use ShipperHQ\Shipper\Model\Carrier\Processor\ShipperMapper;
 use ShipperHQ\WS\Client\WebServiceClientFactory;
 use ShipperHQ\WS\PostOrder\Placeorder\Request\PlaceOrderRequestFactory;
@@ -194,13 +195,27 @@ class PostOrder
                 $methodCode = $carrierGroupDetail['code'];
             }
 
+            // SHQ23-1021 Need to add site details. Call can error although unlikely so wrapped in try/catch.
+            $siteDetails = null;
+
+            try {
+                $siteDetails = $this->shipperMapper->getSiteDetails();
+            } catch (NoSuchEntityException $e) {
+                $this->shipperLogger->postWarning(
+                    'Shipperhq_Shipper',
+                    'PostOrder::getPlaceorderRequest - failed to find site details',
+                    ['error' => $e->getMessage()]
+                );
+            }
+
             $request = $this->placeOrderRequestFactory->create([
                 'orderNumber'  => $order->getIncrementId(),
                 'totalCharges' => $rate->getPrice(),
                 'carrierCode'  => $rate->getCarrier(),
                 'methodCode'   => $methodCode,
                 'transId'      => $transactionId,
-                'recipient'    => $this->getRecipient($order->getShippingAddress())
+                'recipient'    => $this->getRecipient($order->getShippingAddress()),
+                'siteDetails'  => $siteDetails,
             ]);
 
             $request->setCredentials($this->shipperMapper->getCredentials());

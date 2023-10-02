@@ -764,3 +764,7 @@ SHQ23-531 Add support for PHP8.2
 SHQ23-1143 Minor enhancement to inventory logic
 
 
+## 20.53.2 (2023-10-02)
+SHQ23-1021 Fix issue with place order call not populating site details
+
+

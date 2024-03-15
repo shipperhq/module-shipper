@@ -39,6 +39,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Store\Model\ScopeInterface;
+use ShipperHQ\Shipper\Helper\CarrierGroup;
 
 /**
  * ShipperHQ Shipper module observer
@@ -46,28 +47,22 @@ use Magento\Store\Model\ScopeInterface;
 class SaveEmailVariables implements ObserverInterface
 {
     /**
-     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
+     * @var CarrierGroup
      */
     private $carrierGroupHelper;
-    /**
-     * @var \ShipperHQ\Shipper\Helper\LogAssist
-     */
-    private $shipperLogger;
     /**
      * @var ScopeConfigInterface
      */
     private $config;
 
     /**
-     * @param ScopeConfigInterface                 $config
-     * @param  \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger
+     * @param ScopeConfigInterface $config
+     * @param CarrierGroup         $carrierGroupHelper
      */
     public function __construct(
         ScopeConfigInterface $config,
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper
+        CarrierGroup $carrierGroupHelper
     ) {
-        $this->shipperLogger = $shipperLogger;
         $this->config = $config;
         $this->carrierGroupHelper = $carrierGroupHelper;
     }
@@ -86,43 +81,54 @@ class SaveEmailVariables implements ObserverInterface
             $orderDetail = $this->carrierGroupHelper->getOrderCarrierGroupInfo($order->getId());
             if (count($orderDetail) > 0) {
                 foreach ($orderDetail as $orderData) {
-                    $data['deliveryDate']           = array_key_exists('delivery_date', $orderData) ? $orderData['delivery_date'] : '';
-                    $data['dispatchDate']           = array_key_exists('dispatch_date', $orderData) ? $orderData['dispatch_date'] : '';
-                    $data['customerCarrier']        = array_key_exists('customer_carrier', $orderData) ? $orderData['customer_carrier']: '';
-                    $data['customerCarrierAccount'] = array_key_exists('customer_carrier_account', $orderData) ? $orderData['customer_carrier_account'] : '';
-                    $data['customerCarrierPh']      = array_key_exists('customer_carrier_ph', $orderData) ? $orderData['customer_carrier_ph'] : '';
-                    $data['liftgateRequired']       = array_key_exists('liftgate_required', $orderData) ? $orderData['liftgate_required'] : '';
-                    $data['notifyRequired']         = array_key_exists('notify_required', $orderData) ? $orderData['notify_required'] : '';
-                    $data['insideDelivery']         = array_key_exists('inside_delivery', $orderData) ? $orderData['inside_delivery'] : '';
-                    $data['limitedDelivery']        = array_key_exists('limited_delivery', $orderData) ? $orderData['limited_delivery'] : '';
+                    // SHQ23-2090 These fields are saved with 0 rather than being null. M2 interprets 0 as a value,
+                    // and so we can't use them as conditions in email templates. Need to convert to null
+                    $liftgateRequired = $orderData['liftgate_required'] ?? null;
+                    $notifyRequired = $orderData['notify_required'] ?? null;
+                    $insideDelivery = $orderData['inside_delivery'] ?? null;
+                    $limitedDelivery = $orderData['limited_delivery'] ?? null;
+
+                    $data['deliveryDate']           = $orderData['delivery_date'] ?? null;
+                    $data['dispatchDate']           = $orderData['dispatch_date'] ?? null;
+                    $data['customerCarrier']        = $orderData['customer_carrier'] ?? null;
+                    $data['customerCarrierAccount'] = $orderData['customer_carrier_account'] ?? null;
+                    $data['customerCarrierPh']      = $orderData['customer_carrier_ph'] ?? null;
+                    $data['liftgateRequired']       = $liftgateRequired == 0 ? null : $liftgateRequired;
+                    $data['notifyRequired']         = $notifyRequired == 0 ? null : $notifyRequired;
+                    $data['insideDelivery']         = $insideDelivery == 0 ? null : $insideDelivery;
+                    $data['limitedDelivery']        = $limitedDelivery == 0 ? null : $limitedDelivery;
                     break;
                 }
             } else {
                 $quoteShippingAddress = $this->carrierGroupHelper->getQuoteShippingAddressFromOrder($order);
                 if ($quoteShippingAddress) {
-
                     $quoteAddressDetailsCollection = $this->carrierGroupHelper->loadAddressDetailByShippingAddress(
                         $quoteShippingAddress->getId()
                     );
-                          $quoteAddressData = $quoteAddressDetailsCollection->getData();
+
+                    $quoteAddressData = $quoteAddressDetailsCollection->getData();
 
                     if (count($quoteAddressData) > 0) {
                         foreach ($quoteAddressData as $quoteAddressDetail) {
-                            $data['deliveryDate']           = array_key_exists('delivery_date', $quoteAddressDetail) ? $quoteAddressDetail['delivery_date'] : '';
-                            $data['dispatchDate']           = array_key_exists('dispatch_date', $quoteAddressDetail) ? $quoteAddressDetail['dispatch_date'] : '';
-                            $data['customerCarrier']        = array_key_exists('customer_carrier', $quoteAddressDetail) ? $quoteAddressDetail['customer_carrier'] : '';
-                            $data['customerCarrierAccount'] = array_key_exists('customer_carrier_account', $quoteAddressDetail) ? $quoteAddressDetail['customer_carrier_account'] : '';
-                            $data['customerCarrierPh']      = array_key_exists('customer_carrier_ph', $quoteAddressDetail) ? $quoteAddressDetail['customer_carrier_ph'] : '';
-                            $data['liftgateRequired']       = array_key_exists('liftgate_required', $quoteAddressDetail) ? $quoteAddressDetail['liftgate_required'] : '';
-                            $data['notifyRequired']         = array_key_exists('notify_required', $quoteAddressDetail) ? $quoteAddressDetail['notify_required'] : '';
-                            $data['insideDelivery']         = array_key_exists('inside_delivery', $quoteAddressDetail) ? $quoteAddressDetail['inside_delivery'] : '';
-                            $data['limitedDelivery']        = array_key_exists('limited_delivery', $quoteAddressDetail) ? $quoteAddressDetail['limited_delivery'] : '';
+                            $liftgateRequired = $quoteAddressDetail['liftgate_required'] ?? null;
+                            $notifyRequired = $quoteAddressDetail['notify_required'] ?? null;
+                            $insideDelivery = $quoteAddressDetail['inside_delivery'] ?? null;
+                            $limitedDelivery = $quoteAddressDetail['limited_delivery'] ?? null;
+                            
+                            $data['deliveryDate']           = $quoteAddressDetail['delivery_date'] ?? null;
+                            $data['dispatchDate']           = $quoteAddressDetail['dispatch_date'] ?? null;
+                            $data['customerCarrier']        = $quoteAddressDetail['customer_carrier'] ?? null;
+                            $data['customerCarrierAccount'] = $quoteAddressDetail['customer_carrier_account'] ?? null;
+                            $data['customerCarrierPh']      = $quoteAddressDetail['customer_carrier_ph'] ?? null;
+                            $data['liftgateRequired']       = $liftgateRequired == 0 ? null : $liftgateRequired;
+                            $data['notifyRequired']         = $notifyRequired == 0 ? null : $notifyRequired;
+                            $data['insideDelivery']         = $insideDelivery == 0 ? null : $insideDelivery;
+                            $data['limitedDelivery']        = $limitedDelivery == 0 ? null : $limitedDelivery;
                             break;
                         }
                     }
                 }
             }
-
         }
     }
 }

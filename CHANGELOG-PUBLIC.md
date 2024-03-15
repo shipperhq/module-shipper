@@ -768,3 +768,7 @@ SHQ23-1143 Minor enhancement to inventory logic
 SHQ23-1021 Fix issue with place order call not populating site details
 
 
+## 20.54.0 (2024-03-15)
+SHQ23-2090 Improve functionality of email template variables
+
+

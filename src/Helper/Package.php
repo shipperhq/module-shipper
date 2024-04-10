@@ -150,6 +150,12 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
         return $orderPackageCollection;
     }
 
+    /**
+     * @param \Magento\Sales\Model\Order $order
+     * @param $shippingAddress
+     *
+     * @return void
+     */
     public function saveOrderPackages($order, $shippingAddress)
     {
         $orderId = $order->getId();
@@ -207,30 +213,26 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                             $boxText = __('Transaction ID: ') . $carrier_group['transaction'];
                         }
 
-                        /*
-                         * SHQ18-1700 Thanks to @dewayneholden on Github for this suggested code change
-                         * Using method addStatusHistoryComment() for Magento 2.1 compatibility
-                         * Once 2.1 is EOL we will switch to using addCommentToStatusHistory()
-                         */
-                        $this->orderStatusHistoryRepository->save($order->addStatusHistoryComment($boxText, $order->getStatus()));
+
+                        // SHQ18-1700 Thanks to @dewayneholden on Github for this suggested code change
+                        $this->orderStatusHistoryRepository->save($order->addCommentToStatusHistory($boxText));
 
                         if (strpos($order->getShippingMethod(), 'multicarrier') === 0) {
-                            $this->orderStatusHistoryRepository->save($order->addStatusHistoryComment(
-                                "Shipping method for " . $carrier_group['name'] . ": " . $carrier_group['carrierTitle'] . " - " . $carrier_group['methodTitle'],
-                                $order->getStatus()
+                            $this->orderStatusHistoryRepository->save($order->addCommentToStatusHistory(
+                                "Shipping method for " . $carrier_group['name'] . ": "
+                                . $carrier_group['carrierTitle'] . " - " . $carrier_group['methodTitle']
                             ));
                         }
 
                         if ($carrier_group['carrierType'] == 'customerAccount') {
-                            $this->orderStatusHistoryRepository->save($order->addStatusHistoryComment(
-                                $this->shipperDataHelper->getCustomerCarrierBreakdownText($carrier_group),
-                                $order->getStatus()
+                            $this->orderStatusHistoryRepository->save($order->addCommentToStatusHistory(
+                                $this->shipperDataHelper->getCustomerCarrierBreakdownText($carrier_group)
                             ));
                         }
                     }
                 }
             } catch (\Exception $e) {
-                //Log exception and move on.
+                // Log exception and move on.
                 $this->_logger->critical('ShipperHQ save order package error: ' . $e->getMessage());
             }
         }

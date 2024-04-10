@@ -145,6 +145,13 @@ abstract class AbstractRecordOrder implements ObserverInterface
         $this->authHelper = $authHelper;
     }
 
+    /**
+     * @param \Magento\Sales\Model\ResourceModel\Order $order
+     *
+     * @return void
+     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     public function recordOrder($order)
     {
         // https://github.com/magento/magento2/issues/4233

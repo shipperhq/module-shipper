@@ -128,10 +128,11 @@
     <?php endif; ?>
 <?php else: ?>
     <div id="order-shipping-method-summary" class="order-shipping-method-summary">
-        <a href="#" onclick="order.loadShippingRates();return false" class="action-default">
+        <a href="#" id="loadShippingRates" class="action-default">
             <span><?php /* @escapeNotVerified */
-                echo __('Get shipping methods and rates') ?></span>
+            echo __('Get shipping methods and rates') ?></span>
         </a>
+        <?= $secureRenderer->renderEventListenerAsTag('onclick', 'order.loadShippingRates();return false;', '#loadShippingRates'); ?>
         <input type="hidden" name="order[has_shipping]" value="" class="required-entry"/>
     </div>
 <?php endif; ?>

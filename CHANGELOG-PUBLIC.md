@@ -776,3 +776,7 @@ SHQ23-2090 Improve functionality of email template variables
 SHQ23-474 Update code around order comments to be 2.4 compliant
 
 
+## 20.54.2 (2024-06-27)
+SHQ23-1281 Fix security linter warnings
+
+

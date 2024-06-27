@@ -35,15 +35,10 @@
                                     </div>
                                 <?php else: ?>
                                     <?php $_checked = $block->isMethodActive($_code) ? 'checked="checked"' : '' ?>
-                                    <input <?php /* @escapeNotVerified */
-                                    echo $_radioProperty ?> value="<?php /* @escapeNotVerified */
-                                    echo $_code ?>"
-                                                            id="s_method_<?php /* @escapeNotVerified */
-                                                            echo $_code ?>" <?php /* @escapeNotVerified */
-                                    echo $_checked ?>
+                                    <input <?= $block->escapeHtml($_radioProperty) ?> value="<?= $block->escapeHtml($_code) ?>"
+                                                            id="s_method_<?= $block->escapeHtml($_code) ?>" <?= $block->escapeHtml($_checked) ?>
                                                             class="admin__control-radio"/>
-                                    <label class="admin__field-label" for="s_method_<?php /* @escapeNotVerified */
-                                    echo $_code ?>">
+                                    <label class="admin__field-label" for="s_method_<?= $block->escapeHtml($_code) ?>">
                                         <?php echo $block->escapeHtml($_rate->getMethodTitle() ? $_rate->getMethodTitle() : $_rate->getMethodDescription()) ?>
                                         -
                                         <strong>
@@ -53,12 +48,9 @@
                                             ); ?>
                                             <?php $_incl = $block->getShippingPrice($_rate->getPrice(), true); ?>
 
-                                            <?php /* @escapeNotVerified */
-                                            echo $_excl; ?>
+                                            <?= $block->escapeHtml($_excl); ?>
                                             <?php if ($this->helper('Magento\Tax\Helper\Data')->displayShippingBothPrices() && $_incl != $_excl): ?>
-                                                (<?php /* @escapeNotVerified */
-                                                echo __('Incl. Tax'); ?><?php /* @escapeNotVerified */
-                                                echo $_incl; ?>)
+                                                (<?= $block->escapeHtml(__('Incl. Tax')); ?><?= $block->escapeHtml($_incl); ?>)
                                             <?php endif; ?>
                                         </strong>
                                     </label>
@@ -71,23 +63,20 @@
             <?php echo $block->getChildHtml('shipperhq.extra', false); ?>
         </dl>
         <?php if ($helper->adminShippingEnabled()): ?>
-            <dt class="admin__order-shipment-methods-title"><?php echo 'Custom Shipping'; ?></dt>
+            <dt class="admin__order-shipment-methods-title">Custom Shipping</dt>
             <div class="admin__field">
-                <label for="customCarrier" class=""><?php echo 'Description'; ?></label>
+                <label for="customCarrier" class="">Description</label>
                 <input name="customCarrier" type="text" id="customCarrier" size="15" class="admin__control-text"/>
             </div>
             <div class="admin__field">
-                <label for="customPrice" class=""><?php echo 'Price'; ?></label>
+                <label for="customPrice" class="">Price</label>
                 <input name="customPrice" type="text" class="admin__control-text input-text validate-zero-or-greater" id="customPrice" size="5" />
             </div>
             <div class="admin__field">
-                <button type="button" title="<?php /* @escapeNotVerified */
-                echo __('Add custom shipping') ?>" class="action-default scalable action-secondary"
+                <button type="button" title="<?= $block->escapeHtml(__('Add custom shipping')) ?>" class="action-default scalable action-secondary"
                         onclick="order.setAdminShippingMethod(this.value, customCarrier.value, customPrice.value)"
-                        value="<?php /* @escapeNotVerified */
-                        echo "shipperadmin_adminshipping" ?>">
-                    <span><?php /* @escapeNotVerified */
-                        echo __('Add custom shipping') ?></span>
+                        value="shipperadmin_adminshipping">
+                    <span><?= $block->escapeHtml(__('Add custom shipping')) ?></span>
                 </button>
             </div>
         <?php endif; ?>
@@ -102,7 +91,7 @@
         <strong class="order-shipping-method-not-available"><?php /* @escapeNotVerified */
             echo __('Sorry, no quotes are available for this order.') ?></strong>
     </div>
-    <br/>
+    <br>
     <!--SHQ16-2159 allow custom admin shipping when no rates are displayed -->
     <?php if ($helper->adminShippingEnabled()): ?>
         <dt class="admin__order-shipment-methods-title"><?php echo 'Custom Shipping'; ?></dt>
@@ -116,28 +105,23 @@
                    class="admin__control-text"/>
         </div>
         <div class="admin__field">
-            <button type="button" title="<?php /* @escapeNotVerified */
-            echo __('Add custom shipping') ?>" class="action-default scalable action-secondary"
+            <button type="button" title="<?= $block->escapeHtml(__('Add custom shipping')) ?>" class="action-default scalable action-secondary"
                     onclick="order.setAdminShippingMethod(this.value, customCarrier.value, customPrice.value)"
-                    value="<?php /* @escapeNotVerified */
-                    echo "shipperadmin_adminshipping" ?>">
-                <span><?php /* @escapeNotVerified */
-                    echo __('Add custom shipping') ?></span>
+                    value="shipperadmin_adminshipping">
+                <span><?= $block->escapeHtml(__('Add custom shipping')) ?></span>
             </button>
         </div>
     <?php endif; ?>
 <?php else: ?>
     <div id="order-shipping-method-summary" class="order-shipping-method-summary">
         <a href="#" onclick="order.loadShippingRates();return false" class="action-default">
-            <span><?php /* @escapeNotVerified */
-                echo __('Get shipping methods and rates') ?></span>
+            <span><?= $block->escapeHtml(__('Get shipping methods and rates')) ?></span>
         </a>
         <input type="hidden" name="order[has_shipping]" value="" class="required-entry"/>
     </div>
 <?php endif; ?>
 <div style="display: none;" id="shipping-method-overlay" class="order-methods-overlay">
-    <span><?php /* @escapeNotVerified */
-        echo __('You don\'t need to select a shipping method.') ?></span>
+    <span><?= $block->escapeHtml(__('You don\'t need to select a shipping method.')) ?></span>
 </div>
 <script>
     require(["Magento_Sales/order/create/form"], function () {

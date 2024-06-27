@@ -25,24 +25,24 @@ endif; ?>
         <div class="admin__page-section-item-content">
             <?php if ($destType = $this->getFieldValue('destination_type')): ?>
                 <div class="order-shipping-additional">
-                    <?php echo __('Destination type') . ': ' . $block->escapeHtml($destType) ?>
+                    <?= $block->escapeHtml(__('Destination type')) . ': ' . $block->escapeHtml($destType) ?>
                 </div>
             <?php endif; ?>
             <?php if ($validStatus = $this->getAddressValidStatus()): ?>
                 <div class="order-shipping-additional">
-                    <?php echo __('Shipping address validation') . ': ' . $block->escapeHtml($validStatus) ?>
+                    <?= $block->escapeHtml(__('Shipping address validation')) . ': ' . $block->escapeHtml($validStatus) ?>
                 </div>
             <?php endif; ?>
             <?php if ($order->getShqDeliveryDate()): ?>
                 <div class="order-shipping-additional">
-                    <?php echo __('Delivery date') . ': ' . $block->escapeHtml($order->getShqDeliveryDate()) ?>
+                    <?= $block->escapeHtml(__('Delivery date')) . ': ' . $block->escapeHtml($order->getShqDeliveryDate()) ?>
                 </div>
             <?php endif; ?>
-            <br/>
+            <br>
             <hr style="height:1px;border:0;background:#ddd;margin-bottom:15px;"/>
             <div class="order-shipping-additional">
                 <div style="margin-bottom:20px;font-weight:bold;"><?php echo $this->getCarrierGroupTitle(); ?></div>
-                <?php echo $cgInfo; ?>
+                <?= $block->escapeHtml($cgInfo); ?>
             </div>
         </div>
     </div>

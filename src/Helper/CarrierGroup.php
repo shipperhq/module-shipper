@@ -459,7 +459,7 @@ class CarrierGroup extends Data
                 }
 
                 if (array_key_exists('pickup_location', $cgrp) && $cgrp['pickup_location'] != null) {
-                    $carriergroupText .= '<br/> Pickup : ';
+                    $carriergroupText .= '<br> Pickup : ';
                     $carriergroupText .= '' . $cgrp['pickup_location'];
                 }
 
@@ -472,12 +472,12 @@ class CarrierGroup extends Data
                 }
 
                 if (array_key_exists('dispatch_date', $cgrp) && $cgrp['dispatch_date'] != '') {
-                    $carriergroupText .= '<br/>' . __('Dispatch Date') . ' : ' . $cgrp['dispatch_date'];
+                    $carriergroupText .= '<br>' . __('Dispatch Date') . ' : ' . $cgrp['dispatch_date'];
                 }
 
                 if (array_key_exists('delivery_date', $cgrp) && $cgrp['delivery_date'] != '') {
                     $dateText = isset($cgrp['pickup_location']) ? __('Pickup Date') : __('Delivery Date');
-                    $carriergroupText .= '<br/>' . $dateText . ' : ' . $cgrp['delivery_date'];
+                    $carriergroupText .= '<br>' . $dateText . ' : ' . $cgrp['delivery_date'];
                     if (array_key_exists('time_slot', $cgrp)) {
                         $displayTimeSlot = str_replace('_', ' - ', (string) $cgrp['time_slot']);
                         $carriergroupText .= ' ' . $displayTimeSlot . ' ';
@@ -489,7 +489,7 @@ class CarrierGroup extends Data
                         $value = $cgrp[$code];
                     }
                     if ($value) {
-                        $carriergroupText .= '<br/>' . $name;
+                        $carriergroupText .= '<br>' . $name;
                         if (in_array($code, $displayValues)) {
                             $carriergroupText .= ': ' . $value;
                         }
@@ -501,13 +501,13 @@ class CarrierGroup extends Data
                 if (array_key_exists('listing_created', $cgrp) && $cgrp['listing_created'] != '') {
                     if ($cgrp['listing_created'] === ListingService::LISTING_CREATED && array_key_exists('listing_id', $cgrp) && $cgrp['listing_id'] != '') {
                         $carriergroupText .= <<<LISTING
-                        <br/>
-                        <br/>
+                        <br>
+                        <br>
                         A listing has been created with uShip.
 <br /><a href="https://uship.com/shipment/Furniture-Listing/{$cgrp['listing_id']}/">Listing #{$cgrp['listing_id']}</a>
 LISTING;
                     } else {
-                        $carriergroupText .=  "<br/>Failed to create uShip listing.";
+                        $carriergroupText .=  "<br>Failed to create uShip listing.";
                     }
                 }
                 $carriergroupText .= '</div></div>';

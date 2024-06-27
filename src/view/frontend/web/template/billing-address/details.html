@@ -10,22 +10,22 @@
 
 <div if="isAddressDetailsVisible() && currentBillingAddress()" class="billing-address-details">
     <text args="currentBillingAddress().prefix"></text> <text args="currentBillingAddress().firstname"></text> <text args="currentBillingAddress().middlename"></text>
-    <text args="currentBillingAddress().lastname"></text> <text args="currentBillingAddress().suffix"></text><br/>
+    <text args="currentBillingAddress().lastname"></text> <text args="currentBillingAddress().suffix"></text><br>
     <if args="currentBillingAddress().street">
-        <text args="(currentBillingAddress().street).join(', ')"></text><br/>
+        <text args="(currentBillingAddress().street).join(', ')"></text><br>
     </if>
-    <text args="currentBillingAddress().city "></text>, <span text="currentBillingAddress().region"></span> <text args="currentBillingAddress().postcode"></text><br/>
-    <text args="getCountryName(currentBillingAddress().countryId)"></text><br/>
-    <a if="currentBillingAddress().telephone" attr="'href': 'tel:' + currentBillingAddress().telephone" text="currentBillingAddress().telephone"></a><br/>
+    <text args="currentBillingAddress().city "></text>, <span text="currentBillingAddress().region"></span> <text args="currentBillingAddress().postcode"></text><br>
+    <text args="getCountryName(currentBillingAddress().countryId)"></text><br>
+    <a if="currentBillingAddress().telephone" attr="'href': 'tel:' + currentBillingAddress().telephone" text="currentBillingAddress().telephone"></a><br>
 
     <if args="currentBillingAddress().customAttributes">
         <each args="data: currentBillingAddress().customAttributes, as: 'element'">
             <!-- ko if: element.attribute_code != 'destination_type' && element.attribute_code != 'validation_status' -->
                 <!-- ko if: element.value != null -->
-                    <!-- ko text: element.value --><!-- /ko --><br/>
+                    <!-- ko text: element.value --><!-- /ko --><br>
                 <!-- /ko -->
                 <!-- ko if: element.value == null -->
-                    <!-- ko text: element.attribute_code --><!-- /ko --><br/>
+                    <!-- ko text: element.attribute_code --><!-- /ko --><br>
                 <!-- /ko -->
             <!-- /ko -->
         </each>

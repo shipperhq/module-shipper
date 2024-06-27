@@ -1,0 +1,48 @@
+include:
+  - project: ShipperHQ/DevOps/GitLabTemplates
+    ref: INFRA-672
+    file: /magento/release.gitlab-ci.yml
+
+stages:
+  - tag
+  - release to GitLab
+  - release to GitHub
+
+# Denote whether to build major, minor or patch release
+major release:
+  stage: tag
+  variables:
+    VERSION_INCREMENT: "major"
+  extends:
+    - .m2_module_release
+
+minor release:
+  stage: tag
+  variables:
+    VERSION_INCREMENT: "minor"
+  extends:
+    - .m2_module_release
+
+patch release:
+  stage: tag
+  variables:
+    VERSION_INCREMENT: "patch"
+  extends:
+    - .m2_module_release
+    
+# Build public release
+build release to GitHub:
+  stage: release to GitHub
+  variables:
+    GITHUB_REPO: "git@github.com:shipperhq/module-shipper.git"
+  when: on_success
+  needs:
+    - job: major release
+      optional: true
+    - job: minor release
+      optional: true
+    - job: patch release
+      optional: true
+  extends:
+    - .m2_public_release
+

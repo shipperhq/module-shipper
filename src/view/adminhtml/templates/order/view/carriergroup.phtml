@@ -36,9 +36,7 @@
 
 ?>
 <?php if ($_item = $block->getItem()): ?>
-    <div id="order_item_<?php /* @escapeNotVerified */
-    echo $_item->getId() ?>_carriergroup"
-         class="product-title">
+    <div id="order_item_<?php echo $block->escapeHtmlAttr($_item->getId()) ?>_carriergroup" class="product-title">
         <?php echo $block->escapeHtml($block->getCarrierGroup($_item->getId())) ?>
     </div>
 <?php endif; ?>

@@ -426,7 +426,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             }
             $htmlText .= $shipLine['name'] .
                 ' : ' . $shipLine['carrierTitle'] . ' - ' . $shipLine['methodTitle'] . ' ';
-            $htmlText .= " " . $this->checkoutHelper->formatPrice($shipLine['price']) . '<br/>';
+            $htmlText .= " " . $this->checkoutHelper->formatPrice($shipLine['price']) . '<br>';
         }
 
         return $htmlText;
@@ -470,7 +470,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $boxText .= ' Value=' . $declaredValue . ':';
                 $boxText .= $this->getProductBreakdownText($box);
             }
-            $boxText .= '<br/>';
+            $boxText .= '<br>';
         }
         return $boxText;
     }

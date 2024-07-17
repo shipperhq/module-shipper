@@ -780,3 +780,7 @@ SHQ23-474 Update code around order comments to be 2.4 compliant
 SHQ23-1281 Fix security linter warnings
 
 
+## 20.55.0 (2024-07-17)
+SHQ23-3030 Fix issue in multiaddress checkout when virtual products present. SHQ23-3040 Support for new security patch around CSP
+
+

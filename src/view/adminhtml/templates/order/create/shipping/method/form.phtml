@@ -12,19 +12,22 @@
 
 // @codingStandardsIgnoreFile
 
+/**
+ * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
+ */
 ?>
 <?php /** @var $block \Magento\Sales\Block\Adminhtml\Order\Create\Shipping\Method\Form */ ?>
 <?php $_shippingRateGroups = $block->getShippingRates(); ?>
 <?php $helper = $this->helper('ShipperHQ\Shipper\Helper\Data'); ?>
 <?php if ($_shippingRateGroups): ?>
-    <div id="order-shipping-method-choose" style="display:none">
+    <div id="order-shipping-method-choose" class="control">
         <dl class="admin__order-shipment-methods">
             <?php foreach ($_shippingRateGroups as $code => $_rates): ?>
                 <dt class="admin__order-shipment-methods-title"><?php echo $block->escapeHtml($block->getCarrierName($code)) ?></dt>
                 <dd class="admin__order-shipment-methods-options">
                     <ul class="admin__order-shipment-methods-options-list">
                         <?php foreach ($_rates as $_rate): ?>
-                            <?php $_radioProperty = 'name="order[shipping_method]" type="radio" onclick="order.setShippingMethod(this.value)"' ?>
+                            <?php $_radioProperty = 'name="order[shipping_method]" type="radio"' ?>
                             <?php $_code = $_rate->getCode() ?>
                             <li class="admin__field-option">
                                 <?php if ($_rate->getErrorMessage()): ?>
@@ -35,9 +38,9 @@
                                     </div>
                                 <?php else: ?>
                                     <?php $_checked = $block->isMethodActive($_code) ? 'checked="checked"' : '' ?>
-                                    <input <?= $block->escapeHtml($_radioProperty) ?> value="<?= $block->escapeHtml($_code) ?>"
-                                                            id="s_method_<?= $block->escapeHtml($_code) ?>" <?= $block->escapeHtml($_checked) ?>
-                                                            class="admin__control-radio"/>
+                                    <input <?= /* @noEscape */ $_radioProperty ?> value="<?= $block->escapeHtml($_code) ?>"
+                                                            id="s_method_<?= $block->escapeHtml($_code) ?>" <?= /* @noEscape */ $_checked ?>
+                                                            class="admin__control-radio required-entry"/>
                                     <label class="admin__field-label" for="s_method_<?= $block->escapeHtml($_code) ?>">
                                         <?php echo $block->escapeHtml($_rate->getMethodTitle() ? $_rate->getMethodTitle() : $_rate->getMethodDescription()) ?>
                                         -
@@ -48,12 +51,17 @@
                                             ); ?>
                                             <?php $_incl = $block->getShippingPrice($_rate->getPrice(), true); ?>
 
-                                            <?= $block->escapeHtml($_excl); ?>
+                                            <?= /* @noEscape */ $_excl ?>
                                             <?php if ($this->helper('Magento\Tax\Helper\Data')->displayShippingBothPrices() && $_incl != $_excl): ?>
-                                                (<?= $block->escapeHtml(__('Incl. Tax')); ?><?= $block->escapeHtml($_incl); ?>)
+                                                (<?= $block->escapeHtml(__('Incl. Tax')); ?><?= /* @noEscape */ $_incl ?>)
                                             <?php endif; ?>
                                         </strong>
                                     </label>
+                                    <?= /* @noEscape */ $secureRenderer->renderEventListenerAsTag(
+                                        'onclick',
+                                        "order.setShippingMethod(this.value)",
+                                        'input#s_method_' . $block->escapeHtml($_code)
+                                    ) ?>
                                 <?php endif ?>
                             </li>
                         <?php endforeach; ?>
@@ -74,18 +82,24 @@
             </div>
             <div class="admin__field">
                 <button type="button" title="<?= $block->escapeHtml(__('Add custom shipping')) ?>" class="action-default scalable action-secondary"
-                        onclick="order.setAdminShippingMethod(this.value, customCarrier.value, customPrice.value)"
-                        value="shipperadmin_adminshipping">
+                        value="shipperadmin_adminshipping" id="shipperadmin_button">
                     <span><?= $block->escapeHtml(__('Add custom shipping')) ?></span>
                 </button>
             </div>
+            <?= /* @noEscape */ $secureRenderer->renderEventListenerAsTag(
+                'onclick',
+                "order.setAdminShippingMethod('shipperadmin_adminshipping', customCarrier.value, customPrice.value)",
+                'button#shipperadmin_button'
+            ) ?>
         <?php endif; ?>
     </div>
-    <script>
-        require(['prototype'], function () {
-            $('order-shipping-method-choose').show();
-        });
-    </script>
+    <?php $scriptString = <<<script
+require(['prototype'], function(){
+    $('order-shipping-method-choose').show();
+});
+script;
+    ?>
+    <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
 <?php elseif ($block->getIsRateRequest()): ?>
     <div class="order-shipping-method-summary">
         <strong class="order-shipping-method-not-available"><?php /* @escapeNotVerified */
@@ -106,32 +120,43 @@
         </div>
         <div class="admin__field">
             <button type="button" title="<?= $block->escapeHtml(__('Add custom shipping')) ?>" class="action-default scalable action-secondary"
-                    onclick="order.setAdminShippingMethod(this.value, customCarrier.value, customPrice.value)"
-                    value="shipperadmin_adminshipping">
+                    value="shipperadmin_adminshipping" id="shipperadmin_button">
                 <span><?= $block->escapeHtml(__('Add custom shipping')) ?></span>
             </button>
         </div>
+        <?= /* @noEscape */ $secureRenderer->renderEventListenerAsTag(
+            'onclick',
+            "order.setAdminShippingMethod('shipperadmin_adminshipping', customCarrier.value, customPrice.value)",
+            'button#shipperadmin_button'
+        ) ?>
     <?php endif; ?>
 <?php else: ?>
     <div id="order-shipping-method-summary" class="order-shipping-method-summary">
-        <a href="#" onclick="order.loadShippingRates();return false" class="action-default">
+        <a href="#" class="action-default">
             <span><?= $block->escapeHtml(__('Get shipping methods and rates')) ?></span>
         </a>
-        <input type="hidden" name="order[has_shipping]" value="" class="required-entry"/>
+        <input type="hidden" name="order[has_shipping]" value="" class="required-entry" />
     </div>
+    <?= /* @noEscape */ $secureRenderer->renderEventListenerAsTag(
+        'onclick',
+        "order.loadShippingRates();event.preventDefault();",
+        'div#order-shipping-method-summary a.action-default'
+    ) ?>
 <?php endif; ?>
-<div style="display: none;" id="shipping-method-overlay" class="order-methods-overlay">
+<div id="shipping-method-overlay" class="order-methods-overlay">
     <span><?= $block->escapeHtml(__('You don\'t need to select a shipping method.')) ?></span>
 </div>
-<script>
-    require(["Magento_Sales/order/create/form"], function () {
+<?= /* @noEscape */ $secureRenderer->renderStyleAsTag("display: none;", 'div#shipping-method-overlay') ?>
+<?php $scriptString = <<<script
+    require(["Magento_Sales/order/create/form"], function(){
 
-        order.overlay('shipping-method-overlay', <?php if ($block->getQuote()->isVirtual()): ?>false<?php else: ?>true<?php endif; ?>);
-        order.overlay('address-shipping-overlay', <?php if ($block->getQuote()->isVirtual()): ?>false<?php else: ?>true<?php endif; ?>);
-
-        <?php if ($block->getQuote()->isVirtual()): ?>
-        order.isOnlyVirtualProduct = true;
-        <?php endif; ?>
+script;
+$scriptString .= "order.overlay('shipping-method-overlay', " . ($block->getQuote()->isVirtual() ? 'false' : 'true') .
+    ');' . PHP_EOL;
+$scriptString .= "order.overlay('address-shipping-overlay', " . ($block->getQuote()->isVirtual() ? 'false' : 'true') .
+ ');' . PHP_EOL;
+$scriptString .= "order.isOnlyVirtualProduct = " . ($block->getQuote()->isVirtual() ? 'true' : 'false') . ';' . PHP_EOL;
+$scriptString .= <<<script
 
         AdminOrder.prototype.setAdminShippingMethod = function (method, description, price) {
             var data = {};
@@ -151,6 +176,9 @@
 
             this.loadArea(['shipping_method', 'totals', 'billing_method'], true, data);
         }
-
+script;
+$scriptString .= <<<script
     });
-</script>
+script;
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>

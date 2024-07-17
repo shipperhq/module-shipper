@@ -161,6 +161,12 @@ abstract class AbstractRecordOrder implements ObserverInterface
 
         // SHQ18-1947 Need to find correct address to lookup carriergroup details and packed boxes when MAC
         if ($quote->getIsMultiShipping()) {
+
+            // SHQ23-3030 If order contains just virtual products, there is no shipping address
+            if ($order->getShippingAddress() == null) {
+                return;
+            }
+
             $customerAddressId = $order->getShippingAddress()->getCustomerAddressId();
 
             foreach ($quote->getAllShippingAddresses() as $address) {

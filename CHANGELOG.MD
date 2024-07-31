@@ -784,3 +784,7 @@ SHQ23-1281 Fix security linter warnings
 SHQ23-3030 Fix issue in multiaddress checkout when virtual products present. SHQ23-3040 Support for new security patch around CSP
 
 
+## 20.55.1 (2024-07-31)
+SHQ23-3075 Fix html showing in order view
+
+

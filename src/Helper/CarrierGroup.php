@@ -459,7 +459,7 @@ class CarrierGroup extends Data
                 }
 
                 if (array_key_exists('pickup_location', $cgrp) && $cgrp['pickup_location'] != null) {
-                    $carriergroupText .= '<br> Pickup : ';
+                    $carriergroupText .= '<br> Pickup: ';
                     $carriergroupText .= '' . $cgrp['pickup_location'];
                 }
 

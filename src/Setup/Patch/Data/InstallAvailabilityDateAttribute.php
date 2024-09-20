@@ -33,6 +33,7 @@ class InstallAvailabilityDateAttribute implements DataPatchInterface, PatchRever
 
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
+     * @param CategorySetupFactory     $categorySetupFactory
      */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,

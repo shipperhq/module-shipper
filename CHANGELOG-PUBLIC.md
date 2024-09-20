@@ -788,3 +788,7 @@ SHQ23-3030 Fix issue in multiaddress checkout when virtual products present. SHQ
 SHQ23-3075 Fix html showing in order view
 
 
+## 20.56.0 (2024-09-20)
+SHQ23-3406 Fix issue with method selection between cart and checkout. SHQ23-3492 Ensure composer uninstall removes all ShipperHQ data
+
+

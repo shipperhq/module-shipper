@@ -246,5 +246,13 @@ class InstallCoreProductAttributes implements DataPatchInterface, PatchRevertabl
                 $catalogSetup->removeAttributeGroup($entityTypeId, $attributeSet, $attributeGroupId);
             }
         }
+
+
+        // SHQ23-3492 Remove ShipperHQ carriers from core_config_data
+        $connection = $this->moduleDataSetup->getConnection();
+        $connection->delete(
+            $this->moduleDataSetup->getTable('core_config_data'),
+            ['value LIKE ?' => 'ShipperHQ\\\\Shipper\\\\Model\\\\Carrier\\\\Shipper']
+        );
     }
 }

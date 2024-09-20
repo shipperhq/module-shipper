@@ -18,9 +18,10 @@ define(
         'Magento_Checkout/js/action/select-shipping-method',
         'uiRegistry',
         'mage/utils/wrapper',
-        'shq_logos_manifest'
+        'shq_logos_manifest',
+        'Magento_Checkout/js/checkout-data'
     ],
-    function (_, $, ko, selectShippingMethodAction, registry, wrapper, manifest) {
+    function (_, $, ko, selectShippingMethodAction, registry, wrapper, manifest, checkoutData) {
         'use strict';
 
         var findMethodLabel = function (methodTable, method) {
@@ -178,20 +179,24 @@ define(
                 /*
                 SHQ18-860 clear selected shipping method on reload
                 MNB-1467 Added check we're on shipping step. Refreshing page on payment step caused loss of shipping method
-                This could interfere with custom checkouts / modified checkouts using non standard steps!
+                This could interfere with custom checkouts / modified checkouts using non-standard steps!
                  */
                 var shippingHashes = ["#shipping", "#", ""]
 
                 if (initialLoad && shippingHashes.includes(window.location.hash)) {
                     // SHQ18-1143 - In M2.1 if there's only one method it's hardcoded to be checked
-                    selectShippingMethodAction(
-                        ratesData.length == 1
-                            ? ratesData[0]
-                            : null
-                    );
+                    var methodToSelect = ratesData.length === 1 ? ratesData[0] : null
+                    var methodCode = methodToSelect ? methodToSelect.carrier_code + '_' + methodToSelect.method_code : null
+
+                    selectShippingMethodAction(methodToSelect);
+
+                    // SHQ23-3406 Need to ensure we unselect the method in the UI if we've unselected in the quote
+                    checkoutData.setSelectedShippingRate(methodCode);
+
                     initialLoad = false
                 }
             });
+
             return target;
         };
     }

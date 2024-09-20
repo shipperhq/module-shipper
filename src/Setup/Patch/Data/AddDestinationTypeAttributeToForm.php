@@ -66,7 +66,9 @@ class AddDestinationTypeAttributeToForm implements DataPatchInterface
      */
     public function apply()
     {
+        /** @var \Magento\Customer\Setup\CustomerSetup $customerSetup **/
         $customerSetup = $this->customerSetupFactory->create(['setup' => $this->moduleDataSetup]);
+
         foreach ($this->attributes as $attributeCode) {
             // add attribute to form
             $attribute = $customerSetup->getEavConfig()->getAttribute('customer_address', $attributeCode);
@@ -83,5 +85,15 @@ class AddDestinationTypeAttributeToForm implements DataPatchInterface
     public function getAliases()
     {
         return [];
+    }
+
+    public function revert()
+    {
+        /** @var \Magento\Customer\Setup\CustomerSetup $customerSetup **/
+        $customerSetup = $this->customerSetupFactory->create(['setup' => $this->moduleDataSetup]);
+
+        foreach ($this->attributes as $attributeCode) {
+            $customerSetup->removeAttribute('customer_address', $attributeCode);
+        }
     }
 }

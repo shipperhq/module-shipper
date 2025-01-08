@@ -792,3 +792,7 @@ SHQ23-3075 Fix html showing in order view
 SHQ23-3406 Fix issue with method selection between cart and checkout. SHQ23-3492 Ensure composer uninstall removes all ShipperHQ data
 
 
+## 20.57.0 (2025-01-08)
+SHQ23-4085 Readme updates. SHQ23-4029 Add orderDate to placeOrder requests
+
+

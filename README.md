@@ -1,118 +1,99 @@
-# ShipperHQ
-Integrate Magento 2 with ShipperHQ to provide highly flexible shipping rate management.
-More information on ShipperHQ capabilities are available at <https://shipperhq.com>
+# ShipperHQ for Magento 2
 
-Facts
------
-- [extension on GitHub](https://github.com/shipperhq/module-shipper)
-- Magento v1.0 available for download from <https://shipperhq.com>
+ShipperHQ is the ultimate solution for advanced shipping rate management and checkout customization in Magento 2. With ShipperHQ, you can optimize your shipping strategy, integrate with multiple carriers, and provide a seamless checkout experience for your customers.
 
-Description
------------
-ShipperHQ will install as a simple shipping carrier in Magento 2. To get started you'll need to sign up for a ShipperHQ account at [ShipperHQ](https://shipperhq.com/magento2).
+---
 
-There's no cost for the extension and ShipperHQ is free for 15 days.
+## Features
 
-Once installed, you can configure with your ShipperHQ platform credentials to provide multiple carrier rates and manage complex shipping rules via our ShipperHQ dashboard.
+- **Real-Time Shipping Rates**: Display accurate shipping rates at checkout based on product details, customer location, and shipping preferences.
+- **Carrier Integration**: Support for major carriers like UPS, FedEx, USPS, DHL, and custom/local carriers.
+- **Custom Shipping Rules**: Set rules for free shipping thresholds, surcharges, restricted zones, and more.
+- **Multi-Origin Shipping**: Handle shipments from multiple warehouses or drop shippers.
+- **Pickup & Delivery Options**: Offer in-store pickup, curbside delivery, and date-specific delivery services.
+- **Smart Packaging**: Optimize shipping costs with advanced packaging algorithms.
+- **Customizable Checkout**: Tailor the shipping options displayed during checkout for a better customer experience.
 
-Compatibility
--------------
-This module supports and is tested against the following Magento versions:
+---
 
-* 2.4.7-beta1
-* 2.4.6-p1
-* 2.4.6
-* 2.4.5-p3
-* 2.4.5-p2
-* 2.4.5-p1
-* 2.4.5
-* 2.4.4-p4
-* 2.4.4-p3
-* 2.4.4-p2
-* 2.4.4-p1
-* 2.4.4
-* 2.4.3-p3
-* 2.4.3-p2
-* 2.4.3
-* 2.4.2
-* 2.4.1
-* 2.4.0
+## Installation
 
-per the [official Magento 2 requirements](https://experienceleague.adobe.com/docs/commerce-operations/installation-guide/system-requirements.html)
+Install using composer, you can find full instructions in the [ShipperHQ documentation](https://docs.shipperhq.com/installing-magento-2-shipperhq-extension/).
 
-Supports both Magento Opensource (Community) and Magento Commerce (Enterprise)
+---
 
-Compatibility with earlier editions is possible but not maintained.
+## Requirements
 
-Installation Instructions
--------------------------
-Install using composer by adding to your composer file using commands:
+- Magento 2.4.4+
+  - Compatibility with earlier editions is possible but not maintained
+  - Supports both Magento Opensource (Community) and Magento Commerce (Enterprise)
+- A valid ShipperHQ account. [Sign up here](https://shipperhq.com/) for your 15-day free trial!
 
-1. composer require shipperhq/module-shipper
-2. composer update
-3. bin/magento setup:upgrade
+---
 
-We recommend you also install our logging module
+## Configuration
 
-1. composer require shipperhq/module-logger
-2. composer update
-3. bin/magento setup:upgrade
+**If you don't have a ShipperHQ account**:
+1. Sign up for a free 15-day trial at www.shipperhq.com
+2. You can then follow the steps the basic configuration wizard will guide you through
 
-Configure ShipperHQ for shipping rates on your Magento 2 Store
--------------------------
-If you don't have a ShipperHQ account:
+**Connect your ShipperHQ account and get shipping rates**:
+1. **API Credentials**:
+    - Log in to your ShipperHQ account.
+    - Navigate to `Websites` and find your API key and generate an Authentication Code.
+    - Paste the key and code into the plugin settings under `Stores > Configuration > Sales > Shipping Methods > ShipperHQ`.
+    - Set the `Enabled` dropdown to `Yes`. 
+    - Save the store configuration settings.
+    - You should see "1 carriers have been updated from ShipperHQ".
 
-1. Sign up for a free trial at www.shipperhq.com
-2. After you have signed up to ShipperHQ, follow the steps of the basic configuration wizard
+2. **Shipping Rules**:
+    - Configure shipping rules, methods, and carriers in your ShipperHQ dashboard.
+      - You can find extensive examples and guides in our [documentation](https://docs.shipperhq.com/).
+    - Most settings will sync with your Magento 2 store automatically. If you add shipping groups, origins or packing rules, you will need to [sync these manually](https://docs.shipperhq.com/synchronize-groups-origins-dimensionalrules-magento/). 
 
-Connect your ShipperHQ account and get shipping rates:
+3. **Test Your Checkout**:
+    - Add a product to the cart and proceed to checkout to verify shipping rates and options.
 
-1. In your ShipperHQ account, navigate to > Websites > edit your existing site or Add a New one
-2. In the “eCommerce Configuration” panel, copy your API Key and Generate your Authentication Code
-3. In your Magento 2 admin, navigate to Stores > Configuration > Sales > Shipping Methods > ShipperHQ
-4. Enter the API Key and the Authentication Code you have copied from step 2
-5. Make sure to update the Enabled dropdown to “Yes”
-6. Save the store configuration settings
-7. You should see "1 carriers have been updated from ShipperHQ"
+---
 
-Your ShipperHQ account is now connected to your Magento 2 store, and you will now be able to show ShipperHQ shipping rates in your cart and checkout. 
+## Frequently Asked Questions
 
-To continue setting up your ShipperHQ account to match your shipping requirements, see [ShipperHQ documentation](https://docs.shipperhq.com/installing-magento-2-shipperhq-extension/)
+### 1. Do I need a ShipperHQ account to use this plugin?
+Yes, an active ShipperHQ account is required to use this plugin.
 
-Support
--------
-If you have any issues with this extension, open an issue on [GitHub](https://github.com/shipperhq/module-shipper/issues).
-Alternatively you can contact us via email at support@shipperhq.com or via our website https://shipperhq.com/contact
+### 2. Is there a free trial available for ShipperHQ?
+Yes, ShipperHQ offers a free trial for new users. You can sign up for the trial on the [ShipperHQ website](https://shipperhq.com/) and explore the platform's features before committing to a subscription.
 
-Magento Issues Impacting ShipperHQ
--------
-1. Magento v2.1.3 - Website specific shipping rates or configuration are not working
-    - Github Issue: https://github.com/magento/magento2/issues/7840
-    - Related Issue: https://github.com/magento/magento2/issues/7943
-    - Code change required to fix: https://github.com/magento/magento2/issues/7943#issuecomment-269508822
-2. "Malformed Request" error when saving configuration or attempting to synchronize - environment is PHP 7
-    - Github Issue: https://github.com/magento/magento2/issues/2984
-    - Code change required to fix: https://github.com/magento/magento2/issues/7943#issuecomment-269508822
-3. Only country, region and postcode are included in shipping request at checkout - you may not see correct rates returned if filtering on city or PO box addresses
-    - Github Issue: https://github.com/magento/magento2/issues/3789
-    - Resolved in Magento 2.1 and above for Guest checkout, logged in customers will still only see region/state, postcode and country
-4. Error thrown when using Elastic search and Magento Enterprise " error: MapperParsingException[No handler for type [array] declared on field [shipperhq_master_boxes]"
-    - Magento issue number/patch reference: MDVA-791 - contact Enterprise support for patch
-5. Error thrown when placing an order with some shipping methods. Root cause is that some shipping methods have shipping method codes longer than the column length on quote for shipping_method field. Field is truncating the code and order cannot be placed.
-   - Github Issue: https://github.com/magento/magento2/issues/6475
-6. Free shipping via cart rules are never removed once they have been applied, even if conditions are no longer met
-   - Github Issue: https://github.com/magento/magento2/issues/7388
-7. Shipping step of checkout times out and returns multiple blank radio buttons. Specific to PHP5.x. Ensure you have set always_populate_raw_post_data to -1 in your php.ini file
+### 3. How do I troubleshoot issues with shipping rates?
+- Verify your API credentials in the plugin settings.
+- Ensure the shipping rules and methods are correctly configured in your ShipperHQ dashboard.
+- Check for plugin conflicts by disabling other shipping-related plugins temporarily.
+- Check our extensive [documentation](https://docs.shipperhq.com/category/troubleshooting/) for troubleshooting tips.
 
+### 4. Can I customize shipping options for specific products?
+Yes, you can configure product-specific rules in your ShipperHQ dashboard. Take a look at our [extensive examples](https://docs.shipperhq.com/category/examples/) guide for some ideas of what ShipperHQ can do for you.
 
-Contribution
-------------
+---
+
+## Support
+
+For assistance, please visit our [Help Center](https://docs.shipperhq.com/) or contact ShipperHQ support at [support@shipperhq.com](mailto:support@shipperhq.com).
+
+For alternative contact methods, please visit our [Contact Us](https://shipperhq.com/contact/) page.
+
+---
+
+## Contributing
+
 Any contribution is highly appreciated. The best way to contribute code is to open a [pull request on GitHub](https://help.github.com/articles/using-pull-requests).
 
-License
--------
+---
+
+## License
+
 See license files
 
-Copyright
----------
+---
+
+## Copyright
 Copyright (c) 2015 Zowta LLC (http://www.ShipperHQ.com)

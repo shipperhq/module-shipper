@@ -208,7 +208,7 @@ class PostOrder
                 );
             }
 
-            $request = $this->placeOrderRequestFactory->create([
+            $requestVariables = [
                 'orderNumber'  => $order->getIncrementId(),
                 'totalCharges' => $rate->getPrice(),
                 'carrierCode'  => $rate->getCarrier(),
@@ -216,7 +216,12 @@ class PostOrder
                 'transId'      => $transactionId,
                 'recipient'    => $this->getRecipient($order->getShippingAddress()),
                 'siteDetails'  => $siteDetails,
-            ]);
+            ];
+
+            // SHQ23-4029 Add orderDate to placeOrder request to facilitate order replay in event of failure
+            $this->addOrderDateIso8601($order->getCreatedAt(), $requestVariables);
+
+            $request = $this->placeOrderRequestFactory->create($requestVariables);
 
             $request->setCredentials($this->shipperMapper->getCredentials());
         } else {
@@ -229,6 +234,25 @@ class PostOrder
         }
 
         return $request;
+    }
+
+    /**
+     * Adds order date in ISO8601 format to request variables
+     *
+     * @param $orderDate
+     * @param $variables
+     *
+     * @return void
+     */
+    private function addOrderDateIso8601($orderDate, &$variables) : void
+    {
+        try {
+            $orderDateTime = new \DateTime($orderDate);
+            $iso8601 = $orderDateTime->format(\DateTimeInterface::ATOM);
+            $variables['orderDate'] = $iso8601;
+        } catch (\Exception $e) {
+            // Don't do anything. It's a optional field
+        }
     }
 
     /**

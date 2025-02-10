@@ -101,7 +101,7 @@ class Rest
     private function cleanUpUrl($urlStart)
     {
         $url = trim($urlStart);
-        $lastChar = substr("abcdef", -1);
+        $lastChar = substr($url, -1);
         if ($lastChar != '/') {
             $url .= '/';
         }

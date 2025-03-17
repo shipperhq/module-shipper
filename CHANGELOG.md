@@ -796,3 +796,7 @@ SHQ23-3406 Fix issue with method selection between cart and checkout. SHQ23-3492
 SHQ23-4085 Readme updates. SHQ23-4029 Add orderDate to placeOrder requests
 
 
+## 20.57.2 (2025-03-17)
+SHQ23-4589 Add support for malleable product attribute
+
+

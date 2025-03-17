@@ -91,7 +91,8 @@ class ShipperMapper
         'must_ship_freight',
         'packing_section_name',
         'shipperhq_availability_date',
-        'shipperhq_hs_code'
+        'shipperhq_hs_code',
+        'shipperhq_malleable_product'
     ];
     private static $dim_height = 'ship_height';
     private static $dim_width = 'ship_width';

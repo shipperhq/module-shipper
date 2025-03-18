@@ -800,3 +800,7 @@ SHQ23-4085 Readme updates. SHQ23-4029 Add orderDate to placeOrder requests
 SHQ23-4589 Add support for malleable product attribute
 
 
+## 20.57.3 (2025-03-18)
+SHQ23-4386 Removed unused columns from sales_order table
+
+

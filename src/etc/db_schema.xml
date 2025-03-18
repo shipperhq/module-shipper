@@ -316,12 +316,6 @@
         <column xsi:type="text" name="destination_type" nullable="true" comment="ShipperHQ Address Type"/>
         <column xsi:type="text" name="validation_status" nullable="true" comment="ShipperHQ Address Validation Status"/>
         <!-- ShipperHQ Address Validation Attributes End. -->
-        <!-- ShipperHQ Core Entity Attributes Start. v1.0.0 -->
-        <column xsi:type="text" name="carrier_type" nullable="true" comment="ShipperHQ Carrier Type"/>
-        <column xsi:type="text" name="carrier_id" nullable="true" comment="ShipperHQ Carrier ID"/>
-        <column xsi:type="text" name="carriergroup_shipping_details" nullable="true" comment="ShipperHQ Carrier Group Details"/>
-        <column xsi:type="text" name="carriergroup_shipping_html" nullable="true" comment="ShipperHQ Carrier Group HTML"/>
-        <!-- ShipperHQ Core Entity Attributes End. -->
     </table>
 
     <table name="sales_order_item" resource="default">

@@ -259,11 +259,7 @@
     "sales_order": {
         "column": {
             "destination_type": true,
-            "validation_status": true,
-            "carrier_type": true,
-            "carrier_id": true,
-            "carriergroup_shipping_details": true,
-            "carriergroup_shipping_html": true
+            "validation_status": true
         }
     },
     "sales_order_item": {

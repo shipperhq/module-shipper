@@ -343,27 +343,31 @@ class ShipperMapper
     /**
      * Get values for items
      *
-     * @param RateRequest                                    $request
-     * @param \Magento\Quote\Model\Quote\Address\Item[]      $magentoItems
-     * @param bool                                           $childItems
+     * @param RateRequest                               $request
+     * @param \Magento\Quote\Model\Quote\Address\Item[] $magentoItems
+     * @param bool                                      $childItems
+     * @param int|null                                  $bundleParentQty
      *
      * @return array
+     * @throws NoSuchEntityException
      */
-    public function getFormattedItems($request, $magentoItems, $childItems = false)
+    public function getFormattedItems($request, $magentoItems, bool $childItems = false, int $bundleParentQty = null)
     {
         $formattedItems = [];
         if (empty($magentoItems)) {
             return $formattedItems;
         }
+
         $selectedCarriergroupId = false;
         if ($request->getCarriergroupId() != '') {
             $selectedCarriergroupId = $request->getCarriergroupId();
         }
+
         foreach ($magentoItems as $magentoItem) {
             if (!$childItems && $magentoItem->getParentItemId()) {
                 continue;
             }
-            //strip out items not required in carriergroup specific request
+            // Strip out items not required in carriergroup specific request
             if ($selectedCarriergroupId && $magentoItem->getCarriergroupId() != $selectedCarriergroupId) {
                 continue;
             }
@@ -403,7 +407,7 @@ class ShipperMapper
                     'SKU: ' . $magentoItem->getSku() . ' Weight: ' . $weight
                 );
             }
-            $storePrice = $this->getItemStorePrice($magentoItem);
+            $storePrice = $this->getItemStorePrice($magentoItem, $bundleParentQty);
 
             $formattedItem = $this->itemFactory->create([
                 'id'                          => $id,
@@ -446,10 +450,12 @@ class ShipperMapper
                 $formattedItem->setDefaultWarehouseStockDetail($this->getDefaultWarehouseStockDetail($magentoItem));
             }
             if (!$childItems) {
+                $bundleParentQty = $productType == 'bundle' ? $magentoItem->getQty() : null;
                 $formattedItem->setItems($this->getFormattedItems(
                     $request,
                     $magentoItem->getChildren(),
-                    true
+                    true,
+                    $bundleParentQty
                 ));
             }
             $formattedItems[] = $formattedItem;
@@ -462,13 +468,16 @@ class ShipperMapper
      * SHQ23-429 Need to calculate this ourselves as $item->getPrice() has a bug in it as of 2.4 whereby it always
      * returns the base price instead of store price when multiple currencies are in use
      *
-     * @param  \Magento\Quote\Model\Quote\Address\Item $item
+     * @param \Magento\Quote\Model\Quote\Address\Item $item
+     * @param int|null                                $bundleParentQty
      *
      * @return float
      */
-    private function getItemStorePrice($item): float
+    private function getItemStorePrice($item, int $bundleParentQty = null): float
     {
-        return round($item->getRowTotal() / $item->getQty(), 2);
+        $qty = $bundleParentQty ?? $item->getQty();
+
+        return round($item->getRowTotal() / $qty, 2);
     }
 
     /**

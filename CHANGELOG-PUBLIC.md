@@ -804,3 +804,7 @@ SHQ23-4589 Add support for malleable product attribute
 SHQ23-4386 Removed unused columns from sales_order table
 
 
+## 20.58.0 (2025-04-17)
+SHQ23-4568 Fix for bundle products child item storePrice
+
+

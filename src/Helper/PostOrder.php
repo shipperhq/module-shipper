@@ -216,6 +216,7 @@ class PostOrder
                 'transId'      => $transactionId,
                 'recipient'    => $this->getRecipient($order->getShippingAddress()),
                 'siteDetails'  => $siteDetails,
+                'cartPrice'    => $order->getBaseSubtotal(),
             ];
 
             // SHQ23-4029 Add orderDate to placeOrder request to facilitate order replay in event of failure

@@ -808,3 +808,7 @@ SHQ23-4386 Removed unused columns from sales_order table
 SHQ23-4568 Fix for bundle products child item storePrice
 
 
+## 20.58.1 (2025-05-01)
+SHQ23-4490 Add cartPrice optionally to createOrder mutation
+
+

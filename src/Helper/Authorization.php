@@ -56,6 +56,13 @@ class Authorization
     private $configHelper;
 
     /**
+     * Indicates if config cache flush is scheduled
+     *
+     * @var bool
+     */
+    private $isConfigCacheFlushScheduled = false;
+
+    /**
      * Authorization constructor
      *
      * @param GraphQLClient $graphqlClient

@@ -81,5 +81,7 @@ class UpdateCustomerAddressDestTypeAttribute implements DataPatchInterface, Patc
         return [];
     }
 
-    public function revert() {}
+    public function revert()
+    {
+    }
 }

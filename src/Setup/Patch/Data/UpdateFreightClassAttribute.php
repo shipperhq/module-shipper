@@ -83,7 +83,7 @@ class UpdateFreightClassAttribute implements DataPatchInterface
             }, $connection->fetchAll($intTableDataSql));
 
             // Clean up data. In some instances the .5 is missing
-            foreach ($dataToMigrate as $key=>$data) {
+            foreach ($dataToMigrate as $key => $data) {
                 if ($data['value'] == "92") {
                     $dataToMigrate[$key]['value'] = "92.5";
                 } elseif ($data['value'] == "77") {

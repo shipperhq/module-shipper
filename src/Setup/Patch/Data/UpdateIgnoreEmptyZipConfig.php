@@ -70,5 +70,7 @@ class UpdateIgnoreEmptyZipConfig implements DataPatchInterface, PatchRevertableI
         return [];
     }
 
-    public function revert() {}
+    public function revert()
+    {
+    }
 }

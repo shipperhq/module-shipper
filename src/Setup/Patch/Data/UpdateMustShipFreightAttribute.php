@@ -78,5 +78,7 @@ class UpdateMustShipFreightAttribute implements DataPatchInterface, PatchReverta
         return [];
     }
 
-    public function revert() {}
+    public function revert()
+    {
+    }
 }

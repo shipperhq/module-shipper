@@ -9,7 +9,6 @@
   -->
 
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <preference for="Magento\Framework\Search\Adapter\Mysql\Field\FieldInterface" type="Magento\Framework\Search\Adapter\Mysql\Field\Field"/>
     <preference for="ShipperHQ\Shipper\Api\CreateListingInterface" type="ShipperHQ\Shipper\Model\Api\CreateListing" />
     <preference for="ShipperHQ\Shipper\Api\FetchUpdatedCarrierRateInterface" type="ShipperHQ\Shipper\Model\Api\FetchUpdatedCarrierRate" />
     <type name="ShipperHQ\Shipper\Helper\LogAssist">

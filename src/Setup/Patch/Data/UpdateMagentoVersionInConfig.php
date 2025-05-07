@@ -74,5 +74,7 @@ class UpdateMagentoVersionInConfig implements DataPatchInterface, PatchRevertabl
         return [];
     }
 
-    public function revert() {}
+    public function revert()
+    {
+    }
 }

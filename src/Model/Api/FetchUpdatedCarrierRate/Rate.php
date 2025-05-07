@@ -49,7 +49,7 @@ class Rate implements RateInterface
      * @param float $price
      * @param float|null $nyp_amount
      */
-    public function __construct(string $carrier_code, string $carrier_title, string $carrier_type, string $method_code, string $method_title, float $price, float $nyp_amount = null)
+    public function __construct(string $carrier_code, string $carrier_title, string $carrier_type, string $method_code, string $method_title, float $price, ?float $nyp_amount = null)
     {
         $this->carrierCode = $carrier_code;
         $this->carrierTitle = $carrier_title;

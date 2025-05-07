@@ -812,3 +812,7 @@ SHQ23-4568 Fix for bundle products child item storePrice
 SHQ23-4490 Add cartPrice optionally to createOrder mutation
 
 
+## 20.59.0 (2025-05-07)
+SHQ23-4872 PHP8.4 and Magento 2.4.8 compatibility
+
+

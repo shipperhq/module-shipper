@@ -39,7 +39,6 @@ class Oops implements StockHandlerInterface
 
     public function __construct()
     {
-
     }
 
     public function getOriginInstock($origin, $item, $product)

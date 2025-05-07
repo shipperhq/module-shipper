@@ -816,3 +816,7 @@ SHQ23-4490 Add cartPrice optionally to createOrder mutation
 SHQ23-4872 PHP8.4 and Magento 2.4.8 compatibility
 
 
+## 20.59.1 (2025-05-07)
+SHQ23-4871 Mark optional parameters as nullable
+
+

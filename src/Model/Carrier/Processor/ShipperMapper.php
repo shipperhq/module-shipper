@@ -346,12 +346,12 @@ class ShipperMapper
      * @param RateRequest                               $request
      * @param \Magento\Quote\Model\Quote\Address\Item[] $magentoItems
      * @param bool                                      $childItems
-     * @param int|null                                  $bundleParentQty
+     * @param int|null $bundleParentQty
      *
      * @return array
      * @throws NoSuchEntityException
      */
-    public function getFormattedItems($request, $magentoItems, bool $childItems = false, int $bundleParentQty = null)
+    public function getFormattedItems($request, $magentoItems, bool $childItems = false, ?int $bundleParentQty = null)
     {
         $formattedItems = [];
         if (empty($magentoItems)) {
@@ -469,11 +469,11 @@ class ShipperMapper
      * returns the base price instead of store price when multiple currencies are in use
      *
      * @param \Magento\Quote\Model\Quote\Address\Item $item
-     * @param int|null                                $bundleParentQty
+     * @param int|null $bundleParentQty
      *
      * @return float
      */
-    private function getItemStorePrice($item, int $bundleParentQty = null): float
+    private function getItemStorePrice($item, ?int $bundleParentQty = null): float
     {
         $qty = $bundleParentQty ?? $item->getQty();
 

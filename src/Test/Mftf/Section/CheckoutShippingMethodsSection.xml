@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ ShipperHQ
+  ~
+  ~ @category ShipperHQ
+  ~ @package ShipperHQ\Shipper
+  ~ @copyright Copyright (c) 2025 Zowta LTD and Zowta LLC (http://www.ShipperHQ.com)
+  ~ @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+  ~ @author ShipperHQ Team sales@shipperhq.com
+  -->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="CheckoutShippingMethodsSection">
+        <element name="firstShippingMethod" type="text" selector=".table-checkout-shipping-method tbody tr:first-child .col-carrier"/>
+        <element name="firstShippingMethodPrice" type="text" selector=".table-checkout-shipping-method tbody tr:first-child .col-price .price"/>
+
+        <!-- ShipperHQ specific selectors -->
+        <element name="shqShippingMethod" type="text" selector=".table-checkout-shipping-method tbody tr td[id*='shq']"/>
+        <element name="shqShippingMethodRow" type="text" selector=".table-checkout-shipping-method tbody tr:has(td[id*='shq'])"/>
+        <element name="anyShippingMethod" type="text" selector=".table-checkout-shipping-method tbody tr"/>
+        <element name="shippingMethodsTable" type="text" selector=".table-checkout-shipping-method"/>
+    </section>
+</sections>

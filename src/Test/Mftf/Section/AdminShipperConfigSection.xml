@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ ShipperHQ
+  ~
+  ~ @category ShipperHQ
+  ~ @package ShipperHQ\Shipper
+  ~ @copyright Copyright (c) 2025 Zowta LTD and Zowta LLC (http://www.ShipperHQ.com)
+  ~ @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+  ~ @author ShipperHQ Team sales@shipperhq.com
+  -->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="AdminShipperConfigSection">
+        <element name="carrierShipperTab" type="button" selector="#carriers_shipper-head"/>
+        <element name="enabled" type="select" selector="#carriers_shipper_active"/>
+<!--        <element name="dropdownShippingPolicy" type="select" selector="#row_shipping_shipping_policy_enable_shipping_policy select"/>-->
+
+        <element name="apiKey" type="input" selector="#carriers_shipper_api_key"/>
+        <element name="authKey" type="input" selector="#carriers_shipper_password"/>
+    </section>
+</sections>

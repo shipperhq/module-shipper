@@ -820,3 +820,7 @@ SHQ23-4872 PHP8.4 and Magento 2.4.8 compatibility
 SHQ23-4871 Mark optional parameters as nullable
 
 
+## 20.59.2 (2025-06-06)
+SHQ23-4303 MFTF Smoke Tests
+
+

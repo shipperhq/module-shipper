@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ ShipperHQ
+  ~
+  ~ @category ShipperHQ
+  ~ @package ShipperHQ\Shipper
+  ~ @copyright Copyright (c) 2025 Zowta LTD and Zowta LLC (http://www.ShipperHQ.com)
+  ~ @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+  ~ @author ShipperHQ Team sales@shipperhq.com
+  -->
+
+<suites xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Suite/etc/suiteSchema.xsd">
+    <suite name="ShipperHQSmokeTestSuite">
+        <before>
+            <magentoCLI stepKey="enableGuestCheckout" command="config:set checkout/options/guest_checkout 1" />
+            <magentoCLI stepKey="flushCache" command="cache:flush"/>
+        </before>
+        <include>
+            <group name="shipperhq"/>
+        </include>
+        <after>
+            <magentoCLI stepKey="flushCacheAfter" command="cache:flush"/>
+        </after>
+    </suite>
+</suites>

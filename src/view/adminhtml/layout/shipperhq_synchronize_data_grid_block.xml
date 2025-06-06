@@ -65,6 +65,7 @@
                         <arguments>
                             <argument name="header" xsi:type="string" translate="true">Status</argument>
                             <argument name="index" xsi:type="string">status</argument>
+                            <argument name="renderer" xsi:type="string">ShipperHQ\Shipper\Block\Adminhtml\Synchronize\Status</argument>
                         </arguments>
                     </block>
                 </block>

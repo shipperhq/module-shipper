@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ ShipperHQ
+  ~
+  ~ @category ShipperHQ
+  ~ @package ShipperHQ\Shipper
+  ~ @copyright Copyright (c) 2025 Zowta LTD and Zowta LLC (http://www.ShipperHQ.com)
+  ~ @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+  ~ @author ShipperHQ Team sales@shipperhq.com
+  -->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="ShipperHQBasicSmokeTest">
+        <annotations>
+            <features value="ShipperHQ"/>
+            <stories value="Basic Smoke Test"/>
+            <title value="ShipperHQ Basic Smoke Test"/>
+            <description value="Test enabling ShipperHQ in admin panel and basic checkout flow"/>
+            <severity value="CRITICAL"/>
+            <group value="shipperhq"/>
+        </annotations>
+
+        <before>
+            <!-- Create test data -->
+            <createData entity="SimpleProduct" stepKey="createProduct"/>
+        </before>
+
+        <after>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+        </after>
+
+        <!-- Login to admin -->
+        <amOnPage url="{{AdminLoginPage.url}}" stepKey="navigateToAdmin"/>
+        <fillField selector="{{AdminLoginFormSection.username}}" userInput="{{_ENV.MAGENTO_ADMIN_USERNAME}}" stepKey="fillUsername"/>
+        <fillField selector="{{AdminLoginFormSection.password}}" userInput="{{_CREDS.magento/MAGENTO_ADMIN_PASSWORD}}" stepKey="fillPassword"/>
+        <click selector="{{AdminLoginFormSection.signIn}}" stepKey="clickLogin"/>
+        <waitForPageLoad stepKey="waitForDashboardLoad"/>
+
+        <!-- Navigate to Stores > Configuration > Sales > Shipping Methods > ShipperHQ -->
+        <actionGroup ref="AdminOpenShippingMethodsConfigPageActionGroup" stepKey="openShippingMethodConfigPage"/>
+        <waitForPageLoad stepKey="waitForShippingTabLoad"/>
+
+        <!-- Enable ShipperHQ -->
+        <scrollTo selector="{{AdminShipperConfigSection.carrierShipperTab}}" x="0" y="-100" stepKey="scrollToShipperHQ"/>
+        <waitForElementVisible selector="{{AdminShipperConfigSection.carrierShipperTab}}" stepKey="waitForShipperHQTab"/>
+        <waitForElementClickable selector="{{AdminShipperConfigSection.carrierShipperTab}}" stepKey="waitForShipperHQTabClickable"/>
+        <click selector="{{AdminShipperConfigSection.carrierShipperTab}}" stepKey="expandShipperHQSection"/>
+        <waitForElementVisible selector="{{AdminShipperConfigSection.enabled}}" stepKey="waitForEnabledField"/>
+        <selectOption selector="{{AdminShipperConfigSection.enabled}}" userInput="Yes" stepKey="enableShipperHQ"/>
+
+        <!-- Set API Credentials -->
+        <fillField selector="{{AdminShipperConfigSection.apiKey}}" userInput="{{_CREDS.shipperhq/SHQ_API_KEY}}" stepKey="fillApiKey"/>
+        <fillField selector="{{AdminShipperConfigSection.authKey}}" userInput="{{_CREDS.shipperhq/SHQ_AUTH_KEY}}" stepKey="fillAuthKey"/>
+
+        <!-- Save Configuration -->
+        <click selector="{{AdminMainActionsSection.save}}" stepKey="clickSaveConfig"/>
+        <waitForPageLoad stepKey="waitForSaveConfigPageLoad"/>
+        <see selector="{{AdminMessagesSection.success}}" userInput="You saved the configuration." stepKey="seeSuccessMessage"/>
+
+        <!-- Go to the storefront -->
+        <amOnPage url="{{StorefrontProductPage.url($$createProduct.custom_attributes[url_key]$$)}}" stepKey="goToProductPage"/>
+        <waitForPageLoad stepKey="waitForProductPageLoad"/>
+        <waitForElementVisible selector="{{StorefrontProductActionSection.addToCart}}" stepKey="waitForAddToCartButton"/>
+
+        <!-- Add product to the cart with improved reliability -->
+        <scrollTo selector="{{StorefrontProductActionSection.addToCart}}" stepKey="scrollToAddToCart"/>
+        <waitForElementClickable selector="{{StorefrontProductActionSection.addToCart}}" stepKey="waitForAddToCartClickable"/>
+        <click selector="{{StorefrontProductActionSection.addToCart}}" stepKey="clickAddToCart"/>
+        <waitForElementVisible selector="{{StorefrontMessagesSection.success}}" stepKey="waitForProductAddedMessage"/>
+        <see selector="{{StorefrontMessagesSection.success}}" userInput="You added" stepKey="seeProductAddedMessage"/>
+
+        <!-- Go to checkout -->
+        <click selector="{{StorefrontMinicartSection.showCart}}" stepKey="clickCart"/>
+        <click selector="{{StorefrontMinicartSection.goToCheckout}}" stepKey="goToCheckout"/>
+        <waitForPageLoad stepKey="waitForCheckoutLoad"/>
+
+        <!-- Fill shipping address with default US address -->
+        <fillField selector="{{CheckoutShippingSection.email}}" userInput="test@example.com" stepKey="enterEmail"/>
+        <fillField selector="{{CheckoutShippingSection.firstName}}" userInput="John" stepKey="enterFirstName"/>
+        <fillField selector="{{CheckoutShippingSection.lastName}}" userInput="Doe" stepKey="enterLastName"/>
+        <fillField selector="{{CheckoutShippingSection.street}}" userInput="123 Main St" stepKey="enterStreet"/>
+        <fillField selector="{{CheckoutShippingSection.city}}" userInput="Austin" stepKey="enterCity"/>
+        <selectOption selector="{{CheckoutShippingSection.region}}" userInput="Texas" stepKey="selectRegion"/>
+        <fillField selector="{{CheckoutShippingSection.postcode}}" userInput="78701" stepKey="enterPostcode"/>
+        <fillField selector="{{CheckoutShippingSection.telephone}}" userInput="5123456789" stepKey="enterTelephone"/>
+
+        <!-- Wait for loading to complete before clicking next -->
+        <waitForElementNotVisible selector="div[data-role=loader]" stepKey="waitForLoadingMaskToDisappear"/>
+        <waitForElementClickable selector="{{CheckoutShippingSection.next}}" stepKey="waitForNextButtonClickable"/>
+
+        <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
+        <waitForPageLoad stepKey="waitForShippingMethodsLoad"/>
+
+        <!-- Wait for shipping methods to load completely -->
+        <waitForElementNotVisible selector="div[data-role=loader]" stepKey="waitForShippingLoadingMaskToDisappear"/>
+        <waitForElementVisible selector="{{CheckoutShippingMethodsSection.shippingMethodsTable}}" stepKey="waitForShippingMethodsTable"/>
+
+        <!-- Verify ShipperHQ shipping methods are displayed -->
+        <waitForElementVisible selector="{{CheckoutShippingMethodsSection.shqShippingMethod}}" stepKey="waitForShqShippingMethods"/>
+        <seeElement selector="{{CheckoutShippingMethodsSection.shqShippingMethod}}" stepKey="seeShqShippingMethod"/>
+
+        <!-- Verify at least one shipping method has a price -->
+        <waitForElementVisible selector="{{CheckoutShippingMethodsSection.anyShippingMethod}}" stepKey="waitForAnyShippingMethods"/>
+        <see selector="{{CheckoutShippingMethodsSection.shippingMethodsTable}}" userInput="$" stepKey="seeShippingMethodPrice"/>
+    </test>
+</tests>

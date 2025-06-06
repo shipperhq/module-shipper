@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ ShipperHQ
+  ~
+  ~ @category ShipperHQ
+  ~ @package ShipperHQ\Shipper
+  ~ @copyright Copyright (c) 2025 Zowta LTD and Zowta LLC (http://www.ShipperHQ.com)
+  ~ @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+  ~ @author ShipperHQ Team sales@shipperhq.com
+  -->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="CheckoutShippingSection">
+        <element name="email" type="input" selector="#customer-email"/>
+        <element name="firstName" type="input" selector="input[name=firstname]"/>
+        <element name="lastName" type="input" selector="input[name=lastname]"/>
+        <element name="street" type="input" selector="input[name='street[0]']"/>
+        <element name="city" type="input" selector="input[name=city]"/>
+        <element name="region" type="select" selector="select[name=region_id]"/>
+        <element name="postcode" type="input" selector="input[name=postcode]"/>
+        <element name="telephone" type="input" selector="input[name=telephone]"/>
+        <element name="next" type="button" selector=".button.action.continue.primary"/>
+    </section>
+</sections>

@@ -824,3 +824,7 @@ SHQ23-4871 Mark optional parameters as nullable
 SHQ23-4303 MFTF Smoke Tests
 
 
+## 20.59.3 (2025-06-11)
+SHQ23-5218 Fix unescaped output in phtml file
+
+

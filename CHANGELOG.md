@@ -828,3 +828,7 @@ SHQ23-4303 MFTF Smoke Tests
 SHQ23-5218 Fix unescaped output in phtml file
 
 
+## 20.59.4 (2025-06-27)
+SHQ23-5103 Increase precision of dimensions and weight on package tables
+
+

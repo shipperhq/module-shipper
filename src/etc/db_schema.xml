@@ -190,17 +190,17 @@
         <column xsi:type="text" name="carrier_group_id" nullable="false" comment="Carrier Group ID"/>
         <column xsi:type="text" name="carrier_code" nullable="false" comment="Carrier Code"/>
         <column xsi:type="text" name="package_name" nullable="false" comment="Package Name"/>
-        <column xsi:type="float" name="length" scale="0" precision="10" unsigned="false" nullable="true"
+        <column xsi:type="float" name="length" scale="2" precision="10" unsigned="false" nullable="true"
                 comment="Package length"/>
-        <column xsi:type="float" name="width" scale="0" precision="10" unsigned="false" nullable="true"
+        <column xsi:type="float" name="width" scale="2" precision="10" unsigned="false" nullable="true"
                 comment="Package width"/>
-        <column xsi:type="float" name="height" scale="0" precision="10" unsigned="false" nullable="true"
+        <column xsi:type="float" name="height" scale="2" precision="10" unsigned="false" nullable="true"
                 comment="Package height"/>
-        <column xsi:type="float" name="weight" scale="0" precision="10" unsigned="false" nullable="true"
+        <column xsi:type="float" name="weight" scale="2" precision="10" unsigned="false" nullable="true"
                 comment="Package weight"/>
-        <column xsi:type="float" name="declared_value" scale="0" precision="10" unsigned="false" nullable="true"
+        <column xsi:type="float" name="declared_value" scale="2" precision="10" unsigned="false" nullable="true"
                 comment="Package declared value"/>
-        <column xsi:type="float" name="surcharge_price" scale="0" precision="10" unsigned="false" nullable="true"
+        <column xsi:type="float" name="surcharge_price" scale="2" precision="10" unsigned="false" nullable="true"
                 comment="Surcharge price"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="package_id"/>
@@ -220,7 +220,7 @@
         <column xsi:type="text" name="sku" nullable="false" comment="SKU"/>
         <column xsi:type="float" name="qty_packed" scale="0" precision="10" unsigned="false" nullable="true"
                 comment="Qty packed"/>
-        <column xsi:type="float" name="weight_packed" scale="0" precision="10" unsigned="false" nullable="true"
+        <column xsi:type="float" name="weight_packed" scale="4" precision="10" unsigned="false" nullable="true"
                 comment="Weight packed"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="id"/>

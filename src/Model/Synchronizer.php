@@ -19,10 +19,10 @@
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
  *
- * Shipper HQ Shipping
+ * ShipperHQ Shipping
  *
  * @category ShipperHQ
- * @package ShipperHQ_Shipping_Carrier
+ * @package ShipperHQ\Shipper
  * @copyright Copyright (c) 2015 Zowta LLC (http://www.ShipperHQ.com)
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
@@ -320,7 +320,7 @@ class Synchronizer extends AbstractModel
         if (!is_object($response)) {
             $this->shipperLogger->postInfo(
                 'Shipperhq_Shipper',
-                'Retrieving attributes: No or invalid response received from Shipper HQ',
+                'Retrieving attributes: No or invalid response received from ShipperHQ',
                 $response
             );
         } elseif (isset($response->errors) && !empty($response->errors)) {
@@ -338,7 +338,7 @@ class Synchronizer extends AbstractModel
             }
             $this->shipperLogger->postInfo(
                 'Shipperhq_Shipper',
-                'Shipper HQ returned error',
+                'ShipperHQ returned error',
                 $response->errors
             );
         } elseif (!$response || !isset($response->responseSummary) ||

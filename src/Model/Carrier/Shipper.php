@@ -19,10 +19,10 @@
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
  *
- * Shipper HQ Shipping
+ * ShipperHQ Shipping
  *
  * @category ShipperHQ
- * @package ShipperHQ_Shipping_Carrier
+ * @package ShipperHQ\Shipper
  * @copyright Copyright (c) 2015 Zowta LLC (http://www.ShipperHQ.com)
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
@@ -39,7 +39,7 @@ namespace ShipperHQ\Shipper\Model\Carrier;
  * Shipper shipping model
  *
  * @category ShipperHQ
- * @package ShipperHQ_Shipper
+ * @package ShipperHQ\Shipper
  */
 
 use Magento\Directory\Helper\Data;
@@ -513,10 +513,10 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
         $debugData = ['request' => json_encode($debugRequest, JSON_PRETTY_PRINT), 'response' => $shipperResponse];
         if (!is_object($shipperResponse) && !is_array($shipperResponse)) {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ did not return a response', $debugData);
+            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'ShipperHQ did not return a response', $debugData);
 
             return $this->returnGeneralError(
-                'Shipper HQ did not return a response - could not contact ShipperHQ. Please review your settings'
+                'ShipperHQ did not return a response - could not contact ShipperHQ. Please review your settings'
             );
         }
         $transactionId = $this->shipperRateHelper->extractTransactionId($shipperResponse);
@@ -536,7 +536,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
         // If no rates are found return error message
         if (!empty($shipperResponse->errors)) {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ returned an error', $debugData);
+            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'ShipperHQ returned an error', $debugData);
             if (isset($shipperResponse['errors'])) {
                 foreach ($shipperResponse['errors'] as $error) {
                     $this->appendError($result, $error, $this->_code, $this->getConfigData('title'));
@@ -558,7 +558,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         if (count($carrierRates) == 0) {
             $this->shipperLogger->postInfo(
                 'Shipperhq_Shipper',
-                'Shipper HQ did not return any carrier rates',
+                'ShipperHQ did not return any carrier rates',
                 $debugData
             );
             return $result;
@@ -591,7 +591,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             if (!array_key_exists('rates', $carrierRate)) {
                 $this->shipperLogger->postInfo(
                     'Shipperhq_Shipper',
-                    'Shipper HQ did not return any rates for '
+                    'ShipperHQ did not return any rates for '
                     . $carrierRate['code']
                     . ' '
                     . $carrierRate['title'],
@@ -810,7 +810,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
                 $result->append($error);
 
-                $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Shipper HQ returned error', $errorDetails);
+                $this->shipperLogger->postInfo('Shipperhq_Shipper', 'ShipperHQ returned error', $errorDetails);
             }
         }
         return $result;
@@ -1065,7 +1065,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             if (!is_array($allowedMethodResponse)) {
                 $this->shipperLogger->postInfo(
                     'Shipperhq_Shipper',
-                    'Allowed Methods: No or invalid response received from Shipper HQ',
+                    'Allowed Methods: No or invalid response received from ShipperHQ',
                     $allowedMethodResponse
                 );
                 $shipperHQ = "<a href=https://shipperhq.com/ratesmgr/websites>ShipperHQ</a> ";

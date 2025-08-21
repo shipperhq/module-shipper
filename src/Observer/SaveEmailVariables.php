@@ -19,10 +19,10 @@
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
  *
- * Shipper HQ Shipping
+ * ShipperHQ Shipping
  *
  * @category ShipperHQ
- * @package ShipperHQ_Shipping_Carrier
+ * @package ShipperHQ\Shipper
  * @copyright Copyright (c) 2015 Zowta LLC (http://www.ShipperHQ.com)
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
@@ -114,7 +114,7 @@ class SaveEmailVariables implements ObserverInterface
                             $notifyRequired = $quoteAddressDetail['notify_required'] ?? null;
                             $insideDelivery = $quoteAddressDetail['inside_delivery'] ?? null;
                             $limitedDelivery = $quoteAddressDetail['limited_delivery'] ?? null;
-                            
+
                             $data['deliveryDate']           = $quoteAddressDetail['delivery_date'] ?? null;
                             $data['dispatchDate']           = $quoteAddressDetail['dispatch_date'] ?? null;
                             $data['customerCarrier']        = $quoteAddressDetail['customer_carrier'] ?? null;

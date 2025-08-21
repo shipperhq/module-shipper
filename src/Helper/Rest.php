@@ -13,7 +13,7 @@
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
- * Shipper HQ Shipping
+ * ShipperHQ Shipping
  * @category  ShipperHQ
  * @package   ShipperHQ_Shipping_Carrier
  * @copyright Copyright (c) 2015 Zowta LLC (http://www.ShipperHQ.com)

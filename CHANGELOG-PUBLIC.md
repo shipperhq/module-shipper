@@ -832,3 +832,7 @@ SHQ23-5218 Fix unescaped output in phtml file
 SHQ23-5103 Increase precision of dimensions and weight on package tables
 
 
+## 20.59.5 (2025-08-21)
+SHQ23-5374 Fixing formatting of copyrights
+
+

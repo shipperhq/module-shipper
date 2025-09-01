@@ -836,3 +836,7 @@ SHQ23-5103 Increase precision of dimensions and weight on package tables
 SHQ23-5374 Fixing formatting of copyrights
 
 
+## 20.59.6 (2025-09-01)
+SHQ23-5608 Fix issue with parenthesis in method code
+
+

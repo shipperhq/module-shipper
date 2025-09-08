@@ -102,8 +102,7 @@ script;
     <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
 <?php elseif ($block->getIsRateRequest()): ?>
     <div class="order-shipping-method-summary">
-        <strong class="order-shipping-method-not-available"><?php /* @escapeNotVerified */
-            echo __('Sorry, no quotes are available for this order.') ?></strong>
+        <strong class="order-shipping-method-not-available"><?= $block->escapeHtml(__('Sorry, no quotes are available for this order.')) ?></strong>
     </div>
     <br>
     <!--SHQ16-2159 allow custom admin shipping when no rates are displayed -->
@@ -133,10 +132,9 @@ script;
 <?php else: ?>
     <div id="order-shipping-method-summary" class="order-shipping-method-summary">
         <a href="#" id="loadShippingRates" class="action-default">
-            <span><?php /* @escapeNotVerified */
-                echo __('Get shipping methods and rates') ?></span>
+            <span><?= $block->escapeHtml(__('Get shipping methods and rates')) ?></span>
         </a>
-        <?= $secureRenderer->renderEventListenerAsTag('onclick', 'order.loadShippingRates();return false;', '#loadShippingRates'); ?>
+        <?= /* @noEscape */ $secureRenderer->renderEventListenerAsTag('onclick', 'order.loadShippingRates();return false;', '#loadShippingRates'); ?>
         <input type="hidden" name="order[has_shipping]" value="" class="required-entry" />
     </div>
     <?= /* @noEscape */ $secureRenderer->renderEventListenerAsTag(

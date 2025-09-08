@@ -840,3 +840,7 @@ SHQ23-5374 Fixing formatting of copyrights
 SHQ23-5608 Fix issue with parenthesis in method code
 
 
+## 20.59.7 (2025-09-08)
+SHQ23-5874 Fix unescaped output in admin form
+
+

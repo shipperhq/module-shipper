@@ -630,7 +630,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                     $rate->setCarrier($carrierRate['code']);
                     $lengthCarrierCode = strlen((string) $carrierRate['code']);
 
-                    $rate->setCarrierTitle((string) __($carrierRate['title']));
+                    $rate->setCarrierTitle(__($carrierRate['title']));
 
                     $methodCombineCode = preg_replace('/&|;| /', "", (string) $rateDetails['methodcode']);
                     //SHQ16-1520 - enforce limit on length of shipping carrier code

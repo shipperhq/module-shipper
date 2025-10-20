@@ -844,3 +844,7 @@ SHQ23-5608 Fix issue with parenthesis in method code
 SHQ23-5874 Fix unescaped output in admin form
 
 
+## 20.59.8 (2025-10-20)
+SHQ23-6303 Fix critical logging level. Update logging to correct output levels
+
+

@@ -36,9 +36,11 @@
 namespace ShipperHQ\Shipper\Helper;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
 
 /**
- * Shipping data helper
+ * ShipperHQ Log Helper.
+ * Contains methods to output logging to admin and file system log
  */
 class LogAssist
 {
@@ -64,49 +66,68 @@ class LogAssist
     }
 
     /**
+     * Logs a debug message
      *
      * @param $module
-     * @param $logData
+     * @param $message
+     * @param $data
+     * @param array $context
      */
-    public function postDebug($module, $message, $data, array $context = [])
+    public function postDebug($module, $message, $data, array $context = []): void
     {
         $this->logger->debug($this->getMessage($module, $message, $data), $context);
     }
 
-    private function getMessage($module, $message, $data)
+    /**
+     * Gets the log message as a string
+     *
+     * @param $module
+     * @param $message
+     * @param $data
+     * @return string
+     */
+    private function getMessage($module, $message, $data): string
     {
         $data = is_string($data) ? $data : var_export($data, true);
         return $module . '-- ' . $message . '-- ' . $data;
     }
 
     /**
-     *
+     * Logs a info message
      * @param $module
-     * @param $logData
+     * @param $message
+     * @param $data
+     * @param array $context
      */
-    public function postInfo($module, $message, $data, array $context = [])
+    public function postInfo($module, $message, $data, array $context = []): void
     {
         $this->logger->info($this->getMessage($module, $message, $data), $context);
     }
 
     /**
+     * Logs a warning message
      *
      * @param $module
-     * @param $logData
+     * @param $message
+     * @param $data
+     * @param array $context
      */
-    public function postWarning($module, $message, $data, array $context = [])
+    public function postWarning($module, $message, $data, array $context = []): void
     {
         $this->logger->warning($this->getMessage($module, $message, $data), $context);
     }
 
     /**
+     * Posts a critical log
      *
      * @param $module
-     * @param $logData
+     * @param $message
+     * @param $data
+     * @param array $context
      */
-    public function postCritical($module, $message, $data, array $context = [])
+    public function postCritical($module, $message, $data, array $context = []): void
     {
-        $this->logger->warning($this->getMessage($module, $message, $data), $context);
+        $this->logger->critical($this->getMessage($module, $message, $data), $context);
     }
 
     /**
@@ -116,8 +137,8 @@ class LogAssist
      * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      * @api
      */
-    public function getDebugFlag()
+    public function getDebugFlag(): bool
     {
-        return $this->config->isSetFlag('carriers/shipper/debug', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        return $this->config->isSetFlag('carriers/shipper/debug', ScopeInterface::SCOPE_STORE);
     }
 }

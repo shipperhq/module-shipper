@@ -1,6 +1,5 @@
 <?php
 /**
- *
  * ShipperHQ Shipping Module
  *
  * NOTICE OF LICENSE
@@ -28,33 +27,38 @@
  * @author ShipperHQ Team sales@shipperhq.com
  */
 
-/**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
- */
-
 namespace ShipperHQ\Shipper\Model\Carrier;
 
-/**
- * Shipper shipping model
- *
- * @category ShipperHQ
- * @package ShipperHQ\Shipper
- */
-
+use Magento\Checkout\Model\Session;
 use Magento\Directory\Helper\Data;
 use Magento\Framework\App\Area;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\State;
+use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Registry;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Quote\Model\Quote\Address\RateResult\Error;
+use Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory;
+use Magento\Quote\Model\Quote\Address\RateResult\MethodFactory;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
 use Magento\Shipping\Model\Carrier\AbstractCarrier;
 use Magento\Shipping\Model\Carrier\CarrierInterface;
 use Magento\Shipping\Model\Rate\Result;
+use Magento\Shipping\Model\Rate\ResultFactory;
+use Psr\Log\LoggerInterface;
+use ShipperHQ\Lib\Rate\ConfigSettingsFactory;
+use ShipperHQ\Lib\Rate\Helper;
+use ShipperHQ\Shipper\Helper\CarrierCache;
+use ShipperHQ\Shipper\Helper\CarrierGroup;
 use ShipperHQ\Shipper\Helper\Config;
-use ShipperHQ\WS\Client;
+use ShipperHQ\Shipper\Helper\LogAssist;
+use ShipperHQ\Shipper\Helper\Package;
+use ShipperHQ\Shipper\Helper\Rest;
+use ShipperHQ\Shipper\Model\System\Message\Credentials;
+use ShipperHQ\WS\Client\WebServiceClientFactory;
 
 class Shipper extends AbstractCarrier implements CarrierInterface
 {
@@ -101,30 +105,30 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      */
     protected $shipperDataHelper;
     /**
-     * @var \ShipperHQ\Shipper\Helper\Rest
+     * @var Rest
      */
     protected $restHelper;
     /**
-     * @var \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory
+     * @var MethodFactory
      */
     protected $rateMethodFactory;
     /**
-     * @var \Magento\Shipping\Model\Rate\ResultFactory
+     * @var ResultFactory
      */
     protected $rateFactory;
     /**
      * Application Event Dispatcher
      *
-     * @var \Magento\Framework\Event\ManagerInterface
+     * @var ManagerInterface
      */
     protected $eventManager;
     /**
-     * @var \ShipperHQ\Shipper\Helper\Package
+     * @var Package
      */
     protected $packageHelper;
     /**
      *
-     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
+     * @var CarrierGroup
      */
     protected $carrierGroupHelper;
     /**
@@ -137,15 +141,15 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      */
     protected $quote;
     /**
-     * @var \Magento\Framework\Registry
+     * @var Registry
      */
     private $registry;
     /**
-     * @var \ShipperHQ\Shipper\Helper\LogAssist
+     * @var LogAssist
      */
     private $shipperLogger;
     /**
-     * @var Client\WebServiceClientFactory
+     * @var WebServiceClientFactory
      */
     private $shipperWSClientFactory;
     /**
@@ -153,7 +157,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      */
     private $carrierConfigHandler;
     /**
-     * @var \ShipperHQ\Shipper\Helper\CarrierCache
+     * @var CarrierCache
      */
     private $carrierCache;
     /**
@@ -161,11 +165,11 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      */
     private $backupCarrier;
     /**
-     * @var \ShipperHQ\Lib\Rate\Helper
+     * @var Helper
      */
     private $shipperRateHelper;
     /**
-     * @var \ShipperHQ\Lib\Rate\ConfigSettingsFactory
+     * @var ConfigSettingsFactory
      */
     private $configSettingsFactory;
     /**
@@ -173,7 +177,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      */
     private $allowedMethodsHelper;
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var Session
      */
     private $checkoutSession;
     /**
@@ -191,59 +195,60 @@ class Shipper extends AbstractCarrier implements CarrierInterface
     private $shipperMapper;
 
     /**
-     * @param \ShipperHQ\Shipper\Helper\Data                              $shipperDataHelper
-     * @param \ShipperHQ\Shipper\Helper\Rest                              $restHelper
-     * @param \ShipperHQ\Shipper\Helper\CarrierCache                      $carrierCache
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface          $scopeConfig
-     * @param \ShipperHQ\Shipper\Helper\LogAssist                         $shipperLogger
-     * @param \Psr\Log\LoggerInterface                                    $logger
-     * @param Config                                                      $configHelper
-     * @param Processor\ShipperMapper                                     $shipperMapper
-     * @param Processor\CarrierConfigHandler                              $carrierConfigHandler
-     * @param Processor\BackupCarrier                                     $backupCarrier
-     * @param \Magento\Framework\Registry                                 $registry
-     * @param Client\WebServiceClientFactory                              $shipperWSClientFactory
-     * @param \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory  $rateErrorFactory
-     * @param \Magento\Shipping\Model\Rate\ResultFactory                  $resultFactory
-     * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
-     * @param \ShipperHQ\Shipper\Helper\CarrierGroup                      $carrierGroupHelper
-     * @param \ShipperHQ\Lib\Rate\Helper                                  $shipperLibRateHelper
-     * @param \ShipperHQ\Lib\Rate\ConfigSettingsFactory                   $configSettingsFactory
-     * @param \Magento\Framework\Event\ManagerInterface                   $eventManager
-     * @param \ShipperHQ\Lib\AllowedMethods\Helper                        $allowedMethodsHelper
-     * @param \Magento\Checkout\Model\Session                             $checkoutSession
-     * @param \ShipperHQ\Shipper\Helper\Package                           $packageHelper
-     * @param State                                                       $appState
-     * @param Data                                                        $directoryHelper
-     * @param array                                                       $data
+     * @param \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+     * @param Rest $restHelper
+     * @param CarrierCache $carrierCache
+     * @param ScopeConfigInterface $scopeConfig
+     * @param LogAssist $shipperLogger
+     * @param LoggerInterface $logger
+     * @param Config $configHelper
+     * @param Processor\ShipperMapper $shipperMapper
+     * @param Processor\CarrierConfigHandler $carrierConfigHandler
+     * @param Processor\BackupCarrier $backupCarrier
+     * @param Registry $registry
+     * @param WebServiceClientFactory $shipperWSClientFactory
+     * @param ErrorFactory $rateErrorFactory
+     * @param ResultFactory $resultFactory
+     * @param MethodFactory $rateMethodFactory
+     * @param CarrierGroup $carrierGroupHelper
+     * @param Helper $shipperLibRateHelper
+     * @param ConfigSettingsFactory $configSettingsFactory
+     * @param ManagerInterface $eventManager
+     * @param \ShipperHQ\Lib\AllowedMethods\Helper $allowedMethodsHelper
+     * @param Session $checkoutSession
+     * @param Package $packageHelper
+     * @param State $appState
+     * @param Data $directoryHelper
+     * @param array $data
      */
     public function __construct(
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
-        \ShipperHQ\Shipper\Helper\Rest $restHelper,
-        \ShipperHQ\Shipper\Helper\CarrierCache $carrierCache,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Psr\Log\LoggerInterface $logger,
-        Config $configHelper,
-        Processor\ShipperMapper $shipperMapper,
-        Processor\CarrierConfigHandler $carrierConfigHandler,
-        Processor\BackupCarrier $backupCarrier,
-        \Magento\Framework\Registry $registry,
-        \ShipperHQ\WS\Client\WebServiceClientFactory $shipperWSClientFactory,
-        \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory,
-        \Magento\Shipping\Model\Rate\ResultFactory $resultFactory,
-        \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory,
-        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
-        \ShipperHQ\Lib\Rate\Helper $shipperLibRateHelper,
-        \ShipperHQ\Lib\Rate\ConfigSettingsFactory $configSettingsFactory,
-        \Magento\Framework\Event\ManagerInterface $eventManager,
+        \ShipperHQ\Shipper\Helper\Data       $shipperDataHelper,
+        Rest                                 $restHelper,
+        CarrierCache                         $carrierCache,
+        ScopeConfigInterface                 $scopeConfig,
+        LogAssist                            $shipperLogger,
+        LoggerInterface                      $logger,
+        Config                               $configHelper,
+        Processor\ShipperMapper              $shipperMapper,
+        Processor\CarrierConfigHandler       $carrierConfigHandler,
+        Processor\BackupCarrier              $backupCarrier,
+        Registry                             $registry,
+        WebServiceClientFactory              $shipperWSClientFactory,
+        ErrorFactory                         $rateErrorFactory,
+        ResultFactory                        $resultFactory,
+        MethodFactory                        $rateMethodFactory,
+        CarrierGroup                         $carrierGroupHelper,
+        Helper                               $shipperLibRateHelper,
+        ConfigSettingsFactory                $configSettingsFactory,
+        ManagerInterface                     $eventManager,
         \ShipperHQ\Lib\AllowedMethods\Helper $allowedMethodsHelper,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \ShipperHQ\Shipper\Helper\Package $packageHelper,
-        State $appState,
-        Data $directoryHelper,
-        array $data = []
-    ) {
+        Session                              $checkoutSession,
+        Package                              $packageHelper,
+        State                                $appState,
+        Data                                 $directoryHelper,
+        array                                $data = []
+    )
+    {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->restHelper = $restHelper;
         $this->configHelper = $configHelper;
@@ -290,7 +295,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         }
 
         if (!$this->shipperDataHelper->getCredentialsEntered($request)) {
-            $this->shipperLogger->postDebug(
+            $this->shipperLogger->postCritical(
                 'Shipperhq_Shipper',
                 'No credentials entered',
                 'Missing API key or Authentication key. Ignoring request'
@@ -424,7 +429,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      * Will reset the destination address in the Magento shipping request to the actual shipping address rather than
      * the store pickup location address
      *
-     * @param Quote       $quote
+     * @param Quote $quote
      * @param RateRequest $request
      *
      * @return void
@@ -477,6 +482,8 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Short lapse', $elapsed);
 
             if (!$resultSet['result']) {
+                $this->shipperLogger->postCritical('Shipperhq_Shipper', 'Failed to get ShipperHQ rates', $resultSet);
+
                 $backupRates = $this->backupCarrier->getBackupCarrierRates(
                     $this->rawRequest,
                     $this->getConfigData("backup_carrier")
@@ -513,7 +520,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
         $debugData = ['request' => json_encode($debugRequest, JSON_PRETTY_PRINT), 'response' => $shipperResponse];
         if (!is_object($shipperResponse) && !is_array($shipperResponse)) {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'ShipperHQ did not return a response', $debugData);
+            $this->shipperLogger->postCritical('Shipperhq_Shipper', 'ShipperHQ did not return a response', $debugData);
 
             return $this->returnGeneralError(
                 'ShipperHQ did not return a response - could not contact ShipperHQ. Please review your settings'
@@ -524,7 +531,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
         $this->registry->register('shipperhq_transaction', $transactionId);
 
-        //first check and save globals for display purposes
+        // first check and save globals for display purposes
         $globals = [];
         if (is_array($shipperResponse) && array_key_exists('globalSettings', $shipperResponse)) {
             $globals = $this->shipperRateHelper->extractGlobalSettings($shipperResponse);
@@ -536,7 +543,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
         // If no rates are found return error message
         if (!empty($shipperResponse->errors)) {
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'ShipperHQ returned an error', $debugData);
+            $this->shipperLogger->postCritical('Shipperhq_Shipper', 'ShipperHQ returned an error', $debugData);
             if (isset($shipperResponse['errors'])) {
                 foreach ($shipperResponse['errors'] as $error) {
                     $this->appendError($result, $error, $this->_code, $this->getConfigData('title'));
@@ -556,7 +563,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         }
 
         if (count($carrierRates) == 0) {
-            $this->shipperLogger->postInfo(
+            $this->shipperLogger->postCritical(
                 'Shipperhq_Shipper',
                 'ShipperHQ did not return any carrier rates',
                 $debugData
@@ -628,14 +635,14 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
                     $rate = $this->rateMethodFactory->create();
                     $rate->setCarrier($carrierRate['code']);
-                    $lengthCarrierCode = strlen((string) $carrierRate['code']);
+                    $lengthCarrierCode = strlen((string)$carrierRate['code']);
 
                     $rate->setCarrierTitle(__($carrierRate['title']));
 
-                    $methodCombineCode = preg_replace('/&|;| /', "", (string) $rateDetails['methodcode']);
-                    //SHQ16-1520 - enforce limit on length of shipping carrier code
+                    $methodCombineCode = preg_replace('/&|;| /', "", (string)$rateDetails['methodcode']);
+                    // SHQ16-1520 - enforce limit on length of shipping carrier code
                     // and method code of less than 35 - M2 hard limit of 40
-                    $lengthMethodCode = strlen((string) $methodCombineCode);
+                    $lengthMethodCode = strlen((string)$methodCombineCode);
 
                     if ($lengthCarrierCode + $lengthMethodCode > 38) {
                         $total = $lengthCarrierCode + $lengthMethodCode;
@@ -657,8 +664,8 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                         $rate->setMethodDescription(__($rateDetails['method_description']));
                     }
 
-                    //SHQ18-1804 presence of customsMessage means we need to include the customs for display
-                    //If customsMessage is blank, it's likely we are meant to hide duties.
+                    // SHQ18-1804 presence of customsMessage means we need to include the customs for display
+                    // If customsMessage is blank, it's likely we are meant to hide duties.
                     if (isset($rateDetails['carriergroup_detail']['customDuties']) &&
                         $rateDetails['carriergroup_detail']['customDuties'] > 0 &&
                         isset($rateDetails['carriergroup_detail']['customsMessage']) &&
@@ -723,18 +730,20 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
                     $result->append($rate);
                 }
+
                 if (isset($carrierRate['shipments'])) {
                     $this->persistShipments($carrierRate['shipments']);
                 }
             }
         }
+
         return $result;
     }
 
     /**
      *
      * Build up an error message when no carrier rates returned
-     * @return \Magento\Shipping\Model\Rate\Result
+     * @return Result
      */
     private function returnGeneralError($message = null)
     {
@@ -764,7 +773,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      * @param null $carrierGroupDetail
      * @param bool $isDateSelect If set to true, will append error to results regardless of the debug flag in admin
      *
-     * @return \Magento\Shipping\Model\Rate\Result
+     * @return Result
      */
     private function appendError(
         $result,
@@ -774,7 +783,8 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         $carrierGroupId = null,
         $carrierGroupDetail = null,
         $isDateSelect = false
-    ) {
+    )
+    {
         if (is_object($errorDetails)) {
             $errorDetails = get_object_vars($errorDetails);
         }
@@ -810,9 +820,13 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
                 $result->append($error);
 
-                $this->shipperLogger->postInfo('Shipperhq_Shipper', 'ShipperHQ returned error', $errorDetails);
+                // Leaving this as warning. I think it's quite noisy because a carrier might not return rates
+                // for a variety of valid reasons
+                $this->shipperLogger->postWarning('Shipperhq_Shipper',
+                    'ShipperHQ returned error for carrier: ' . $carrierCode, $errorDetails);
             }
         }
+
         return $result;
     }
 
@@ -839,8 +853,8 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                 $configSettings
             );
             $this->setCarriergroupOnItems($carrierGroupDetail, $carrierGroup['products']);
-            //Pass off each carrier group to helper to decide best fit to process it.
-            //Push result back into our array
+            // Pass off each carrier group to helper to decide best fit to process it.
+            // Push result back into our array
             foreach ($carrierGroup['carrierRates'] as $carrierRate) {
                 $this->carrierConfigHandler->saveCarrierResponseDetails($carrierRate, $carrierGroupDetail);
                 $carrierResultWithRates = $this->shipperRateHelper->extractShipperHQRates(
@@ -858,7 +872,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             }
         }
 
-        //check for configuration here for display
+        // check for configuration here for display
         if (isset($shipperResponse['mergedRateResponse'])) {
             $mergedRatesArray = [];
             foreach ($shipperResponse['mergedRateResponse']['carrierRates'] as $carrierRate) {
@@ -950,11 +964,13 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         }
     }
 
-    /*
+    /**
+     * Updates the rates with the converted currency of store
      *
-     * Build array of rates based on split or merged rates display
+     * @param $carrierGroupDetail
+     * @param $currencyConversionRate
+     * @return array
      */
-
     private function updateWithCurrrencyConversion($carrierGroupDetail, $currencyConversionRate)
     {
         if (is_array($carrierGroupDetail) && isset($carrierGroupDetail[0])) {
@@ -980,7 +996,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
     private function object_to_array($obj)
     {
         if (is_object($obj)) {
-            $obj = (array) $obj;
+            $obj = (array)$obj;
         }
 
         if (is_array($obj)) {
@@ -1008,12 +1024,13 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      * Refresh saved carrier methods
      *
      * @return mixed
+     * @throws NoSuchEntityException
      */
     public function refreshCarriers()
     {
         $allowedMethods = $this->getAllShippingMethods();
         if (count($allowedMethods) == 0) {
-            $this->shipperLogger->postDebug(
+            $this->shipperLogger->postWarning(
                 'Shipperhq_Shipper',
                 'Refresh carriers',
                 'Allowed methods web service did not contain any shipping methods for carriers'
@@ -1022,6 +1039,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             $result['error'] = 'ShipperHQ Error: No shipping methods for carrier setup in your ShipperHQ account';
             return $result;
         }
+
         return $allowedMethods;
     }
 
@@ -1029,13 +1047,11 @@ class Shipper extends AbstractCarrier implements CarrierInterface
      * Get allowed shipping methods
      *
      * @return array
+     * @throws NoSuchEntityException
      */
     public function getAllShippingMethods()
     {
-        $this->carrierConfigHandler->saveConfig(
-            \ShipperHQ\Shipper\Model\System\Message\Credentials::SHIPPERHQ_INVALID_CREDENTIALS_SUPPLIED,
-            0
-        );
+        $this->carrierConfigHandler->saveConfig(Credentials::SHIPPERHQ_INVALID_CREDENTIALS_SUPPLIED, 0);
 
         $result = [];
         $allowedMethods = [];
@@ -1063,7 +1079,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             $debugData = $resultSet['debug'];
             $this->shipperLogger->postDebug('Shipperhq_Shipper', 'Allowed methods response', $debugData);
             if (!is_array($allowedMethodResponse)) {
-                $this->shipperLogger->postInfo(
+                $this->shipperLogger->postWarning(
                     'Shipperhq_Shipper',
                     'Allowed Methods: No or invalid response received from ShipperHQ',
                     $allowedMethodResponse
@@ -1075,7 +1091,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
                 return $result;
             } elseif (isset($allowedMethodResponse['errors']) && !empty($allowedMethodResponse['errors'])) {
-                $this->shipperLogger->postInfo(
+                $this->shipperLogger->postWarning(
                     'Shipperhq_Shipper',
                     'Allowed methods: response contained following errors',
                     $allowedMethodResponse
@@ -1090,7 +1106,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                     //SHQ16-1708
                     if (isset($anError['errorCode']) && $anError['errorCode'] == '3') {
                         $this->carrierConfigHandler->saveConfig(
-                            \ShipperHQ\Shipper\Model\System\Message\Credentials::SHIPPERHQ_INVALID_CREDENTIALS_SUPPLIED,
+                            Credentials::SHIPPERHQ_INVALID_CREDENTIALS_SUPPLIED,
                             1
                         );
                     }
@@ -1100,7 +1116,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
                 return $result;
             } elseif (empty($allowedMethodResponse['carrierMethods'])) {
-                $this->shipperLogger->postInfo(
+                $this->shipperLogger->postWarning(
                     'Shipperhq_Shipper',
                     'Allowed methods web service did not return any carriers or shipping methods',
                     $allowedMethodResponse
@@ -1131,13 +1147,13 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         $this->carrierConfigHandler->setCarrierConfig($carrierConfig);
         $this->saveAllowedMethods($allowedMethods);
 
-        //SHQ18-112 persist Magento version to config to increase efficiency of future requests
+        // SHQ18-112 persist Magento version to config to increase efficiency of future requests
         $this->carrierConfigHandler->saveConfig(
             'carriers/shipper/magento_version',
             $this->shipperMapper->getMagentoVersion()
         );
 
-        //SHQ18-2680 Persist edition to config  to increase efficiency of future requests
+        // SHQ18-2680 Persist edition to config  to increase efficiency of future requests
         $this->carrierConfigHandler->saveConfig(
             'carriers/shipper/magento_edition',
             $this->shipperMapper->getMagentoEdition()
@@ -1157,7 +1173,6 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
     /**
      * Get allowed shipping methods
-     * @param $requestedCode
      * @return array
      */
     public function getAllowedMethods()

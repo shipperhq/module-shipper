@@ -99,7 +99,7 @@ class ShippingPlugin
         }
 
         if ($this->isUsingBackupRates($carrierCode, $limitCarrier)) {
-            $this->shipperLogger->postInfo(
+            $this->shipperLogger->postWarning(
                 'Shipperhq_Shipper',
                 'Checkout rated with backup carrier, continuing with backup rates',
                 'Attempting to use backup carrier: ' . $limitCarrier[0]
@@ -113,7 +113,7 @@ class ShippingPlugin
                 $subject->getResult()->append($backupRates);
                 return $subject;
             } else {
-                $this->shipperLogger->postWarning(
+                $this->shipperLogger->postCritical(
                     'Shipperhq_Shipper',
                     'Failed to fetch backup rates',
                     'Attempting to use backup carrier: ' . $limitCarrier[0]

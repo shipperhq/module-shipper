@@ -148,14 +148,14 @@ class PostOrder
                     );
                 }
             } else {
-                $this->shipperLogger->postDebug(
+                $this->shipperLogger->postWarning(
                     'Shipperhq_Shipper',
                     "PostOrder::handleOrder - can't get rate for shipping method",
                     ['shippingMethod' => $shippingAddress->getShippingMethod(), 'orderNumber' => $orderNumber]
                 );
             }
         } else {
-            $this->shipperLogger->postDebug(
+            $this->shipperLogger->postWarning(
                 'Shipperhq_Shipper',
                 'PostOrder::handleOrder - shipping address is null',
                 ['orderNumber' => $orderNumber]

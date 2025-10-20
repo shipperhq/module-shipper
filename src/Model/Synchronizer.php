@@ -318,7 +318,7 @@ class Synchronizer extends AbstractModel
         );
 
         if (!is_object($response)) {
-            $this->shipperLogger->postInfo(
+            $this->shipperLogger->postWarning(
                 'Shipperhq_Shipper',
                 'Retrieving attributes: No or invalid response received from ShipperHQ',
                 $response
@@ -336,7 +336,7 @@ class Synchronizer extends AbstractModel
                     $result['error'] = $errorDetails['externalErrorMessage'];
                 }
             }
-            $this->shipperLogger->postInfo(
+            $this->shipperLogger->postCritical(
                 'Shipperhq_Shipper',
                 'ShipperHQ returned error',
                 $response->errors
@@ -344,7 +344,7 @@ class Synchronizer extends AbstractModel
         } elseif (!$response || !isset($response->responseSummary) ||
             (string)$response->responseSummary->status != 1 ||
             !$response->attributeTypes) {
-            $this->shipperLogger->postInfo(
+            $this->shipperLogger->postCritical(
                 'Shipperhq_Shipper',
                 'Unable to parse latest attributes response : ',
                 $response
@@ -378,7 +378,7 @@ class Synchronizer extends AbstractModel
                     try {
                         $existingAttributeOptions = [];
                         if (!in_array($attribute->code, $productAttributes)) {
-                            $this->shipperLogger->postDebug(
+                            $this->shipperLogger->postWarning(
                                 'Shipperhq_Shipper',
                                 'Attribute ' . $attribute->code . ' does not exist.',
                                 ''
@@ -391,7 +391,7 @@ class Synchronizer extends AbstractModel
                         }
                     } catch (\Exception $e) {
                         $e->getMessage();
-                        $this->shipperLogger->postDebug(
+                        $this->shipperLogger->postWarning(
                             'Shipperhq_Shipper',
                             'Unable to find attribute ' . $attribute->code,
                             'Error: ' . $e->getMessage()

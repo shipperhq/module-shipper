@@ -85,7 +85,7 @@ class BackupCarrier
 
         if (!$carrier) {
             $this->tempSetCarrierEnabled($carrierCode, false);
-            $this->shipperLogger->postInfo('Shipperhq_Shipper', 'Unable to activate backup carrier', $carrierCode);
+            $this->shipperLogger->postCritical('Shipperhq_Shipper', 'Unable to activate backup carrier', $carrierCode);
             return false;
         }
 
@@ -109,13 +109,13 @@ class BackupCarrier
      */
     private function retrieveBackupCarrier($backupCarrierDetails)
     {
-        $this->shipperLogger->postInfo(
+        $this->shipperLogger->postCritical(
             'Shipperhq_Shipper',
             'Unable to establish connection with ShipperHQ',
             'Attempting to use backup carrier: ' . $backupCarrierDetails
         );
         if (!$backupCarrierDetails) {
-            $this->shipperLogger->postDebug(
+            $this->shipperLogger->postWarning(
                 'Shipperhq_Shipper',
                 'Backup carrier: ',
                 'No backup carrier is configured'

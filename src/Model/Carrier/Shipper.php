@@ -649,7 +649,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                         $methodCombineCode = substr($methodCombineCode, $trim, $lengthMethodCode);
                     }
 
-                    $rate->setMethodTitle(__($rateDetails['method_title']));
+                    $rate->setMethodTitle((string) __($rateDetails['method_title']));
                     $rate->setMethod($methodCombineCode);
                     $tooltip = "";
                     if (isset($rateDetails['tooltip']) && !empty($rateDetails['tooltip'])) {

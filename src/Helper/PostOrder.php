@@ -252,7 +252,7 @@ class PostOrder
             $iso8601 = $orderDateTime->format(\DateTimeInterface::ATOM);
             $variables['orderDate'] = $iso8601;
         } catch (\Exception $e) {
-            // Don't do anything. It's a optional field
+            // Don't do anything. It's an optional field
         }
     }
 

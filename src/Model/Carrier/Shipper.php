@@ -93,7 +93,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
     /**
      * Raw rate request data
      *
-     * @var Varien_Object|null
+     * @var Object|null
      */
     protected $rawRequest = null;
     /**
@@ -225,12 +225,12 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         \ShipperHQ\Shipper\Helper\Data       $shipperDataHelper,
         Rest                                 $restHelper,
         CarrierCache                         $carrierCache,
-        ScopeConfigInterface                 $scopeConfig,
+        ScopeConfigInterface                  $scopeConfig,
         LogAssist                            $shipperLogger,
         LoggerInterface                      $logger,
-        Config                               $configHelper,
+        Config                                $configHelper,
         Processor\ShipperMapper              $shipperMapper,
-        Processor\CarrierConfigHandler       $carrierConfigHandler,
+        Processor\CarrierConfigHandler        $carrierConfigHandler,
         Processor\BackupCarrier              $backupCarrier,
         Registry                             $registry,
         WebServiceClientFactory              $shipperWSClientFactory,
@@ -239,7 +239,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         MethodFactory                        $rateMethodFactory,
         CarrierGroup                         $carrierGroupHelper,
         Helper                               $shipperLibRateHelper,
-        ConfigSettingsFactory                $configSettingsFactory,
+        ConfigSettingsFactory                 $configSettingsFactory,
         ManagerInterface                     $eventManager,
         \ShipperHQ\Lib\AllowedMethods\Helper $allowedMethodsHelper,
         Session                              $checkoutSession,
@@ -247,8 +247,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         State                                $appState,
         Data                                 $directoryHelper,
         array                                $data = []
-    )
-    {
+    ) {
         $this->shipperDataHelper = $shipperDataHelper;
         $this->restHelper = $restHelper;
         $this->configHelper = $configHelper;
@@ -783,8 +782,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         $carrierGroupId = null,
         $carrierGroupDetail = null,
         $isDateSelect = false
-    )
-    {
+    ) {
         if (is_object($errorDetails)) {
             $errorDetails = get_object_vars($errorDetails);
         }
@@ -822,8 +820,11 @@ class Shipper extends AbstractCarrier implements CarrierInterface
 
                 // Leaving this as warning. I think it's quite noisy because a carrier might not return rates
                 // for a variety of valid reasons
-                $this->shipperLogger->postWarning('Shipperhq_Shipper',
-                    'ShipperHQ returned error for carrier: ' . $carrierCode, $errorDetails);
+                $this->shipperLogger->postWarning(
+                    'Shipperhq_Shipper',
+                    'ShipperHQ returned error for carrier: ' . $carrierCode,
+                    $errorDetails
+                );
             }
         }
 
@@ -864,7 +865,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                     $splitCarrierGroupDetail
                 );
                 $ratesArray[] = $carrierResultWithRates;
-                //push out event so other modules can save their data
+                // push out event so other modules can save their data
                 $this->eventManager->dispatch(
                     'shipperhq_carrier_rate_response_received',
                     ['carrier_rate_response' => $carrierRate, 'carrier_group_detail' => $carrierGroupDetail]
@@ -952,7 +953,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                     continue;
                 }
                 if ($field == 'zipcode') { // handle where it's returning zipcode instead of postcode
-                    $field == 'postcode';
+                    $field = 'postcode';
                 }
                 $existing['validated_shipping_' . $field] = $value;
             }

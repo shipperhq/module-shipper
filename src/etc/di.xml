@@ -16,6 +16,12 @@
             <argument name="logger" xsi:type="object">ShipperHQ\Logger\Model\Logger</argument>
         </arguments>
     </type>
+    <type name="Magento\Quote\Model\QuoteManagement">
+        <plugin name="shipperhq_shipper_plugin_quote_management_place_order"
+                type="ShipperHQ\Shipper\Plugin\Quote\QuoteManagementPlugin"
+                sortOrder="10"
+                disabled="false"/>
+    </type>
     <type name="Magento\Quote\Model\Quote\Address\Rate">
         <plugin name="shipperhq_shipper_model_sales_quote_address_rate"
                 type="ShipperHQ\Shipper\Model\Sales\Quote\Address\RatePlugin"

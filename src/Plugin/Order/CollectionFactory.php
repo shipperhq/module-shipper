@@ -35,13 +35,15 @@
 
 namespace ShipperHQ\Shipper\Plugin\Order;
 
+use Magento\Framework\App\ResourceConnection;
+
 class CollectionFactory
 {
-    /** @var \Magento\Framework\App\ResourceConnection */
+    /** @var ResourceConnection */
     private $resource;
 
     public function __construct(
-        \Magento\Framework\App\ResourceConnection $resource
+        ResourceConnection $resource
     ) {
         $this->resource = $resource;
     }

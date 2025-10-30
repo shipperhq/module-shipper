@@ -38,6 +38,8 @@ namespace ShipperHQ\Shipper\Observer;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Model\OrderFactory;
 use ShipperHQ\Shipper\Helper\Authorization;
@@ -114,6 +116,8 @@ class RecordOrder extends AbstractRecordOrder implements ObserverInterface
      *
      * @param EventObserver $observer
      * @return void
+     * @throws CouldNotSaveException
+     * @throws NoSuchEntityException
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function execute(EventObserver $observer)

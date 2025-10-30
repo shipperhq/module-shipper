@@ -36,7 +36,13 @@
 namespace ShipperHQ\Shipper\Helper;
 
 use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use ShipperHQ\Shipper\Model\Listing\ListingService;
+use ShipperHQ\Shipper\Model\Order\DetailFactory;
+use ShipperHQ\Shipper\Model\Order\GridDetailFactory;
+use ShipperHQ\Shipper\Model\Quote\AddressDetailFactory;
+use ShipperHQ\Shipper\Model\Quote\ItemDetailFactory;
 
 /**
  * Carrier Group Processing helper
@@ -45,15 +51,15 @@ class CarrierGroup extends Data
 {
     const NO_SHIPPERHQ_DETAIL_AVAILABLE = 'ShipperHQ Notice';
     /**
-     * @var \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory
+     * @var AddressDetailFactory
      */
     private $addressDetailFactory;
     /**
-     * @var \ShipperHQ\Shipper\Model\Quote\ItemDetailFactory
+     * @var ItemDetailFactory
      */
     private $itemDetailFactory;
     /**
-     * @var \ShipperHQ\Shipper\Model\Order\DetailFactory
+     * @var DetailFactory
      */
     private $orderDetailFactory;
     /**
@@ -61,7 +67,7 @@ class CarrierGroup extends Data
      */
     private $orderItemDetailFactory;
     /**
-     * @var \ShipperHQ\Shipper\Model\Order\GridDetailFactory
+     * @var GridDetailFactory
      */
     private $orderGridDetailFactory;
     /**
@@ -69,7 +75,7 @@ class CarrierGroup extends Data
      */
     private $shipperDataHelper;
     /**
-     * @var \Magento\Quote\Api\CartRepositoryInterface
+     * @var CartRepositoryInterface
      */
     private $quoteRepository;
     /**
@@ -77,7 +83,7 @@ class CarrierGroup extends Data
      */
     private $searchCriteriaBuilder;
     /**
-     * @var \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface
+     * @var OrderStatusHistoryRepositoryInterface
      */
     protected $orderStatusHistoryRepository;
 
@@ -93,26 +99,26 @@ class CarrierGroup extends Data
     ];
 
     /**
-     * @param \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory $addressDetailFactory
-     * @param \ShipperHQ\Shipper\Model\Quote\ItemDetailFactory $itemDetailFactory
-     * @param \ShipperHQ\Shipper\Model\Order\DetailFactory $orderDetailFactory
+     * @param AddressDetailFactory $addressDetailFactory
+     * @param ItemDetailFactory $itemDetailFactory
+     * @param DetailFactory $orderDetailFactory
      * @param \ShipperHQ\Shipper\Model\Order\ItemDetailFactory $orderItemDetailFactory
-     * @param \ShipperHQ\Shipper\Model\Order\GridDetailFactory $orderGridDetailFactory
+     * @param GridDetailFactory $orderGridDetailFactory
      * @param Data $shipperDataHelper
-     * @param \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
+     * @param CartRepositoryInterface $quoteRepository
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+     * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
      */
     public function __construct(
-        \ShipperHQ\Shipper\Model\Quote\AddressDetailFactory $addressDetailFactory,
-        \ShipperHQ\Shipper\Model\Quote\ItemDetailFactory $itemDetailFactory,
-        \ShipperHQ\Shipper\Model\Order\DetailFactory $orderDetailFactory,
+        AddressDetailFactory $addressDetailFactory,
+        ItemDetailFactory $itemDetailFactory,
+        DetailFactory $orderDetailFactory,
         \ShipperHQ\Shipper\Model\Order\ItemDetailFactory $orderItemDetailFactory,
-        \ShipperHQ\Shipper\Model\Order\GridDetailFactory $orderGridDetailFactory,
+        GridDetailFactory $orderGridDetailFactory,
         Data $shipperDataHelper,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        CartRepositoryInterface $quoteRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
         $this->addressDetailFactory = $addressDetailFactory;
         $this->itemDetailFactory = $itemDetailFactory;

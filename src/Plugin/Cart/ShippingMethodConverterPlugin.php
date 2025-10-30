@@ -35,15 +35,19 @@
 
 namespace ShipperHQ\Shipper\Plugin\Cart;
 
+use Magento\Quote\Api\Data\ShippingMethodExtensionFactory;
+use Magento\Quote\Model\Cart\ShippingMethodConverter;
+use Magento\Quote\Model\Quote\Address\Rate;
+
 class ShippingMethodConverterPlugin
 {
     /**
-     * @var \Magento\Quote\Api\Data\ShippingMethodExtensionFactory
+     * @var ShippingMethodExtensionFactory
      */
     private $shippingMethodExtensionFactory;
 
     public function __construct(
-        \Magento\Quote\Api\Data\ShippingMethodExtensionFactory $shippingMethodExtensionFactory
+        ShippingMethodExtensionFactory $shippingMethodExtensionFactory
     ) {
         $this->shippingMethodExtensionFactory = $shippingMethodExtensionFactory;
     }
@@ -51,18 +55,18 @@ class ShippingMethodConverterPlugin
     /**
      * Set additional information for shipping method
      *
-     * @param \Magento\Quote\Model\Cart\ShippingMethodConverter $subject
+     * @param ShippingMethodConverter $subject
      * @param                                                   $result
-     * @param \Magento\Quote\Model\Quote\Address\Rate           $rateModel         The rate model.
+     * @param Rate           $rateModel         The rate model.
      * @param string                                            $quoteCurrencyCode The quote currency code.
      *
      * @return \Magento\Quote\Api\Data\ShippingMethodInterface Shipping method data object
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterModelToDataObject(
-        \Magento\Quote\Model\Cart\ShippingMethodConverter $subject,
+        ShippingMethodConverter $subject,
         $result,
-        \Magento\Quote\Model\Quote\Address\Rate $rateModel,
+        Rate $rateModel,
         $quoteCurrencyCode
     ) {
 

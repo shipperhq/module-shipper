@@ -35,28 +35,35 @@
 
 namespace ShipperHQ\Shipper\Plugin\Quote;
 
+use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Model\Session;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\ShippingMethodManagement;
+use ShipperHQ\Shipper\Helper\Data;
 
 class ShippingMethodManagementPlugin
 {
     /**
-     * @var \Magento\Customer\Api\CustomerRepositoryInterface
+     * @var CustomerRepositoryInterface
      */
     protected $customerRepository;
     /**
      * Quote repository.
      *
-     * @var \Magento\Quote\Api\CartRepositoryInterface
+     * @var CartRepositoryInterface
      */
     private $quoteRepository;
     /**
      * Customer Address repository
      *
-     * @var \Magento\Customer\Api\AddressRepositoryInterface
+     * @var AddressRepositoryInterface
      */
     private $addressRepository;
     /**
-     * @var \Magento\Customer\Model\Session
+     * @var Session
      */
     private $customerSession;
     /**
@@ -64,17 +71,17 @@ class ShippingMethodManagementPlugin
      */
     private $checkoutSession;
     /**
-     * @var \ShipperHQ\Shipper\Helper\Data
+     * @var Data
      */
     protected $shipperDataHelper;
 
     public function __construct(
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
+        CartRepositoryInterface $quoteRepository,
+        AddressRepositoryInterface $addressRepository,
+        Session $customerSession,
+        CustomerRepositoryInterface $customerRepository,
         \Magento\Checkout\Model\Session $checkoutSession,
-        \ShipperHQ\Shipper\Helper\Data $shipperDataHelper
+        Data $shipperDataHelper
     ) {
         $this->quoteRepository = $quoteRepository;
         $this->addressRepository = $addressRepository;
@@ -87,7 +94,7 @@ class ShippingMethodManagementPlugin
     /**
      * Add customers address type to shipping address on quote
      *
-     * @param \Magento\Quote\Model\ShippingMethodManagement $subject
+     * @param ShippingMethodManagement $subject
      * @param                                               $cartId
      * @param int                                           $addressId
      *
@@ -97,11 +104,11 @@ class ShippingMethodManagementPlugin
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function beforeEstimateByAddressId(
-        \Magento\Quote\Model\ShippingMethodManagement $subject,
+        ShippingMethodManagement $subject,
         $cartId,
         $addressId
     ) {
-        /** @var \Magento\Quote\Model\Quote $quote */
+        /** @var Quote $quote */
         $quote = $this->checkoutSession->getQuote();
 
         $quoteAddress = $quote->getShippingAddress();
@@ -134,19 +141,19 @@ class ShippingMethodManagementPlugin
     /**
      * This function looks at the default saved addresses destination_type and applies it to any new saved address
      *
-     * @param \Magento\Quote\Model\ShippingMethodManagement $subject
+     * @param ShippingMethodManagement $subject
      * @param $cartId
      * @param AddressInterface $address
      * @return mixed
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function beforeEstimateByExtendedAddress(
-        \Magento\Quote\Model\ShippingMethodManagement $subject,
+        ShippingMethodManagement $subject,
         $cartId,
-        \Magento\Quote\Api\Data\AddressInterface $address
+        AddressInterface $address
     ) {
 
-        /** @var \Magento\Quote\Model\Quote $quote */
+        /** @var Quote $quote */
         $quote = $this->checkoutSession->getQuote();
 
         // No methods applicable for empty carts or carts with virtual products

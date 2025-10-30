@@ -35,41 +35,49 @@
 
 namespace ShipperHQ\Shipper\Plugin\Checkout;
 
+use Magento\Checkout\Api\Data\ShippingInformationInterface;
+use Magento\Checkout\Model\Session;
+use Magento\Checkout\Model\ShippingInformationManagement;
+use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Framework\DataObject\Factory as DataObjectFactory;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use ShipperHQ\Shipper\Helper\CarrierGroup;
+use ShipperHQ\Shipper\Helper\LogAssist;
 
 class ShippingInformationPlugin
 {
     /**
-     * @var \ShipperHQ\Shipper\Helper\CarrierGroup
+     * @var CarrierGroup
      */
     private $carrierGroupHelper;
 
     /**
      * Quote repository.
      *
-     * @var \Magento\Quote\Api\CartRepositoryInterface
+     * @var CartRepositoryInterface
      */
     private $quoteRepository;
 
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var Session
      */
     private $checkoutSession;
 
     /**
-     * @var \Magento\Customer\Api\AddressRepositoryInterface
+     * @var AddressRepositoryInterface
      */
     private $addressRepository;
 
     /**
-     * @var \ShipperHQ\Shipper\Helper\LogAssist
+     * @var LogAssist
      */
     private $shipperLogger;
 
     /**
      * Application Event Dispatcher
      *
-     * @var \Magento\Framework\Event\ManagerInterface
+     * @var ManagerInterface
      */
     private $eventManager;
     /**
@@ -78,12 +86,12 @@ class ShippingInformationPlugin
     private $objectFactory;
 
     public function __construct(
-        \ShipperHQ\Shipper\Helper\CarrierGroup $carrierGroupHelper,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
-        \ShipperHQ\Shipper\Helper\LogAssist $shipperLogger,
-        \Magento\Framework\Event\ManagerInterface $eventManager,
+        CarrierGroup $carrierGroupHelper,
+        CartRepositoryInterface $quoteRepository,
+        Session $checkoutSession,
+        AddressRepositoryInterface $addressRepository,
+        LogAssist $shipperLogger,
+        ManagerInterface $eventManager,
         DataObjectFactory $objectFactory
     ) {
         $this->carrierGroupHelper = $carrierGroupHelper;
@@ -98,7 +106,7 @@ class ShippingInformationPlugin
     /**
      * Set additional information for shipping address
      *
-     * @param \Magento\Checkout\Model\ShippingInformationManagement $subject
+     * @param ShippingInformationManagement $subject
      * @param callable $proceed
      *
      * @return \Magento\Checkout\Api\Data\PaymentDetailsInterface $paymentDetails
@@ -106,10 +114,10 @@ class ShippingInformationPlugin
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function aroundSaveAddressInformation(
-        \Magento\Checkout\Model\ShippingInformationManagement $subject,
+        ShippingInformationManagement $subject,
         $proceed,
         $cartId,
-        \Magento\Checkout\Api\Data\ShippingInformationInterface $addressInformation
+        ShippingInformationInterface $addressInformation
     ) {
 
         $carrierCode = $addressInformation->getShippingCarrierCode();

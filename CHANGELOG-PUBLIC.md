@@ -848,3 +848,7 @@ SHQ23-5874 Fix unescaped output in admin form
 SHQ23-6303 Fix critical logging level. Update logging to correct output levels
 
 
+## 20.60.0 (2025-10-30)
+SHQ23-6083 Added logic to do a final save of carrierGroupDetails on place order
+
+

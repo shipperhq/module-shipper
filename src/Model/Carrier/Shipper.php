@@ -636,7 +636,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                     $rate->setCarrier($carrierRate['code']);
                     $lengthCarrierCode = strlen((string)$carrierRate['code']);
 
-                    $rate->setCarrierTitle(__($carrierRate['title']));
+                    $rate->setCarrierTitle((string) __($carrierRate['title']));
 
                     $methodCombineCode = preg_replace('/&|;| /', "", (string)$rateDetails['methodcode']);
                     // SHQ16-1520 - enforce limit on length of shipping carrier code
@@ -649,7 +649,7 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                         $methodCombineCode = substr($methodCombineCode, $trim, $lengthMethodCode);
                     }
 
-                    $rate->setMethodTitle(__($rateDetails['method_title']));
+                    $rate->setMethodTitle((string) __($rateDetails['method_title']));
                     $rate->setMethod($methodCombineCode);
                     $tooltip = "";
                     if (isset($rateDetails['tooltip']) && !empty($rateDetails['tooltip'])) {
@@ -1242,9 +1242,9 @@ class Shipper extends AbstractCarrier implements CarrierInterface
             $method->setPrice((float)$rateToAdd['price']);
             $method->setCost((float)$rateToAdd['price']);
             $method->setCarrier($this->_code);
-            $method->setCarrierTitle($rateToAdd['mergedTitle']);
+            $method->setCarrierTitle((string) $rateToAdd['mergedTitle']);
             $method->setMethod($rateToAdd['title']);
-            $method->setMethodTitle($rateToAdd['title']);
+            $method->setMethodTitle((string) $rateToAdd['title']);
             $method->setMethodDescription($rateToAdd['mergedDescription']);
             $method->setCarrierType(__('multiple_shipments'));
             $result->append($method);

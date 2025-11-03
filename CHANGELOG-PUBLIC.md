@@ -852,3 +852,7 @@ SHQ23-6303 Fix critical logging level. Update logging to correct output levels
 SHQ23-6083 Added logic to do a final save of carrierGroupDetails on place order
 
 
+## 20.61.0 (2025-11-03)
+SHQ23-6150 Cast method titles to string instead of Phrase
+
+

@@ -137,9 +137,9 @@ class Shipperadmin extends AbstractCarrier implements CarrierInterface
             $method = $this->rateMethodFactory->create();
             $method->setCarrier($this->_code);
             $method->setPrice($shipData->getCustomPrice());
-            $method->setCarrierTitle($this->getConfigData('title'));
+            $method->setCarrierTitle((string) $this->getConfigData('title'));
             $method->setMethod('adminshipping');
-            $method->setMethodTitle($shipData->getCustomCarrier());
+            $method->setMethodTitle((string) $shipData->getCustomCarrier());
             $method->setCarriergroupId(0);
             $method->setCarriergroupShippingDetails(
                 $this->jsonHelper->jsonEncode($carrierGroupShippingDetail)

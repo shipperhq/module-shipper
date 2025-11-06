@@ -856,3 +856,7 @@ SHQ23-6083 Added logic to do a final save of carrierGroupDetails on place order
 SHQ23-6150 Cast method titles to string instead of Phrase
 
 
+## 20.61.1 (2025-11-06)
+INFRA-1328 - Removed incorrect case-sensitive version of file
+
+

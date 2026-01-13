@@ -860,3 +860,7 @@ SHQ23-6150 Cast method titles to string instead of Phrase
 INFRA-1328 - Removed incorrect case-sensitive version of file
 
 
+## 20.61.2 (2026-01-13)
+ENG26-51 Fix error in syncronizer around incrementing boolean
+
+

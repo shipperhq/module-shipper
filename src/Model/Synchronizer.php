@@ -619,6 +619,7 @@ class Synchronizer extends AbstractModel
     private function updateAll($updateData)
     {
         $result = 0;
+        $hasError = false;
 
         foreach ($updateData as $attributeUpdate) {
             if ($attributeUpdate['attribute_type'] == 'product') {
@@ -636,7 +637,7 @@ class Synchronizer extends AbstractModel
                             'Unable to add attribute option',
                             'Error: ' . $e->getMessage()
                         );
-                        $result = false;
+                        $hasError = true;
                     }
                 } elseif ($attributeUpdate['status'] == self::AUTO_REMOVE_ATTRIBUTE_OPTION) {
                     try {
@@ -651,7 +652,7 @@ class Synchronizer extends AbstractModel
                             'Unable to remove attribute option',
                             'Error: ' . $e->getMessage()
                         );
-                        $result = false;
+                        $hasError = true;
                     }
                 }
             } elseif ($attributeUpdate['attribute_type'] == 'global_setting') {
@@ -710,7 +711,7 @@ class Synchronizer extends AbstractModel
 
         $this->carrierConfigHandler->refreshConfig();
 
-        if ($result >= 0) {
+        if (!$hasError && $result >= 0) {
             $this->checkSynchStatus(true);
         }
         return $result;

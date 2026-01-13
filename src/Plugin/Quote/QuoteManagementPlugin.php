@@ -37,6 +37,7 @@ use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Quote\Model\QuoteManagement;
 use ShipperHQ\Shipper\Helper\CarrierGroup;
 use ShipperHQ\Shipper\Helper\LogAssist;
+use ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail\CollectionFactory as AddressDetailCollectionFactory;
 
 class QuoteManagementPlugin
 {
@@ -65,18 +66,25 @@ class QuoteManagementPlugin
      */
     private $logger;
 
+    /**
+     * @var AddressDetailCollectionFactory
+     */
+    private $addressDetailCollectionFactory;
+
     public function __construct(
         CartRepositoryInterface $quoteRepository,
         ManagerInterface $eventManager,
         DataObjectFactory $objectFactory,
         CarrierGroup $carrierGroupHelper,
-        LogAssist $logger
+        LogAssist $logger,
+        AddressDetailCollectionFactory $addressDetailCollectionFactory
     ) {
         $this->quoteRepository = $quoteRepository;
         $this->eventManager = $eventManager;
         $this->objectFactory = $objectFactory;
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->logger = $logger;
+        $this->addressDetailCollectionFactory = $addressDetailCollectionFactory;
     }
 
     /**
@@ -115,10 +123,16 @@ class QuoteManagementPlugin
             if (!$address) {
                 return;
             }
+
             $shippingMethod = (string) $address->getShippingMethod();
             if (!$shippingMethod) {
                 return;
             }
+
+            // Extension attributes have been wiped by this point as they're just held in memory and Magento
+            // has reloaded the quote address from the DB now. Let's get them from shipperhq_quote_address_detail
+            // which has been updated at this point to have the correct values
+            $addressExtensionAttributes = $this->getQuoteAddressDetails($address->getId());
 
             $additionalDetail = $this->objectFactory->create();
             $carrierCode = '';
@@ -130,7 +144,7 @@ class QuoteManagementPlugin
             $this->eventManager->dispatch(
                 'shipperhq_additional_detail_checkout',
                 [
-                    'address_extn_attributes' => $address->getExtensionAttributes(),
+                    'address_extn_attributes' => $addressExtensionAttributes,
                     'additional_detail' => $additionalDetail,
                     'carrier_code' => $carrierCode,
                     'address' => $address,
@@ -143,6 +157,8 @@ class QuoteManagementPlugin
                 $shippingMethod,
                 $additionalDetail->convertToArray()
             );
+
+
         } catch (\Throwable $e) {
             $this->logger->postCritical(
                 'Shipperhq_Shipper',
@@ -150,5 +166,45 @@ class QuoteManagementPlugin
                 $e->getMessage()
             );
         }
+    }
+
+    /**
+     * Get quote address details for a given address ID and extract what would have been extension attributes
+     *
+     * @param int $addressId
+     * @return \Magento\Framework\DataObject
+     */
+    private function getQuoteAddressDetails(int $addressId)
+    {
+        $collection = $this->addressDetailCollectionFactory->create()
+            ->addAddressToFilter($addressId);
+
+        $extensionAttributes = $this->objectFactory->create();
+
+        foreach ($collection as $detail) {
+            if ($detail->getDeliveryDate()) {
+                $extensionAttributes->setDeliveryDate($detail->getDeliveryDate());
+
+                if ($detail->getTimeSlot()) {
+                    $extensionAttributes->setTimeSlot($detail->getTimeSlot());
+                }
+            }
+
+            if ($detail->getPickupLocationId()) {
+                $extensionAttributes->setLocationId($detail->getPickupLocationId());
+            }
+
+            if ($detail->getPickupLocation()) {
+                $extensionAttributes->setLocationAddress($detail->getPickupLocation());
+            }
+
+            $this->logger->postDebug(
+                'Shipperhq_Shipper',
+                'Extension Attributes Extracted from Address Detail',
+                $extensionAttributes->getData()
+            );
+        }
+
+        return $extensionAttributes;
     }
 }

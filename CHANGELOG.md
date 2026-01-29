@@ -864,3 +864,7 @@ INFRA-1328 - Removed incorrect case-sensitive version of file
 ENG26-51 Fix error in syncronizer around incrementing boolean
 
 
+## 20.61.3 (2026-01-29)
+ENG26-51 Fix error in syncronizer around incrementing boolean
+
+

@@ -30,12 +30,14 @@
 
 namespace ShipperHQ\Shipper\Plugin\Quote;
 
+use Magento\Framework\DataObject;
 use Magento\Framework\DataObject\Factory as DataObjectFactory;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Quote\Model\QuoteManagement;
 use ShipperHQ\Shipper\Helper\CarrierGroup;
+use ShipperHQ\Shipper\Helper\Data;
 use ShipperHQ\Shipper\Helper\LogAssist;
 use ShipperHQ\Shipper\Model\ResourceModel\Quote\AddressDetail\CollectionFactory as AddressDetailCollectionFactory;
 
@@ -62,6 +64,11 @@ class QuoteManagementPlugin
     private $carrierGroupHelper;
 
     /**
+     * @var Data
+     */
+    private $shipperDataHelper;
+
+    /**
      * @var LogAssist
      */
     private $logger;
@@ -77,7 +84,8 @@ class QuoteManagementPlugin
         DataObjectFactory $objectFactory,
         CarrierGroup $carrierGroupHelper,
         LogAssist $logger,
-        AddressDetailCollectionFactory $addressDetailCollectionFactory
+        AddressDetailCollectionFactory $addressDetailCollectionFactory,
+        Data $shipperDataHelper
     ) {
         $this->quoteRepository = $quoteRepository;
         $this->eventManager = $eventManager;
@@ -85,6 +93,7 @@ class QuoteManagementPlugin
         $this->carrierGroupHelper = $carrierGroupHelper;
         $this->logger = $logger;
         $this->addressDetailCollectionFactory = $addressDetailCollectionFactory;
+        $this->shipperDataHelper = $shipperDataHelper;
     }
 
     /**
@@ -134,6 +143,17 @@ class QuoteManagementPlugin
             // which has been updated at this point to have the correct values
             $addressExtensionAttributes = $this->getQuoteAddressDetails($address->getId());
 
+            // ENG26-88 If the shipping price is the same then there's no point in continuing.
+            // This class is intended for the rare occurrences when backup rates are triggered or the carriers
+            // shipping price has changed on the place order call
+            if ($addressExtensionAttributes->getShippingPrice() == $address->getShippingAmount()) {
+                return;
+            }
+
+            // The shipping price IS different. We need to proceed. It's worth noting that some details may not be
+            // saved at this point such as custom carrier details, destination types etc. This is a last ditch attempt
+            // to store the correct details in a backup rates or carrier response changed scenario
+
             $additionalDetail = $this->objectFactory->create();
             $carrierCode = '';
             if (strpos($shippingMethod, '_') !== false) {
@@ -172,7 +192,7 @@ class QuoteManagementPlugin
      * Get quote address details for a given address ID and extract what would have been extension attributes
      *
      * @param int $addressId
-     * @return \Magento\Framework\DataObject
+     * @return DataObject
      */
     private function getQuoteAddressDetails(int $addressId)
     {
@@ -182,6 +202,18 @@ class QuoteManagementPlugin
         $extensionAttributes = $this->objectFactory->create();
 
         foreach ($collection as $detail) {
+
+            // ENG26-88 Let's extract the shipping price so we can check if it's different to the price on the quote
+            if ($detail->getCarrierGroupDetail()) {
+                $decodedDetails = $this->shipperDataHelper->decodeShippingDetails($detail->getCarrierGroupDetail());
+
+                $carrierGroupDetail = !empty($decodedDetails) ? $decodedDetails[0] : [];
+
+                if (array_key_exists('price', $carrierGroupDetail)) {
+                    $extensionAttributes->setShippingPrice($carrierGroupDetail['price']);
+                }
+            }
+
             if ($detail->getDeliveryDate()) {
                 $extensionAttributes->setDeliveryDate($detail->getDeliveryDate());
 

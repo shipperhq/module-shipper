@@ -872,3 +872,7 @@ ENG26-51 Fix error in syncronizer around incrementing boolean
 ENG26-88 Add conditional around final call to save carrier group details that...
 
 
+## 20.61.5 (2026-05-04)
+ENG26-889 Fix for incorrect storePrice on bundle parent items with fixed price
+
+

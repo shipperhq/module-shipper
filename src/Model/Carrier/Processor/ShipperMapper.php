@@ -450,12 +450,12 @@ class ShipperMapper
                 $formattedItem->setDefaultWarehouseStockDetail($this->getDefaultWarehouseStockDetail($magentoItem));
             }
             if (!$childItems) {
-                $bundleParentQty = $productType == 'bundle' ? $magentoItem->getQty() : null;
+                $childBundleParentQty = $productType == 'bundle' ? $magentoItem->getQty() : null;
                 $formattedItem->setItems($this->getFormattedItems(
                     $request,
                     $magentoItem->getChildren(),
                     true,
-                    $bundleParentQty
+                    $childBundleParentQty
                 ));
             }
             $formattedItems[] = $formattedItem;

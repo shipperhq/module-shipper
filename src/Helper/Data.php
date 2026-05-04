@@ -79,7 +79,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         ];
     private $prodAttributes;
     private $baseCurrencyRate;
-    private $storeId;
     /**
      * @var \Magento\Quote\Model\Quote
      */
@@ -701,17 +700,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getStoreIdFromRequest($request)
     {
-        if ($this->storeId) {
-            return $this->storeId;
-        }
-
         if ($request->getQuote() && $request->getQuote()->getStoreId()) {
-            $this->storeId = $request->getQuote()->getStoreId();
-        } else {
-            $this->storeId = $request->getStoreId();
+            return $request->getQuote()->getStoreId();
         }
-
-        return $this->storeId;
+        return $request->getStoreId();
     }
 
     /**

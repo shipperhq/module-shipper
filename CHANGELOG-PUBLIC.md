@@ -876,3 +876,7 @@ ENG26-88 Add conditional around final call to save carrier group details that...
 ENG26-889 Fix for incorrect storePrice on bundle parent items with fixed price
 
 
+## 20.61.6 (2026-05-29)
+ENG26-1125 Updates for Magento 2.4.9 and PHP 8.5 compatibility
+
+

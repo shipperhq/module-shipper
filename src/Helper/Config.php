@@ -1,45 +1,23 @@
 <?php
 /**
- *
- * ShipperHQ Shipping Module
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
- *
- * ShipperHQ Shipping
+ * ShipperHQ
  *
  * @category ShipperHQ
  * @package ShipperHQ\Shipper
- * @copyright Copyright (c) 2015 Zowta LLC (http://www.ShipperHQ.com)
+ * @copyright Copyright (c) 2015 Zowta LTD and Zowta LLC (http://www.ShipperHQ.com)
  * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @author ShipperHQ Team sales@shipperhq.com
  */
 
-/**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
- */
 
 namespace ShipperHQ\Shipper\Helper;
 
+use Magento\Framework\App\Cache\Manager;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\App\MutableScopeConfig;
 use ShipperHQ\Common\Helper\AbstractConfig;
 use ShipperHQ\Common\Model\ConfigInterface;
-use Magento\Framework\App\Cache\Manager;
-use Magento\Framework\App\MutableScopeConfig;
-use Magento\Framework\App\Config\Storage\WriterInterface;
 
 /**
  * Class Config
@@ -204,9 +182,15 @@ class Config extends AbstractConfig implements ConfigInterface
      */
     public function getConfigValue($path, $scopeType = null, $scopeCode = null)
     {
-        $args = array_filter([$path, $scopeType, $scopeCode]); // drop any null arguments
-
-        return $this->localConfig->getValue(...$args);
+        $resolvedScopeType = $scopeType ?? ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
+        // ENG26-1125: MutableScopeConfig::setValue stores under '' when scopeCode is null, but
+        // getValue looks up null directly — PHP 8.5 null-as-array-offset deprecation on line 32.
+        // Only apply '' for default scope; for website/store scopes, null must remain null so
+        // ScopeCodeResolver in parent Config::getValue resolves the scope correctly.
+        $resolvedScopeCode = ($resolvedScopeType === ScopeConfigInterface::SCOPE_TYPE_DEFAULT)
+            ? ($scopeCode ?? '')
+            : $scopeCode;
+        return $this->localConfig->getValue($path, $resolvedScopeType, $resolvedScopeCode);
     }
 
     /**

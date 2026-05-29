@@ -1,4 +1,13 @@
 <?xml version="1.0"?>
+<!--
+  ~ ShipperHQ
+  ~
+  ~ @category ShipperHQ
+  ~ @package ShipperHQ\Shipper
+  ~ @copyright Copyright (c) 2015 Zowta LTD and Zowta LLC (http://www.ShipperHQ.com)
+  ~ @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+  ~ @author ShipperHQ Team sales@shipperhq.com
+  -->
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
     <table name="shipperhq_synchronize" resource="default" engine="innodb" comment="ShipperHQ Synchronize data table">

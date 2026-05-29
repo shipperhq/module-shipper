@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * ShipperHQ
  *
  * @category ShipperHQ

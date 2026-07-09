@@ -880,3 +880,7 @@ ENG26-889 Fix for incorrect storePrice on bundle parent items with fixed price
 ENG26-1125 Updates for Magento 2.4.9 and PHP 8.5 compatibility
 
 
+## 20.61.7 (2026-07-09)
+ENG26-1196 Add support for sending selected timeslot in place order request
+
+

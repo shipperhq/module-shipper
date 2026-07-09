@@ -125,6 +125,8 @@ class PostOrder
                             'price'       => $request->totalCharges,
                             'method'      => $request->methodCode,
                             'carrier'     => $request->carrierCode,
+                            'cartPrice'   => $request->cartPrice,
+                            'timeSlot'    => $request->timeSlot,
                             'endPoint'    => $this->restHelper->getPlaceorderGatewayUrl(),
                             'timeout'     => $this->restHelper->getWebserviceTimeout(),
                             'Lapsed Time' => $elapsed
@@ -206,6 +208,9 @@ class PostOrder
             // SHQ23-4029 Add orderDate to placeOrder request to facilitate order replay in event of failure
             $this->addOrderDateIso8601($order->getCreatedAt(), $requestVariables);
 
+            // ENG26-1196 Add the selected timeslot if available so it can be seen in advanced shipping details
+            $this->addFormattedTimeSlot($carrierGroupDetail, $requestVariables);
+
             $request = $this->placeOrderRequestFactory->create($requestVariables);
 
             $request->setCredentials($this->shipperMapper->getCredentials());
@@ -219,6 +224,23 @@ class PostOrder
         }
 
         return $request;
+    }
+
+    /**
+     * Formats the timeslot for display and adds it to the request if it's not null
+     *
+     * @param $carrierGroupDetail
+     * @param $variables
+     * @return void
+     */
+    private function addFormattedTimeSlot($carrierGroupDetail, &$variables) {
+        try {
+            if (array_key_exists('time_slot', $carrierGroupDetail) && !empty($carrierGroupDetail['time_slot'])) {
+                $variables['timeSlot'] = str_replace("_", " - ", $carrierGroupDetail['time_slot']);
+            }
+        } catch (\Exception $e) {
+            // Don't do anything. It's an optional field
+        }
     }
 
     /**

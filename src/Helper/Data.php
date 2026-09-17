@@ -219,6 +219,21 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $this->baseCurrencyRate > 0 ? $this->baseCurrencyRate : false;
     }
 
+    /**
+     * Format an amount that is already in the store base currency for display
+     * in the store's current display currency (e.g. duties shown in checkout).
+     *
+     * @param float $amount
+     * @return string
+     */
+    public function formatBaseAmountForDisplay($amount)
+    {
+        $store = $this->storeManager->getStore();
+        $currentCurrency = $store->getCurrentCurrency();
+        $converted = $store->getBaseCurrency()->convert((float)$amount, $currentCurrency);
+        return $currentCurrency->format($converted, [], false);
+    }
+
     public function useDefaultCarrierCodes()
     {
         $result = false;

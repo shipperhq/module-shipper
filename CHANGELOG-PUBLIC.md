@@ -884,3 +884,7 @@ ENG26-1125 Updates for Magento 2.4.9 and PHP 8.5 compatibility
 ENG26-1196 Add support for sending selected timeslot in place order request
 
 
+## 20.61.8 (2026-09-17)
+SHQ26-1830 added currency conversion for d&t
+
+

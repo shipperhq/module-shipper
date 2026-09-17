@@ -651,7 +651,10 @@ class Shipper extends AbstractCarrier implements CarrierInterface
                         $rateDetails['carriergroup_detail']['customDuties'] > 0 &&
                         isset($rateDetails['carriergroup_detail']['customsMessage']) &&
                         $rateDetails['carriergroup_detail']['customsMessage'] != '') {
-                        $dutiesMessage = sprintf("$%01.2f ", $rateDetails['carriergroup_detail']['customDuties']) . $rateDetails['carriergroup_detail']['customsMessage'];
+                        // Duties come back in the rate currency: convert to base currency and format in store currency
+                        $convertedDuties = $rateDetails['carriergroup_detail']['customDuties'] * $baseRate;
+                        $dutiesMessage = $this->shipperDataHelper->formatBaseAmountForDisplay($convertedDuties)
+                            . ' ' . $rateDetails['carriergroup_detail']['customsMessage'];
                         $rate->setCustomDuties(__($dutiesMessage));
                     }
 
@@ -959,14 +962,29 @@ class Shipper extends AbstractCarrier implements CarrierInterface
         if (is_array($carrierGroupDetail) && isset($carrierGroupDetail[0])) {
             // Merged rates return a numeric array of assoc arrays. If there is a 0 key we know this is the case
             foreach ($carrierGroupDetail as $k => $detail) {
-                $carrierGroupDetail[$k]['cost'] *= $currencyConversionRate;
-                $carrierGroupDetail[$k]['price'] *= $currencyConversionRate;
+                $carrierGroupDetail[$k] = $this->convertCarrierGroupAmounts($detail, $currencyConversionRate);
             }
         } else {
-            $carrierGroupDetail['cost'] *= $currencyConversionRate;
-            $carrierGroupDetail['price'] *= $currencyConversionRate;
+            $carrierGroupDetail = $this->convertCarrierGroupAmounts($carrierGroupDetail, $currencyConversionRate);
         }
         return $carrierGroupDetail;
+    }
+
+    /**
+     * Multiply every monetary field of a carrier group detail by the currency conversion rate
+     *
+     * @param array $detail
+     * @param float $currencyConversionRate
+     * @return array
+     */
+    private function convertCarrierGroupAmounts($detail, $currencyConversionRate)
+    {
+        foreach (['cost', 'price', 'rate_cost', 'customDuties'] as $field) {
+            if (isset($detail[$field]) && is_numeric($detail[$field])) {
+                $detail[$field] *= $currencyConversionRate;
+            }
+        }
+        return $detail;
     }
 
     private function persistShipments($shipmentArray)

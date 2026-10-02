@@ -356,7 +356,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function mapToMagentoCarrierCode($carrierType, $carrierCode)
     {
-        if (array_key_exists($carrierType, $this->magentoCarrierCodes)) {
+        // merged/multicarrier rates report a null carrierType; array_key_exists(null, ...) is deprecated in PHP 8.1+
+        if ($carrierType !== null && array_key_exists($carrierType, $this->magentoCarrierCodes)) {
             return $this->magentoCarrierCodes[$carrierType];
         }
         return $carrierCode;

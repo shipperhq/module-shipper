@@ -888,3 +888,7 @@ ENG26-1196 Add support for sending selected timeslot in place order request
 SHQ26-1830 added currency conversion for d&t
 
 
+## 20.61.9 (2026-10-02)
+ENG26-1800 Fix for error on place order when using merged rates and Magento carrier code support
+
+

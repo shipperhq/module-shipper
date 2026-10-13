@@ -892,3 +892,7 @@ SHQ26-1830 added currency conversion for d&t
 ENG26-1800 Fix for error on place order when using merged rates and Magento carrier code support
 
 
+## 20.61.10 (2026-10-13)
+ENG26-1800 Fix for error on place order when using merged rates and Magento carrier code support
+
+

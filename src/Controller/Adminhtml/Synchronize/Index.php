@@ -35,6 +35,9 @@ class Index extends \ShipperHQ\Shipper\Controller\Adminhtml\Synchronize
             $this->messageManager->addSuccess($message);
         }
 
-        return $this->resultPageFactory->create();
+        $resultPage = $this->resultPageFactory->create();
+        $resultPage->getConfig()->getTitle()->prepend(__('Synchronize with ShipperHQ'));
+
+        return $resultPage;
     }
 }

@@ -15,6 +15,9 @@ namespace ShipperHQ\Shipper\Block\Backend\Config\Carrier;
 
 class About extends \Magento\Config\Block\System\Config\Form\Fieldset
 {
+    private const GRADIENT = 'linear-gradient(135deg,#2aaee9,#3a6edc)';
+    private const BRAND_BLUE = '#3a6edc';
+
     /**
      * @var \ShipperHQ\Shipper\Helper\Module
      */
@@ -48,25 +51,63 @@ class About extends \Magento\Config\Block\System\Config\Form\Fieldset
      */
     protected function _getHeaderCommentHtml($element)
     {
-        $logo = $this->getViewFileUrl('ShipperHQ_Shipper::images/shipperhq_logo.png');
-        $docs = $this->getViewFileUrl('ShipperHQ_Shipper::images/docs_logo.png');
-        $additionalModules = $this->getAdditionalModulesOutput();
-        $html = '<div style="padding:30px;background-color:#f2fcfe ;border-radius:5px;border:1px solid #e8f6fe ;margin-bottom:12px;overflow:auto;">
-        <div style="width:63%;float:left;text-align:left;">
-        <img src="' . $logo . '" style="max-width: 198px;margin-bottom:22px;">
-        <p style="margin-bottom:12px;font-size:15px;">This extension connects Magento to ShipperHQ, a powerful, easy-to-use eCommerce shipping management platform</p>
-        <p style="margin-bottom:18px;font-size:12px;">If you have questions about ShipperHQ or need support, visit <a href="http://www.ShipperHQ.com" target="_blank">ShipperHQ.com</a>. ShipperHQ is a product of <a href="http://www.webshopapps.com" target="_blank">WebShopApps</a>, developers of powerful shipping solutions for Magento.</p>
-        <p style="font-size:12px"><a href="' . $this->getUrl('shipperhq/synchronize/index') . '">Synchronize with ShipperHQ</a></p></div>
-        <div style="width:35%;max-width:285px;float:right;text-align:center;font-size:12px;">
-        <div style="background:#fff; border:1px solid #e8f6fe;padding:15px 15px 9px;"><div style="margin-bottom:6px;">Installed Version</div>
-            <span style="color:#00aae5;">' . $additionalModules . '</span></div>' . '
-            <a href="http://docs.shipperhq.com" target="_blank">
-        <div style="background:#fff; border:1px solid #e8f6fe ;margin-bottom:12px;padding:15px;border-top:0;">
-            <img src="' . $docs . '" style="width:36px;height:36px;margin:0 auto 6px auto;display:block;">
-            <strong style="font-weight:bold;text-decoration:none;color:#f77746 ;">ShipperHQ Help Docs</strong><br><p style="font-size:12px;color:#555;">Documentation &amp; Examples</p>
-        </div></a>
-        </div></div>';
-        return $html;
+        $logo = $this->_escaper->escapeUrl($this->getViewFileUrl('ShipperHQ_Shipper::images/shipperhq_logo.png'));
+
+        return '<div style="background:#fff;border:1px solid #e1e5ea;border-radius:6px;margin-bottom:12px;'
+            . 'overflow:hidden;text-align:left;">'
+            . '<div style="height:4px;background:' . self::GRADIENT . ';"></div>'
+            . '<div style="display:flex;flex-wrap:wrap;gap:24px;padding:24px;color:#22272e;">'
+            . '<div style="flex:1 1 380px;min-width:0;">'
+            . '<img src="' . $logo . '" alt="ShipperHQ" style="max-width:200px;height:auto;margin-bottom:16px;">'
+            . '<h3 style="margin:0 0 10px;font-size:20px;color:#22272e;">'
+            . $this->_escaper->escapeHtml(__('ShipperHQ for Magento')) . '</h3>'
+            . '<p style="margin:0 0 14px;font-size:14px;line-height:1.5;">'
+            . $this->_escaper->escapeHtml(__(
+                'This extension connects Magento to ShipperHQ, a powerful eCommerce shipping management '
+                . 'platform that is easy to use.'
+            )) . '</p>'
+            . '<p style="margin:0 0 18px;font-size:13px;color:#555;">'
+            . $this->_escaper->escapeHtml(__('If you have questions about ShipperHQ or need support, visit'))
+            . ' ' . $this->link('ShipperHQ.com', 'https://shipperhq.com') . '.</p>'
+            . $this->button('Synchronize with ShipperHQ', $this->getUrl('shipperhq/synchronize/index'), true, false)
+            . $this->button('ShipperHQ Help Docs', 'https://docs.shipperhq.com', false, true)
+            . '</div>'
+            . '<div style="flex:0 1 280px;min-width:220px;align-self:flex-start;background:#f6f8fa;'
+            . 'border:1px solid #e1e5ea;border-radius:6px;padding:16px;font-size:13px;">'
+            . $this->sidebarTitle('Installed Version')
+            . '<div style="color:' . self::BRAND_BLUE . ';">' . $this->getAdditionalModulesOutput() . '</div>'
+            . '<hr style="border:0;border-top:1px solid #e1e5ea;margin:12px 0;">'
+            . $this->sidebarTitle('Resources')
+            . '<ul style="margin:0;padding-left:18px;line-height:1.8;">'
+            . '<li>' . $this->link('Documentation & examples', 'https://docs.shipperhq.com') . '</li>'
+            . '<li>' . $this->link('Contact ShipperHQ support', 'https://shipperhq.com/contact') . '</li>'
+            . '</ul></div>'
+            . '</div></div>';
+    }
+
+    private function sidebarTitle(string $label): string
+    {
+        return '<div style="margin:0 0 10px;font-size:14px;font-weight:600;color:#22272e;">'
+            . $this->_escaper->escapeHtml(__($label)) . '</div>';
+    }
+
+    private function link(string $label, string $url): string
+    {
+        return '<a href="' . $this->_escaper->escapeUrl($url) . '" target="_blank" rel="noopener">'
+            . $this->_escaper->escapeHtml(__($label)) . '</a>';
+    }
+
+    private function button(string $label, string $url, bool $primary, bool $newTab): string
+    {
+        $style = 'display:inline-block;margin:0 10px 8px 0;padding:10px 20px;border-radius:4px;font-size:14px;'
+            . 'font-weight:600;text-decoration:none;';
+        $style .= $primary
+            ? 'background:' . self::GRADIENT . ';color:#fff;border:1px solid ' . self::BRAND_BLUE . ';'
+            : 'background:#fff;color:' . self::BRAND_BLUE . ';border:1px solid ' . self::BRAND_BLUE . ';';
+        $target = $newTab ? ' target="_blank" rel="noopener"' : '';
+
+        return '<a href="' . $this->_escaper->escapeUrl($url) . '"' . $target . ' style="' . $style . '">'
+            . $this->_escaper->escapeHtml(__($label)) . '</a>';
     }
 
     private function getAdditionalModulesOutput()
@@ -77,9 +118,10 @@ class About extends \Magento\Config\Block\System\Config\Form\Fieldset
             if (!$info['installed']) {
                 continue;
             }
-            $output .= '<div style="margin-bottom:6px;"><strong>' . $moduleName . '</strong>';
+            $output .= '<div style="margin-bottom:6px;"><strong>' . $this->_escaper->escapeHtml($moduleName)
+                . '</strong>';
             if ($info['version'] !== false) {
-                $output .= ": {$info['version']}";
+                $output .= ': ' . $this->_escaper->escapeHtml($info['version']);
             }
             if (!$info['enabled']) {
                 $output .= " - <strong>Disabled</strong>";

@@ -82,11 +82,11 @@ class QuoteManagementPlugin
      * This is necessary because if the shipping price has changed between the shipping step/payment step vs place order
      * the wrong price will be saved in the carrierGroupDetails resulting in a mismatch of shipping price charged vs
      * what is shown in carrierGroupDetails. It also ensures the correct transaction ID is used to retrieve the quote
-     * from shipping insights.
+     * from Advanced Shipment Details.
      *
      * A good example of this happening is backup rates (from the SHQ API, not M2 backup carrier) being returned on the
      * place order call; without this code the backup rate would be charged (correct) but the carrierGroupDetails and
-     * shipping insights would show the original price
+     * Advanced Shipment Details would show the original price
      *
      * @param QuoteManagement $subject
      * @param callable $proceed

@@ -54,7 +54,7 @@ class Module extends \Magento\Framework\App\Helper\AbstractHelper
         'Freight Options' => self::MODULE_OPTION,
         'Date & Calendar' => self::MODULE_CALENDAR,
         'In-store Pickup' => self::MODULE_PICKUP,
-        'Shipping Insights' => self::MODULE_ORDERVIEW
+        'Advanced Shipment Details' => self::MODULE_ORDERVIEW
     ];
 
     /**

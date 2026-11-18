@@ -73,7 +73,8 @@ class CarrierConfigHandler
      * @param $value
      * @param string $scope
      * @param int $scopeId
-     * @return $this
+     * @param bool $refreshRequired
+     * @return void
      */
     public function saveConfig($path, $value, $scope = 'default', $scopeId = 0, $refreshRequired = true)
     {

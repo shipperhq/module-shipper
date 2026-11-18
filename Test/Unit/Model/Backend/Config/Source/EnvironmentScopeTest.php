@@ -12,10 +12,10 @@
 
 namespace ShipperHQ\Shipper\Test\Unit\Model\Backend\Config\Source;
 
-use Fooman\PhpunitBridge\BaseUnitTestCase;
+use PHPUnit\Framework\TestCase;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager as ObjectManagerHelper;
 
-class EnvironmentScopeTest extends BaseUnitTestCase
+class EnvironmentScopeTest extends TestCase
 {
     /**
      * @var \ShipperHQ\Shipper\Model\Backend\Config\Source\EnvironmentScope

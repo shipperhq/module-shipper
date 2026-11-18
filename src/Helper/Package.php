@@ -39,6 +39,11 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
     private $checkoutSession;
 
     /**
+     * @var \ShipperHQ\Shipper\Model\ResourceModel\Order\Packages
+     */
+    private $orderPackageResource;
+
+    /**
      * Package constructor.
      *
      * @param \Magento\Framework\App\Helper\Context                    $context
@@ -46,6 +51,7 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
      * @param Data                                                     $shipperDataHelper
      * @param CarrierGroup                                             $carrierGroupHelper
      * @param \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+     * @param \ShipperHQ\Shipper\Model\ResourceModel\Order\Packages $orderPackageResource
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
@@ -53,8 +59,11 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
         Data $shipperDataHelper,
         CarrierGroup $carrierGroupHelper,
         \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository,
-        \Magento\Checkout\Model\Session $checkoutSession
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \ShipperHQ\Shipper\Model\ResourceModel\Order\Packages $orderPackageResource
     ) {
+        $this->orderPackageResource = $orderPackageResource;
+
         parent::__construct($context);
         $this->orderPackageFactory = $orderPackageFactory;
         $this->shipperDataHelper = $shipperDataHelper;
@@ -177,7 +186,7 @@ class Package extends \Magento\Framework\App\Helper\AbstractHelper
                                 ->setDeclaredValue($box['declared_value'])
                                 ->setSurchargePrice($box['surcharge_price'])
                                 ->setItems($box['items']);
-                            $package->save();
+                            $this->orderPackageResource->save($package);
                         }
 
                         if (!empty($packagesColl) && $savePackagesAsOrderComment) {

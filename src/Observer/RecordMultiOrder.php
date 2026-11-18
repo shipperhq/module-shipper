@@ -44,6 +44,11 @@ class RecordMultiOrder extends AbstractRecordOrder implements ObserverInterface
     private $checkoutSession;
 
     /**
+     * @var \Magento\Sales\Model\ResourceModel\Order
+     */
+    private $orderResource;
+
+    /**
      * @param OrderFactory            $orderFactory
      * @param Data                    $shipperDataHelper
      * @param CartRepositoryInterface $quoteRepository
@@ -56,6 +61,7 @@ class RecordMultiOrder extends AbstractRecordOrder implements ObserverInterface
      * @param PostOrder               $postOrderHelper
      * @param Module                  $moduleHelper
      * @param Authorization           $authHelper
+     * @param \Magento\Sales\Model\ResourceModel\Order $orderResource
      */
     public function __construct(
         OrderFactory $orderFactory,
@@ -69,8 +75,11 @@ class RecordMultiOrder extends AbstractRecordOrder implements ObserverInterface
         ListingHelper $listingHelper,
         PostOrder $postOrderHelper,
         Module $moduleHelper,
-        Authorization $authHelper
+        Authorization $authHelper,
+        \Magento\Sales\Model\ResourceModel\Order $orderResource
     ) {
+        $this->orderResource = $orderResource;
+
         $this->orderFactory = $orderFactory;
         $this->checkoutSession = $checkoutSession;
         parent::__construct(
@@ -101,7 +110,8 @@ class RecordMultiOrder extends AbstractRecordOrder implements ObserverInterface
                 return;
             }
             foreach ($orderIds as $orderId) {
-                $order = $this->orderFactory->create()->load($orderId);
+                $order = $this->orderFactory->create();
+                $this->orderResource->load($order, $orderId);
                 if ($order->getIncrementId()) {
                     $this->recordOrder($order);
                 }

@@ -76,6 +76,21 @@ class CarrierGroup extends Data
     ];
 
     /**
+     * @var \ShipperHQ\Shipper\Model\ResourceModel\Order\Detail
+     */
+    private $orderDetailResource;
+
+    /**
+     * @var \ShipperHQ\Shipper\Model\ResourceModel\Order\GridDetail
+     */
+    private $orderGridDetailResource;
+
+    /**
+     * @var \ShipperHQ\Shipper\Model\ResourceModel\Order\ItemDetail
+     */
+    private $orderItemDetailResource;
+
+    /**
      * @param AddressDetailFactory $addressDetailFactory
      * @param ItemDetailFactory $itemDetailFactory
      * @param DetailFactory $orderDetailFactory
@@ -85,6 +100,9 @@ class CarrierGroup extends Data
      * @param CartRepositoryInterface $quoteRepository
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
      * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+     * @param \ShipperHQ\Shipper\Model\ResourceModel\Order\Detail $orderDetailResource
+     * @param \ShipperHQ\Shipper\Model\ResourceModel\Order\GridDetail $orderGridDetailResource
+     * @param \ShipperHQ\Shipper\Model\ResourceModel\Order\ItemDetail $orderItemDetailResource
      */
     public function __construct(
         AddressDetailFactory $addressDetailFactory,
@@ -95,8 +113,15 @@ class CarrierGroup extends Data
         Data $shipperDataHelper,
         CartRepositoryInterface $quoteRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository,
+        \ShipperHQ\Shipper\Model\ResourceModel\Order\Detail $orderDetailResource,
+        \ShipperHQ\Shipper\Model\ResourceModel\Order\GridDetail $orderGridDetailResource,
+        \ShipperHQ\Shipper\Model\ResourceModel\Order\ItemDetail $orderItemDetailResource
     ) {
+        $this->orderDetailResource = $orderDetailResource;
+        $this->orderGridDetailResource = $orderGridDetailResource;
+        $this->orderItemDetailResource = $orderItemDetailResource;
+
         $this->addressDetailFactory = $addressDetailFactory;
         $this->itemDetailFactory = $itemDetailFactory;
         $this->orderDetailFactory = $orderDetailFactory;
@@ -317,7 +342,7 @@ class CarrierGroup extends Data
             unset($data['id']);
             $data['order_id'] = $orderId;
             $orderDetailModel->setData($data);
-            $orderDetailModel->save();
+            $this->orderDetailResource->save($orderDetailModel);
         }
         $this->saveOrderGridDetail($quoteAddressCollection, $orderId);
     }
@@ -355,8 +380,8 @@ class CarrierGroup extends Data
         unset($data['quote_address_id']);
         unset($data['id']);
         $data['order_id'] = $orderId;
-        $orderGridDetailModel->setData($data)
-            ->save();
+        $orderGridDetailModel->setData($data);
+        $this->orderGridDetailResource->save($orderGridDetailModel);
     }
 
     public function loadOrderItemDetailByOrderItemId($orderItemId)
@@ -378,8 +403,8 @@ class CarrierGroup extends Data
                 $data['order_item_id'] = $orderItem->getId();
                 unset($data['quote_item_id']);
                 unset($data['id']);
-                $orderItemDetail->setData($data)
-                    ->save();
+                $orderItemDetail->setData($data);
+                $this->orderItemDetailResource->save($orderItemDetail);
             }
         }
     }

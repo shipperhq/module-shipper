@@ -37,13 +37,22 @@ class AddDestinationTypeAttributeToForm implements DataPatchInterface
     ];
 
     /**
+     * @var \Magento\Customer\Model\ResourceModel\Attribute
+     */
+    private $attributeResource;
+
+    /**
      * @param ModuleDataSetupInterface $moduleDataSetup
      * @param CustomerSetupFactory     $customerSetupFactory
+     * @param \Magento\Customer\Model\ResourceModel\Attribute $attributeResource
      */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,
-        CustomerSetupFactory $customerSetupFactory
+        CustomerSetupFactory $customerSetupFactory,
+        \Magento\Customer\Model\ResourceModel\Attribute $attributeResource
     ) {
+        $this->attributeResource = $attributeResource;
+
         $this->moduleDataSetup = $moduleDataSetup;
         $this->customerSetupFactory = $customerSetupFactory;
     }
@@ -75,7 +84,7 @@ class AddDestinationTypeAttributeToForm implements DataPatchInterface
             $attribute->setData('used_in_forms', [
                 'adminhtml_customer_address',
             ]);
-            $attribute->save();
+            $this->attributeResource->save($attribute);
         }
     }
 

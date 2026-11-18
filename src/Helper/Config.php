@@ -138,7 +138,7 @@ class Config extends AbstractConfig implements ConfigInterface
      */
     public function writeToConfig($path, $value, $scope = null, $scopeId = null)
     {
-        $currentValue = $this->getConfigValue(...array_filter([$path, $scope, $scopeId]));
+        $currentValue = $this->getConfigValue($path, $scope, $scopeId);
         if ($value === $currentValue) {
             return;
         }

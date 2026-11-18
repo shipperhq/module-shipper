@@ -63,5 +63,6 @@ class CleanOrderGridTable implements SchemaPatchInterface
             $connection->delete($shqOrderGridTable, $condition);
         }
         $this->schemaSetup->endSetup();
+        return $this;
     }
 }

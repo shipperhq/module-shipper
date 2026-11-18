@@ -189,6 +189,16 @@ class ShipperMapper
     private $storeManager;
 
     /**
+     * @var \Magento\Catalog\Model\ResourceModel\Product
+     */
+    private $productResource;
+
+    /**
+     * @var \Magento\Customer\Model\ResourceModel\Group
+     */
+    private $groupResource;
+
+    /**
      * ShipperMapper constructor.
      *
      * @param \ShipperHQ\Shipper\Helper\Data                 $shipperDataHelper
@@ -212,6 +222,8 @@ class ShipperMapper
      * @param StockDetailFactory            $stockDetailFactory
      * @param Data                       $taxHelper
      * @param Header                 $httpHeader
+     * @param \Magento\Catalog\Model\ResourceModel\Product $productResource
+     * @param \Magento\Customer\Model\ResourceModel\Group $groupResource
      */
     public function __construct(
         \ShipperHQ\Shipper\Helper\Data $shipperDataHelper,
@@ -234,8 +246,13 @@ class ShipperMapper
         PhysicalBuildingDetailFactory $physicalBuildingDetailFactory,
         StockDetailFactory $stockDetailFactory,
         Data $taxHelper,
-        Header $httpHeader
+        Header $httpHeader,
+        \Magento\Catalog\Model\ResourceModel\Product $productResource,
+        \Magento\Customer\Model\ResourceModel\Group $groupResource
     ) {
+        $this->productResource = $productResource;
+        $this->groupResource = $groupResource;
+
         $this->shipperDataHelper = $shipperDataHelper;
         $this->groupFactory = $groupFactory;
         $this->productMetadata = $productMetadata;
@@ -499,7 +516,7 @@ class ShipperMapper
         $itemOrigins = explode(',', (string)$itemOriginsString);
         if (is_array($itemOrigins)) {
             $product = $item->getProduct();
-            $attribute = $product->getResource()->getAttribute(self::$origin);
+            $attribute = $this->productResource->getAttribute(self::$origin);
             $valueString = [];
             if ($attribute) {
                 foreach ($itemOrigins as $aValue) {
@@ -548,7 +565,7 @@ class ShipperMapper
         $itemLocations = explode(',', $itemLocationsString);
         if (is_array($itemLocations)) {
             $product = $item->getProduct();
-            $attribute = $product->getResource()->getAttribute(self::$location);
+            $attribute = $this->productResource->getAttribute(self::$location);
             $valueString = [];
             if ($attribute) {
                 foreach ($itemLocations as $aValue) {
@@ -593,7 +610,7 @@ class ShipperMapper
             $reqdAttributeNames = array_diff($reqdAttributeNames, self::$conditional_dims);
         }
         foreach ($reqdAttributeNames as $attributeName) {
-            $attribute = $product->getResource()->getAttribute($attributeName);
+            $attribute = $this->productResource->getAttribute($attributeName);
             if ($attribute) {
                 $attributeType = $attribute->getFrontendInput();
             } else {
@@ -755,7 +772,8 @@ class ShipperMapper
     public function getCustomerGroupDetails($request)
     {
         $code = $this->getCustomerGroupId($request->getAllItems());
-        $group = $this->groupFactory->create()->load($code);
+        $group = $this->groupFactory->create();
+        $this->groupResource->load($group, $code);
 
         return $this->customerDetailsFactory->create(
             ['customerGroup' => $group->getCustomerGroupCode()]

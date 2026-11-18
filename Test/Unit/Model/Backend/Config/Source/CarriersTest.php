@@ -14,14 +14,14 @@ declare(strict_types=1);
 
 namespace ShipperHQ\Shipper\Test\Unit\Model\Backend\Config\Source;
 
-use Fooman\PhpunitBridge\BaseUnitTestCase;
+use PHPUnit\Framework\TestCase;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Magento\Shipping\Model\Config;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-class CarriersTest extends BaseUnitTestCase
+class CarriersTest extends TestCase
 {
 
     protected $scopeConfig;
@@ -37,19 +37,16 @@ class CarriersTest extends BaseUnitTestCase
      */
     protected function setUp(): void
     {
-        $this->scopeConfig = $this->getMockForAbstractClass(ScopeConfigInterface::class);
+        $this->scopeConfig = $this->createMock(ScopeConfigInterface::class);
         $this->shippingConfig = $this->createMock(Config::class);
-        $this->storeManager = $this->getMockForAbstractClass(StoreManagerInterface::class);
+        $this->storeManager = $this->createMock(StoreManagerInterface::class);
     }
 
     public function testToOptionArray()
     {
-        $store = $this->getMockBuilder(StoreInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $store = $this->createMock(StoreInterface::class);
 
         $this->storeManager->method('getStore')
-            ->with()
             ->willReturn($store);
 
         $expectedArray = ['shipper' => ""];

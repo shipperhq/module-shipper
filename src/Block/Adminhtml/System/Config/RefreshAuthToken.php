@@ -36,16 +36,20 @@ class RefreshAuthToken extends \Magento\Config\Block\System\Config\Form\Field
     }
 
     /**
-     * Set template to itself
-     * @return RefreshAuthToken
+     * @param \Magento\Backend\Block\Template\Context $context
+     * @param array $data
+     * @param \Magento\Framework\View\Helper\SecureHtmlRenderer|null $secureRenderer
      */
-    protected function _prepareLayout()
-    {
-        parent::_prepareLayout();
-        if (!$this->getTemplate()) {
-            $this->setTemplate('ShipperHQ_Shipper::system/config/refreshAuthToken.phtml');
-        }
-        return $this;
+    public function __construct(
+        \Magento\Backend\Block\Template\Context $context,
+        array $data = [],
+        ?\Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer = null
+    ) {
+        parent::__construct($context, array_merge($data, [
+            'template' => !empty($data['template'])
+                ? $data['template']
+                : 'ShipperHQ_Shipper::system/config/refreshAuthToken.phtml'
+        ]), $secureRenderer);
     }
     /**
      * Unset some non-related element parameters

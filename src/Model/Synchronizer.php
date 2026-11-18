@@ -160,7 +160,7 @@ class Synchronizer extends AbstractModel
         $result = [];
         if ($latestAttributes && array_key_exists('error', $latestAttributes)) {
             $result['error'] = $latestAttributes['error'];
-        } elseif ($latestAttributes && !empty($latestAttributes)) {
+        } elseif ($latestAttributes) {
             $updateData = $this->compareAttributeData($latestAttributes);
             $result['result'] = $this->saveSynchData($updateData);
         } else {
@@ -576,7 +576,7 @@ class Synchronizer extends AbstractModel
         $result = [];
         if ($latestAttributes && array_key_exists('error', $latestAttributes)) {
             $result['error'] = $latestAttributes['error'];
-        } elseif ($latestAttributes && !empty($latestAttributes)) {
+        } elseif ($latestAttributes) {
             $updateData = $this->compareAttributeData($latestAttributes);
             $updateResult = $this->updateAll($updateData);
             $result['result'] = $updateResult;

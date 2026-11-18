@@ -136,6 +136,7 @@ abstract class AbstractRecordOrder implements ObserverInterface
         // Merged from pull request https://github.com/shipperhq/module-shipper/pull/20 - credit to vkalchenko
         $quote = $this->quoteRepository->get($quoteId, [$order->getStoreId()]);
 
+        $shippingAddress = null;
         // SHQ18-1947 Need to find correct address to lookup carriergroup details and packed boxes when MAC
         if ($quote->getIsMultiShipping()) {
 
@@ -154,6 +155,10 @@ abstract class AbstractRecordOrder implements ObserverInterface
             }
         } else {
             $shippingAddress = $quote->getShippingAddress();
+        }
+
+        if (!$shippingAddress) {
+            return;
         }
 
         // MNB-2230 Remove the "original" shipping address which we save when store pickup is used. No need to store it

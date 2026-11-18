@@ -94,6 +94,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $dirCurrencyFactory;
 
     /**
+     * @var \Magento\Directory\Model\ResourceModel\Currency
+     */
+    private $currencyResource;
+
+    /**
+     * @var \Magento\Catalog\Model\ResourceModel\Product
+     */
+    private $productResource;
+
+    /**
      * @var \Magento\Checkout\Helper\Data
      */
     private $checkoutHelper;
@@ -108,8 +118,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\Checkout\Model\Session $checkoutSession,
         StoreManagerInterface $storeManager,
-        \Magento\Checkout\Helper\Data $checkoutHelper
+        \Magento\Checkout\Helper\Data $checkoutHelper,
+        \Magento\Directory\Model\ResourceModel\Currency $currencyResource,
+        \Magento\Catalog\Model\ResourceModel\Product $productResource
     ) {
+        $this->currencyResource = $currencyResource;
+        $this->productResource = $productResource;
+
         parent::__construct($context);
         $this->eavConfig = $eavConfig;
         $this->registry = $registry;
@@ -211,9 +226,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         $baseCurrencyCode = $this->storeManager->getStore()->getBaseCurrencyCode();
         if (!$this->baseCurrencyRate) {
-            $this->baseCurrencyRate = $currencyModel
-                ->load($code)
-                ->getAnyRate($baseCurrencyCode);
+            $this->baseCurrencyRate = $this->currencyResource->getAnyRate($code, $baseCurrencyCode);
         }
 
         return $this->baseCurrencyRate > 0 ? $this->baseCurrencyRate : false;
@@ -520,8 +533,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getAttribute($attribute_code, $store = null)
     {
-        $product = $this->productFactory->create();
-        $attribute = $product->getResource()->getAttribute($attribute_code);
+        $attribute = $this->productResource->getAttribute($attribute_code);
         if ($store === null || $store == '') {
             $store = Store::DEFAULT_STORE_ID;
         }

@@ -93,7 +93,7 @@ class ListingMapper
      * @param $shippingCost
      * @param \ShipperHQ\Shipper\Model\Api\CreateListing\Item[] $withItems
      * @param false|\ShipperHQ\Shipper\Api\FetchUpdatedCarrierRate\RateInterface $rate
-     * @return ListingInfo
+     * @return ListingInfo|null
      * @throws \ShipperHQ\GraphQL\Exception\SerializerException
      */
     public function mapCreateListingRequest(Order $order, $shippingAddress, $carrierType, $originName, $shippingCost, $withItems = [], $rate = false)
@@ -106,6 +106,7 @@ class ListingMapper
             $shippingCost = $rate->getNypAmount() ? $rate->getNypAmount() : $rate->getPrice();
         }
 
+        $listingInfo = null;
         try {
 
             $carrier = $this->mapCarrier($shippingMethod, $carrierType);
